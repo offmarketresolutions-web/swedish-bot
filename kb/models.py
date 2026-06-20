@@ -5,6 +5,7 @@ is pure data entry in the admin — it changes agent behaviour with no redeploy.
 """
 from __future__ import annotations
 
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 
 from core.enums import AGENT_ROLE_CHOICES, DOC_KIND_CHOICES, LANG_CHOICES
@@ -56,6 +57,12 @@ class Machine(models.Model):
     class Meta:
         unique_together = [("vendor", "model_name")]
         ordering = ["vendor__name", "model_name"]
+        # trigram index created in migration 0002 (after the pg_trgm extension);
+        # declared here so model state matches migration state.
+        indexes = [
+            GinIndex(name="kb_machine_search_trgm", fields=["search_text"],
+                     opclasses=["gin_trgm_ops"]),
+        ]
 
     def save(self, *args, **kwargs):
         parts = [self.model_name, self.vendor.name if self.vendor_id else ""]
