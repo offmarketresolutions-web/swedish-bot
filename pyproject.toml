@@ -33,3 +33,6 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py", "tests.py"]
+markers = [
+    "live: hits the real Vertex Gemini API (opt-in: pytest -m live)",
+]
