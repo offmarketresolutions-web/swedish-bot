@@ -65,9 +65,12 @@ def machine_pdf_context(machine, locale: str = "en"):
     cached = django_cache.get(key)
     if cached:
         return cached, []
-    name = gemini.create_cache(
-        model=MODELS["flash"], contents=parts, ttl_seconds=_CACHE_TTL,
-        display_name=f"machine-{machine.pk}",
-    )
+    try:
+        name = gemini.create_cache(
+            model=MODELS["flash"], contents=parts, ttl_seconds=_CACHE_TTL,
+            display_name=f"machine-{machine.pk}",
+        )
+    except Exception:  # noqa: BLE001 — caching unavailable / docset under provider floor
+        return None, parts  # fall back to inline; never block an answer on caching
     django_cache.set(key, name, _CACHE_TTL - 60)
     return name, []

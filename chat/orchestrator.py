@@ -34,10 +34,20 @@ _FENCE = re.compile(r"^```(?:json)?|```$", re.MULTILINE)
 
 
 def _parse_json(text: str) -> dict:
+    raw = _FENCE.sub("", text or "").strip()
     try:
-        return json.loads(_FENCE.sub("", text or "").strip())
+        return json.loads(raw)
     except Exception:  # noqa: BLE001
-        return {}
+        pass
+    # Salvage: parse the outermost {...} block (handles prose/fenced wrapping that
+    # slips through when response_mime_type is weakened by cached_content).
+    i, j = raw.find("{"), raw.rfind("}")
+    if 0 <= i < j:
+        try:
+            return json.loads(raw[i:j + 1])
+        except Exception:  # noqa: BLE001
+            return {}
+    return {}
 
 
 # ── public API ────────────────────────────────────────────────────────
@@ -195,9 +205,17 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
         serial=cs["slots"].get("serial") or "", forced_wrapup=str(forced).lower(),
     )
     turn = f"Customer problem: {cs['slots'].get('problem','')}. Error code: {cs['slots'].get('error_code') or 'none'}."
-    contents = [turn] + inline
-    resp = gemini.generate(contents, model=prompts.model_for("specialist"), system_instruction=system,
-                           cached_content=cached, response_mime_type="application/json", max_output_tokens=700)
+    if cached:
+        # Vertex forbids system_instruction alongside cached_content — inline the
+        # (small, editable) instruction as a content part; only the PDFs are cached
+        # (keeps prompt/notes edits effective immediately; resolves crit 0.4).
+        resp = gemini.generate([system, turn], model=prompts.model_for("specialist"),
+                               cached_content=cached, response_mime_type="application/json",
+                               max_output_tokens=700)
+    else:
+        resp = gemini.generate([turn] + inline, model=prompts.model_for("specialist"),
+                               system_instruction=system, response_mime_type="application/json",
+                               max_output_tokens=700)
     data = _parse_json(resp.text)
 
     answer = data.get("answer_to_customer", "") or ""
@@ -216,8 +234,8 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
         cs["state"] = STATE_ESCALATE
         cs["decision"] = "escalate"
         cs["report"]["service_recommended"] = True
-        cs["escalation_reason"] = reason or ("low_confidence" if conf < CONFIDENCE_GATE
-                                             else ("budget" if forced else "decision"))
+        cs["escalation_reason"] = (reason if unsafe else "") or (
+            "low_confidence" if conf < CONFIDENCE_GATE else ("budget" if forced else "decision"))
         events.append({"type": "escalate", "reason": cs["escalation_reason"]})
         prefix = (answer + "\n\n") if (answer and not unsafe) else ""
         return _begin_escalation(cs, locale, prefix)

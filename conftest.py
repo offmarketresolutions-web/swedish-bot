@@ -61,8 +61,9 @@ class FakeGemini:
         return "OK"
 
     def generate(self, contents, *, model, system_instruction=None, **kw):
-        role = _classify(system_instruction or "")
-        self.calls.append({"role": role, "model": model, "contents": contents})
+        # classify by system prompt OR inlined instruction in contents (cached path)
+        role = _classify((system_instruction or "") + " " + str(contents)[:4000])
+        self.calls.append({"role": role, "model": model, "contents": contents, "kw": kw})
         resp = self.responses.get(role)
         if resp is None:
             resp = self._default(role, contents)

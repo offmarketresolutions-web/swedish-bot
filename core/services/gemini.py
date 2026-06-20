@@ -167,10 +167,16 @@ def generate(
     max_output_tokens: int = 1024,
     temperature: float = 0.4,
     response_mime_type: Optional[str] = None,
+    thinking_budget: Optional[int] = 0,
     api_key: Optional[str] = None,
 ) -> GeminiResponse:
     """Single-turn generation. `contents` may be a string or a list of parts
-    (text + uploaded files for the full-PDF-in-context path)."""
+    (text + uploaded files for the full-PDF-in-context path).
+
+    thinking_budget defaults to 0: Gemini 2.5 'thinking' otherwise consumes the
+    output-token budget before the visible answer and truncates structured JSON
+    (found via the live demo). Our accuracy comes from the manual in context, not
+    from extended model reasoning, so we disable it. Pass a budget to re-enable."""
     client, mode = make_client(api_key)
     cfg: dict[str, Any] = {"max_output_tokens": max_output_tokens, "temperature": temperature}
     if system_instruction:
@@ -179,6 +185,8 @@ def generate(
         cfg["cached_content"] = cached_content
     if response_mime_type:
         cfg["response_mime_type"] = response_mime_type
+    if thinking_budget is not None:
+        cfg["thinking_config"] = {"thinking_budget": thinking_budget}
 
     resp = client.models.generate_content(model=model, contents=contents, config=cfg)
     text = (getattr(resp, "text", None) or "").strip()
