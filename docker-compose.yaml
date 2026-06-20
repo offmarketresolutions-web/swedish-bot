@@ -5,6 +5,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-nordland}
       POSTGRES_USER: ${POSTGRES_USER:-nordland}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nordland}
+    ports:
+      - "5432:5432"  # exposed for host-side manage.py during local dev
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
