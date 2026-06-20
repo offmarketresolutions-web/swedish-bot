@@ -3,28 +3,30 @@
 Every layer (agent router, cache builder, cost accounting) reads ids + prices
 from HERE — a model rename or price change is a one-line edit.
 
-⚠️  PHASE 0: the ids and per-1K prices below are the best-known June-2026 values
-from public sources and are NOT yet verified against the live Vertex catalog.
-The Phase 0 spike (tools/spike_gemini.py) must confirm each id is callable and
-each price is correct, then update this file. Do not trust these numbers for
-billing until that spike has run.
+PHASE 0 STATUS (verified 2026-06 against the reused django_base Vertex project,
+us-central1): the 3.x ids (gemini-3.5-flash, gemini-3.1-pro, gemini-flash-lite-*)
+all 404 on that project — only the 2.5 family is available there, so we run the
+demo on 2.5. `gemini-2.5-flash` and `gemini-2.5-flash-lite` confirmed callable.
+When the client provisions their own europe-north1 project, re-run the spike and
+update MODELS here if 3.x is available — every layer reads ids from this dict.
+Prices below are best-known GA values; confirm against live billing before relying
+on the $ figures (token COUNTS from the spike are exact; cost = counts × rate).
 """
 from __future__ import annotations
 
 # Logical role -> concrete model id. AgentPrompt.model_id in the DB overrides
 # these per-agent (plan §7 canonical data model); this dict only seeds defaults.
 MODELS = {
-    "flash": "gemini-3.5-flash",        # workhorse: 1M ctx, multimodal
-    "flash_lite": "gemini-flash-lite-latest",  # intake/extraction/router/safety
-    "pro": "gemini-3.1-pro",            # reserved: v2 QA / hard cases (2M ctx)
+    "flash": "gemini-2.5-flash",        # workhorse: 1M ctx, multimodal (verified)
+    "flash_lite": "gemini-2.5-flash-lite",  # intake/extraction/router/safety (verified)
+    "pro": "gemini-2.5-pro",            # reserved: v2 QA / hard cases
 }
 
 # Per-1,000-token prices in USD: (input, output, cached_input).
-# Cached input ≈ 10% of input (Gemini context caching, plan §1/§12).
 PRICING_PER_1K = {
-    "gemini-3.5-flash": (0.0015, 0.009, 0.00015),
-    "gemini-3.1-pro": (0.002, 0.012, 0.0002),
-    "gemini-flash-lite-latest": (0.0001, 0.0004, 0.00001),
+    "gemini-2.5-flash": (0.0003, 0.0025, 0.000075),
+    "gemini-2.5-flash-lite": (0.0001, 0.0004, 0.000025),
+    "gemini-2.5-pro": (0.00125, 0.010, 0.0003125),
 }
 
 # Below this many tokens, skip context caching and inline the PDF (plan §8 —
@@ -55,11 +57,14 @@ def cost_usd(
     completion_tokens: int = 0,
     cached_tokens: int = 0,
 ) -> float:
-    """Compute cost. `cached_tokens` are billed at the cached rate and are assumed
-    to be a subset already excluded from `prompt_tokens` by the SDK usage metadata."""
+    """Compute cost. Gemini's usage_metadata reports `prompt_token_count` as the
+    TOTAL input (cache hits included) and `cached_content_token_count` as the
+    cached subset. Billing: cached tokens at the cached rate, the remaining input
+    at the full input rate (verified in the Phase 0 spike — do NOT double-count)."""
     rate_in, rate_out, rate_cached = price_per_1k(model_id)
+    billable_input = max(prompt_tokens - cached_tokens, 0)
     return (
-        (prompt_tokens / 1000.0) * rate_in
-        + (completion_tokens / 1000.0) * rate_out
+        (billable_input / 1000.0) * rate_in
         + (cached_tokens / 1000.0) * rate_cached
+        + (completion_tokens / 1000.0) * rate_out
     )

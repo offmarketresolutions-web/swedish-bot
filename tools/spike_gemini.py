@@ -62,29 +62,46 @@ def main() -> int:
         print(f"\nNo PDF given — generated synthetic manual: {doc_path} "
               f"({Path(doc_path).stat().st_size // 1024} KB)")
 
-    flash = constants.MODELS["flash"]
-    flash_lite = constants.MODELS["flash_lite"]
+    # --- discover the correct flash + flash-lite ids on this Vertex project ---
+    flash_candidates = [constants.MODELS["flash"], "gemini-2.5-flash"]
+    lite_candidates = [
+        constants.MODELS["flash_lite"], "gemini-2.5-flash-lite",
+        "gemini-flash-lite", "gemini-2.0-flash-lite",
+    ]
+    print("\n[1] model id probe (find what's callable on this project/region)")
+    flash = None
+    for mid in flash_candidates:
+        try:
+            r = gemini.generate("Reply with the single word: OK", model=mid, max_output_tokens=8)
+            print(f"    flash  PASS  id={mid!r} text={r.text!r} in={r.prompt_tokens} "
+                  f"out={r.completion_tokens} mode={r.auth_mode}")
+            flash = mid
+            break
+        except Exception as e:  # noqa: BLE001
+            print(f"    flash  fail  id={mid!r}: {type(e).__name__}: {str(e)[:120]}")
+    for mid in lite_candidates:
+        try:
+            r = gemini.generate("Reply with the single word: OK", model=mid, max_output_tokens=8)
+            print(f"    lite   PASS  id={mid!r} text={r.text!r} in={r.prompt_tokens} out={r.completion_tokens}")
+            break
+        except Exception as e:  # noqa: BLE001
+            print(f"    lite   fail  id={mid!r}: {type(e).__name__}: {str(e)[:120]}")
 
-    # --- confirm flash-lite id is callable (cheap classify path) ---
-    print(f"\n[1] flash-lite id check: {flash_lite}")
-    try:
-        r = gemini.generate("Reply with the single word: OK", model=flash_lite, max_output_tokens=8)
-        print(f"    PASS  text={r.text!r}  in={r.prompt_tokens} out={r.completion_tokens} "
-              f"cost=${r.cost_usd:.6f}  mode={r.auth_mode}")
-    except Exception as e:  # noqa: BLE001
-        print(f"    FAIL  {type(e).__name__}: {e}")
+    if not flash:
+        print("\nABORT: no working flash id found.")
+        return 2
 
-    # --- upload + cache the manual, run 2 turns on flash ---
-    print(f"\n[2] Files API upload + context cache on: {flash}")
+    # --- inline the manual + context cache, run 2 turns on flash ---
+    print(f"\n[2] inline Part + Vertex context cache on: {flash}")
     try:
-        handle = gemini.upload_file(doc_path, mime_type=mime)
-        print(f"    uploaded: {getattr(handle, 'name', handle)}")
+        part = gemini.file_part(doc_path, mime_type=mime)
+        print(f"    inline part built ({Path(doc_path).stat().st_size // 1024} KB)")
         cache_name = gemini.create_cache(
-            model=flash, contents=[handle], ttl_seconds=600, display_name="spike-manual"
+            model=flash, contents=[part], ttl_seconds=600, display_name="spike-manual"
         )
         print(f"    cache: {cache_name}")
     except Exception as e:  # noqa: BLE001
-        print(f"    FAIL (upload/cache): {type(e).__name__}: {e}")
+        print(f"    FAIL (cache): {type(e).__name__}: {e}")
         return 2
 
     q1 = "From the manual, what does alarm code E11 mean and what is the first safe check?"

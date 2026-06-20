@@ -11,14 +11,78 @@ else GEMINI_API_KEY -> consumer API (dev only); else error.
 """
 from __future__ import annotations
 
+import datetime as _dt
 import logging
 import os
+import time as _time
 from dataclasses import dataclass, field
 from typing import Any, Optional, Tuple
 
 from core import constants
 
 logger = logging.getLogger(__name__)
+
+
+# ── Clock-drift immunity for Vertex SA JWT auth ───────────────────────
+# google-auth signs the SA JWT with iat/exp from the system wall clock; if that
+# clock is off by more than Google's tolerance the token endpoint rejects it
+# (`invalid_grant: Invalid JWT ... iat/exp`). Windows/Docker clocks drift and
+# FLAP, so we anchor real UTC to time.monotonic() (immune to wall-clock jumps)
+# via ONE network Date-header reading, and patch google.auth's time source.
+# Ported from django_base/apps/automation/ingestion/gemini_client.py.
+_anchor_real_utc: Optional[_dt.datetime] = None
+_anchor_monotonic: float = 0.0
+_ANCHOR_TTL = 600.0
+
+
+def _measure_real_utc(timeout: float = 5.0) -> Optional[_dt.datetime]:
+    import email.utils
+    import urllib.request
+
+    for url in ("https://oauth2.googleapis.com/", "https://www.google.com/"):
+        try:
+            req = urllib.request.Request(url, method="HEAD")
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                date_hdr = r.headers.get("Date")
+            if date_hdr:
+                real = email.utils.parsedate_to_datetime(date_hdr)
+                return real.astimezone(_dt.timezone.utc).replace(tzinfo=None)
+        except Exception:  # noqa: BLE001
+            continue
+    return None
+
+
+def _corrected_utcnow() -> _dt.datetime:
+    if _anchor_real_utc is None:
+        return _dt.datetime.utcnow()
+    return _anchor_real_utc + _dt.timedelta(seconds=_time.monotonic() - _anchor_monotonic)
+
+
+def ensure_clock_correction(force: bool = False) -> None:
+    """Anchor real UTC to the monotonic clock and patch google-auth's time source
+    so JWT iat/exp are real-UTC, immune to wall-clock drift. Cheap; safe to call
+    before every Vertex client build."""
+    global _anchor_real_utc, _anchor_monotonic
+    now_mono = _time.monotonic()
+    if force or _anchor_real_utc is None or (now_mono - _anchor_monotonic) > _ANCHOR_TTL:
+        real = _measure_real_utc()
+        if real is not None:
+            _anchor_real_utc = real
+            _anchor_monotonic = _time.monotonic()
+            drift = (real - _dt.datetime.utcnow()).total_seconds()
+            if abs(drift) > 30:
+                logger.warning(
+                    "Gemini auth: system clock off by %.0fs from real UTC — "
+                    "signing JWTs from monotonic-anchored real UTC instead.", drift
+                )
+    try:
+        import google.auth._helpers as _h
+
+        if not getattr(_h, "_clock_patched", False):
+            _h.utcnow = _corrected_utcnow
+            _h._clock_patched = True
+    except Exception:  # noqa: BLE001
+        logger.debug("Gemini auth: could not patch google.auth._helpers.utcnow", exc_info=True)
 
 
 @dataclass
@@ -63,6 +127,7 @@ def make_client(api_key: Optional[str] = None):
         )
     if project:
         logger.info("Gemini: Vertex mode (project=%s location=%s)", project, location)
+        ensure_clock_correction()  # make SA JWT signing immune to wall-clock drift
         try:
             return genai.Client(vertexai=True, project=project, location=location), "vertex"
         except Exception as e:  # noqa: BLE001
@@ -146,11 +211,25 @@ def generate_stream(contents, *, model: str, system_instruction=None, cached_con
         yield chunk
 
 
-def upload_file(path: str, *, mime_type: Optional[str] = None, api_key=None):
-    """Upload a file (PDF/image) via the Files API; returns the file handle to put
-    into `contents`. Used for full-manual-in-context (plan §8)."""
-    client, _ = make_client(api_key)
-    return client.files.upload(file=path, config={"mime_type": mime_type} if mime_type else None)
+def _guess_mime(path: str) -> str:
+    ext = os.path.splitext(path)[1].lower()
+    return {
+        ".pdf": "application/pdf", ".txt": "text/plain",
+        ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+    }.get(ext, "application/octet-stream")
+
+
+def file_part(path: str, *, mime_type: Optional[str] = None):
+    """Return an inline Part for a PDF/image to put into `contents` or a cache.
+
+    Vertex AI does NOT support the Files API (`files.upload` is Developer-API
+    only — confirmed in the Phase 0 spike), so we inline the bytes. For very
+    large manuals on Vertex, switch to a GCS URI via Part.from_uri(gs://...)."""
+    from google.genai import types
+
+    with open(path, "rb") as fh:
+        data = fh.read()
+    return types.Part.from_bytes(data=data, mime_type=mime_type or _guess_mime(path))
 
 
 def create_cache(*, model: str, contents, system_instruction=None, ttl_seconds: int = 3600,
