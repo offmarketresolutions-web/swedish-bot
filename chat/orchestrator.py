@@ -99,7 +99,9 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
             return _specialist_step(conversation, cs, events, locale)
         elif st == STATE_UNSUPPORTED:
             return _unsupported_step(conversation, cs, events, locale)
-        else:  # ESCALATE / RESOLVED
+        elif st == STATE_ESCALATE:
+            return _escalate_step(conversation, cs, user_text, locale)
+        else:  # RESOLVED
             return _terminal_step(cs, locale)
     return {"message": _handoff_line(locale), "chips": _escalation_chips()}
 
@@ -213,11 +215,11 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
         cs["state"] = STATE_ESCALATE
         cs["decision"] = "escalate"
         cs["report"]["service_recommended"] = True
-        why = reason or ("low_confidence" if conf < CONFIDENCE_GATE else ("budget" if forced else "decision"))
-        events.append({"type": "escalate", "reason": why})
-        msg = (answer + "\n\n" if answer and not unsafe else "")
-        return {"message": msg + _handoff_line(locale), "chips": _escalation_chips(),
-                "decision": "escalate", "model": prompts.model_for("specialist")}
+        cs["escalation_reason"] = reason or ("low_confidence" if conf < CONFIDENCE_GATE
+                                             else ("budget" if forced else "decision"))
+        events.append({"type": "escalate", "reason": cs["escalation_reason"]})
+        prefix = (answer + "\n\n") if (answer and not unsafe) else ""
+        return _begin_escalation(cs, locale, prefix)
 
     cs["report"]["resolved"] = data.get("report", {}).get("resolved", True)
     return {"message": answer, "chips": [], "decision": "solve",
@@ -240,13 +242,102 @@ def _unsupported_step(conversation, cs, events, locale) -> dict:
     cs["decision"] = "escalate"
     cs["severity"] = data.get("severity") or cs.get("severity") or "normal"
     cs["report"]["service_recommended"] = True
-    answer = data.get("answer_to_customer") or _handoff_line(locale)
+    cs["escalation_reason"] = "unsupported"
+    answer = data.get("answer_to_customer") or ""
     events.append({"type": "escalate", "reason": "unsupported"})
-    return {"message": answer, "chips": _escalation_chips(), "decision": "escalate"}
+    return _begin_escalation(cs, locale, (answer + "\n\n") if answer else "")
+
+
+# ── escalation: lazy contact collection → approval → lead dispatch (Phase 6) ──
+
+CONTACT_Q = {
+    "name": "What's your name?",
+    "phone": "What's the best phone number to reach you?",
+    "email": "And your email? (type 'skip' if you'd rather not share it.)",
+    "postal_code": "Finally, what's your postal code or address so we can route a technician?",
+}
+
+
+def _begin_escalation(cs, locale, prefix: str = "") -> dict:
+    cs["contact_slot"] = "name"
+    lead_in = ("I'd like to get a Nordland VVS technician to help with this. Can I take "
+               "a few details so they can follow up — what's your name?")
+    return {"message": prefix + lead_in, "chips": [], "decision": "escalate"}
+
+
+def _next_contact_slot(cs) -> str | None:
+    from chat.casestate import CONTACT_SLOTS
+
+    for s in CONTACT_SLOTS:
+        if cs["contact"].get(s) is None:
+            return s
+    return None
+
+
+def _is_yes(text: str) -> bool:
+    t = (text or "").strip().lower()
+    return t in ("yes_send", "yes", "ja") or "yes" in t or "send" in t
+
+
+def _sync_customer(session, cs):
+    from crm.models import Customer
+
+    c = session.customer or Customer()
+    ct = cs["contact"]
+    c.name = ct.get("name") or c.name
+    c.phone = ct.get("phone") or c.phone
+    c.email = ct.get("email") or c.email
+    c.postal_code = ct.get("postal_code") or c.postal_code
+    c.consent_to_contact = bool(ct.get("consent"))
+    c.save()
+    session.customer = c
+    session.save(update_fields=["customer"])
+
+
+def _escalate_step(conversation, cs, user_text, locale) -> dict:
+    if cs.get("awaiting_approval"):
+        if _is_yes(user_text):
+            from chat.casestate import flush_to_session
+            from crm import leads
+
+            session = flush_to_session(conversation, cs)
+            _sync_customer(session, cs)
+            session.booking_requested = True
+            session.status = "escalated"
+            session.save(update_fields=["booking_requested", "status"])
+            leads.create_and_dispatch(session, cs.get("escalation_reason", ""))
+            cs["state"] = STATE_RESOLVED
+            name = cs["contact"].get("name") or ""
+            phone = cs["contact"].get("phone") or ""
+            return {"message": f"Thanks{(' ' + name) if name else ''}! I've passed your details to "
+                               f"Nordland VVS — they'll be in touch{(' on ' + phone) if phone else ''} "
+                               "as soon as they can. Is there anything else I can help with?",
+                    "chips": [], "decision": "escalate"}
+        cs["state"] = STATE_RESOLVED
+        return {"message": "No problem. Whenever you're ready, you can reach Nordland VVS "
+                           "through the contact form on their website. Take care!", "chips": []}
+
+    cur = cs.get("contact_slot")
+    if cur and user_text:
+        val = (user_text or "").strip()
+        if val.lower() in ("skip", "none", "no") and cur == "email":
+            val = ""
+        cs["contact"][cur] = val
+
+    nxt = _next_contact_slot(cs)
+    if nxt:
+        cs["contact_slot"] = nxt
+        return {"message": CONTACT_Q[nxt], "chips": [], "decision": "escalate"}
+
+    cs["contact_slot"] = None
+    cs["awaiting_approval"] = True
+    cs["contact"]["consent"] = True
+    return {"message": "I have everything I need. Shall I send this to Nordland VVS so a "
+                       "technician can follow up?", "chips": _escalation_chips(), "decision": "escalate"}
 
 
 def _terminal_step(cs, locale) -> dict:
-    return {"message": _handoff_line(locale), "chips": _escalation_chips()}
+    return {"message": "You're all set — Nordland VVS will follow up. Anything else?", "chips": []}
 
 
 def _run_vision(conversation, cs, events, locale):

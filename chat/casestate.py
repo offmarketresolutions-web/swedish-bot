@@ -6,10 +6,11 @@ from __future__ import annotations
 
 from core.enums import STATE_INTAKE
 
-# Intake slots gathered before routing. Contact slots (name/phone/email/postal/
-# consent) are gathered lazily at escalation (Phase 6), exempt from the budget.
+# Intake slots gathered before routing. Contact slots (name/phone/email/postal)
+# are gathered lazily at escalation, exempt from the reply budget (plan §6.1/§6.2).
 REQUIRED_SLOTS = ["category", "problem", "brand", "model"]
 OPTIONAL_SLOTS = ["error_code", "serial"]
+CONTACT_SLOTS = ["name", "phone", "email", "postal_code"]
 
 
 def new_case_state() -> dict:
@@ -19,6 +20,10 @@ def new_case_state() -> dict:
         "reask": 0,
         "slots": {k: None for k in REQUIRED_SLOTS + OPTIONAL_SLOTS}
         | {"nameplate_photo": False, "ocr_text": None},
+        "contact": {k: None for k in CONTACT_SLOTS} | {"consent": None},
+        "contact_slot": None,
+        "awaiting_approval": False,
+        "escalation_reason": "",
         "machine_id": None,
         "match_confidence": 0.0,
         "problem_category": None,
