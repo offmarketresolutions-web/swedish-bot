@@ -16,7 +16,7 @@ import logging
 import os
 import time as _time
 from dataclasses import dataclass, field
-from typing import Any, Optional, Tuple
+from typing import Any
 
 from core import constants
 
@@ -30,12 +30,12 @@ logger = logging.getLogger(__name__)
 # FLAP, so we anchor real UTC to time.monotonic() (immune to wall-clock jumps)
 # via ONE network Date-header reading, and patch google.auth's time source.
 # Ported from django_base/apps/automation/ingestion/gemini_client.py.
-_anchor_real_utc: Optional[_dt.datetime] = None
+_anchor_real_utc: _dt.datetime | None = None
 _anchor_monotonic: float = 0.0
 _ANCHOR_TTL = 600.0
 
 
-def _measure_real_utc(timeout: float = 5.0) -> Optional[_dt.datetime]:
+def _measure_real_utc(timeout: float = 5.0) -> _dt.datetime | None:
     import email.utils
     import urllib.request
 
@@ -46,7 +46,7 @@ def _measure_real_utc(timeout: float = 5.0) -> Optional[_dt.datetime]:
                 date_hdr = r.headers.get("Date")
             if date_hdr:
                 real = email.utils.parsedate_to_datetime(date_hdr)
-                return real.astimezone(_dt.timezone.utc).replace(tzinfo=None)
+                return real.astimezone(_dt.UTC).replace(tzinfo=None)
         except Exception:  # noqa: BLE001
             continue
     return None
@@ -97,7 +97,7 @@ class GeminiResponse:
     raw: Any = field(default=None, repr=False)
 
 
-def _resolve_project_and_location() -> Tuple[Optional[str], str]:
+def _resolve_project_and_location() -> tuple[str | None, str]:
     project = (
         os.environ.get("GOOGLE_CLOUD_PROJECT")
         or os.environ.get("GCP_PROJECT_ID")
@@ -115,7 +115,7 @@ def _vertex_explicitly_requested() -> bool:
     return os.environ.get("GEMINI_USE_VERTEX", "").strip().lower() in ("true", "1", "yes", "on")
 
 
-def make_client(api_key: Optional[str] = None):
+def make_client(api_key: str | None = None):
     """Return (client, auth_mode). Vertex preferred; API key is a dev fallback."""
     from google import genai
 
@@ -162,13 +162,13 @@ def generate(
     contents,
     *,
     model: str,
-    system_instruction: Optional[str] = None,
-    cached_content: Optional[str] = None,
+    system_instruction: str | None = None,
+    cached_content: str | None = None,
     max_output_tokens: int = 1024,
     temperature: float = 0.4,
-    response_mime_type: Optional[str] = None,
-    thinking_budget: Optional[int] = 0,
-    api_key: Optional[str] = None,
+    response_mime_type: str | None = None,
+    thinking_budget: int | None = 0,
+    api_key: str | None = None,
 ) -> GeminiResponse:
     """Single-turn generation. `contents` may be a string or a list of parts
     (text + uploaded files for the full-PDF-in-context path).
@@ -215,8 +215,7 @@ def generate_stream(contents, *, model: str, system_instruction=None, cached_con
         cfg["system_instruction"] = system_instruction
     if cached_content:
         cfg["cached_content"] = cached_content
-    for chunk in client.models.generate_content_stream(model=model, contents=contents, config=cfg):
-        yield chunk
+    yield from client.models.generate_content_stream(model=model, contents=contents, config=cfg)
 
 
 def _guess_mime(path: str) -> str:
@@ -227,7 +226,7 @@ def _guess_mime(path: str) -> str:
     }.get(ext, "application/octet-stream")
 
 
-def file_part(path: str, *, mime_type: Optional[str] = None):
+def file_part(path: str, *, mime_type: str | None = None):
     """Return an inline Part for a PDF/image to put into `contents` or a cache.
 
     Vertex AI does NOT support the Files API (`files.upload` is Developer-API
@@ -241,7 +240,7 @@ def file_part(path: str, *, mime_type: Optional[str] = None):
 
 
 def create_cache(*, model: str, contents, system_instruction=None, ttl_seconds: int = 3600,
-                 display_name: Optional[str] = None, api_key=None) -> str:
+                 display_name: str | None = None, api_key=None) -> str:
     """Create a context cache over `contents` (the machine PDF parts). Returns the
     cache resource name to pass as `cached_content`. Cache PDFs only — the small,
     editable system instruction is sent fresh per turn (plan §8, resolves crit 0.4)."""

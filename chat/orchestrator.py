@@ -8,13 +8,13 @@ import json
 import re
 
 from chat import context, guardrails, intake, prompts
-from chat.i18n import t
 from chat.casestate import (
     flush_to_session,
     is_routable,
     new_case_state,
     next_required_slot,
 )
+from chat.i18n import t
 from chat.intake import extract_answer
 from chat.models import Conversation, Message
 from core.enums import (

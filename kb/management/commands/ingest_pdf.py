@@ -40,7 +40,7 @@ class Command(BaseCommand):
         try:
             machine = Machine.objects.get(slug=opts["machine_slug"])
         except Machine.DoesNotExist:
-            raise CommandError(f"No machine with slug {opts['machine_slug']!r}")
+            raise CommandError(f"No machine with slug {opts['machine_slug']!r}") from None
         path = Path(opts["pdf_path"])
         if not path.exists():
             raise CommandError(f"File not found: {path}")
