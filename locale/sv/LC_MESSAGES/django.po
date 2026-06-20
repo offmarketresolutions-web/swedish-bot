@@ -1,0 +1,107 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: sv\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Dashboard navigation
+msgid "Overview"
+msgstr "Översikt"
+
+msgid "Sessions"
+msgstr "Sessioner"
+
+msgid "Admin"
+msgstr "Admin"
+
+# Overview
+msgid "Escalated"
+msgstr "Eskalerade"
+
+msgid "Resolved"
+msgstr "Lösta"
+
+msgid "Leads"
+msgstr "Leads"
+
+msgid "By severity"
+msgstr "Efter allvarlighetsgrad"
+
+msgid "By category"
+msgstr "Efter kategori"
+
+msgid "Top brands"
+msgstr "Vanligaste märken"
+
+msgid "No data yet"
+msgstr "Ingen data ännu"
+
+# Session list
+msgid "Filter"
+msgstr "Filtrera"
+
+msgid "All severities"
+msgstr "Alla allvarlighetsgrader"
+
+msgid "Equipment"
+msgstr "Utrustning"
+
+msgid "Problem"
+msgstr "Problem"
+
+msgid "Severity"
+msgstr "Allvarlighetsgrad"
+
+msgid "Decision"
+msgstr "Beslut"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "When"
+msgstr "När"
+
+msgid "No sessions yet"
+msgstr "Inga sessioner ännu"
+
+# Session detail
+msgid "All sessions"
+msgstr "Alla sessioner"
+
+msgid "Session"
+msgstr "Session"
+
+msgid "Conversation"
+msgstr "Konversation"
+
+msgid "No messages"
+msgstr "Inga meddelanden"
+
+msgid "Report"
+msgstr "Rapport"
+
+msgid "Error code"
+msgstr "Felkod"
+
+msgid "Confidence"
+msgstr "Säkerhet"
+
+msgid "AI summary"
+msgstr "AI-sammanfattning"
+
+msgid "Service recommended"
+msgstr "Service rekommenderas"
+
+msgid "Booking requested"
+msgstr "Bokning begärd"
+
+msgid "Save"
+msgstr "Spara"
+
+msgid "Customer"
+msgstr "Kund"
+
+msgid "Lead delivery"
+msgstr "Lead-leverans"

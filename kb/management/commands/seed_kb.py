@@ -44,6 +44,18 @@ CHIPS = {
     "brand": [(v, v) for v in VENDORS] + [("other", "Other / don't know")],
 }
 
+# Swedish chip labels (data-driven Swedish; plan §11). Brand names stay verbatim.
+SV_LABELS = {
+    "heat_pump": "Värmepump", "water_pump_well": "Vattenpump / brunn",
+    "water_filtration": "Vattenfilter", "unknown": "Vet inte", "other": "Annat / vet inte",
+    "no_heat": "Ingen värme", "error_code": "Felkod på displayen", "noise": "Konstigt ljud",
+    "leaking": "Läcker", "high_bills": "Högre räkningar",
+    "no_water": "Inget vatten", "low_pressure": "Lågt tryck",
+    "runs_constantly": "Pumpen går konstant", "wont_start": "Pumpen startar inte",
+    "bad_taste": "Dålig smak/lukt", "discoloured": "Missfärgat vatten",
+    "low_flow": "Lågt flöde", "media_question": "Salt/media-fråga",
+}
+
 
 class Command(BaseCommand):
     help = "Seed the knowledge base (idempotent)."
@@ -70,20 +82,20 @@ class Command(BaseCommand):
                 m.ProblemCategory.objects.update_or_create(
                     category=cats[cat_slug], slug=slug, defaults={"label": label})
 
+        def _chip(step, value, label, order, category=None):
+            chip, _ = m.QuickReplyChip.objects.update_or_create(
+                intake_step=step, value=value, category=category, defaults={"order": order})
+            m.QuickReplyChipText.objects.update_or_create(chip=chip, lang="en", defaults={"label": label})
+            if value in SV_LABELS:
+                m.QuickReplyChipText.objects.update_or_create(
+                    chip=chip, lang="sv", defaults={"label": SV_LABELS[value]})
+
         for step, items in CHIPS.items():
             for i, (value, label) in enumerate(items):
-                chip, _ = m.QuickReplyChip.objects.update_or_create(
-                    intake_step=step, value=value, defaults={"order": i})
-                m.QuickReplyChipText.objects.update_or_create(
-                    chip=chip, lang="en", defaults={"label": label})
-        # per-category problem chips
+                _chip(step, value, label, i)
         for cat_slug, items in PROBLEM_CATEGORIES.items():
             for i, (value, label) in enumerate(items):
-                chip, _ = m.QuickReplyChip.objects.update_or_create(
-                    intake_step="problem", value=value, category=cats[cat_slug],
-                    defaults={"order": i})
-                m.QuickReplyChipText.objects.update_or_create(
-                    chip=chip, lang="en", defaults={"label": label})
+                _chip("problem", value, label, i, category=cats[cat_slug])
 
         faq, _ = m.FAQEntry.objects.update_or_create(
             category=cats["heat_pump"], key="alarm_first_steps", defaults={"order": 0})

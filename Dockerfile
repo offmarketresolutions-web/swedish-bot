@@ -18,6 +18,7 @@ COPY pyproject.toml ./
 RUN uv pip install --system --no-cache .
 
 COPY . .
+RUN python manage.py compilemessages || true
 RUN python manage.py collectstatic --noinput || true
 
 EXPOSE 8000

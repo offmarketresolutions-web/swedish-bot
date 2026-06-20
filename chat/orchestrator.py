@@ -8,6 +8,7 @@ import json
 import re
 
 from chat import context, guardrails, intake, prompts
+from chat.i18n import t
 from chat.casestate import (
     flush_to_session,
     is_routable,
@@ -48,7 +49,7 @@ def open_conversation(language: str = "en") -> tuple[Conversation, dict]:
     conv.case_state = cs
     conv.save(update_fields=["case_state"])
     return conv, {
-        "message": intake.GREETING + " " + intake.QUESTION["category"],
+        "message": t(language, "greeting") + " " + t(language, "q_category"),
         "chips": intake.chips_for("category", cs, language),
         "state": STATE_INTAKE,
     }
@@ -103,7 +104,7 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
             return _escalate_step(conversation, cs, user_text, locale)
         else:  # RESOLVED
             return _terminal_step(cs, locale)
-    return {"message": _handoff_line(locale), "chips": _escalation_chips()}
+    return {"message": _handoff_line(locale), "chips": _escalation_chips(locale)}
 
 
 def _intake_step(cs, user_text, locale) -> dict | None:
@@ -119,7 +120,7 @@ def _intake_step(cs, user_text, locale) -> dict | None:
                 cs["slots"][current] = "unknown"
                 cs["reask"] = 0
             else:
-                return {"message": "Sorry, I didn't quite catch that. " + intake.QUESTION.get(current, ""),
+                return {"message": t(locale, "reask") + t(locale, "q_" + current),
                         "chips": intake.chips_for(current, cs, locale)}
     if is_routable(cs):
         cs["state"] = STATE_ROUTING
@@ -129,7 +130,7 @@ def _intake_step(cs, user_text, locale) -> dict | None:
         cs["state"] = STATE_ROUTING
         return None
     cs["current_slot"] = nxt
-    return {"message": intake.QUESTION[nxt], "chips": intake.chips_for(nxt, cs, locale)}
+    return {"message": t(locale, "q_" + nxt), "chips": intake.chips_for(nxt, cs, locale)}
 
 
 def _route(conversation, cs, events, locale):
@@ -250,19 +251,9 @@ def _unsupported_step(conversation, cs, events, locale) -> dict:
 
 # ── escalation: lazy contact collection → approval → lead dispatch (Phase 6) ──
 
-CONTACT_Q = {
-    "name": "What's your name?",
-    "phone": "What's the best phone number to reach you?",
-    "email": "And your email? (type 'skip' if you'd rather not share it.)",
-    "postal_code": "Finally, what's your postal code or address so we can route a technician?",
-}
-
-
 def _begin_escalation(cs, locale, prefix: str = "") -> dict:
     cs["contact_slot"] = "name"
-    lead_in = ("I'd like to get a Nordland VVS technician to help with this. Can I take "
-               "a few details so they can follow up — what's your name?")
-    return {"message": prefix + lead_in, "chips": [], "decision": "escalate"}
+    return {"message": prefix + t(locale, "escalate_leadin"), "chips": [], "decision": "escalate"}
 
 
 def _next_contact_slot(cs) -> str | None:
@@ -275,8 +266,8 @@ def _next_contact_slot(cs) -> str | None:
 
 
 def _is_yes(text: str) -> bool:
-    t = (text or "").strip().lower()
-    return t in ("yes_send", "yes", "ja") or "yes" in t or "send" in t
+    txt = (text or "").strip().lower()
+    return txt in ("yes_send", "yes", "ja") or "yes" in txt or "send" in txt or "skicka" in txt
 
 
 def _sync_customer(session, cs):
@@ -309,13 +300,12 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             cs["state"] = STATE_RESOLVED
             name = cs["contact"].get("name") or ""
             phone = cs["contact"].get("phone") or ""
-            return {"message": f"Thanks{(' ' + name) if name else ''}! I've passed your details to "
-                               f"Nordland VVS — they'll be in touch{(' on ' + phone) if phone else ''} "
-                               "as soon as they can. Is there anything else I can help with?",
+            name_sfx = (" " + name) if name else ""
+            phone_sfx = (" " + t(locale, "phone_connector") + " " + phone) if phone else ""
+            return {"message": t(locale, "thanks", name_sfx=name_sfx, phone_sfx=phone_sfx),
                     "chips": [], "decision": "escalate"}
         cs["state"] = STATE_RESOLVED
-        return {"message": "No problem. Whenever you're ready, you can reach Nordland VVS "
-                           "through the contact form on their website. Take care!", "chips": []}
+        return {"message": t(locale, "not_yet"), "chips": []}
 
     cur = cs.get("contact_slot")
     if cur and user_text:
@@ -327,17 +317,16 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
     nxt = _next_contact_slot(cs)
     if nxt:
         cs["contact_slot"] = nxt
-        return {"message": CONTACT_Q[nxt], "chips": [], "decision": "escalate"}
+        return {"message": t(locale, "contact_" + nxt), "chips": [], "decision": "escalate"}
 
     cs["contact_slot"] = None
     cs["awaiting_approval"] = True
     cs["contact"]["consent"] = True
-    return {"message": "I have everything I need. Shall I send this to Nordland VVS so a "
-                       "technician can follow up?", "chips": _escalation_chips(), "decision": "escalate"}
+    return {"message": t(locale, "approval"), "chips": _escalation_chips(locale), "decision": "escalate"}
 
 
 def _terminal_step(cs, locale) -> dict:
-    return {"message": "You're all set — Nordland VVS will follow up. Anything else?", "chips": []}
+    return {"message": t(locale, "terminal"), "chips": []}
 
 
 def _run_vision(conversation, cs, events, locale):
@@ -365,10 +354,9 @@ def _run_vision(conversation, cs, events, locale):
 
 
 def _handoff_line(locale: str) -> str:
-    return ("Based on what you've described, this is best handled by a Nordland VVS "
-            "technician so we get it exactly right. Shall I send your details to them?")
+    return t(locale, "handoff")
 
 
-def _escalation_chips() -> list[dict]:
-    return [{"value": "yes_send", "label": "Yes, send to Nordland"},
-            {"value": "not_yet", "label": "Not yet"}]
+def _escalation_chips(locale: str = "en") -> list[dict]:
+    return [{"value": "yes_send", "label": t(locale, "chip_yes_send")},
+            {"value": "not_yet", "label": t(locale, "chip_not_yet")}]
