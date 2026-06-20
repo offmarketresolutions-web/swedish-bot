@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block content %}
+<h1 class="text-2xl font-semibold mb-6">{% trans "Overview" %}</h1>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <div class="bg-white rounded-lg shadow p-4"><div class="text-3xl font-bold">{{ total }}</div><div class="text-sm text-slate-500">{% trans "Sessions" %}</div></div>
+  <div class="bg-white rounded-lg shadow p-4"><div class="text-3xl font-bold text-[#C2410C]">{{ escalated }}</div><div class="text-sm text-slate-500">{% trans "Escalated" %}</div></div>
+  <div class="bg-white rounded-lg shadow p-4"><div class="text-3xl font-bold text-green-700">{{ resolved }}</div><div class="text-sm text-slate-500">{% trans "Resolved" %}</div></div>
+  <div class="bg-white rounded-lg shadow p-4"><div class="text-3xl font-bold">{{ leads }}</div><div class="text-sm text-slate-500">{% trans "Leads" %}</div></div>
+</div>
+
+<div class="grid md:grid-cols-3 gap-6">
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="font-semibold mb-3">{% trans "By severity" %}</h2>
+    {% for row in by_severity %}<div class="flex justify-between py-1 border-b last:border-0"><span>{{ row.severity }}</span><span class="font-medium">{{ row.n }}</span></div>{% empty %}<p class="text-slate-400 text-sm">{% trans "No data yet" %}</p>{% endfor %}
+  </div>
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="font-semibold mb-3">{% trans "By category" %}</h2>
+    {% for row in by_category %}<div class="flex justify-between py-1 border-b last:border-0"><span>{{ row.category__name }}</span><span class="font-medium">{{ row.n }}</span></div>{% empty %}<p class="text-slate-400 text-sm">{% trans "No data yet" %}</p>{% endfor %}
+  </div>
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="font-semibold mb-3">{% trans "Top brands" %}</h2>
+    {% for row in by_brand %}<div class="flex justify-between py-1 border-b last:border-0"><span>{{ row.manufacturer }}</span><span class="font-medium">{{ row.n }}</span></div>{% empty %}<p class="text-slate-400 text-sm">{% trans "No data yet" %}</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

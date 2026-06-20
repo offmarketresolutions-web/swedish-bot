@@ -1,0 +1,24 @@
+{% load i18n %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Nordland VVS — Dashboard{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800">
+  <header class="bg-[#0E2A4F] text-white">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-6">
+      <a href="{% url 'dash-overview' %}" class="font-semibold">Nordland VVS · Support</a>
+      <nav class="flex gap-4 text-sm text-slate-200">
+        <a href="{% url 'dash-overview' %}" class="hover:text-white">{% trans "Overview" %}</a>
+        <a href="{% url 'dash-sessions' %}" class="hover:text-white">{% trans "Sessions" %}</a>
+        <a href="/admin/" class="hover:text-white">{% trans "Admin" %}</a>
+      </nav>
+    </div>
+  </header>
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

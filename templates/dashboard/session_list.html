@@ -1,0 +1,42 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-semibold">{% trans "Sessions" %}</h1>
+  <form method="get" class="flex gap-2 text-sm">
+    <select name="severity" class="border rounded px-2 py-1">
+      <option value="">{% trans "All severities" %}</option>
+      {% for s in severities %}<option value="{{ s }}" {% if s == severity %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+    <input name="status" value="{{ status }}" placeholder="{% trans 'status' %}" class="border rounded px-2 py-1">
+    <button class="bg-[#0E2A4F] text-white rounded px-3">{% trans "Filter" %}</button>
+  </form>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 text-left text-slate-500">
+      <tr>
+        <th class="px-3 py-2">#</th><th class="px-3 py-2">{% trans "Equipment" %}</th>
+        <th class="px-3 py-2">{% trans "Problem" %}</th><th class="px-3 py-2">{% trans "Severity" %}</th>
+        <th class="px-3 py-2">{% trans "Decision" %}</th><th class="px-3 py-2">{% trans "Status" %}</th>
+        <th class="px-3 py-2">{% trans "When" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr class="border-t hover:bg-slate-50">
+        <td class="px-3 py-2"><a class="text-[#0E2A4F] underline" href="{% url 'dash-session' s.pk %}">{{ s.pk }}</a></td>
+        <td class="px-3 py-2">{{ s.manufacturer }} {{ s.model }}</td>
+        <td class="px-3 py-2">{{ s.problem_category|default:"—" }}</td>
+        <td class="px-3 py-2">{{ s.severity|default:"—" }}</td>
+        <td class="px-3 py-2">{{ s.decision|default:"—" }}</td>
+        <td class="px-3 py-2">{{ s.status }}</td>
+        <td class="px-3 py-2 text-slate-500">{{ s.created_at|date:"Y-m-d H:i" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="px-3 py-6 text-center text-slate-400">{% trans "No sessions yet" %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
