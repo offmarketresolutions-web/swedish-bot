@@ -1,0 +1,18 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nordland VVS — widget demo</title>
+  <style>body{font-family:system-ui,Arial,sans-serif;max-width:720px;margin:60px auto;padding:0 20px;color:#0E2A4F}</style>
+</head>
+<body>
+  <h1>Nordland VVS</h1>
+  <p>This page simulates the client's WordPress site with the support widget embedded.
+     Click the 💬 bubble in the corner to start.</p>
+  <p style="color:#64748b">Embed snippet for the live site:</p>
+  <pre style="background:#f1f5f9;padding:12px;border-radius:8px;overflow:auto">&lt;script src="{{ request.scheme }}://{{ request.get_host }}{% static 'widget/nordland-widget.js' %}" data-lang="sv" defer&gt;&lt;/script&gt;</pre>
+
+  <script src="{% static 'widget/nordland-widget.js' %}" data-lang="en" defer></script>
+</body>
+</html>

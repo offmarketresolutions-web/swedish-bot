@@ -3,8 +3,14 @@ from __future__ import annotations
 
 from django.db import connection
 from django.http import JsonResponse
+from django.shortcuts import render
 
 from core.services import gemini
+
+
+def widget_demo(request):
+    """A standalone page that embeds the widget — simulates the WordPress site."""
+    return render(request, "widget_demo.html")
 
 
 def healthz(request):
