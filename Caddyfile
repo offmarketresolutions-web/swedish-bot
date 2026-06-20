@@ -1,0 +1,5 @@
+# Replace :80 with your domain (e.g. bot.nordlandvvs.se) for automatic HTTPS.
+:80 {
+	encode gzip
+	reverse_proxy web:8000
+}

@@ -1,0 +1,35 @@
+"""Core views: health check (plan §13 Phase 1 DONE check)."""
+from __future__ import annotations
+
+from django.db import connection
+from django.http import JsonResponse
+
+from core.services import gemini
+
+
+def healthz(request):
+    """Liveness + dependency status: DB reachable + Gemini auth configured."""
+    db_ok = True
+    db_error = ""
+    try:
+        with connection.cursor() as cur:
+            cur.execute("SELECT 1")
+            cur.fetchone()
+    except Exception as exc:  # noqa: BLE001
+        db_ok = False
+        db_error = str(exc)
+
+    try:
+        gem = gemini.health_check()
+    except Exception as exc:  # noqa: BLE001
+        gem = {"mode": "error", "ready": False, "reason": str(exc)}
+
+    ok = db_ok and gem.get("ready", False)
+    return JsonResponse(
+        {
+            "status": "ok" if ok else "degraded",
+            "db": {"ok": db_ok, "error": db_error},
+            "gemini": gem,
+        },
+        status=200 if ok else 503,
+    )
