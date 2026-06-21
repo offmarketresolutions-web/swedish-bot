@@ -31,6 +31,26 @@ class Customer(models.Model):
         return self.name or self.phone or f"Customer<{self.pk}>"
 
 
+class CustomerFile(models.Model):
+    """Every photo/PDF a customer uploaded, retained on their CRM profile (V2 P-E).
+    Copied out of the transcript so it survives conversation purges."""
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="files")
+    file = models.FileField(upload_to="customer_files/")
+    kind = models.CharField(max_length=16, default="photo")  # photo | pdf | other
+    sha256 = models.CharField(max_length=64, blank=True)
+    source_message = models.ForeignKey(
+        "chat.Message", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("customer", "sha256")]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"File<cust={self.customer_id} {self.kind}>"
+
+
 class Session(models.Model):
     """One support session — the canonical reporting row (1:1 with Conversation)."""
 

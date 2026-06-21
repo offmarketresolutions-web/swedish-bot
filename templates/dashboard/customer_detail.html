@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block content %}
+<a href="{% url 'dash-customers' %}" class="text-sm text-slate-500">&larr; {% trans "All customers" %}</a>
+<h1 class="text-2xl font-semibold mb-1">{{ customer.name|default:"(no name)" }}</h1>
+<div class="text-slate-500 mb-6">{{ customer.phone }} · {{ customer.email }} · {{ customer.postal_code }} {{ customer.city }}</div>
+
+<div class="grid md:grid-cols-3 gap-6">
+  <div class="md:col-span-2 bg-white rounded-lg shadow p-4">
+    <h2 class="font-semibold mb-3">{% trans "Sessions" %}</h2>
+    {% for s in sessions %}
+      <div class="flex justify-between border-b last:border-0 py-2">
+        <a class="text-[#0E2A4F] underline" href="{% url 'dash-session' s.pk %}">{{ s.manufacturer }} {{ s.model }}</a>
+        <span class="text-slate-500 text-sm">{{ s.severity }} · {{ s.status }} · {{ s.created_at|date:"Y-m-d" }}</span>
+      </div>
+      {% if s.ai_summary %}<p class="text-xs text-slate-500 mb-2">{{ s.ai_summary|truncatewords:40 }}</p>{% endif %}
+    {% empty %}<p class="text-slate-400 text-sm">{% trans "No sessions" %}</p>{% endfor %}
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="font-semibold mb-3">{% trans "Uploaded files" %}</h2>
+    {% for f in files %}
+      <div class="py-1"><a class="text-[#0E2A4F] underline text-sm" href="{% url 'dash-file' f.pk %}">⬇ {{ f.kind }} · {{ f.created_at|date:"Y-m-d" }}</a></div>
+    {% empty %}<p class="text-slate-400 text-sm">{% trans "No files" %}</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

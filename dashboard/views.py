@@ -62,3 +62,36 @@ def session_detail(request, pk: int):
         "session": session, "messages": messages, "deliveries": deliveries,
         "severities": [s[0] for s in SEVERITY_CHOICES],
     })
+
+
+@staff_member_required
+def customer_list(request):
+    from crm.models import Customer
+    customers = Customer.objects.order_by("-created_at")[:200]
+    return render(request, "dashboard/customer_list.html", {"customers": customers})
+
+
+@staff_member_required
+def customer_detail(request, pk: int):
+    from crm.models import Customer
+    customer = get_object_or_404(Customer, pk=pk)
+    sessions = customer.sessions.select_related("machine").order_by("-created_at")
+    return render(request, "dashboard/customer_detail.html",
+                  {"customer": customer, "sessions": sessions, "files": customer.files.all()})
+
+
+@staff_member_required
+def serve_customer_file(request, pk: int):
+    """Attachment-only, staff-gated media (V2 §S6) — never a public static handler;
+    forces download + nosniff so an uploaded polyglot can't execute in the browser."""
+    from django.http import FileResponse, Http404
+
+    from crm.models import CustomerFile
+    cf = get_object_or_404(CustomerFile, pk=pk)
+    try:
+        resp = FileResponse(cf.file.open("rb"), as_attachment=True,
+                            filename=cf.file.name.rsplit("/", 1)[-1])
+    except FileNotFoundError as exc:
+        raise Http404 from exc
+    resp["X-Content-Type-Options"] = "nosniff"
+    return resp

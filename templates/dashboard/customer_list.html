@@ -1,0 +1,25 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">{% trans "Customers" %}</h1>
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 text-left text-slate-500">
+      <tr><th class="px-3 py-2">{% trans "Name" %}</th><th class="px-3 py-2">{% trans "Phone" %}</th>
+        <th class="px-3 py-2">{% trans "Email" %}</th><th class="px-3 py-2">{% trans "Postal" %}</th>
+        <th class="px-3 py-2">{% trans "Since" %}</th></tr>
+    </thead>
+    <tbody>
+      {% for c in customers %}
+      <tr class="border-t hover:bg-slate-50">
+        <td class="px-3 py-2"><a class="text-[#0E2A4F] underline" href="{% url 'dash-customer' c.pk %}">{{ c.name|default:"—" }}</a></td>
+        <td class="px-3 py-2">{{ c.phone|default:"—" }}</td>
+        <td class="px-3 py-2">{{ c.email|default:"—" }}</td>
+        <td class="px-3 py-2">{{ c.postal_code|default:"—" }}</td>
+        <td class="px-3 py-2 text-slate-500">{{ c.created_at|date:"Y-m-d" }}</td>
+      </tr>
+      {% empty %}<tr><td colspan="5" class="px-3 py-6 text-center text-slate-400">{% trans "No customers yet" %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

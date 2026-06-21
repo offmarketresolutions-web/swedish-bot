@@ -3,10 +3,17 @@ from django.contrib import admin
 from crm import models
 
 
+class CustomerFileInline(admin.TabularInline):
+    model = models.CustomerFile
+    extra = 0
+    readonly_fields = ("file", "kind", "sha256", "created_at")
+
+
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ("name", "phone", "email", "postal_code", "consent_to_contact", "created_at")
     search_fields = ("name", "phone", "email")
+    inlines = [CustomerFileInline]
 
 
 class LeadDeliveryInline(admin.TabularInline):

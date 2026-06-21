@@ -49,11 +49,38 @@ def _payload(session) -> dict:
     }
 
 
+def attach_customer_files(session) -> int:
+    """Copy uploaded photos/PDFs from the transcript onto the customer's CRM profile
+    (V2 P-E), so they survive a conversation purge. Idempotent by content hash."""
+    from django.core.files.base import ContentFile
+
+    from crm.models import CustomerFile
+
+    c = session.customer
+    if not c:
+        return 0
+    n = 0
+    for m in session.conversation.messages.filter(image__isnull=False).exclude(image=""):
+        try:
+            m.image.open("rb")
+            data = m.image.read()
+        except Exception:  # noqa: BLE001
+            continue
+        sha = hashlib.sha256(data).hexdigest()
+        if CustomerFile.objects.filter(customer=c, sha256=sha).exists():
+            continue
+        cf = CustomerFile(customer=c, sha256=sha, kind="photo", source_message=m)
+        cf.file.save(f"{sha[:12]}.jpg", ContentFile(data), save=True)
+        n += 1
+    return n
+
+
 def create_and_dispatch(session, reason: str = ""):
     """Create (or reuse) the ServiceRequest and fire all sinks. Returns (sr, results)."""
     if not session.ai_summary:
         session.ai_summary = build_summary(session)
         session.save(update_fields=["ai_summary"])
+    attach_customer_files(session)
     sr, _ = ServiceRequest.objects.get_or_create(
         idempotency_key=_idempotency_key(session, reason),
         defaults={"session": session, "payload_json": _payload(session), "escalation_reason": reason},
