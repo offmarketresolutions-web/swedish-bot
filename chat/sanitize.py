@@ -1,0 +1,97 @@
+"""Trust-boundary helpers (V2 security S1/S3/S4/S8). The LLM is never a boundary —
+these neutralize untrusted text before it enters prompts, slots, or lead sinks.
+
+- wrap_untrusted(): Microsoft "spotlighting" — mark untrusted spans as DATA so the
+  model treats them as content, never instructions.
+- clean_*(): strict field validators for contact + identification values that flow
+  into emails / WordPress / webhooks (prevents header/body injection) and into the
+  deterministic trigram query (prevents identification poisoning).
+"""
+from __future__ import annotations
+
+import re
+
+_CTRL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+_DELIM = re.compile(r"<<\s*/?\s*(?:UNTRUSTED|END_UNTRUSTED)[^>]*>>", re.IGNORECASE)
+_OVERRIDE = re.compile(
+    r"(?i)\b(ignore (all |any |the )?(previous|prior|above) (instructions|prompts?)"
+    r"|system prompt|you are now|disregard (the|all))\b"
+)
+
+
+def strip_control(s: str) -> str:
+    return _CTRL.sub("", s or "")
+
+
+def no_crlf(s: str) -> str:
+    return (s or "").replace("\r", " ").replace("\n", " ").strip()
+
+
+def cap(s: str, n: int) -> str:
+    return (s or "")[:n]
+
+
+def wrap_untrusted(text: str, kind: str = "user_input") -> str:
+    """Spotlight untrusted content as DATA. Strips our delimiter tokens + neutralizes
+    obvious override markers so they can't break out of the envelope."""
+    t = strip_control(text or "")
+    t = _DELIM.sub("", t)
+    t = _OVERRIDE.sub("[redacted]", t)
+    return f'<<UNTRUSTED kind="{kind}">>\n{t}\n<<END_UNTRUSTED>>'
+
+
+# ── strict field validators (return cleaned value, or "" when unusable) ──
+
+_NAME_BAD = re.compile(r"[^\w .'\-]", re.UNICODE)
+_PHONE_BAD = re.compile(r"[^0-9+\-() ]")
+_MODEL = re.compile(r"^[A-Za-z0-9 ./\-]{1,40}$")
+_ERRCODE = re.compile(r"^[A-Za-z0-9\-]{1,16}$")
+_POSTAL_BAD = re.compile(r"[^0-9 ]")
+
+
+def clean_name(s: str) -> str:
+    return _NAME_BAD.sub("", no_crlf(cap(s, 80)))
+
+
+def clean_phone(s: str) -> str:
+    return _PHONE_BAD.sub("", no_crlf(cap(s, 32))).strip()
+
+
+def clean_email(s: str) -> str:
+    from django.core.exceptions import ValidationError
+    from django.core.validators import validate_email
+
+    s = no_crlf(cap(s, 200))
+    try:
+        validate_email(s)
+        return s
+    except ValidationError:
+        return ""
+
+
+def clean_postal(s: str) -> str:
+    return _POSTAL_BAD.sub("", no_crlf(cap(s, 20)))[:10]
+
+
+def clean_address(s: str) -> str:
+    return strip_control(no_crlf(cap(s, 160)))
+
+
+def clean_model(s: str) -> str:
+    """Identification token (model/serial). Reject sentence-like content (a model is
+    a short token like 'IVT 490' / 'Geo 600C', never a sentence/instruction)."""
+    s = no_crlf(cap(s, 40))
+    if not _MODEL.match(s) or len(s.split()) > 4:
+        return ""
+    return s
+
+
+def clean_error_code(s: str) -> str:
+    s = no_crlf(cap(s, 16))
+    return s if _ERRCODE.match(s) else ""
+
+
+def clean_lead_field(s: str, n: int = 200) -> str:
+    """For any user-sourced value bound for an email/webhook/WP form: no CR/LF, no
+    control chars, length-capped (prevents header injection / oversized junk)."""
+    return strip_control(no_crlf(cap(s, n)))

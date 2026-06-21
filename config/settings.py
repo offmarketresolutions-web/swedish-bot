@@ -25,7 +25,7 @@ def _env_list(name: str, default: str = "") -> list[str]:
 
 # ── Core ──────────────────────────────────────────────────────────────
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-change-me")
-DEBUG = _env_bool("DJANGO_DEBUG", "1")
+DEBUG = _env_bool("DJANGO_DEBUG", "0")  # fail-safe: production unless explicitly on
 ALLOWED_HOSTS = _env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 
 # Origins permitted to embed the widget / hit the chat API (CORS, plan §10).
@@ -120,6 +120,50 @@ EMAIL_BACKEND = os.environ.get(
 )
 LEAD_EMAIL_TO = os.environ.get("LEAD_EMAIL_TO", "")
 LEAD_EMAIL_FROM = os.environ.get("LEAD_EMAIL_FROM", "bot@nordlandvvs.se")
+
+# ── Security hardening (V2 §S5/S6/S7) ─────────────────────────────────
+# Phone-hash pepper for returning-customer recognition — MUST differ from SECRET_KEY.
+PHONE_HASH_PEPPER = os.environ.get("PHONE_HASH_PEPPER", "dev-pepper-change-me")
+
+# Upload + body limits (oversized-body / decompression-bomb guards).
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# Anonymous chat endpoint rate limits + abuse ceilings.
+RATE_LIMIT_SESSION = int(os.environ.get("RATE_LIMIT_SESSION", "20"))   # sessions / IP / window
+RATE_LIMIT_MESSAGE = int(os.environ.get("RATE_LIMIT_MESSAGE", "40"))   # messages / session / window
+RATE_LIMIT_WINDOW = int(os.environ.get("RATE_LIMIT_WINDOW", "300"))
+MAX_TOTAL_TURNS = int(os.environ.get("MAX_TOTAL_TURNS", "25"))         # hard per-conversation ceiling
+MAX_IMAGES_PER_CONVERSATION = int(os.environ.get("MAX_IMAGES_PER_CONVERSATION", "8"))
+
+CSRF_TRUSTED_ORIGINS = _env_list("CSRF_TRUSTED_ORIGINS", "")
+
+if not DEBUG:
+    from django.core.exceptions import ImproperlyConfigured
+
+    # Fail-closed: never run production with the dev secret.
+    if SECRET_KEY == "dev-insecure-change-me":
+        raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set in production (DEBUG=0).")
+    # Fail-closed: EU data residency for Swedish customer PII (GDPR). Override only
+    # with ALLOW_NON_EU_RESIDENCY=1 (e.g. the temporary us-central1 demo SA).
+    _loc = (os.environ.get("GOOGLE_CLOUD_LOCATION") or "").lower()
+    if not (_loc.startswith("europe") or _loc == "eu") and not _env_bool("ALLOW_NON_EU_RESIDENCY", "0"):
+        raise ImproperlyConfigured(
+            f"Vertex location '{_loc or '(unset)'}' is not EU (GDPR). Set GOOGLE_CLOUD_LOCATION "
+            "to a europe-* region, or ALLOW_NON_EU_RESIDENCY=1 to override (NOT for real PII)."
+        )
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SESSION_COOKIE_HTTPONLY = True
+    X_FRAME_OPTIONS = "DENY"
+    # TLS-dependent flags: on only behind real HTTPS (the http demo sets HTTPS_ENABLED off).
+    if _env_bool("HTTPS_ENABLED", "0"):
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+        SECURE_SSL_REDIRECT = True
+        SECURE_HSTS_SECONDS = 31536000
+        SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+        SECURE_HSTS_PRELOAD = True
+        SESSION_COOKIE_SECURE = True
+        CSRF_COOKIE_SECURE = True
 
 LOGGING = {
     "version": 1,

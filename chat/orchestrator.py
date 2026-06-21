@@ -7,7 +7,9 @@ from __future__ import annotations
 import json
 import re
 
-from chat import context, guardrails, intake, prompts
+from django.conf import settings
+
+from chat import context, guardrails, intake, prompts, sanitize
 from chat.casestate import (
     flush_to_session,
     is_routable,
@@ -31,6 +33,9 @@ from kb.identification import identify_machine
 CONFIDENCE_GATE = 0.80
 REPLY_BUDGET = 5
 _FENCE = re.compile(r"^```(?:json)?|```$", re.MULTILINE)
+_NEG = re.compile(r"\b(not|don'?t|do not|never|inte|nej|no)\b", re.IGNORECASE)
+_AFFIRM = re.compile(r"\b(yes|ja|sure|ok|okay|send it|please send|go ahead|do it|skicka|absolutely)\b",
+                     re.IGNORECASE)
 
 
 def _parse_json(text: str) -> dict:
@@ -68,6 +73,9 @@ def open_conversation(language: str = "en") -> tuple[Conversation, dict]:
 def process_turn(conversation: Conversation, user_text: str = "", image=None) -> dict:
     locale = conversation.language
     cs = conversation.case_state or new_case_state()
+    if cs.get("turns", 0) >= getattr(settings, "MAX_TOTAL_TURNS", 25):  # S7 hard ceiling
+        return {"message": t(locale, "terminal"), "chips": [],
+                "state": cs.get("state", STATE_RESOLVED), "events": []}
     Message.objects.create(conversation=conversation, role="user", content=user_text or "", image=image)
 
     events: list[dict] = []
@@ -147,7 +155,8 @@ def _route(conversation, cs, events, locale):
     from kb.models import Category, ProblemCategory
 
     s = cs["slots"]
-    query = " ".join(x for x in [s.get("brand"), s.get("model"), s.get("ocr_text")] if x and x != "unknown")
+    query = sanitize.cap(
+        " ".join(x for x in [s.get("brand"), s.get("model"), s.get("ocr_text")] if x and x != "unknown"), 120)
     machine, score = identify_machine(query)
     cs["match_confidence"] = score
 
@@ -176,8 +185,10 @@ def _call_router(cs, machine, locale) -> dict:
 
     catalog = ", ".join(str(m) for m in Machine.objects.filter(is_supported=True)[:50])
     system = prompts.render(
-        "router", locale=locale, equipment=json.dumps(cs["slots"]),
-        problem=cs["slots"].get("problem", ""), ocr_text=cs["slots"].get("ocr_text") or "",
+        "router", locale=locale,
+        equipment=sanitize.wrap_untrusted(json.dumps(cs["slots"]), "facts"),
+        problem=sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem"),
+        ocr_text=sanitize.wrap_untrusted(cs["slots"].get("ocr_text") or "", "ocr"),
         match=str(machine) if machine else "none", catalog_summary=catalog,
         problem_categories="", category=cs["slots"].get("category", ""),
     )
@@ -204,7 +215,8 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
         problem=cs["slots"].get("problem", ""), symptoms="", error_code=cs["slots"].get("error_code") or "",
         serial=cs["slots"].get("serial") or "", forced_wrapup=str(forced).lower(),
     )
-    turn = f"Customer problem: {cs['slots'].get('problem','')}. Error code: {cs['slots'].get('error_code') or 'none'}."
+    turn = ("Customer problem: " + sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem")
+            + f"\nError code: {sanitize.clean_error_code(cs['slots'].get('error_code') or '') or 'none'}.")
     if cached:
         # Vertex forbids system_instruction alongside cached_content — inline the
         # (small, editable) instruction as a content part; only the PDFs are cached
@@ -219,14 +231,17 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
     data = _parse_json(resp.text)
 
     answer = data.get("answer_to_customer", "") or ""
-    conf = float(data.get("confidence") or 0.0)
+    # S9: validate model output schema; anything off -> fail-closed to escalate.
+    _c = data.get("confidence")
+    conf = _c if isinstance(_c, (int, float)) and 0.0 <= _c <= 1.0 else 0.0
     if cs.get("match_confidence", 0) < 0.6:
         conf = min(conf, 0.5)
     if data.get("in_docs") is False:
         conf = min(conf, 0.6)
     cs["confidence"] = conf
-    cs["decision"] = data.get("decision") or "escalate"
-    cs["severity"] = data.get("severity") or cs.get("severity") or "normal"
+    cs["decision"] = data["decision"] if data.get("decision") in ("solve", "escalate") else "escalate"
+    cs["severity"] = (data["severity"] if data.get("severity") in ("urgent", "normal", "service")
+                      else (cs.get("severity") or "normal"))
     cs["report"].update({k: v for k, v in (data.get("report") or {}).items() if v is not None})
 
     unsafe, reason = guardrails.is_unsafe(answer, locale=locale)
@@ -284,8 +299,15 @@ def _next_contact_slot(cs) -> str | None:
 
 
 def _is_yes(text: str) -> bool:
+    """S2: affirmative consent that's safe AND usable. The chip value 'yes_send',
+    or an affirmative word with NO negation. 'yes please don't send' (negation) →
+    False; 'yes, send it please' → True; 'not yet' → False."""
     txt = (text or "").strip().lower()
-    return txt in ("yes_send", "yes", "ja") or "yes" in txt or "send" in txt or "skicka" in txt
+    if txt == "yes_send":
+        return True
+    if _NEG.search(txt):
+        return False
+    return bool(_AFFIRM.search(txt))
 
 
 def _sync_customer(session, cs):
@@ -327,9 +349,14 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
 
     cur = cs.get("contact_slot")
     if cur and user_text:
-        val = (user_text or "").strip()
-        if val.lower() in ("skip", "none", "no") and cur == "email":
+        raw = (user_text or "").strip()
+        if raw.lower() in ("skip", "none", "no") and cur == "email":
             val = ""
+        else:  # S1: validate/sanitize each contact field at capture
+            cleaner = {"name": sanitize.clean_name, "phone": sanitize.clean_phone,
+                       "email": sanitize.clean_email, "postal_code": sanitize.clean_postal}.get(
+                cur, sanitize.clean_lead_field)
+            val = cleaner(raw)
         cs["contact"][cur] = val
 
     nxt = _next_contact_slot(cs)
@@ -359,13 +386,15 @@ def _run_vision(conversation, cs, events, locale):
         data = _parse_json(resp.text)
     except Exception:  # noqa: BLE001
         data = {}
-    if data.get("model"):
+    model = sanitize.clean_model(str(data.get("model") or ""))  # S3: whitelist OCR fields
+    if model:
         cs["slots"]["nameplate_photo"] = True
-        cs["slots"]["ocr_text"] = " ".join(str(v) for v in data.values() if v)
-        cs["slots"]["brand"] = cs["slots"].get("brand") or data.get("manufacturer")
-        cs["slots"]["model"] = cs["slots"].get("model") or data.get("model")
-        cs["slots"]["serial"] = cs["slots"].get("serial") or data.get("serial")
-        cs["slots"]["error_code"] = cs["slots"].get("error_code") or data.get("error_code")
+        cs["slots"]["model"] = cs["slots"].get("model") or model
+        cs["slots"]["serial"] = cs["slots"].get("serial") or sanitize.clean_model(str(data.get("serial") or ""))
+        cs["slots"]["error_code"] = (cs["slots"].get("error_code")
+                                     or sanitize.clean_error_code(str(data.get("error_code") or "")))
+        cs["slots"]["brand"] = cs["slots"].get("brand") or sanitize.clean_lead_field(str(data.get("manufacturer") or ""), 40)
+        cs["slots"]["ocr_text"] = sanitize.cap(" ".join(str(v) for v in data.values() if v), 120)
     Message.objects.create(conversation=conversation, role="tool", tool_name="vision_extract",
                            tool_result=data)
     events.append({"type": "tool_result", "name": "vision_extract", "result": data})

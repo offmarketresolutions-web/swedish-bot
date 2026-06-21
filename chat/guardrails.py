@@ -12,14 +12,22 @@ from core.services import gemini
 
 # Forbidden: instructing the customer to perform pro/licensed work. Tuned to catch
 # instruction phrasing, not mere mention ("the wiring is fine" is OK; "rewire" not).
+# This baseline is HARD-CODED in code (V2 §S10) — admin config/notes can only ADD
+# safety rules, never weaken these.
 _FORBIDDEN = re.compile(
     r"\b(rewire|re-?wire|wiring up|replace the (heating )?element|"
-    r"open (the )?(electrical |control )?panel|"
+    r"open (the )?(electrical |control )?panel|fuse box|terminal block|live wire|mains\b|"
     r"refrigerant|recharge|top ?up (the )?(gas|refrigerant)|braze|"
     r"expansion vessel|relief valve|safety valve|re-?pressuriz\w*|"
-    r"pre-?charge|adjust the pressure switch)\b",
+    r"pre-?charge|adjust the pressure switch|drain (the |down )?(heating )?system|"
+    r"flue|combustion|gas valve|burner|bypass (the )?(interlock|safety)|"
+    r"disable (the )?safety|legionella (cycle|treatment|flush))\b",
     re.IGNORECASE,
 )
+
+# Output-side leak detection (V2 §S4/S10): the model echoing our trust-boundary
+# delimiters or being coaxed into revealing the system prompt.
+_LEAK = re.compile(r"<<\s*/?\s*(?:UNTRUSTED|END_UNTRUSTED)|system prompt|these instructions", re.IGNORECASE)
 
 
 def keyword_unsafe(text: str) -> tuple[bool, str]:
@@ -49,6 +57,8 @@ def is_unsafe(draft: str, *, locale: str = "en", use_llm: bool = True) -> tuple[
     bad, hit = keyword_unsafe(draft)
     if bad:
         return True, f"forbidden term: {hit}"
+    if _LEAK.search(draft or ""):
+        return True, "prompt/delimiter leak"
     if use_llm:
         return classify_unsafe(draft, locale=locale)
     return False, ""

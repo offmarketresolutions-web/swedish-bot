@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 
-from chat import prompts
+from chat import prompts, sanitize
 from core.services import gemini
 from crm import sinks
 from crm.models import ServiceRequest
@@ -16,7 +16,10 @@ def build_summary(session) -> str:
     )
     system = prompts.render("summarizer", locale=session.conversation.language)
     try:
-        resp = gemini.generate(transcript[:8000], model=prompts.model_for("summarizer"),
+        # S8: the transcript is untrusted — wrap as data so a user can't inject
+        # instructions that poison the stored summary (which is re-shown to staff).
+        resp = gemini.generate(sanitize.wrap_untrusted(transcript[:8000], "transcript"),
+                               model=prompts.model_for("summarizer"),
                                system_instruction=system, max_output_tokens=300)
         return (resp.text or "").strip()
     except Exception:  # noqa: BLE001
@@ -30,15 +33,16 @@ def _idempotency_key(session, reason: str) -> str:
 
 def _payload(session) -> dict:
     c = session.customer
+    f = sanitize.clean_lead_field  # S1: defense-in-depth — no CR/LF / control / oversize
     return {
-        "equipment": {"manufacturer": session.manufacturer, "model": session.model,
-                      "serial": session.serial, "error_code": session.error_code},
+        "equipment": {"manufacturer": f(session.manufacturer, 40), "model": f(session.model, 40),
+                      "serial": f(session.serial, 40), "error_code": f(session.error_code, 16)},
         "problem_category": session.problem_category.slug if session.problem_category else None,
         "severity": session.severity,
         "customer": {
-            "name": c.name if c else "", "phone": c.phone if c else "",
-            "email": c.email if c else "", "address": c.address if c else "",
-            "postal_code": c.postal_code if c else "",
+            "name": f(c.name) if c else "", "phone": f(c.phone, 32) if c else "",
+            "email": f(c.email) if c else "", "address": f(c.address) if c else "",
+            "postal_code": f(c.postal_code, 20) if c else "",
         } if c else {},
         "summary": session.ai_summary,
         "troubleshooting_performed": session.troubleshooting_performed,

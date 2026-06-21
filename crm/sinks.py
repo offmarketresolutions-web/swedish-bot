@@ -44,22 +44,21 @@ class EmailSink(LeadSink):
         return bool(settings.LEAD_EMAIL_TO)
 
     def deliver(self, service_request) -> None:
+        from chat.sanitize import clean_lead_field as f  # S1: strip CR/LF / control / oversize
         s = service_request.session
+        c = s.customer
         body = (
-            f"New lead from the Nordland VVS assistant.\n\n"
-            f"Equipment: {s.manufacturer} {s.model} ({s.error_code or 'no code'})\n"
-            f"Severity: {s.severity}   Problem: {s.problem_category}\n"
-            f"Customer: {(s.customer.name if s.customer else '')} "
-            f"{(s.customer.phone if s.customer else '')} "
-            f"{(s.customer.email if s.customer else '')}\n"
-            f"Address: {(s.customer.address if s.customer else '')} "
-            f"{(s.customer.postal_code if s.customer else '')}\n"
-            f"Reason: {service_request.escalation_reason}\n\n"
+            "New lead from the Nordland VVS assistant.\n\n"
+            f"Equipment: {f(s.manufacturer, 40)} {f(s.model, 40)} ({f(s.error_code, 16) or 'no code'})\n"
+            f"Severity: {f(s.severity, 16)}   Problem: {f(str(s.problem_category or ''), 40)}\n"
+            f"Customer: {f(c.name) if c else ''} {f(c.phone, 32) if c else ''} {f(c.email) if c else ''}\n"
+            f"Address: {f(c.address) if c else ''} {f(c.postal_code, 20) if c else ''}\n"
+            f"Reason: {f(service_request.escalation_reason, 40)}\n\n"
             f"Summary:\n{s.ai_summary}\n"
         )
+        subject = f(f"[Nordland lead] {s.manufacturer} {s.model} — {s.severity}", 120)
         send_mail(
-            subject=f"[Nordland lead] {s.manufacturer} {s.model} — {s.severity}".strip(),
-            message=body, from_email=settings.LEAD_EMAIL_FROM,
+            subject=subject, message=body, from_email=settings.LEAD_EMAIL_FROM,
             recipient_list=[settings.LEAD_EMAIL_TO], fail_silently=False,
         )
 
@@ -95,13 +94,16 @@ class WordPressOffertSink(LeadSink):
     def deliver(self, service_request) -> None:
         import os
         import urllib.parse
+
+        from chat.sanitize import clean_lead_field as f  # S1
         url = os.environ["WORDPRESS_OFFERT_URL"]
         s = service_request.session
+        c = s.customer
         # STUB field map — replace with the real /offert field names from the client.
         fields = {
-            "your-name": s.customer.name if s.customer else "",
-            "your-phone": s.customer.phone if s.customer else "",
-            "your-email": s.customer.email if s.customer else "",
+            "your-name": f(c.name) if c else "",
+            "your-phone": f(c.phone, 32) if c else "",
+            "your-email": f(c.email) if c else "",
             "your-message": s.ai_summary,
         }
         data = urllib.parse.urlencode(fields).encode()

@@ -97,3 +97,12 @@ def mock_gemini(monkeypatch):
     for name in ("generate", "generate_stream", "create_cache", "file_part", "health_check"):
         monkeypatch.setattr(gemini_mod, name, getattr(fake, name))
     return fake
+
+
+@pytest.fixture(autouse=True)
+def _clear_cache():
+    # LocMemCache persists across tests in one process; clear rate-limit counters
+    # so tests don't bleed into each other.
+    from django.core.cache import cache
+    cache.clear()
+    yield
