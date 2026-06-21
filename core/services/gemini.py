@@ -52,9 +52,14 @@ def _measure_real_utc(timeout: float = 5.0) -> _dt.datetime | None:
     return None
 
 
+def _system_utcnow() -> _dt.datetime:
+    """Naive UTC from the system wall clock (no deprecation; replaces utcnow())."""
+    return _dt.datetime.now(_dt.UTC).replace(tzinfo=None)
+
+
 def _corrected_utcnow() -> _dt.datetime:
     if _anchor_real_utc is None:
-        return _dt.datetime.utcnow()
+        return _system_utcnow()
     return _anchor_real_utc + _dt.timedelta(seconds=_time.monotonic() - _anchor_monotonic)
 
 
@@ -69,7 +74,7 @@ def ensure_clock_correction(force: bool = False) -> None:
         if real is not None:
             _anchor_real_utc = real
             _anchor_monotonic = _time.monotonic()
-            drift = (real - _dt.datetime.utcnow()).total_seconds()
+            drift = (real - _system_utcnow()).total_seconds()
             if abs(drift) > 30:
                 logger.warning(
                     "Gemini auth: system clock off by %.0fs from real UTC — "
