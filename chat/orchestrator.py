@@ -174,6 +174,19 @@ def _route(conversation, cs, events, locale):
         pc = ProblemCategory.objects.filter(category=cat, slug=data["problem_category"]).first()
     cs["problem_category_id"] = pc.id if pc else None
 
+    # P-D: admin routing rules can override troubleshooting → straight to maintenance.
+    action = _match_routing_rule(cs, cat, pc)
+    if action in ("route_maintenance", "urgent_contact"):
+        if action == "urgent_contact":
+            cs["severity"] = "urgent"
+        cs["machine_id"] = machine.id if machine else None
+        cs["escalation_reason"] = "routing_rule"
+        cs["report"]["service_recommended"] = True
+        cs["state"] = STATE_ESCALATE
+        events.append({"type": "routing_rule", "action": action})
+        flush_to_session(conversation, cs, machine=machine, problem_category=pc)
+        return
+
     events.append({"type": "tool_result", "name": "identify",
                    "result": {"machine": str(machine) if machine else None, "score": round(score, 3)}})
 
@@ -204,6 +217,26 @@ def _call_router(cs, machine, locale) -> dict:
         return _parse_json(resp.text)
     except Exception:  # noqa: BLE001
         return {}
+
+
+def _match_routing_rule(cs, cat, pc):
+    """Return the action of the highest-priority active RoutingRule that matches, or
+    None. Pure DB read; the orchestrator decides what to do with the action."""
+    from kb.models import RoutingRule
+
+    problem = (cs["slots"].get("problem") or "").lower()
+    sev = cs.get("severity") or ""
+    for r in RoutingRule.objects.filter(is_active=True):
+        if r.match_category_id and (not cat or r.match_category_id != cat.id):
+            continue
+        if r.match_problem_category_id and (not pc or r.match_problem_category_id != pc.id):
+            continue
+        if r.match_severity and r.match_severity != sev:
+            continue
+        if r.match_keyword and r.match_keyword.lower() not in problem:
+            continue
+        return r.action
+    return None
 
 
 def _specialist_step(conversation, cs, events, locale) -> dict:

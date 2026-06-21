@@ -22,7 +22,7 @@ def collect_knowledge(machine, locale: str = "en") -> tuple[str, str]:
     vendor/category brand notes; both are wrapped as untrusted reference DATA (S8)
     and length-capped so the manual stays the dominant source."""
     from chat.sanitize import cap, wrap_untrusted
-    from kb.models import BrandNote, FAQEntry, MachineNote
+    from kb.models import BrandNote, FAQEntry, GenericGuide, MachineNote
 
     parts: list[str] = []
     if machine:
@@ -39,7 +39,10 @@ def collect_knowledge(machine, locale: str = "en") -> tuple[str, str]:
             t = faq.text(locale)
             if t:
                 faq_text += f"Q: {t.question}\nA: {t.answer}\n"
-    return notes_text, faq_text
+        # best-practice / generic guides for this category (V2 P-D), capped.
+        for g in GenericGuide.objects.filter(category=machine.category, lang__in=[locale, "en"]).exclude(kind="faq"):
+            faq_text += f"[{g.kind}] {g.body}\n"
+    return notes_text, cap(faq_text, 1500)
 
 
 def models_q(machine):

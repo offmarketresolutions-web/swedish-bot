@@ -8,7 +8,7 @@ from __future__ import annotations
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 
-from core.enums import AGENT_ROLE_CHOICES, DOC_KIND_CHOICES, LANG_CHOICES
+from core.enums import AGENT_ROLE_CHOICES, DOC_KIND_CHOICES, LANG_CHOICES, SEVERITY_CHOICES
 
 
 def manual_upload_path(instance, filename):
@@ -165,10 +165,14 @@ class FAQEntryText(models.Model):
 
 
 class GenericGuide(models.Model):
-    """Model-independent safe troubleshooting guide, by category + language."""
+    """Model-independent safe guidance, by category + language. `kind` lets the admin
+    keep FAQs, generic guides, and best-practices as one editable surface (V2 P-D)."""
+
+    GUIDE_KINDS = [("faq", "FAQ"), ("guide", "Guide"), ("best_practice", "Best practice")]
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="guides")
     key = models.SlugField(max_length=64)
+    kind = models.CharField(max_length=16, choices=GUIDE_KINDS, default="guide")
     lang = models.CharField(max_length=5, choices=LANG_CHOICES, default="en")
     body = models.TextField()
 
@@ -277,3 +281,31 @@ class PolicyDocument(models.Model):
 
     def __str__(self):
         return f"{self.title} [{self.kind}]"
+
+
+class RoutingRule(models.Model):
+    """Admin-configurable rule (V2 P-D): when the conditions match, take this routing
+    action (e.g. send the customer straight to a maintenance/service request).
+    Consulted by the orchestrator right after identification."""
+
+    ACTIONS = [
+        ("troubleshoot", "Troubleshoot normally"),
+        ("route_maintenance", "Route to maintenance / service request"),
+        ("urgent_contact", "Urgent — escalate immediately"),
+    ]
+    name = models.CharField(max_length=120)
+    match_category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE, related_name="+")
+    match_problem_category = models.ForeignKey(
+        ProblemCategory, null=True, blank=True, on_delete=models.CASCADE, related_name="+")
+    match_severity = models.CharField(max_length=16, choices=SEVERITY_CHOICES, blank=True)
+    match_keyword = models.CharField(max_length=120, blank=True,
+                                     help_text="Substring in the problem text (case-insensitive).")
+    action = models.CharField(max_length=24, choices=ACTIONS, default="route_maintenance")
+    priority = models.IntegerField(default=0, help_text="Higher priority rules are checked first.")
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-priority", "id"]
+
+    def __str__(self):
+        return f"{self.name} -> {self.action}"

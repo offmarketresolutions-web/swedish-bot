@@ -69,8 +69,15 @@ class FAQEntryAdmin(admin.ModelAdmin):
 
 @admin.register(models.GenericGuide)
 class GenericGuideAdmin(admin.ModelAdmin):
-    list_display = ("category", "key", "lang")
-    list_filter = ("category", "lang")
+    list_display = ("category", "key", "kind", "lang")
+    list_filter = ("category", "kind", "lang")  # filter kind=best_practice for the Best Practices view
+
+
+@admin.register(models.RoutingRule)
+class RoutingRuleAdmin(admin.ModelAdmin):
+    list_display = ("name", "action", "match_category", "match_problem_category",
+                    "match_severity", "match_keyword", "priority", "is_active")
+    list_filter = ("action", "is_active")
 
 
 class QuickReplyChipTextInline(admin.TabularInline):
