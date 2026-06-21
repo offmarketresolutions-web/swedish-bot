@@ -152,12 +152,17 @@ def _intake_step(cs, user_text, locale) -> dict | None:
 
 
 def _route(conversation, cs, events, locale):
-    from kb.models import Category, ProblemCategory
+    from kb.models import Category, ProblemCategory, Vendor
 
     s = cs["slots"]
     query = sanitize.cap(
         " ".join(x for x in [s.get("brand"), s.get("model"), s.get("ocr_text")] if x and x != "unknown"), 120)
-    machine, score = identify_machine(query)
+    brand = s.get("brand")
+    vendor = None
+    if brand and brand != "unknown":  # vendor-scope identification once the brand is known
+        vendor = (Vendor.objects.filter(name__iexact=brand).first()
+                  or Vendor.objects.filter(slug=str(brand).lower()).first())
+    machine, score = identify_machine(query, vendor=vendor)
     cs["match_confidence"] = score
 
     data = _call_router(cs, machine, locale)
@@ -217,17 +222,20 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
     )
     turn = ("Customer problem: " + sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem")
             + f"\nError code: {sanitize.clean_error_code(cs['slots'].get('error_code') or '') or 'none'}.")
+    cfg = prompts.config_for("specialist")
+    # Thinking-on-complex (P-C): low identification confidence / error code / urgent.
+    complex_case = (cs.get("match_confidence", 0) < 0.7
+                    or bool(cs["slots"].get("error_code")) or cs.get("severity") == "urgent")
+    thinking = cfg["thinking_budget"] or (1024 if complex_case else 0)
+    max_out = cfg["max_output_tokens"] or (2048 if thinking else 700)  # raise so JSON isn't truncated
+    gen = dict(model=cfg["model"], temperature=cfg["temperature"], thinking_budget=thinking,
+               max_output_tokens=max_out, response_mime_type="application/json")
     if cached:
         # Vertex forbids system_instruction alongside cached_content — inline the
-        # (small, editable) instruction as a content part; only the PDFs are cached
-        # (keeps prompt/notes edits effective immediately; resolves crit 0.4).
-        resp = gemini.generate([system, turn], model=prompts.model_for("specialist"),
-                               cached_content=cached, response_mime_type="application/json",
-                               max_output_tokens=700)
+        # (small, editable) instruction as a content part; only the PDFs are cached.
+        resp = gemini.generate([system, turn], cached_content=cached, **gen)
     else:
-        resp = gemini.generate([turn] + inline, model=prompts.model_for("specialist"),
-                               system_instruction=system, response_mime_type="application/json",
-                               max_output_tokens=700)
+        resp = gemini.generate([turn] + inline, system_instruction=system, **gen)
     data = _parse_json(resp.text)
 
     answer = data.get("answer_to_customer", "") or ""

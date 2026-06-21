@@ -23,6 +23,9 @@ class Vendor(models.Model):
     name = models.CharField(max_length=120, unique=True)
     slug = models.SlugField(max_length=120, unique=True)
     notes = models.TextField(blank=True, help_text="Short brand-level note.")
+    agent_notes = models.TextField(
+        blank=True,
+        help_text="Per-vendor guidance appended to the specialist for this vendor's machines (V2).")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -217,6 +220,11 @@ class AgentPrompt(models.Model):
         blank=True, help_text="Appended {language} block; use {locale} placeholder."
     )
     model_id = models.CharField(max_length=64)
+    # Editable runtime config (V2 P-C). Null/0 => use code defaults.
+    temperature = models.FloatField(null=True, blank=True)
+    thinking_enabled = models.BooleanField(default=False)
+    thinking_budget = models.IntegerField(default=0, help_text="Gemini thinking tokens (0 = off).")
+    max_output_tokens = models.IntegerField(null=True, blank=True)
     prompt_version = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -26,6 +26,8 @@ def collect_knowledge(machine, locale: str = "en") -> tuple[str, str]:
 
     parts: list[str] = []
     if machine:
+        if machine.vendor.agent_notes:  # per-vendor guidance (V2 P-C)
+            parts.append(machine.vendor.agent_notes)
         parts += [n.body for n in MachineNote.objects.filter(machine=machine)]
         parts += [n.body for n in BrandNote.objects.filter(vendor=machine.vendor).filter(models_q(machine))]
     raw = cap("\n".join(p for p in parts if p), _NOTES_CAP)

@@ -25,6 +25,21 @@ def model_for(role: str) -> str:
     return agent.model_id if agent and agent.model_id else _FALLBACK_MODEL.get(role, MODELS["flash"])
 
 
+def config_for(role: str) -> dict:
+    """Editable runtime config for an agent from the DB (V2 P-C): model, temperature,
+    thinking budget, max output tokens. Null/0 fields fall back to code defaults."""
+    agent = get_agent(role)
+    cfg = {"model": model_for(role), "temperature": 0.4, "thinking_budget": 0, "max_output_tokens": None}
+    if agent:
+        if agent.temperature is not None:
+            cfg["temperature"] = agent.temperature
+        if agent.thinking_enabled and agent.thinking_budget:
+            cfg["thinking_budget"] = agent.thinking_budget
+        if agent.max_output_tokens:
+            cfg["max_output_tokens"] = agent.max_output_tokens
+    return cfg
+
+
 def render(role: str, *, locale: str = "en", **vars) -> str:
     """Return the full system instruction for an agent: body + language directive,
     with {placeholders} filled. Missing placeholders are left blank, never crash."""

@@ -22,15 +22,20 @@ class _WordSimilarity(Func):
     output_field = FloatField()
 
 
-def best_match(query: str):
+def best_match(query: str, *, vendor=None):
     """Return (Machine|None, score) for the closest supported machine. Combines
     full-string similarity (good for clean "IVT 490") with word similarity of the
-    model string inside the query (good for noisy "...model IVT 490 serial...")."""
+    model string inside the query (good for noisy "...model IVT 490 serial...").
+    When `vendor` is given, candidates are scoped to that vendor (V2 P-C) — this
+    raises scores for short model codes (e.g. PHR-N) once the brand is known."""
     q = (query or "").strip().lower()
     if not q:
         return None, 0.0
+    base = Machine.objects.filter(is_supported=True)
+    if vendor is not None:
+        base = base.filter(vendor=vendor)
     qs = (
-        Machine.objects.filter(is_supported=True)
+        base
         .annotate(
             sim=Greatest(
                 TrigramSimilarity("search_text", q),
@@ -45,11 +50,11 @@ def best_match(query: str):
     return top, float(top.sim or 0.0)
 
 
-def identify_machine(query: str, *, threshold: float = DEFAULT_THRESHOLD):
+def identify_machine(query: str, *, threshold: float = DEFAULT_THRESHOLD, vendor=None):
     """Return (Machine, score) only when confident (score >= threshold); else
     (None, score) so the orchestrator routes to intelligent-intake. A wrong
-    manual is worse than none."""
-    machine, score = best_match(query)
+    manual is worse than none. Pass `vendor` to scope to a known brand."""
+    machine, score = best_match(query, vendor=vendor)
     if machine and score >= threshold:
         return machine, score
     return None, score
