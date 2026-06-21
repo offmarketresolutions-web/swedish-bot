@@ -38,3 +38,8 @@ addopts = "-m 'not live'"
 markers = [
     "live: hits the real Vertex Gemini API (opt-in: pytest -m live)",
 ]
+
+[tool.uv]
+# This is a Django application, not a distributable package — install deps only,
+# don't try to build the project (no [build-system] needed).
+package = false

@@ -20,11 +20,18 @@ services:
     env_file: .env
     environment:
       POSTGRES_HOST: db
+      DJANGO_DEBUG: "0"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,web"
+      # SA creds are mounted into the container; override the host path from .env.
+      GOOGLE_APPLICATION_CREDENTIALS: /app/secrets/gcp-vertex-ai.json
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - ./data/uploads:/app/data/uploads
+      # Reused Vertex service account (read-only). Swap for the client's
+      # europe-north1 SA before go-live.
+      - "C:/Users/vladi/OneDrive/Desktop/Projects/marketing_dashboard/markerting_dashboard/django_base/data/creds:/app/secrets:ro"
     expose:
       - "8000"
     command: >
@@ -36,8 +43,8 @@ services:
     depends_on:
       - web
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
