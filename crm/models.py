@@ -14,11 +14,27 @@ from django.db import models
 from core.enums import SEVERITY_CHOICES
 
 
+def phone_hash(phone: str) -> str:
+    """Peppered SHA-256 of the normalized phone (V2 P-F). The hash is the lookup key
+    for returning customers, so a DB leak doesn't expose a reversible phone index.
+    Pepper is in env, distinct from SECRET_KEY (crit 0.6)."""
+    import hashlib
+
+    from django.conf import settings
+
+    norm = "".join(c for c in (phone or "") if c.isdigit() or c == "+")
+    if not norm:
+        return ""
+    pepper = getattr(settings, "PHONE_HASH_PEPPER", "")
+    return hashlib.sha256((pepper + norm).encode()).hexdigest()
+
+
 class Customer(models.Model):
     """Collected lazily, only when escalation is decided (plan §6.1)."""
 
     name = models.CharField(max_length=160, blank=True)
     phone = models.CharField(max_length=40, blank=True)
+    phone_hash = models.CharField(max_length=64, blank=True, db_index=True, editable=False)
     email = models.EmailField(blank=True)
     address = models.CharField(max_length=255, blank=True)
     postal_code = models.CharField(max_length=16, blank=True)
@@ -26,6 +42,10 @@ class Customer(models.Model):
     property_type = models.CharField(max_length=60, blank=True)
     consent_to_contact = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.phone_hash = phone_hash(self.phone)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name or self.phone or f"Customer<{self.pk}>"

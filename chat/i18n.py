@@ -34,6 +34,7 @@ T = {
         "terminal": "You're all set — Nordland VVS will follow up. Anything else?",
         "chip_yes_send": "Yes, send to Nordland",
         "chip_not_yet": "Not yet",
+        "welcome_back": "Welcome back — good to hear from you again; I can see we've helped you before.",
         "phone_connector": "on",
     },
     "sv": {
@@ -63,6 +64,7 @@ T = {
         "terminal": "Då är allt klart — Nordland VVS hör av sig. Något mer?",
         "chip_yes_send": "Ja, skicka till Nordland",
         "chip_not_yet": "Inte än",
+        "welcome_back": "Välkommen tillbaka — kul att höra från dig igen; jag ser att vi har hjälpt dig tidigare.",
         "phone_connector": "på",
     },
 }

@@ -350,7 +350,8 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             phone = cs["contact"].get("phone") or ""
             name_sfx = (" " + name) if name else ""
             phone_sfx = (" " + t(locale, "phone_connector") + " " + phone) if phone else ""
-            return {"message": t(locale, "thanks", name_sfx=name_sfx, phone_sfx=phone_sfx),
+            prefix = (t(locale, "welcome_back") + " ") if cs.get("returning") else ""
+            return {"message": prefix + t(locale, "thanks", name_sfx=name_sfx, phone_sfx=phone_sfx),
                     "chips": [], "decision": "escalate"}
         cs["state"] = STATE_RESOLVED
         return {"message": t(locale, "not_yet"), "chips": []}
@@ -366,6 +367,11 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
                 cur, sanitize.clean_lead_field)
             val = cleaner(raw)
         cs["contact"][cur] = val
+        if cur == "phone" and val:  # P-F: recognize a returning customer (minimal disclosure)
+            from crm.models import Customer, phone_hash
+            h = phone_hash(val)
+            if h and Customer.objects.filter(phone_hash=h).exists():
+                cs["returning"] = True
 
     nxt = _next_contact_slot(cs)
     if nxt:
