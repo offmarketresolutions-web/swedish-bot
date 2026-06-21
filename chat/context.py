@@ -14,14 +14,22 @@ from core.services import gemini
 _CACHE_TTL = 3600
 
 
-def collect_knowledge(machine, locale: str = "en") -> tuple[str, str]:
-    """Return (brand_notes_text, faq_text) for the machine's vendor/category."""
-    from kb.models import BrandNote, FAQEntry
+_NOTES_CAP = 2000  # so notes never crowd out the manual (crit 1.9)
 
-    notes = BrandNote.objects.filter(vendor=machine.vendor).filter(
-        models_q(machine)
-    ) if machine else BrandNote.objects.none()
-    brand_notes = "\n".join(n.body for n in notes)
+
+def collect_knowledge(machine, locale: str = "en") -> tuple[str, str]:
+    """Return (notes_text, faq_text) for the machine. Per-machine notes precede
+    vendor/category brand notes; both are wrapped as untrusted reference DATA (S8)
+    and length-capped so the manual stays the dominant source."""
+    from chat.sanitize import cap, wrap_untrusted
+    from kb.models import BrandNote, FAQEntry, MachineNote
+
+    parts: list[str] = []
+    if machine:
+        parts += [n.body for n in MachineNote.objects.filter(machine=machine)]
+        parts += [n.body for n in BrandNote.objects.filter(vendor=machine.vendor).filter(models_q(machine))]
+    raw = cap("\n".join(p for p in parts if p), _NOTES_CAP)
+    notes_text = wrap_untrusted(raw, "internal_notes") if raw else ""
 
     faq_text = ""
     if machine:
@@ -29,7 +37,7 @@ def collect_knowledge(machine, locale: str = "en") -> tuple[str, str]:
             t = faq.text(locale)
             if t:
                 faq_text += f"Q: {t.question}\nA: {t.answer}\n"
-    return brand_notes, faq_text
+    return notes_text, faq_text
 
 
 def models_q(machine):

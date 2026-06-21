@@ -11,6 +11,14 @@ from django.db import models
 from core.enums import AGENT_ROLE_CHOICES, DOC_KIND_CHOICES, LANG_CHOICES
 
 
+def manual_upload_path(instance, filename):
+    """Self-organize manuals by vendor/machine so admin upload/replace is predictable
+    (V2 §D). e.g. manuals/ivt/geo-600c/<filename>."""
+    v = instance.machine.vendor.slug if instance.machine_id else "misc"
+    m = instance.machine.slug if instance.machine_id else "misc"
+    return f"manuals/{v}/{m}/{filename}"
+
+
 class Vendor(models.Model):
     name = models.CharField(max_length=120, unique=True)
     slug = models.SlugField(max_length=120, unique=True)
@@ -78,7 +86,7 @@ class MachineDocument(models.Model):
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name="documents")
     lang = models.CharField(max_length=5, choices=LANG_CHOICES, default="en")
     kind = models.CharField(max_length=16, choices=DOC_KIND_CHOICES, default="manual")
-    pdf = models.FileField(upload_to="manuals/")
+    pdf = models.FileField(upload_to=manual_upload_path)
     parsed_text = models.TextField(blank=True)
     token_estimate = models.IntegerField(default=0)
     sha256 = models.CharField(max_length=64, blank=True)
@@ -215,3 +223,49 @@ class AgentPrompt(models.Model):
 
     def __str__(self):
         return f"{self.role} (v{self.prompt_version}, {self.model_id})"
+
+
+class MachineNote(models.Model):
+    """Per-machine experience notes, auto-injected into the specialist context (V2).
+    Staff-authored; shown as a Notes tab in the admin. Canonical owner of machine
+    notes (one model — crit 1.0)."""
+
+    machine = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name="notes")
+    body = models.TextField()
+    created_by = models.CharField(max_length=150, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return f"Note<{self.machine}>"
+
+
+class PolicyDocument(models.Model):
+    """Company-level terms/policy docs (Konsumentvillkor). Cited when routing to
+    booking/quote/maintenance + consumer-rights — NEVER injected into the
+    troubleshooting/specialist context (separate surface = smaller injection blast)."""
+
+    POLICY_KINDS = [
+        ("vvs_installation", "VVS installation terms"),
+        ("groundwork", "Groundwork / excavation terms"),
+        ("heatpump_brine", "Heat pump brine-water villa terms"),
+        ("well_drilling", "Energy well drilling terms"),
+        ("other", "Other policy"),
+    ]
+    kind = models.CharField(max_length=32, choices=POLICY_KINDS)
+    title = models.CharField(max_length=200)
+    lang = models.CharField(max_length=5, choices=LANG_CHOICES, default="sv")
+    pdf = models.FileField(upload_to="terms/")
+    parsed_text = models.TextField(blank=True)
+    token_estimate = models.IntegerField(default=0)
+    sha256 = models.CharField(max_length=64, blank=True)
+    cite_on = models.JSONField(default=list, blank=True,
+                               help_text='e.g. ["booking","quote","maintenance","consumer_rights"]')
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} [{self.kind}]"

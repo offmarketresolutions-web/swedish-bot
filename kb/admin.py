@@ -9,6 +9,11 @@ class MachineDocumentInline(admin.TabularInline):
     extra = 1
 
 
+class MachineNoteInline(admin.TabularInline):
+    model = models.MachineNote
+    extra = 1
+
+
 @admin.register(models.Vendor)
 class VendorAdmin(admin.ModelAdmin):
     list_display = ("name", "slug", "is_active")
@@ -29,7 +34,7 @@ class MachineAdmin(admin.ModelAdmin):
     list_filter = ("vendor", "category", "is_supported")
     search_fields = ("model_name", "aliases", "search_text")
     prepopulated_fields = {"slug": ("model_name",)}
-    inlines = [MachineDocumentInline]
+    inlines = [MachineDocumentInline, MachineNoteInline]
 
 
 @admin.register(models.MachineDocument)
@@ -84,3 +89,10 @@ class QuickReplyChipAdmin(admin.ModelAdmin):
 class AgentPromptAdmin(admin.ModelAdmin):
     list_display = ("role", "model_id", "prompt_version", "is_active", "updated_at")
     list_filter = ("is_active",)
+
+
+@admin.register(models.PolicyDocument)
+class PolicyDocumentAdmin(admin.ModelAdmin):
+    list_display = ("title", "kind", "lang", "is_active", "updated_at")
+    list_filter = ("kind", "lang", "is_active")
+    search_fields = ("title",)
