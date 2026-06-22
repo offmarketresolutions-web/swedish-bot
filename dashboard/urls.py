@@ -25,9 +25,11 @@ urlpatterns = [
     path("kb/category/<int:pk>/", views.category_detail, name="dash-kb-category"),
     path("kb/vendor/new/", views.vendor_new, name="dash-kb-vendor-new"),
     path("kb/vendor/<int:pk>/", views.kb_vendor, name="dash-kb-vendor"),
+    path("kb/vendor/<int:pk>/delete", views.vendor_delete, name="dash-kb-vendor-delete"),
     path("kb/machine/new/", views.machine_new, name="dash-kb-machine-new"),
     # Full machine page (the machine link target — the user asked for a real page).
     path("kb/machine/<int:pk>/", views.kb_machine_page, name="dash-kb-machine-page"),
+    path("kb/machine/<int:pk>/delete", views.machine_delete, name="dash-kb-machine-delete"),
     # Inline PDF preview/serve for an uploaded manual.
     path("kb/document/<int:pk>/pdf", views.serve_document, name="dash-kb-doc"),
     # PDF upload/replace + notes (HTMX; targets #kb-panel on the machine page).

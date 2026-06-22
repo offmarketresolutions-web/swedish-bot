@@ -596,6 +596,32 @@ def kb_note_delete(request, pk: int):
     return resp
 
 
+@staff_member_required
+@require_POST
+def vendor_delete(request, pk: int):
+    """Delete a brand/vendor and everything under it (machines, documents, notes)."""
+    from kb.models import Vendor
+    vendor = get_object_or_404(Vendor, pk=pk)
+    name = vendor.name
+    vendor.delete()
+    resp = redirect("dash-kb")
+    resp["HX-Trigger"] = _toast("info", f"Brand “{name}” deleted.")
+    return resp
+
+
+@staff_member_required
+@require_POST
+def machine_delete(request, pk: int):
+    """Delete a machine (and its documents/notes); return to its brand page."""
+    from kb.models import Machine
+    machine = get_object_or_404(Machine, pk=pk)
+    vendor_pk, name = machine.vendor_id, machine.model_name
+    machine.delete()
+    resp = redirect("dash-kb-vendor", pk=vendor_pk)
+    resp["HX-Trigger"] = _toast("info", f"Machine “{name}” deleted.")
+    return resp
+
+
 from kb.models import CATEGORY_GROUP_CHOICES
 
 # group key -> human label, for the KB landing sections (Heat/Air/Water/Hybrid/Other).

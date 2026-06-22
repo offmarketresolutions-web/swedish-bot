@@ -16,6 +16,11 @@
   </div>
   <div class="flex items-center gap-2 shrink-0">
     <a href="{% url 'dash-kb-machine-new' %}?vendor={{ vendor.pk }}" class="btn btn-primary">+ {% trans "Add machine" %}</a>
+    <form method="post" action="{% url 'dash-kb-vendor-delete' vendor.pk %}"
+          onsubmit="return confirm('{% blocktrans with v=vendor.name %}Delete “{{ v }}” and ALL its machines, manuals and notes? This cannot be undone.{% endblocktrans %}');">
+      {% csrf_token %}
+      <button class="btn btn-danger" data-testid="vendor-delete">{% trans "Delete brand" %}</button>
+    </form>
   </div>
 </div>
 
