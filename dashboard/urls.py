@@ -10,6 +10,7 @@ urlpatterns = [
     path("sessions/<int:pk>/replica", views.conversation_replica, name="dash-session-replica"),
     path("customers/", views.customer_list, name="dash-customers"),
     path("customers/<int:pk>/", views.customer_detail, name="dash-customer"),
+    path("customers/<int:pk>/files/upload", views.customer_file_upload, name="dash-customer-file-upload"),
     path("files/<int:pk>/", views.serve_customer_file, name="dash-file"),
     # Agent Config (HTMX inline save)
     path("agents/", views.agent_config, name="dash-agents"),

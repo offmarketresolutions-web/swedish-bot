@@ -196,6 +196,39 @@ def customer_detail(request, pk: int):
 
 
 @staff_member_required
+@require_POST
+def customer_file_upload(request, pk: int):
+    """Staff-attach a photo/PDF to a customer's CRM profile (CustomerFile)."""
+    import hashlib
+
+    from django.core.files.base import ContentFile
+
+    from crm.models import Customer, CustomerFile
+    customer = get_object_or_404(Customer, pk=pk)
+    f = request.FILES.get("file")
+    MAX = 20 * 1024 * 1024
+    msg_kind, msg = "error", "No file selected."
+    if f and f.size and f.size > MAX:
+        msg = f"File too large ({f.size // 1024 // 1024} MB > 20 MB)."
+    elif f:
+        data = f.read()
+        sha = hashlib.sha256(data).hexdigest()
+        if CustomerFile.objects.filter(customer=customer, sha256=sha).exists():
+            msg_kind, msg = "info", "That file is already on this customer."
+        else:
+            name, ct = (f.name or "").lower(), (f.content_type or "").lower()
+            kind = ("photo" if ct.startswith("image/") or name.endswith((".jpg", ".jpeg", ".png", ".webp", ".gif"))
+                    else "pdf" if name.endswith(".pdf") or "pdf" in ct else "other")
+            cf = CustomerFile(customer=customer, kind=kind, sha256=sha)
+            cf.file.save(f.name, ContentFile(data), save=False)
+            cf.save()
+            msg_kind, msg = "success", "File uploaded."
+    resp = redirect("dash-customer", pk=pk)
+    resp["HX-Trigger"] = _toast(msg_kind, msg)
+    return resp
+
+
+@staff_member_required
 def serve_customer_file(request, pk: int):
     """Attachment-only, staff-gated media (V2 §S6) — never a public static handler;
     forces download + nosniff so an uploaded polyglot can't execute in the browser."""
