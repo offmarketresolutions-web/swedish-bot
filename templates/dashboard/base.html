@@ -46,6 +46,8 @@
           {% include 'dashboard/_icon.html' with name='flow' %}<span>{% trans "Flow builder" %}</span></a>
 
         <div class="nl-nav-group">{% trans "Tools" %}</div>
+        <a href="/widget-demo" target="_blank" rel="noopener" class="nl-nav" data-testid="nav-test-chat">
+          {% include 'dashboard/_icon.html' with name='beaker' %}<span>{% trans "Test chat" %} ↗</span></a>
         <a href="/playground" class="nl-nav {% if url == 'playground' %}nl-nav-on{% endif %}">
           {% include 'dashboard/_icon.html' with name='beaker' %}<span>{% trans "Playground" %}</span></a>
         <a href="/admin/" class="nl-nav">{% include 'dashboard/_icon.html' with name='cog' %}<span>{% trans "Django Admin" %}</span></a>

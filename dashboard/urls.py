@@ -40,6 +40,8 @@ urlpatterns = [
     path("kb/vendor/<int:pk>/notes", views.kb_vendor_notes, name="dash-kb-vendor-notes"),
     # Site FAQ
     path("faq/", views.faq_list, name="dash-faq"),
+    path("faq/category/new/", views.faq_entry_new, name="dash-faq-entry-new"),
+    path("faq/site/new/", views.site_faq_new, name="dash-site-faq-new"),
     # CRM create
     path("customers/new/", views.customer_new, name="dash-customer-new"),
 ]

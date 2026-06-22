@@ -864,6 +864,44 @@ def faq_list(request):
 
 
 @staff_member_required
+def faq_entry_new(request):
+    """Add a category FAQ (FAQEntry) — the kind the specialist injects."""
+    from dashboard.forms import FAQEntryForm
+    if request.method == "POST":
+        form = FAQEntryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            resp = redirect("dash-faq")
+            resp["HX-Trigger"] = _toast("success", "Category FAQ added — injectable by the specialist.")
+            return resp
+    else:
+        form = FAQEntryForm()
+    return render(request, "dashboard/faq_form.html", {
+        "form": form, "is_category": True,
+        "title": "Add category FAQ", "subtitle": "Tied to a category — the specialist injects it when configured.",
+        "action": "dash-faq-entry-new"})
+
+
+@staff_member_required
+def site_faq_new(request):
+    """Add a site FAQ (SiteFAQ) — the public-style list on the FAQ page."""
+    from dashboard.forms import SiteFAQForm
+    if request.method == "POST":
+        form = SiteFAQForm(request.POST)
+        if form.is_valid():
+            form.save()
+            resp = redirect("dash-faq")
+            resp["HX-Trigger"] = _toast("success", "Site FAQ added.")
+            return resp
+    else:
+        form = SiteFAQForm()
+    return render(request, "dashboard/faq_form.html", {
+        "form": form, "is_category": False,
+        "title": "Add site FAQ", "subtitle": "A general question shown on the FAQ page and searched by the assistant.",
+        "action": "dash-site-faq-new"})
+
+
+@staff_member_required
 @require_POST
 def kb_doc_upload(request, pk: int):
     """Upload or REPLACE a manual — re-parses so parsed_text/token_estimate/sha256 are

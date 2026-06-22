@@ -5,9 +5,14 @@
 {% blocktrans count n=total asvar sub %}{{ n }} question{% plural %}{{ n }} questions{% endblocktrans %}
 {% include "dashboard/_page_header.html" with title=_('Site FAQ') subtitle=sub %}
 
+<div class="flex flex-wrap items-center gap-2 mb-5">
+  <a href="{% url 'dash-site-faq-new' %}" class="btn btn-primary" data-testid="add-site-faq">+ {% trans "Add site FAQ" %}</a>
+  <a href="{% url 'dash-faq-entry-new' %}" class="btn btn-secondary" data-testid="add-category-faq">+ {% trans "Add category FAQ" %}</a>
+</div>
+
 <div class="nl-card bg-nl-primaryl/60 border-nl-primary/20 px-4 py-3 mb-5 text-sm text-nl-primaryd flex items-start gap-2">
   <span aria-hidden="true">ℹ️</span>
-  <p>{% trans "These are imported from nordlandvvs.se (the public “Vanliga frågor”). Edit them in Django Admin under Site FAQ; the assistant also searches them when answering." %}</p>
+  <p>{% trans "Site FAQ is the public “Vanliga frågor”, searched by the assistant. Category FAQ is tied to an equipment type and is injected into the specialist (configure which categories on the specialist agent). Both are also editable in Django Admin." %}</p>
 </div>
 
 <form method="get" class="mb-5 flex flex-wrap items-center gap-2 text-sm">

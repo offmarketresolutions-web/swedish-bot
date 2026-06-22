@@ -8,7 +8,8 @@ from django import forms
 from django.utils.text import slugify
 
 from crm.models import Customer
-from kb.models import BrandNote, Machine, Vendor
+from kb.models import (BrandNote, Category, FAQEntry, FAQEntryText, LANG_CHOICES,
+                       Machine, SiteFAQ, Vendor)
 
 # Shared Tailwind input styling so forms match the existing shell.
 _INPUT = ("w-full rounded-md border border-nl-border bg-white px-3 py-2 text-sm "
@@ -93,12 +94,67 @@ class MachineForm(forms.ModelForm):
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
+        # contact details + the equipment this customer owns (CRM 360), so staff can
+        # log everything in one go. The equipment FKs are optional.
         fields = ["name", "phone", "email", "address", "postal_code", "city",
-                  "property_type", "consent_to_contact"]
+                  "property_type", "consent_to_contact",
+                  "primary_brand", "primary_machine", "primary_category"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for f in ("primary_brand", "primary_machine", "primary_category"):
+            self.fields[f].required = False
+        self.fields["primary_brand"].label = "Brand"
+        self.fields["primary_machine"].label = "Machine"
+        self.fields["primary_category"].label = "Equipment type"
         _style(self.fields, area=("address",))
+
+
+def _unique_faq_key(category, base: str) -> str:
+    """A unique FAQEntry.key within a category (the model needs category+key unique)."""
+    base = (slugify(base) or "faq")[:50]
+    key, n = base, 2
+    while FAQEntry.objects.filter(category=category, key=key).exists():
+        key, n = f"{base}-{n}", n + 1
+    return key
+
+
+class FAQEntryForm(forms.Form):
+    """Add a CATEGORY FAQ — what the specialist injects (FAQEntry + FAQEntryText)."""
+    category = forms.ModelChoiceField(queryset=Category.objects.order_by("name"), label="Category")
+    lang = forms.ChoiceField(choices=LANG_CHOICES, initial="sv")
+    question = forms.CharField(widget=forms.Textarea(attrs={"rows": 2}))
+    answer = forms.CharField(widget=forms.Textarea(attrs={"rows": 5}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self.fields, area=("question", "answer"))
+
+    def save(self):
+        cat = self.cleaned_data["category"]
+        entry = FAQEntry.objects.create(category=cat, key=_unique_faq_key(cat, self.cleaned_data["question"]))
+        FAQEntryText.objects.create(faq=entry, lang=self.cleaned_data["lang"],
+                                    question=self.cleaned_data["question"], answer=self.cleaned_data["answer"])
+        return entry
+
+
+class SiteFAQForm(forms.ModelForm):
+    """Add a SITE FAQ — the public-style list shown on the FAQ page (SiteFAQ)."""
+    class Meta:
+        model = SiteFAQ
+        fields = ["topic", "question", "answer", "lang"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self.fields, area=("answer",))
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if not obj.slug:
+            obj.slug = _unique_slug(SiteFAQ, obj.question, exclude_pk=obj.pk)
+        if commit:
+            obj.save()
+        return obj
 
 
 class BrandNoteForm(forms.ModelForm):
