@@ -238,6 +238,12 @@ class AgentPrompt(models.Model):
     thinking_enabled = models.BooleanField(default=False)
     thinking_budget = models.IntegerField(default=0, help_text="Gemini thinking tokens (0 = off).")
     max_output_tokens = models.IntegerField(null=True, blank=True)
+    # FAQ / guide injection into this agent's knowledge context (specialist).
+    inject_faq = models.BooleanField(
+        default=True, help_text="Inject category FAQ/guides into the specialist context.")
+    faq_categories = models.ManyToManyField(
+        Category, blank=True, related_name="+",
+        help_text="If set, inject FAQ only from these categories; empty = the matched machine's category.")
     prompt_version = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)

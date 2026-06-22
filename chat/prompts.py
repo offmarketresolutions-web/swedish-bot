@@ -29,7 +29,8 @@ def config_for(role: str) -> dict:
     """Editable runtime config for an agent from the DB (V2 P-C): model, temperature,
     thinking budget, max output tokens. Null/0 fields fall back to code defaults."""
     agent = get_agent(role)
-    cfg = {"model": model_for(role), "temperature": 0.4, "thinking_budget": 0, "max_output_tokens": None}
+    cfg = {"model": model_for(role), "temperature": 0.4, "thinking_budget": 0,
+           "max_output_tokens": None, "inject_faq": True, "faq_category_ids": []}
     if agent:
         if agent.temperature is not None:
             cfg["temperature"] = agent.temperature
@@ -37,6 +38,8 @@ def config_for(role: str) -> dict:
             cfg["thinking_budget"] = agent.thinking_budget
         if agent.max_output_tokens:
             cfg["max_output_tokens"] = agent.max_output_tokens
+        cfg["inject_faq"] = agent.inject_faq
+        cfg["faq_category_ids"] = list(agent.faq_categories.values_list("id", flat=True))
     return cfg
 
 

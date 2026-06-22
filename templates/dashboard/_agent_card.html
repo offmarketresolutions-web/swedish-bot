@@ -35,8 +35,23 @@
     <div class="flex flex-wrap gap-5 text-sm mt-3">
       <label class="flex items-center gap-2"><input type="checkbox" name="thinking_enabled" {% if p.thinking_enabled %}checked{% endif %}> {% trans "Thinking enabled" %}</label>
       <label class="flex items-center gap-2"><input type="checkbox" name="is_active" {% if p.is_active %}checked{% endif %}> {% trans "Active" %}</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="inject_faq" {% if p.inject_faq %}checked{% endif %} data-testid="inject-faq"> {% trans "Inject FAQ" %}</label>
     </div>
   </fieldset>
+
+  {% if p.role == 'specialist' %}
+  <fieldset class="border border-nl-border rounded-md px-3 pt-2 pb-3 mb-4">
+    <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-nl-base/60">{% trans "FAQ injection" %}</legend>
+    <p class="text-xs text-nl-base/60 mb-2">{% trans "Which categories’ FAQ &amp; guides to inject into this agent. Select none to use the matched machine’s own category." %}</p>
+    <select name="faq_categories" multiple size="6" data-testid="faq-categories"
+            class="w-full border border-nl-border rounded px-2 py-1 text-sm focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none">
+      {% for c in all_categories %}
+        <option value="{{ c.pk }}" {% if c.pk in faq_category_ids %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+    <p class="text-xs text-nl-base/50 mt-1">{% trans "Ctrl/Cmd-click to select multiple. Only used when “Inject FAQ” is on." %}</p>
+  </fieldset>
+  {% endif %}
 
   <fieldset class="border border-nl-border rounded-md px-3 pt-2 pb-3 mb-4">
     <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-nl-base/60">{% trans "Prompt" %}</legend>

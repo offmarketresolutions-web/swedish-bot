@@ -237,7 +237,10 @@ def serve_document(request, pk: int):
 # ── Agent Config (V2 P-D UI): edit AgentPrompt rows with HTMX inline save ──────
 
 def _agent_card_ctx(prompt, *, saved=False, error=""):
-    return {"p": prompt, "saved": saved, "error": error}
+    from kb.models import Category
+    return {"p": prompt, "saved": saved, "error": error,
+            "all_categories": Category.objects.order_by("name"),
+            "faq_category_ids": set(prompt.faq_categories.values_list("id", flat=True))}
 
 
 @staff_member_required
@@ -279,11 +282,15 @@ def agent_save(request, pk: int):
     p.max_output_tokens = _num("max_output_tokens", int, lo=1, hi=65536, default=None)
     p.thinking_enabled = request.POST.get("thinking_enabled") == "on"
     p.is_active = request.POST.get("is_active") == "on"
+    p.inject_faq = request.POST.get("inject_faq") == "on"
     if not (p.model_id or "").strip():
         errors.append("model_id required")
 
     if not errors:
         p.save()
+        # which categories' FAQ to inject (empty = the machine's own category)
+        cat_ids = [c for c in request.POST.getlist("faq_categories") if c.isdigit()]
+        p.faq_categories.set(cat_ids)
     resp = render(request, "dashboard/_agent_card.html",
                   _agent_card_ctx(p, saved=not errors, error="; ".join(errors)))
     if errors:

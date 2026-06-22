@@ -35,22 +35,28 @@ def collect_knowledge(machine, locale: str = "en", *, query: str = "") -> tuple[
     raw = cap("\n".join(p for p in parts if p), _NOTES_CAP)
     notes_text = wrap_untrusted(raw, "internal_notes") if raw else ""
 
+    # FAQ/guide injection is configurable per the specialist AgentPrompt (V2): a
+    # toggle to inject at all, and an optional set of categories to inject from
+    # (empty = the matched machine's own category, the original behaviour).
+    from chat import prompts
+    cfg = prompts.config_for("specialist")
     faq_text = ""
-    if machine:
-        for faq in FAQEntry.objects.filter(category=machine.category):
+    if cfg.get("inject_faq", True) and machine:
+        cat_ids = cfg.get("faq_category_ids") or ([machine.category_id] if machine.category_id else [])
+        for faq in FAQEntry.objects.filter(category_id__in=cat_ids):
             t = faq.text(locale)
             if t:
                 faq_text += f"Q: {t.question}\nA: {t.answer}\n"
-        # best-practice / generic guides for this category (V2 P-D), capped.
-        for g in GenericGuide.objects.filter(category=machine.category, lang__in=[locale, "en"]).exclude(kind="faq"):
+        # best-practice / generic guides for these categories (V2 P-D), capped.
+        for g in GenericGuide.objects.filter(category_id__in=cat_ids, lang__in=[locale, "en"]).exclude(kind="faq"):
             faq_text += f"[{g.kind}] {g.body}\n"
-    # Semantic retrieval (V2): the most relevant guidance for THIS problem, across
-    # categories. Fail-safe + flag-gated inside rank_guides.
-    if query:
-        from kb import semantic
-        for text, _score in semantic.rank_guides(query, locale=locale):
-            if text not in faq_text:
-                faq_text += text + "\n"
+        # Semantic retrieval (V2): the most relevant guidance for THIS problem, across
+        # categories. Fail-safe + flag-gated inside rank_guides.
+        if query:
+            from kb import semantic
+            for text, _score in semantic.rank_guides(query, locale=locale):
+                if text not in faq_text:
+                    faq_text += text + "\n"
     return notes_text, cap(faq_text, 1500)
 
 
