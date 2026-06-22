@@ -1,0 +1,396 @@
+/*
+    Nordland VVS — Django admin brand skin
+    Overrides Django 5.2's admin CSS custom properties (see
+    django/contrib/admin/static/admin/css/base.css :root block) with the
+    Nordland palette and adds tasteful component polish.
+
+    Palette (from templates/dashboard/base.html):
+      primary blue        #1a74bf
+      primary-dark        #0f4570
+      primary-light       #e9f3fc
+      action orange-red   #d9370c
+      action-hover        #f34616
+      base text           #1c1e20
+      page bg             #f1f2f3
+      border              #d6d9db
+*/
+
+/* ---- BRAND TOKENS ---------------------------------------------------- */
+:root {
+    --nl-primary: #1a74bf;
+    --nl-primary-dark: #0f4570;
+    --nl-primary-light: #e9f3fc;
+    --nl-action: #d9370c;
+    --nl-action-hover: #f34616;
+    --nl-base: #1c1e20;
+    --nl-page-bg: #f1f2f3;
+    --nl-border: #d6d9db;
+}
+
+/* ---- DJANGO ADMIN VARIABLE OVERRIDES --------------------------------- */
+/* Pin a light, on-brand scheme. Match Django's own selectors so we win
+   regardless of the data-theme attribute. */
+html[data-theme="light"],
+html[data-theme="dark"],
+:root {
+    --primary: var(--nl-primary);
+    --secondary: var(--nl-primary-dark);
+    --accent: var(--nl-action);
+    --primary-fg: #ffffff;
+
+    --body-fg: var(--nl-base);
+    --body-bg: #ffffff;
+    --body-quiet-color: #5b6166;
+    --body-medium-color: #3a3f44;
+    --body-loud-color: #000000;
+
+    /* White header with brand-blue branding text. */
+    --header-color: var(--nl-base);
+    --header-branding-color: var(--nl-primary-dark);
+    --header-bg: #ffffff;
+    --header-link-color: var(--nl-primary);
+
+    /* Breadcrumbs in deep brand blue. */
+    --breadcrumbs-fg: #d4e6f6;
+    --breadcrumbs-link-fg: #ffffff;
+    --breadcrumbs-bg: var(--nl-primary-dark);
+
+    --link-fg: var(--nl-primary);
+    --link-hover-color: var(--nl-primary-dark);
+    --link-selected-fg: var(--nl-primary-dark);
+
+    --hairline-color: #e6e9eb;
+    --border-color: var(--nl-border);
+
+    --error-fg: #ba2121;
+
+    --message-success-bg: #e3f5e8;
+    --message-warning-bg: #fff4e0;
+    --message-error-bg: #fdecea;
+
+    --darkened-bg: var(--nl-page-bg);
+    --selected-bg: var(--nl-primary-light);
+    --selected-row: var(--nl-primary-light);
+
+    /* Default buttons = brand blue; the .default (save) button = action orange. */
+    --button-fg: #ffffff;
+    --button-bg: var(--nl-primary);
+    --button-hover-bg: var(--nl-primary-dark);
+    --default-button-bg: var(--nl-action);
+    --default-button-hover-bg: var(--nl-action-hover);
+    --close-button-bg: #6b7177;
+    --close-button-hover-bg: #4a4f54;
+    --delete-button-bg: #ba2121;
+    --delete-button-hover-bg: #a41515;
+
+    --object-tools-fg: #ffffff;
+    --object-tools-bg: var(--nl-primary);
+    --object-tools-hover-bg: var(--nl-primary-dark);
+
+    --font-family-primary:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        sans-serif,
+        "Apple Color Emoji",
+        "Segoe UI Emoji";
+
+    color-scheme: light;
+}
+
+/* Keep the brand in OS dark mode too — pin the light scheme rather than
+   inheriting Django's dark palette, so the Nordland identity holds. */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: var(--nl-primary);
+        --secondary: var(--nl-primary-dark);
+        --accent: var(--nl-action);
+        --primary-fg: #ffffff;
+
+        --body-fg: var(--nl-base);
+        --body-bg: #ffffff;
+        --body-quiet-color: #5b6166;
+        --body-medium-color: #3a3f44;
+        --body-loud-color: #000000;
+
+        --header-color: var(--nl-base);
+        --header-branding-color: var(--nl-primary-dark);
+        --header-bg: #ffffff;
+        --header-link-color: var(--nl-primary);
+
+        --breadcrumbs-fg: #d4e6f6;
+        --breadcrumbs-link-fg: #ffffff;
+        --breadcrumbs-bg: var(--nl-primary-dark);
+
+        --link-fg: var(--nl-primary);
+        --link-hover-color: var(--nl-primary-dark);
+        --link-selected-fg: var(--nl-primary-dark);
+
+        --hairline-color: #e6e9eb;
+        --border-color: var(--nl-border);
+
+        --message-success-bg: #e3f5e8;
+        --message-warning-bg: #fff4e0;
+        --message-error-bg: #fdecea;
+
+        --darkened-bg: var(--nl-page-bg);
+        --selected-bg: var(--nl-primary-light);
+        --selected-row: var(--nl-primary-light);
+
+        --close-button-bg: #6b7177;
+        --close-button-hover-bg: #4a4f54;
+
+        color-scheme: light;
+    }
+}
+
+/* ---- GLOBAL CHROME --------------------------------------------------- */
+body {
+    background: var(--nl-page-bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* White header anchored by a brand-blue bottom border. */
+#header {
+    padding: 12px 40px;
+    border-bottom: 3px solid var(--nl-primary);
+    box-shadow: 0 1px 3px rgba(15, 69, 112, 0.08);
+}
+
+#branding {
+    align-items: center;
+    gap: 14px;
+}
+
+/* Logo sits on the white header — give it room and vertical centring. */
+#branding #nl-admin-logo {
+    height: 34px;
+    width: auto;
+    display: block;
+}
+
+#site-name {
+    margin-inline-end: 16px;
+    font-weight: 600;
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+}
+
+#site-name a:link,
+#site-name a:visited {
+    color: var(--nl-primary-dark);
+}
+
+#user-tools {
+    color: var(--body-quiet-color);
+    font-size: 0.75rem;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* ---- BREADCRUMBS ----------------------------------------------------- */
+div.breadcrumbs {
+    padding: 10px 40px;
+    font-weight: 500;
+}
+
+/* ---- MODULE / SECTION HEADERS --------------------------------------- */
+.module h2,
+.module caption,
+.inline-group h2 {
+    background: var(--nl-primary-dark);
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 9px 12px;
+}
+
+.module {
+    border: 1px solid var(--hairline-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(28, 30, 32, 0.04);
+    background: #ffffff;
+}
+
+/* App index cards (dashboard) get matching rounded corners. */
+.dashboard .module table {
+    margin: 0;
+}
+
+/* ---- LINKS ----------------------------------------------------------- */
+a:link,
+a:visited {
+    color: var(--nl-primary);
+}
+
+a:focus,
+a:hover {
+    color: var(--nl-primary-dark);
+}
+
+/* ---- BUTTONS --------------------------------------------------------- */
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+a.button {
+    border-radius: 6px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.button:hover,
+input[type=submit]:hover,
+input[type=button]:hover,
+.button:focus,
+input[type=submit]:focus,
+input[type=button]:focus {
+    box-shadow: 0 1px 4px rgba(15, 69, 112, 0.2);
+}
+
+/* The primary "Save" action — action orange, rounded, prominent. */
+.button.default,
+input[type=submit].default,
+.submit-row input.default {
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.submit-row {
+    border-radius: 8px;
+}
+
+/* ---- OBJECT TOOLS (Add / History / View on site) -------------------- */
+.object-tools a {
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.object-tools a.addlink {
+    background-color: var(--nl-action);
+}
+
+.object-tools a.addlink:hover,
+.object-tools a.addlink:focus {
+    background-color: var(--nl-action-hover);
+}
+
+/* ---- TABLES / CHANGELIST -------------------------------------------- */
+#changelist table thead th {
+    background: var(--nl-primary-light);
+    color: var(--nl-primary-dark);
+}
+
+#changelist table thead th a:link,
+#changelist table thead th a:visited {
+    color: var(--nl-primary-dark);
+}
+
+/* Selected rows in brand primary-light. */
+tr.selected,
+#changelist table tbody tr.selected {
+    background: var(--nl-primary-light);
+}
+
+#changelist-filter h2 {
+    background: var(--nl-primary-dark);
+    color: #ffffff;
+}
+
+#changelist-filter li.selected {
+    border-left-color: var(--nl-primary);
+}
+
+#changelist-filter li.selected a {
+    color: var(--nl-primary-dark);
+}
+
+/* ---- INPUTS ---------------------------------------------------------- */
+input[type=text],
+input[type=password],
+input[type=email],
+input[type=url],
+input[type=number],
+input[type=tel],
+textarea,
+select,
+.vTextField {
+    border-radius: 6px;
+    border: 1px solid var(--nl-border);
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.vTextField:focus {
+    border-color: var(--nl-primary);
+    outline: 2px solid rgba(26, 116, 191, 0.2);
+    outline-offset: 0;
+}
+
+/* ---- MESSAGES -------------------------------------------------------- */
+ul.messagelist li {
+    border-radius: 6px;
+}
+
+/* ---- LOGIN SCREEN ---------------------------------------------------- */
+body.login {
+    background:
+        radial-gradient(circle at 50% -10%, var(--nl-primary-light), transparent 55%),
+        var(--nl-page-bg);
+}
+
+.login #container {
+    border: 1px solid var(--hairline-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(15, 69, 112, 0.12);
+    overflow: hidden;
+}
+
+/* Branded header strip on the login card. */
+.login #header {
+    background: #ffffff;
+    border-bottom: 3px solid var(--nl-primary);
+    padding: 22px 16px 18px;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Login logo, injected by templates/admin/login.html. */
+.login #nl-login-logo {
+    display: block;
+    height: 46px;
+    width: auto;
+    margin: 0 auto;
+}
+
+.login #header h1,
+.login #header h1 a {
+    color: var(--nl-primary-dark);
+    font-weight: 600;
+}
+
+.login .submit-row input {
+    width: 100%;
+    padding: 11px;
+    font-size: 0.95rem;
+}
+
+/* ---- ACCESSIBILITY / FOCUS ------------------------------------------ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--nl-primary);
+    outline-offset: 1px;
+}

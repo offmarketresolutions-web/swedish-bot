@@ -1,0 +1,135 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{{ vendor.name }} — {% trans "Knowledge Base" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'dash-kb' %}" class="hover:text-nl-primary">{% trans "Knowledge Base" %}</a>
+  <span class="text-nl-base/30">/</span>
+  <span class="text-nl-base/80">{{ vendor.name }}</span>
+{% endblock %}
+{% block content %}
+<div class="flex items-end justify-between gap-4 mb-5">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">{{ vendor.name }}</h1>
+    <p class="text-sm text-nl-base/60 mt-0.5">
+      {% blocktrans count n=machine_count %}{{ n }} machine{% plural %}{{ n }} machines{% endblocktrans %}
+      {% if not vendor.is_active %}· <span class="text-nl-action">{% trans "inactive" %}</span>{% endif %}
+    </p>
+  </div>
+  <div class="flex items-center gap-2 shrink-0">
+    <a href="{% url 'dash-kb-machine-new' %}?vendor={{ vendor.pk }}" class="btn btn-primary">+ {% trans "Add machine" %}</a>
+  </div>
+</div>
+
+{% if vendor.notes %}<p class="text-sm text-nl-base/70 mb-5 max-w-3xl">{{ vendor.notes }}</p>{% endif %}
+
+{# ── Analytics ──────────────────────────────────────────────────────── #}
+<section class="mb-6" aria-labelledby="vendor-analytics-h" data-testid="vendor-analytics">
+  <h2 id="vendor-analytics-h" class="font-semibold mb-3">{% trans "Analytics" %}</h2>
+  {% include 'dashboard/_stat_block.html' with stats=stats %}
+  <div class="grid md:grid-cols-2 gap-6 mt-4">
+    <div class="nl-card p-4">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-nl-base/60 mb-3">{% trans "By severity" %}</h3>
+      {% with maxn=stats.by_severity.0.n %}
+      <ul class="space-y-2.5" role="list">
+        {% for row in stats.by_severity %}
+          <li>
+            <div class="flex items-baseline justify-between gap-3 text-sm">
+              <span class="min-w-0 truncate text-nl-base/80">{{ row.severity }}</span>
+              <span class="shrink-0 font-medium tabular-nums">{{ row.n }}</span>
+            </div>
+            <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+              <div class="h-full rounded-full bg-nl-action" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+            </div>
+          </li>
+        {% empty %}
+          <li class="text-xs text-nl-base/60">{% trans "No sessions recorded for this brand yet." %}</li>
+        {% endfor %}
+      </ul>
+      {% endwith %}
+    </div>
+    <div class="nl-card p-4">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-nl-base/60 mb-3">{% trans "Top machines" %}</h3>
+      {% with maxn=stats.top_machines.0.n %}
+      <ul class="space-y-2.5" role="list">
+        {% for row in stats.top_machines %}
+          <li>
+            <div class="flex items-baseline justify-between gap-3 text-sm">
+              <span class="min-w-0 truncate">
+                <a href="/dashboard/kb/machine/{{ row.machine__id }}/" class="text-nl-primary hover:text-nl-primaryd">{{ row.machine__model_name }}</a>
+              </span>
+              <span class="shrink-0 font-medium tabular-nums">
+                <span class="mr-1.5 text-xs font-normal text-nl-base/60">{% blocktrans with r=row.resolved n=row.n %}{{ r }}/{{ n }} resolved{% endblocktrans %}</span>{{ row.n }}
+              </span>
+            </div>
+            <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+              <div class="h-full rounded-full bg-nl-primary" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+            </div>
+          </li>
+        {% empty %}
+          <li class="text-xs text-nl-base/60">{% trans "No machines identified in sessions yet." %}</li>
+        {% endfor %}
+      </ul>
+      {% endwith %}
+    </div>
+  </div>
+</section>
+
+<div class="grid md:grid-cols-3 gap-6">
+  <!-- machines by category -->
+  <section class="md:col-span-2 space-y-5">
+    <h2 class="font-semibold">{% trans "Machines" %}</h2>
+    {% for grp in cat_groups %}
+      <div class="nl-card p-4">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-nl-base/60 mb-2">{{ grp.name }}</h3>
+        <ul class="divide-y divide-nl-border/60">
+          {% for m in grp.machines %}
+            <li>
+              <a href="{% url 'dash-kb-machine-page' m.pk %}"
+                 data-testid="kb-machine-{{ m.pk }}"
+                 class="flex items-center justify-between gap-3 py-2 -mx-1 px-1 rounded hover:bg-nl-primaryl/40 group">
+                <span class="font-medium text-nl-base group-hover:text-nl-primaryd">{{ m.model_name }}</span>
+                <span class="text-xs text-nl-base/60">
+                  {% if not m.is_supported %}<span class="text-nl-action">{% trans "unsupported" %}</span> · {% endif %}→
+                </span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% empty %}
+      {% include "dashboard/_empty_state.html" with icon='book' heading=_('No machines yet') guidance=_('Add the first machine for this brand to attach manuals and notes.') cta_label=_('Add machine') cta_href='/dashboard/kb/machine/new/' %}
+    {% endfor %}
+  </section>
+
+  <!-- right rail: agent notes + brand notes -->
+  <aside class="space-y-6">
+    <div class="nl-card p-4">
+      <h2 class="font-semibold mb-2">{% trans "Per-vendor agent notes" %}</h2>
+      <p class="text-xs text-nl-base/60 mb-2">{% trans "Appended to the specialist for this vendor’s machines." %}</p>
+      {% include "dashboard/_vendor_notes.html" with vendor=vendor saved=False %}
+    </div>
+
+    <div class="nl-card p-4">
+      <h2 class="font-semibold mb-2">{% trans "Brand notes" %}</h2>
+      <ul class="space-y-2 mb-3" data-testid="brand-note-list">
+        {% for n in brand_notes %}
+          <li class="text-sm bg-nl-bg rounded px-3 py-2">
+            {{ n.body }}
+            <div class="text-xs text-nl-base/60 mt-1">
+              {% if n.category %}{{ n.category.name }} · {% endif %}{{ n.created_at|date:"Y-m-d" }}
+            </div>
+          </li>
+        {% empty %}
+          <li class="text-xs text-nl-base/60">{% trans "No brand notes yet." %}</li>
+        {% endfor %}
+      </ul>
+      <form method="post" action="{% url 'dash-kb-vendor' vendor.pk %}" class="space-y-2 text-sm" data-testid="brand-note-form">
+        {% csrf_token %}
+        {{ brand_note_form.category }}
+        {{ brand_note_form.body }}
+        <button class="btn btn-primary w-full">{% trans "Add brand note" %}</button>
+      </form>
+    </div>
+  </aside>
+</div>
+{% include 'dashboard/_related_crm.html' %}
+{% endblock %}

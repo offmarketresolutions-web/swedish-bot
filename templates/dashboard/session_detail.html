@@ -1,41 +1,60 @@
 {% extends "dashboard/base.html" %}{% load i18n %}
+
+{% block breadcrumb %}
+  <a href="{% url 'dash-sessions' %}" class="hover:text-nl-primary">{% trans "Conversations" %}</a>
+  <span class="text-nl-base/30">/</span>
+  <span class="text-nl-base/80">#{{ session.pk }}</span>
+{% endblock %}
+
 {% block content %}
-<a href="{% url 'dash-sessions' %}" class="text-sm text-slate-500">&larr; {% trans "All sessions" %}</a>
-<h1 class="text-2xl font-semibold mb-4">{% trans "Session" %} #{{ session.pk }}</h1>
+{% blocktrans with id=session.pk asvar ttl %}Session #{{ id }}{% endblocktrans %}
+{% include 'dashboard/_page_header.html' with title=ttl subtitle=session.created_at|date:'Y-m-d H:i' %}
 
 <div class="grid md:grid-cols-3 gap-6">
   <!-- transcript -->
-  <div class="md:col-span-2 bg-white rounded-lg shadow p-4">
-    <h2 class="font-semibold mb-3">{% trans "Conversation" %}</h2>
+  <div class="md:col-span-2 nl-card p-4">
+    <div class="flex items-center justify-between mb-3 gap-2">
+      <h2 class="font-semibold">{% trans "Conversation" %}</h2>
+      {% include 'dashboard/_chat_modal.html' %}
+    </div>
     <div class="space-y-3">
       {% for m in messages %}
         {% if m.role == 'tool' %}
-          <div class="text-xs text-slate-400">⚙ {{ m.tool_name }}: {{ m.tool_result }}</div>
+          <div class="text-xs text-nl-base/60">⚙ {{ m.tool_name }}: {{ m.tool_result }}</div>
         {% else %}
           <div class="{% if m.role == 'user' %}text-right{% endif %}">
-            <span class="inline-block rounded-lg px-3 py-2 {% if m.role == 'user' %}bg-[#0E2A4F] text-white{% else %}bg-slate-100{% endif %}">{{ m.content }}</span>
-            {% if m.image %}<div><img src="{{ m.image.url }}" class="mt-1 max-h-40 rounded inline-block"></div>{% endif %}
-            {% if m.confidence %}<div class="text-xs text-slate-400">conf {{ m.confidence }}</div>{% endif %}
+            <span class="inline-block rounded-lg px-3 py-2 {% if m.role == 'user' %}bg-nl-primary text-white{% else %}bg-nl-bg{% endif %}">{{ m.content }}</span>
+            {% if m.image %}<div><img src="{{ m.image.url }}" class="mt-1 max-h-40 rounded inline-block" alt=""></div>{% endif %}
+            {% if m.confidence %}<div class="text-xs text-nl-base/60">conf {{ m.confidence }}</div>{% endif %}
           </div>
         {% endif %}
-      {% empty %}<p class="text-slate-400 text-sm">{% trans "No messages" %}</p>{% endfor %}
+      {% empty %}
+        {% include 'dashboard/_empty_state.html' with icon='chat' heading=_('No messages') guidance=_('This session has no transcript yet.') %}
+      {% endfor %}
     </div>
   </div>
 
   <!-- editable reporting fields + customer + leads -->
   <div class="space-y-6">
-    <div class="bg-white rounded-lg shadow p-4">
+    <div class="nl-card p-4">
       <h2 class="font-semibold mb-3">{% trans "Report" %}</h2>
       <dl class="text-sm space-y-1 mb-3">
-        <div class="flex justify-between"><dt class="text-slate-500">{% trans "Equipment" %}</dt><dd>{{ session.manufacturer }} {{ session.model }}</dd></div>
-        <div class="flex justify-between"><dt class="text-slate-500">{% trans "Error code" %}</dt><dd>{{ session.error_code|default:"—" }}</dd></div>
-        <div class="flex justify-between"><dt class="text-slate-500">{% trans "Problem" %}</dt><dd>{{ session.problem_category|default:"—" }}</dd></div>
-        <div class="flex justify-between"><dt class="text-slate-500">{% trans "Confidence" %}</dt><dd>{{ session.confidence_score|default:"—" }}</dd></div>
+        <div class="flex justify-between gap-2"><dt class="text-nl-base/60">{% trans "Equipment" %}</dt><dd class="text-right">
+          {% if session.machine %}<a class="text-nl-primary hover:underline" href="{% url 'dash-kb-machine-page' session.machine.pk %}">{{ session.machine.vendor.name }} {{ session.machine.model_name }}</a>
+          {% else %}{{ session.manufacturer }} {{ session.model|default:"—" }}{% endif %}</dd></div>
+        <div class="flex justify-between gap-2"><dt class="text-nl-base/60">{% trans "Brand" %}</dt><dd class="text-right">
+          {% if session.machine %}<a class="text-nl-primary hover:underline" href="{% url 'dash-kb-vendor' session.machine.vendor.pk %}">{{ session.machine.vendor.name }}</a>
+          {% elif session.manufacturer %}{{ session.manufacturer }}{% else %}—{% endif %}</dd></div>
+        <div class="flex justify-between gap-2"><dt class="text-nl-base/60">{% trans "Type" %}</dt><dd class="text-right">
+          {% if session.category %}<a class="text-nl-primary hover:underline" href="{% url 'dash-kb-category' session.category.pk %}">{{ session.category.name }}</a>{% else %}—{% endif %}</dd></div>
+        <div class="flex justify-between gap-2"><dt class="text-nl-base/60">{% trans "Error code" %}</dt><dd>{{ session.error_code|default:"—" }}</dd></div>
+        <div class="flex justify-between gap-2"><dt class="text-nl-base/60">{% trans "Problem" %}</dt><dd>{{ session.problem_category|default:"—" }}</dd></div>
+        <div class="flex justify-between gap-2"><dt class="text-nl-base/60">{% trans "Confidence" %}</dt><dd>{{ session.confidence_score|default:"—" }}</dd></div>
       </dl>
       <form method="post" class="space-y-2 text-sm">
         {% csrf_token %}
         <label class="block">{% trans "Severity" %}
-          <select name="severity" class="border rounded px-2 py-1 w-full">
+          <select name="severity" class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5">
             {% for s in severities %}<option value="{{ s }}" {% if s == session.severity %}selected{% endif %}>{{ s }}</option>{% endfor %}
           </select>
         </label>
@@ -43,25 +62,25 @@
         <label class="flex items-center gap-2"><input type="checkbox" name="service_recommended" {% if session.service_recommended %}checked{% endif %}> {% trans "Service recommended" %}</label>
         <label class="flex items-center gap-2"><input type="checkbox" name="booking_requested" {% if session.booking_requested %}checked{% endif %}> {% trans "Booking requested" %}</label>
         <label class="block">{% trans "AI summary" %}
-          <textarea name="ai_summary" rows="4" class="border rounded px-2 py-1 w-full">{{ session.ai_summary }}</textarea>
+          <textarea name="ai_summary" rows="4" class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5">{{ session.ai_summary }}</textarea>
         </label>
-        <button class="bg-[#0E2A4F] text-white rounded px-3 py-1">{% trans "Save" %}</button>
+        <button class="btn btn-primary">{% trans "Save" %}</button>
       </form>
     </div>
 
     {% if session.customer %}
-    <div class="bg-white rounded-lg shadow p-4 text-sm">
+    <div class="nl-card p-4 text-sm">
       <h2 class="font-semibold mb-2">{% trans "Customer" %}</h2>
-      <div>{{ session.customer.name }}</div>
-      <div class="text-slate-500">{{ session.customer.phone }} · {{ session.customer.email }}</div>
-      <div class="text-slate-500">{{ session.customer.postal_code }} {{ session.customer.address }}</div>
+      <div><a class="text-nl-primary hover:text-nl-primaryd" href="{% url 'dash-customer' session.customer.pk %}">{{ session.customer.name|default:"—" }}</a></div>
+      <div class="text-nl-base/60">{{ session.customer.phone }} · {{ session.customer.email }}</div>
+      <div class="text-nl-base/60">{{ session.customer.postal_code }} {{ session.customer.address }}</div>
     </div>
     {% endif %}
 
     {% if deliveries %}
-    <div class="bg-white rounded-lg shadow p-4 text-sm">
+    <div class="nl-card p-4 text-sm">
       <h2 class="font-semibold mb-2">{% trans "Lead delivery" %}</h2>
-      {% for d in deliveries %}<div class="flex justify-between py-0.5"><span>{{ d.sink }}</span><span class="{% if d.status == 'success' %}text-green-700{% elif d.status == 'failed' %}text-red-600{% else %}text-slate-400{% endif %}">{{ d.status }}</span></div>{% endfor %}
+      {% for d in deliveries %}<div class="flex justify-between py-0.5"><span>{{ d.sink }}</span><span class="{% if d.status == 'success' %}text-green-700{% elif d.status == 'failed' %}text-nl-action{% else %}text-nl-base/60{% endif %}">{{ d.status }}</span></div>{% endfor %}
     </div>
     {% endif %}
   </div>

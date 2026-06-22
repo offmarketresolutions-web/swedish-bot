@@ -1,0 +1,18 @@
+{% load i18n %}{% comment %}Read-only replay of a real conversation, styled like the widget chat bubbles.{% endcomment %}
+<div data-testid="chat-replica">
+  {% for m in messages %}
+    {% if m.role == 'tool' %}
+      <div class="text-center my-2"><span class="text-[11px] text-nl-base/60 bg-nl-bg rounded-full px-2 py-0.5">⚙ {{ m.tool_name }}</span></div>
+    {% else %}
+      <div class="flex mb-2.5 {% if m.role == 'user' %}justify-end{% endif %}">
+        <div class="max-w-[80%]">
+          <div class="rounded-2xl px-3.5 py-2 text-sm leading-relaxed {% if m.role == 'user' %}bg-nl-primary text-white rounded-br-md{% else %}bg-white border border-nl-border text-nl-base rounded-bl-md{% endif %}" style="white-space:pre-wrap;word-wrap:break-word">{{ m.content }}</div>
+          {% if m.image %}<div class="{% if m.role == 'user' %}text-right{% endif %} mt-1"><img src="{{ m.image.url }}" class="max-h-48 rounded-lg border border-nl-border inline-block" alt="{% trans 'Customer photo' %}"></div>{% endif %}
+          <div class="text-[10px] text-nl-base/60 mt-0.5 {% if m.role == 'user' %}text-right{% endif %}">{% if m.role == 'user' %}{% trans "Customer" %}{% else %}Nordland VVS{% endif %} · {{ m.created_at|date:'H:i' }}</div>
+        </div>
+      </div>
+    {% endif %}
+  {% empty %}
+    <p class="text-sm text-nl-base/60">{% trans "No messages in this conversation." %}</p>
+  {% endfor %}
+</div>

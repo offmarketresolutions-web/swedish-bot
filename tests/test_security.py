@@ -53,7 +53,9 @@ def _to_escalation(conv, mock_gemini, conf=0.4):
     orch.process_turn(conv, "heat_pump")
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "IVT")
-    return orch.process_turn(conv, "IVT 490")  # low conf → escalate → asks name
+    res = orch.process_turn(conv, "IVT 490")  # low conf → escalate → asks for diagnostics
+    orch.process_turn(conv, "rattles, code E9")  # diagnostics reply → asks name
+    return res
 
 
 def _fill_contact(conv):

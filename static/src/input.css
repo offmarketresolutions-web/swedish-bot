@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* HTMX in-flight feedback: hide the spinner until a request is active on the
+   initiating element (htmx adds .htmx-request to it during the request). */
+.htmx-indicator { display: none; }
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator { display: inline; }
+
+/* Alpine: hide elements until Alpine initializes (no flash of x-show content). */
+[x-cloak] { display: none !important; }
+
+@layer components {
+  /* a11y skip link — hidden until focused */
+  .nl-skip-link { @apply sr-only; }
+  .nl-skip-link:focus { @apply not-sr-only fixed left-3 top-3 z-50 rounded bg-nl-primary px-3 py-2 text-sm text-white shadow; }
+
+  /* App shell — sidebar is FIXED at all sizes so it never scrolls with the page
+     (mobile: off-canvas drawer; desktop: pinned, content is padded by lg:pl-60). */
+  .nl-sidebar { @apply fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-nl-primaryd text-white transition-transform duration-200 -translate-x-full lg:translate-x-0; }
+  .nl-nav { @apply flex items-center gap-3 px-4 py-2 text-white/75 hover:bg-white/10 hover:text-white; }
+  .nl-nav-on { @apply bg-white/10 text-white font-medium border-l-4 border-nl-action pl-3; }
+  .nl-nav-group { @apply px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-white/40; }
+  .nl-ico { @apply h-5 w-5 shrink-0; }
+  .nl-topbar { @apply sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-nl-border bg-white px-4; }
+
+  /* Reusable surfaces + buttons */
+  .nl-card { @apply rounded-lg border border-nl-border bg-white shadow-sm; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition disabled:opacity-50; }
+  /* visible keyboard focus on every button variant (WCAG 2.4.7) */
+  .btn:focus-visible { @apply outline-none ring-2 ring-nl-primary ring-offset-2; }
+  /* comfortable touch targets on coarse pointers (WCAG 2.5.5) */
+  @media (pointer: coarse) { .btn { @apply min-h-[44px] px-4; } }
+  .btn-primary { @apply bg-nl-primary text-white hover:bg-nl-primaryd; }
+  .btn-secondary { @apply border border-nl-border bg-white text-nl-base hover:bg-nl-bg; }
+  .btn-danger { @apply bg-nl-action text-white hover:bg-nl-actionh; }
+}

@@ -1,7 +1,16 @@
-.PHONY: install dev check migrate makemigrations run test test-live lint spike seed demo up down logs
+.PHONY: install dev check migrate makemigrations run test test-live test-e2e lint spike seed demo css up down logs
 
 install:
 	uv sync
+
+# Compile the dashboard Tailwind CSS (committed to static/dashboard/css/app.css so
+# the Docker image stays Python-only). Re-run after editing dashboard templates.
+css:
+	npx -y tailwindcss@3.4.17 -c tailwind.config.js -i static/src/input.css -o static/dashboard/css/app.css --minify
+
+# Playwright end-to-end (needs the stack up on :8080 + staff user admin/nordland123).
+test-e2e:
+	uv run python tools/e2e_playwright.py
 
 check:
 	uv run python manage.py check

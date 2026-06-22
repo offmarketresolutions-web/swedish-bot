@@ -1,0 +1,78 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{{ machine.model_name }} — {{ machine.vendor.name }} — Nordland VVS{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'dash-kb' %}" class="hover:text-nl-primary">{% trans "Knowledge Base" %}</a>
+  <span class="text-nl-base/30">/</span>
+  <a href="{% url 'dash-kb-vendor' machine.vendor.pk %}" class="hover:text-nl-primary">{{ machine.vendor.name }}</a>
+  <span class="text-nl-base/30">/</span>
+  <span class="text-nl-base/80">{{ machine.model_name }}</span>
+{% endblock %}
+{% block content %}
+<div class="flex items-end justify-between gap-4 mb-5">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">{{ machine.model_name }}</h1>
+    <p class="text-sm text-nl-base/60 mt-0.5">
+      <a href="{% url 'dash-kb-vendor' machine.vendor.pk %}" class="text-nl-primary hover:text-nl-primaryd">{{ machine.vendor.name }}</a>
+      · {{ machine.category.name }} · slug {{ machine.slug }}
+      {% if machine.is_supported %}· {% trans "supported" %}{% else %}· <span class="text-nl-action">{% trans "unsupported" %}</span>{% endif %}
+    </p>
+    {% if machine.aliases %}<p class="text-xs text-nl-base/60 mt-0.5">{% trans "Aliases:" %} {{ machine.aliases|join:", " }}</p>{% endif %}
+  </div>
+</div>
+
+{# ── Analytics ──────────────────────────────────────────────────────── #}
+<section class="mb-6" aria-labelledby="machine-analytics-h" data-testid="machine-analytics">
+  <h2 id="machine-analytics-h" class="font-semibold mb-3">{% trans "Analytics" %}</h2>
+  {% include 'dashboard/_stat_block.html' with stats=stats %}
+  <div class="nl-card p-4 mt-4">
+    <h3 class="text-xs font-semibold uppercase tracking-wide text-nl-base/60 mb-3">{% trans "Top problems" %}</h3>
+    {% with maxn=stats.by_problem.0.n %}
+    <ul class="space-y-2.5" role="list">
+      {% for row in stats.by_problem %}
+        <li>
+          <div class="flex items-baseline justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate text-nl-base/80">{{ row.problem_category__label }}</span>
+            <span class="shrink-0 font-medium tabular-nums">{{ row.n }}</span>
+          </div>
+          <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+            <div class="h-full rounded-full bg-nl-primary" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        <li class="text-xs text-nl-base/60">{% trans "No problems categorized for this machine yet." %}</li>
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+</section>
+
+<div class="grid md:grid-cols-3 gap-6">
+  <!-- manuals + notes panel (HTMX swap target for upload/note endpoints) -->
+  <section class="md:col-span-2">
+    <div id="kb-panel" data-testid="kb-panel" aria-live="polite"
+         hx-on::after-swap="this.querySelector('[data-testid=note-input]')?.focus();">
+      {% include "dashboard/_machine_panel.html" %}
+    </div>
+  </section>
+
+  <!-- edit machine -->
+  <aside>
+    <div class="nl-card p-4">
+      <h2 class="font-semibold mb-3">{% trans "Edit machine" %}</h2>
+      <form method="post" action="{% url 'dash-kb-machine-page' machine.pk %}" class="space-y-3 text-sm" data-testid="machine-edit-form">
+        {% csrf_token %}
+        {% for field in edit_form %}
+          <div>
+            <label class="block font-medium text-nl-base/70 mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<p class="text-xs text-nl-base/60 mt-1">{{ field.help_text }}</p>{% endif %}
+            {% for e in field.errors %}<p class="text-xs text-nl-action mt-1">{{ e }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+        <button class="btn btn-primary w-full">{% trans "Save changes" %}</button>
+      </form>
+    </div>
+  </aside>
+</div>
+{% include 'dashboard/_related_crm.html' %}
+{% endblock %}

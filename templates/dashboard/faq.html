@@ -1,0 +1,52 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{% trans "FAQ" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}{% trans "FAQ" %}{% endblock %}
+{% block content %}
+{% blocktrans count n=total asvar sub %}{{ n }} question{% plural %}{{ n }} questions{% endblocktrans %}
+{% include "dashboard/_page_header.html" with title=_('Site FAQ') subtitle=sub %}
+
+<div class="nl-card bg-nl-primaryl/60 border-nl-primary/20 px-4 py-3 mb-5 text-sm text-nl-primaryd flex items-start gap-2">
+  <span aria-hidden="true">ℹ️</span>
+  <p>{% trans "These are imported from nordlandvvs.se (the public “Vanliga frågor”). Edit them in Django Admin under Site FAQ; the assistant also searches them when answering." %}</p>
+</div>
+
+<form method="get" class="mb-5 flex flex-wrap items-center gap-2 text-sm">
+  <input name="q" value="{{ q }}" type="search"
+         placeholder="{% trans 'Search questions and answers…' %}"
+         aria-label="{% trans 'Search FAQ' %}"
+         class="flex-1 min-w-[12rem] rounded-md border border-nl-border bg-white px-3 py-1.5 focus:border-nl-primary focus:outline-none focus:ring-1 focus:ring-nl-primary">
+  <button class="btn btn-primary">{% trans "Search" %}</button>
+  {% if q %}<a href="{% url 'dash-faq' %}" class="btn btn-secondary">{% trans "Clear" %}</a>{% endif %}
+</form>
+
+{% if topic_groups %}
+<div class="space-y-8" data-testid="faq-groups">
+  {% for g in topic_groups %}
+    <section data-testid="faq-topic">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-nl-base/60 mb-3">{{ g.topic }}</h2>
+      <div class="nl-card divide-y divide-nl-border/60">
+        {% for f in g.faqs %}
+          <div x-data="{ open: false }" data-testid="faq-item">
+            <button type="button" class="w-full flex items-center justify-between gap-3 text-left px-4 py-3 font-medium hover:bg-nl-bg/60"
+                    @click="open = !open" :aria-expanded="open">
+              <span>{{ f.question }}</span>
+              <span class="text-nl-base/60 shrink-0" x-text="open ? '−' : '+'" aria-hidden="true"></span>
+            </button>
+            <div x-show="open" x-transition.opacity x-cloak class="px-4 pb-4 text-sm text-nl-base/70 whitespace-pre-line">
+              {{ f.answer }}
+              {% if f.source_url|slice:":4" == 'http' %}<div class="mt-2"><a href="{{ f.source_url }}" target="_blank" rel="noopener" class="text-nl-primary text-xs hover:underline">{% trans "Source" %} ↗</a></div>{% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+</div>
+{% else %}
+  {% if q %}
+    {% include "dashboard/_empty_state.html" with icon='book' heading=_('No matching questions') guidance=_('No FAQ entries match your search. Try a different word.') cta_label=_('Clear search') cta_href=request.path %}
+  {% else %}
+    {% include "dashboard/_empty_state.html" with icon='book' heading=_('No FAQ entries yet') guidance=_('Import the public FAQ from nordlandvvs.se, or add entries in Django Admin under Site FAQ.') %}
+  {% endif %}
+{% endif %}
+{% endblock %}

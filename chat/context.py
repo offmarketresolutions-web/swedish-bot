@@ -17,10 +17,12 @@ _CACHE_TTL = 3600
 _NOTES_CAP = 2000  # so notes never crowd out the manual (crit 1.9)
 
 
-def collect_knowledge(machine, locale: str = "en") -> tuple[str, str]:
+def collect_knowledge(machine, locale: str = "en", *, query: str = "") -> tuple[str, str]:
     """Return (notes_text, faq_text) for the machine. Per-machine notes precede
     vendor/category brand notes; both are wrapped as untrusted reference DATA (S8)
-    and length-capped so the manual stays the dominant source."""
+    and length-capped so the manual stays the dominant source. When `query` (the
+    problem text) is given and semantic search is on, the most relevant FAQ/guide
+    snippets across the KB are appended (V2 embedding retrieval)."""
     from chat.sanitize import cap, wrap_untrusted
     from kb.models import BrandNote, FAQEntry, GenericGuide, MachineNote
 
@@ -42,6 +44,13 @@ def collect_knowledge(machine, locale: str = "en") -> tuple[str, str]:
         # best-practice / generic guides for this category (V2 P-D), capped.
         for g in GenericGuide.objects.filter(category=machine.category, lang__in=[locale, "en"]).exclude(kind="faq"):
             faq_text += f"[{g.kind}] {g.body}\n"
+    # Semantic retrieval (V2): the most relevant guidance for THIS problem, across
+    # categories. Fail-safe + flag-gated inside rank_guides.
+    if query:
+        from kb import semantic
+        for text, _score in semantic.rank_guides(query, locale=locale):
+            if text not in faq_text:
+                faq_text += text + "\n"
     return notes_text, cap(faq_text, 1500)
 
 

@@ -21,6 +21,33 @@ def _drive_to_specialist(conv):
     return orch.process_turn(conv, "IVT 490")  # model (free text) → routes + specialist
 
 
+def test_escalation_asks_for_problem_and_error_photo_before_contact(seeded, mock_gemini):
+    """Unsupported brand → before collecting contact, the bot asks for a detailed
+    problem description + a photo of any error code; only then does it ask for name."""
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no_heat")
+    orch.process_turn(conv, "other")
+    res = orch.process_turn(conv, "Aqua Invent X")          # unsupported → escalate
+    assert res["decision"] == "escalate"
+    low = res["message"].lower()
+    assert "photo" in low and ("error" in low or "code" in low)   # asked for the error-code photo
+    assert "name" not in low                                       # NOT contact yet
+    nxt = orch.process_turn(conv, "it leaks and shows code F2")    # diagnostics reply
+    assert "name" in nxt["message"].lower()                        # now collects contact
+
+
+def test_history_and_files_carried_to_downstream_agents(seeded, mock_gemini):
+    conv, _ = orch.open_conversation()
+    _drive_to_specialist(conv)
+    for role in ("router", "specialist"):
+        calls = [c for c in mock_gemini.calls if c["role"] == role]
+        assert calls, f"no {role} call recorded"
+        blob = str(calls[-1]["contents"])
+        assert "Conversation so far" in blob              # full transcript carried over
+        assert "no_heat" in blob or "IVT" in blob         # actual prior messages present
+
+
 def test_open_conversation_greets_with_category_chips(seeded, mock_gemini):
     conv, greet = orch.open_conversation()
     assert greet["state"] == "INTAKE"
@@ -94,8 +121,21 @@ def test_reply_budget_forces_escalation(seeded, mock_gemini):
     _drive_to_specialist(conv)  # one solve
     conv.refresh_from_db()
     cs = conv.case_state
-    cs["turns"] = orch.REPLY_BUDGET  # exhaust the budget
+    cs["specialist_turns"] = orch.REPLY_BUDGET  # exhaust the TROUBLESHOOTING budget
     conv.case_state = cs
     conv.save(update_fields=["case_state"])
     res = orch.process_turn(conv, "it's still not working")
     assert res["decision"] == "escalate"  # forced wrap-up despite high confidence
+
+
+def test_intake_turns_do_not_consume_reply_budget(seeded, mock_gemini):
+    """Regression: the customer's first real question after intake must still get a
+    real answer — intake turns must NOT count toward the troubleshooting budget."""
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Check the filter.", "confidence": 0.95,
+        "decision": "solve", "in_docs": True, "report": {},
+    }
+    conv, _ = orch.open_conversation()
+    _drive_to_specialist(conv)                       # 4 intake turns + 1 specialist solve
+    res = orch.process_turn(conv, "what does alarm E2 mean?")   # 2nd specialist turn
+    assert res["decision"] == "solve"                # not force-escalated by intake turns

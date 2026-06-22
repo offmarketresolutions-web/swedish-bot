@@ -1,0 +1,365 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+
+{% block title %}{% trans "Analytics" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}{% trans "Analytics" %}{% endblock %}
+
+{% block content %}
+<div data-testid="analytics-page">
+
+{% include 'dashboard/_page_header.html' with title=_('Analytics') subtitle=_('Support performance, success scoreboard and lead pipeline') %}
+
+{# ── Needs-attention banner: metrics below target ───────────────────── #}
+{% if at_risk %}
+<div class="nl-card bg-amber-50 border-amber-300 px-4 py-3 mb-6 flex items-start gap-2" role="status" data-testid="analytics-alert">
+  <span aria-hidden="true">⚠️</span>
+  <div>
+    <p class="text-sm font-semibold text-amber-800">{% blocktrans count n=at_risk|length %}{{ n }} metric below target{% plural %}{{ n }} metrics below target{% endblocktrans %}</p>
+    <div class="flex flex-wrap gap-2 mt-1.5">
+      {% for m in at_risk %}{% widthratio m.target 1 100 as tgt %}<a href="#scoreboard-h" class="text-xs rounded-full bg-amber-100 text-amber-800 px-2.5 py-0.5 hover:bg-amber-200">{{ m.label }}: {% widthratio m.value 1 100 %}% <span class="text-amber-700/80">({% trans "target" %} {{ tgt }}%)</span></a>{% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="nl-card bg-green-50 border-green-200 px-4 py-3 mb-6 flex items-center gap-2 text-sm text-green-800" role="status" data-testid="analytics-alert">
+  <span aria-hidden="true">✅</span> {% trans "All success metrics are at or above target." %}
+</div>
+{% endif %}
+
+{# ── Day-range switch ───────────────────────────────────────────────── #}
+<div class="mb-6 flex items-center gap-2 text-sm" role="group" aria-label="{% trans 'Date range' %}">
+  <span class="text-nl-base/60">{% trans "Window:" %}</span>
+  <a href="?days=7"  class="rounded-md px-3 py-1.5 font-medium {% if trend_days == 7 %}bg-nl-primary text-white{% else %}border border-nl-border bg-white text-nl-base hover:bg-nl-bg{% endif %}" {% if trend_days == 7 %}aria-current="true"{% endif %}>{% trans "7 days" %}</a>
+  <a href="?days=30" class="rounded-md px-3 py-1.5 font-medium {% if trend_days == 30 %}bg-nl-primary text-white{% else %}border border-nl-border bg-white text-nl-base hover:bg-nl-bg{% endif %}" {% if trend_days == 30 %}aria-current="true"{% endif %}>{% trans "30 days" %}</a>
+  <a href="?days=90" class="rounded-md px-3 py-1.5 font-medium {% if trend_days == 90 %}bg-nl-primary text-white{% else %}border border-nl-border bg-white text-nl-base hover:bg-nl-bg{% endif %}" {% if trend_days == 90 %}aria-current="true"{% endif %}>{% trans "90 days" %}</a>
+  <span class="ml-auto text-xs text-nl-base/60">{% trans "Updated" %} {% now "Y-m-d H:i" %}</span>
+</div>
+
+{# ── KPI cards ──────────────────────────────────────────────────────── #}
+<div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4 mb-8">
+  <div class="nl-card p-4">
+    <div class="text-3xl font-bold tabular-nums">{{ kpis.total }}</div>
+    <div class="text-sm text-nl-base/60">{% trans "Conversations" %}</div>
+    <div class="mt-1 text-xs text-nl-base/60">{% blocktrans count n=kpis.resolved %}{{ n }} resolved{% plural %}{{ n }} resolved{% endblocktrans %}</div>
+  </div>
+  <div class="nl-card p-4">
+    <div class="text-3xl font-bold tabular-nums text-green-700">{% widthratio kpis.resolution_rate 1 100 %}%</div>
+    <div class="text-sm text-nl-base/60">{% trans "Resolution rate" %}</div>
+    <div class="mt-1 text-xs text-nl-base/60">{% trans "of all conversations" %}</div>
+  </div>
+  <div class="nl-card p-4">
+    <div class="text-3xl font-bold tabular-nums">{% widthratio kpis.deflection_rate 1 100 %}%</div>
+    <div class="text-sm text-nl-base/60">{% trans "Deflection" %}</div>
+    <div class="mt-1 text-xs text-nl-base/60">{% trans "solved without a human" %}</div>
+  </div>
+  <div class="nl-card p-4">
+    <div class="text-3xl font-bold tabular-nums text-nl-action">{% widthratio kpis.escalation_rate 1 100 %}%</div>
+    <div class="text-sm text-nl-base/60">{% trans "Escalation rate" %}</div>
+    <div class="mt-1 text-xs text-nl-base/60">{% blocktrans count n=kpis.escalated %}{{ n }} escalated{% plural %}{{ n }} escalated{% endblocktrans %}</div>
+  </div>
+  <div class="nl-card p-4">
+    <div class="text-3xl font-bold tabular-nums">{{ kpis.leads_captured }}</div>
+    <div class="text-sm text-nl-base/60">{% trans "Leads captured" %}</div>
+    <div class="mt-1 text-xs text-nl-base/60">{% widthratio kpis.lead_capture_rate 1 100 %}% {% trans "capture rate" %}</div>
+  </div>
+  <div class="nl-card p-4">
+    <div class="text-3xl font-bold tabular-nums">{{ contacts.returning_customers }}</div>
+    <div class="text-sm text-nl-base/60">{% trans "Returning customers" %}</div>
+    <div class="mt-1 text-xs text-nl-base/60">{% widthratio contacts.returning_rate 1 100 %}% {% trans "of customers" %}</div>
+  </div>
+  <div class="nl-card p-4">
+    <div class="text-3xl font-bold tabular-nums">{{ kpis.avg_turns }}</div>
+    <div class="text-sm text-nl-base/60">{% trans "Avg turns" %}</div>
+    <div class="mt-1 text-xs text-nl-base/60">{% blocktrans with c=kpis.avg_confidence %}conf {{ c }}{% endblocktrans %}</div>
+  </div>
+</div>
+
+{# ── Success scoreboard ─────────────────────────────────────────────── #}
+<section class="nl-card p-5 mb-8" aria-labelledby="scoreboard-h">
+  <h2 id="scoreboard-h" class="font-semibold mb-4">{% trans "Success scoreboard" %}</h2>
+  <div class="space-y-4">
+    {% for m in success %}
+      {% widthratio m.value 1 100 as val_pct %}
+      {% widthratio m.target 1 100 as tgt_pct %}
+      <div>
+        <div class="flex items-baseline justify-between gap-3 text-sm mb-1.5">
+          <span class="text-nl-base/80">{{ m.label }}</span>
+          <span class="tabular-nums">
+            <span class="font-semibold {% if m.met %}text-green-700{% else %}text-amber-600{% endif %}">{{ val_pct }}%</span>
+            <span class="ml-2 text-xs text-nl-base/60">{% blocktrans %}target {{ tgt_pct }}%{% endblocktrans %}</span>
+            {% if m.met %}<span class="ml-2 text-xs font-medium text-green-700">{% trans "✓ met" %}</span>
+            {% else %}<span class="ml-2 text-xs font-medium text-amber-600">{% trans "below" %}</span>{% endif %}
+          </span>
+        </div>
+        <div class="relative h-2.5 rounded-full bg-nl-bg overflow-hidden"
+             role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ val_pct }}"
+             aria-label="{{ m.label }}: {{ val_pct }}% ({% blocktrans %}target {{ tgt_pct }}%{% endblocktrans %})">
+          <div class="h-full rounded-full {% if m.met %}bg-green-600{% else %}bg-amber-500{% endif %}" style="width:{{ val_pct }}%"></div>
+          {# target marker #}
+          <div class="absolute -inset-y-0.5 w-0.5 bg-nl-base/70" style="left:{{ tgt_pct }}%" aria-hidden="true" title="{% trans 'target' %}"></div>
+        </div>
+      </div>
+    {% empty %}
+      {% include 'dashboard/_empty_state.html' with icon='chart' heading=_('No metrics yet') guidance=_('Success metrics appear once sessions are recorded.') %}
+    {% endfor %}
+  </div>
+</section>
+
+{# ── Trend chart ────────────────────────────────────────────────────── #}
+<section class="nl-card p-5 mb-8" aria-labelledby="trend-h">
+  <div class="flex items-baseline justify-between gap-3 mb-3">
+    <h2 id="trend-h" class="font-semibold">{% trans "Daily activity" %}</h2>
+    <span class="text-xs text-nl-base/60">{% blocktrans count n=trend_days %}last {{ n }} day{% plural %}last {{ n }} days{% endblocktrans %}</span>
+  </div>
+  <div class="flex items-center gap-4 mb-2 text-xs text-nl-base/60">
+    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-0.5 w-4 bg-nl-primary"></span>{% trans "Sessions" %}</span>
+    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-0.5 w-4 bg-green-600"></span>{% trans "Resolved" %}</span>
+  </div>
+  <svg id="trend-spark" viewBox="0 0 600 120" preserveAspectRatio="none" class="w-full h-28" role="img"
+       aria-label="{% trans 'Sessions per day (sessions line) with a thinner resolved line.' %}">
+    <line x1="0" y1="119" x2="600" y2="119" stroke="#d6d9db" stroke-width="1"/>
+    <polyline id="spark-sessions" fill="none" stroke="#1a74bf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points=""/>
+    <polyline id="spark-resolved" fill="none" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" points=""/>
+  </svg>
+  <p id="trend-empty" class="hidden text-center text-sm text-nl-base/60 py-6">{% trans "No activity in this window yet." %}</p>
+</section>
+{{ trend|json_script:"trend-data" }}
+<script>
+(function () {
+  var data = JSON.parse(document.getElementById("trend-data").textContent || "[]");
+  var W = 600, H = 120, pad = 4;
+  function line(key, max) {
+    if (!data.length) return "";
+    var n = data.length;
+    var step = n > 1 ? (W - pad * 2) / (n - 1) : 0;
+    return data.map(function (d, i) {
+      var x = pad + step * i;
+      var y = max > 0 ? (H - pad) - (d[key] / max) * (H - pad * 2) : H - pad;
+      return x.toFixed(1) + "," + y.toFixed(1);
+    }).join(" ");
+  }
+  var max = 0;
+  data.forEach(function (d) { if (d.sessions > max) max = d.sessions; });
+  if (!data.length || max === 0) {
+    var svg = document.getElementById("trend-spark");
+    if (svg) svg.classList.add("hidden");
+    var e = document.getElementById("trend-empty");
+    if (e) e.classList.remove("hidden");
+    return;
+  }
+  document.getElementById("spark-sessions").setAttribute("points", line("sessions", max));
+  document.getElementById("spark-resolved").setAttribute("points", line("resolved", max));
+})();
+</script>
+
+{# ── Breakdowns ─────────────────────────────────────────────────────── #}
+<div class="grid md:grid-cols-2 gap-6 mb-6">
+
+  {# by category group #}
+  <div class="nl-card p-5">
+    <h2 class="font-semibold mb-4">{% trans "By category group" %}</h2>
+    {% with maxn=breakdowns.by_group.0.n %}
+    <ul class="space-y-2.5" role="list">
+      {% for row in breakdowns.by_group %}
+        <li>
+          <div class="flex items-baseline justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate text-nl-base/80">{{ row.category__group|default:_('(uncategorized)') }}</span>
+            <span class="shrink-0 font-medium tabular-nums">{{ row.n }}</span>
+          </div>
+          <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+            <div class="h-full rounded-full bg-nl-primary" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        {% include 'dashboard/_empty_state.html' with icon='book' heading=_('No data yet') guidance=_('Category groups appear once sessions are categorized.') %}
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+
+  {# by severity #}
+  <div class="nl-card p-5">
+    <h2 class="font-semibold mb-4">{% trans "By severity" %}</h2>
+    {% with maxn=breakdowns.by_severity.0.n %}
+    <ul class="space-y-2.5" role="list">
+      {% for row in breakdowns.by_severity %}
+        <li>
+          <div class="flex items-baseline justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate text-nl-base/80">{{ row.severity }}</span>
+            <span class="shrink-0 font-medium tabular-nums">{{ row.n }}</span>
+          </div>
+          <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+            <div class="h-full rounded-full bg-nl-action" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        {% include 'dashboard/_empty_state.html' with icon='chat' heading=_('No data yet') guidance=_('Severity breakdown appears once sessions are recorded.') %}
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+
+  {# by decision #}
+  <div class="nl-card p-5">
+    <h2 class="font-semibold mb-4">{% trans "By decision" %}</h2>
+    {% with maxn=breakdowns.by_decision.0.n %}
+    <ul class="space-y-2.5" role="list">
+      {% for row in breakdowns.by_decision %}
+        <li>
+          <div class="flex items-baseline justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate text-nl-base/80">{{ row.decision }}</span>
+            <span class="shrink-0 font-medium tabular-nums">{{ row.n }}</span>
+          </div>
+          <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+            <div class="h-full rounded-full bg-nl-primary" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        {% include 'dashboard/_empty_state.html' with icon='chart' heading=_('No data yet') guidance=_('Decision breakdown appears once sessions are recorded.') %}
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+
+  {# by status #}
+  <div class="nl-card p-5">
+    <h2 class="font-semibold mb-4">{% trans "By status" %}</h2>
+    {% with maxn=breakdowns.by_status.0.n %}
+    <ul class="space-y-2.5" role="list">
+      {% for row in breakdowns.by_status %}
+        <li>
+          <div class="flex items-baseline justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate text-nl-base/80">{{ row.status }}</span>
+            <span class="shrink-0 font-medium tabular-nums">{{ row.n }}</span>
+          </div>
+          <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+            <div class="h-full rounded-full bg-nl-primary" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        {% include 'dashboard/_empty_state.html' with icon='chart' heading=_('No data yet') guidance=_('Status breakdown appears once sessions are recorded.') %}
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+
+  {# top machines #}
+  <div class="nl-card p-5">
+    <h2 class="font-semibold mb-4">{% trans "Top machines" %}</h2>
+    {% with maxn=breakdowns.top_machines.0.n %}
+    <ul class="space-y-2.5" role="list">
+      {% for row in breakdowns.top_machines %}
+        <li>
+          <div class="flex items-baseline justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate">
+              <a href="{% url 'dash-kb-machine-page' row.machine__id %}" class="text-nl-primary hover:text-nl-primaryd">{{ row.machine__model_name }}</a>
+              <span class="text-nl-base/60">· {{ row.machine__vendor__name }}</span>
+            </span>
+            <span class="shrink-0 font-medium tabular-nums">
+              <span class="mr-1.5 text-xs font-normal text-nl-base/60">{% blocktrans with r=row.resolved n=row.n %}{{ r }}/{{ n }} resolved{% endblocktrans %}</span>{{ row.n }}
+            </span>
+          </div>
+          <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+            <div class="h-full rounded-full bg-nl-primary" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        {% include 'dashboard/_empty_state.html' with icon='bot' heading=_('No data yet') guidance=_('Top machines appear once equipment is identified in sessions.') %}
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+
+  {# top problems #}
+  <div class="nl-card p-5">
+    <h2 class="font-semibold mb-4">{% trans "Top problems" %}</h2>
+    {% with maxn=breakdowns.by_problem.0.n %}
+    <ul class="space-y-2.5" role="list">
+      {% for row in breakdowns.by_problem %}
+        <li>
+          <div class="flex items-baseline justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate text-nl-base/80">{{ row.problem_category__label }}</span>
+            <span class="shrink-0 font-medium tabular-nums">{{ row.n }}</span>
+          </div>
+          <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+            <div class="h-full rounded-full bg-nl-primary" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        {% include 'dashboard/_empty_state.html' with icon='book' heading=_('No data yet') guidance=_('Top problems appear once sessions are categorized by problem.') %}
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+
+  {# sessions by vendor #}
+  <div class="nl-card p-5">
+    <h2 class="font-semibold mb-4">{% trans "Sessions by vendor" %}</h2>
+    {% with maxn=breakdowns.by_vendor.0.n %}
+    <ul class="space-y-2.5" role="list">
+      {% for row in breakdowns.by_vendor %}
+        <li>
+          <div class="flex items-baseline justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate text-nl-base/80">{{ row.machine__vendor__name }}</span>
+            <span class="shrink-0 font-medium tabular-nums">{{ row.n }}</span>
+          </div>
+          <div class="mt-1 h-1.5 rounded-full bg-nl-bg overflow-hidden" aria-hidden="true">
+            <div class="h-full rounded-full bg-nl-primary" style="width:{% if maxn %}{% widthratio row.n maxn 100 %}{% else %}0{% endif %}%"></div>
+          </div>
+        </li>
+      {% empty %}
+        {% include 'dashboard/_empty_state.html' with icon='bot' heading=_('No data yet') guidance=_('Vendor breakdown appears once equipment is identified in sessions.') %}
+      {% endfor %}
+    </ul>
+    {% endwith %}
+  </div>
+
+  {# lead delivery health #}
+  <div class="nl-card p-5">
+    <h2 class="font-semibold mb-4">{% trans "Lead delivery health" %}</h2>
+    <div class="grid grid-cols-3 gap-3 mb-4 text-center">
+      <div>
+        <div class="text-2xl font-bold tabular-nums">{{ lead_health.requests }}</div>
+        <div class="text-xs text-nl-base/60">{% trans "Requests" %}</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold tabular-nums text-green-700">{% widthratio lead_health.delivery_success_rate 1 100 %}%</div>
+        <div class="text-xs text-nl-base/60">{% trans "Delivery success" %}</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold tabular-nums {% if lead_health.failed %}text-nl-action{% endif %}">{{ lead_health.failed }}</div>
+        <div class="text-xs text-nl-base/60">{% trans "Failed" %}</div>
+      </div>
+    </div>
+
+    <h3 class="text-xs font-semibold uppercase tracking-wide text-nl-base/60 mb-2">{% trans "By status" %}</h3>
+    {% if lead_health.by_status %}
+      <ul class="space-y-1 mb-4 text-sm" role="list">
+        {% for status, n in lead_health.by_status.items %}
+          <li class="flex justify-between border-b border-nl-border last:border-0 py-1">
+            <span class="text-nl-base/80">{{ status }}</span><span class="font-medium tabular-nums">{{ n }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-xs text-nl-base/60 mb-4">{% trans "No deliveries yet." %}</p>
+    {% endif %}
+
+    <h3 class="text-xs font-semibold uppercase tracking-wide text-nl-base/60 mb-2">{% trans "By sink" %}</h3>
+    {% if lead_health.by_sink %}
+      <ul class="space-y-1 text-sm" role="list">
+        {% for row in lead_health.by_sink %}
+          <li class="flex justify-between border-b border-nl-border last:border-0 py-1">
+            <span class="text-nl-base/80">{{ row.sink }} <span class="text-xs text-nl-base/60">· {{ row.status }}</span></span>
+            <span class="font-medium tabular-nums">{{ row.n }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-xs text-nl-base/60">{% trans "No delivery sinks recorded." %}</p>
+    {% endif %}
+  </div>
+
+</div>
+
+</div>
+{% endblock %}

@@ -34,10 +34,13 @@ def test_unknown_model_raises_not_zero():
         constants.cost_usd("gemini-nonexistent", prompt_tokens=100)
 
 
-def test_models_map_has_three_roles():
-    assert set(constants.MODELS) == {"flash", "flash_lite", "pro"}
-    for mid in constants.MODELS.values():
-        assert mid in constants.PRICING_PER_1K  # every default id is priced
+def test_models_map_has_expected_roles():
+    assert set(constants.MODELS) == {"flash", "flash_lite", "pro", "embedding"}
+    # generation defaults are priced in PRICING_PER_1K …
+    for role in ("flash", "flash_lite", "pro"):
+        assert constants.MODELS[role] in constants.PRICING_PER_1K
+    # … the embedding default is priced in EMBED_PRICING_PER_1K
+    assert constants.MODELS["embedding"] in constants.EMBED_PRICING_PER_1K
 
 
 def test_clock_shim_patches_google_auth(monkeypatch):

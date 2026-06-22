@@ -13,9 +13,24 @@ __pycache__/
 
 # Secrets / local
 .env
+.env.local
 *.pem
+*.key
 *-sa.json
 service-account*.json
+secrets/
+gcp-*.json
+*.sql
+*.sql.gz
+
+# Session state, generated artifacts, and scraped manual content (copyright)
+.claude/
+/tools/e2e_artifacts/
+/tools/refined/
+/case*.txt
+/geo_*.txt
+/greenline_content.txt
+/vent_*.txt
 
 # Tooling
 .pytest_cache/

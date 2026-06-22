@@ -1,25 +1,98 @@
 {% extends "dashboard/base.html" %}{% load i18n %}
+
+{% block breadcrumb %}{% trans "Customers" %}{% endblock %}
+
 {% block content %}
-<h1 class="text-2xl font-semibold mb-4">{% trans "Customers" %}</h1>
-<div class="bg-white rounded-lg shadow overflow-hidden">
+{% blocktrans count counter=page_obj.paginator.count asvar sub %}{{ counter }} customer{% plural %}{{ counter }} customers{% endblocktrans %}
+<div class="flex items-end justify-between gap-4 mb-5">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">{% trans "Customers" %}</h1>
+    <p class="text-sm text-nl-base/60 mt-0.5">{{ sub }}</p>
+  </div>
+  <a href="{% url 'dash-customer-new' %}" class="btn btn-primary shrink-0">+ {% trans "New customer" %}</a>
+</div>
+
+<form method="get" class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+  <input name="q" value="{{ q }}" type="search"
+         placeholder="{% trans 'Search name, phone, email, postal…' %}"
+         aria-label="{% trans 'Search customers' %}"
+         class="flex-1 min-w-[12rem] rounded-md border border-nl-border bg-white px-3 py-1.5 focus:border-nl-primary focus:outline-none focus:ring-1 focus:ring-nl-primary">
+  {% if sort_field %}<input type="hidden" name="sort" value="{% if sort_dir == 'desc' %}-{% endif %}{{ sort_field }}">{% endif %}
+  <button class="btn btn-primary">{% trans "Search" %}</button>
+  {% if q %}<a href="{% url 'dash-customers' %}" class="btn btn-secondary">{% trans "Clear" %}</a>{% endif %}
+</form>
+
+<div class="nl-card overflow-hidden">
+  {% if customers %}
   <table class="w-full text-sm">
-    <thead class="bg-slate-50 text-left text-slate-500">
-      <tr><th class="px-3 py-2">{% trans "Name" %}</th><th class="px-3 py-2">{% trans "Phone" %}</th>
-        <th class="px-3 py-2">{% trans "Email" %}</th><th class="px-3 py-2">{% trans "Postal" %}</th>
-        <th class="px-3 py-2">{% trans "Since" %}</th></tr>
-    </thead>
-    <tbody>
-      {% for c in customers %}
-      <tr class="border-t hover:bg-slate-50">
-        <td class="px-3 py-2"><a class="text-[#0E2A4F] underline" href="{% url 'dash-customer' c.pk %}">{{ c.name|default:"—" }}</a></td>
-        <td class="px-3 py-2">{{ c.phone|default:"—" }}</td>
-        <td class="px-3 py-2">{{ c.email|default:"—" }}</td>
-        <td class="px-3 py-2">{{ c.postal_code|default:"—" }}</td>
-        <td class="px-3 py-2 text-slate-500">{{ c.created_at|date:"Y-m-d" }}</td>
+    <thead class="hidden md:table-header-group bg-nl-bg text-left text-nl-base/60">
+      <tr>
+        {% with k='name' label=_('Name') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='phone' label=_('Phone') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='email' label=_('Email') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='postal_code' label=_('Postal') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='city' label=_('City') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='created_at' label=_('Since') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
       </tr>
-      {% empty %}<tr><td colspan="5" class="px-3 py-6 text-center text-slate-400">{% trans "No customers yet" %}</td></tr>
+    </thead>
+    <tbody class="block md:table-row-group">
+      {% for c in customers %}
+      <tr class="block md:table-row border-t border-nl-border first:border-t-0 md:first:border-t hover:bg-nl-bg/60 p-3 md:p-0">
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Name' %}">
+          <a class="text-nl-primary hover:text-nl-primaryd font-medium" href="{% url 'dash-customer' c.pk %}">{{ c.name|default:"—" }}</a>
+        </td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Phone' %}">{{ c.phone|default:"—" }}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Email' %}">{{ c.email|default:"—" }}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Postal' %}">{{ c.postal_code|default:"—" }}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'City' %}">{{ c.city|default:"—" }}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 text-nl-base/60 before:content-[attr(data-label)] before:font-medium before:mr-2 md:before:content-none" data-label="{% trans 'Since' %}">{{ c.created_at|date:"Y-m-d" }}</td>
+      </tr>
       {% endfor %}
     </tbody>
   </table>
+  {% include 'dashboard/_pagination.html' with page_obj=page_obj querystring=querystring %}
+  {% else %}
+    {% if q %}
+      {% include 'dashboard/_empty_state.html' with icon='users' heading=_('No matching customers') guidance=_('No customers match your search. Try a different name, phone, or postal code.') cta_label=_('Clear search') cta_href=request.path %}
+    {% else %}
+      {% include 'dashboard/_empty_state.html' with icon='users' heading=_('No customers yet') guidance=_('Customer profiles are created when a conversation is escalated and contact details are collected.') cta_label=_('View conversations') cta_href='/dashboard/sessions/' %}
+    {% endif %}
+  {% endif %}
 </div>
 {% endblock %}

@@ -33,12 +33,21 @@ class Vendor(models.Model):
         return self.name
 
 
+CATEGORY_GROUP_CHOICES = [
+    ("heat", "Heat"), ("air", "Air"), ("water", "Water"),
+    ("hybrid", "Hybrid"), ("other", "Other"),
+]
+
+
 class Category(models.Model):
     """Equipment category tree: heat_pump > {water_to_water, air_to_water,
-    air_to_air, exhaust_air}, water_pump_well, water_filtration. Extensible."""
+    air_to_air, exhaust_air}, water_pump_well, water_filtration. Extensible.
+    `group` is the top-level KB grouping shown to staff (Heat/Air/Water/Hybrid/Other)."""
 
     name = models.CharField(max_length=120)
     slug = models.SlugField(max_length=120, unique=True)
+    group = models.CharField(max_length=12, choices=CATEGORY_GROUP_CHOICES, default="other",
+                             help_text="Top-level KB grouping (Heat/Air/Water/Hybrid/Other).")
     parent = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.CASCADE, related_name="children"
     )
@@ -237,6 +246,24 @@ class AgentPrompt(models.Model):
         return f"{self.role} (v{self.prompt_version}, {self.model_id})"
 
 
+class FlowConfig(models.Model):
+    """The editable visual flow (the canvas), stored as one JSON graph (singleton).
+
+    Ponytail: one row, one JSON field — no per-node/edge tables. `agent` steps just
+    reference an AgentPrompt by role, so the prompt/model stays the single source of
+    truth and edits there are already live in production. The hardcoded safety
+    guardrails live in code and are NOT configurable here — the canvas can arrange
+    and document the flow + collect-fields, never weaken the safety backstop.
+    """
+
+    graph = models.JSONField(default=dict, help_text="{nodes:[...], edges:[...]}")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        n = len((self.graph or {}).get("nodes", []))
+        return f"FlowConfig(#{self.pk}, {n} steps)"
+
+
 class MachineNote(models.Model):
     """Per-machine experience notes, auto-injected into the specialist context (V2).
     Staff-authored; shown as a Notes tab in the admin. Canonical owner of machine
@@ -309,3 +336,25 @@ class RoutingRule(models.Model):
 
     def __str__(self):
         return f"{self.name} -> {self.action}"
+
+
+class SiteFAQ(models.Model):
+    """Company FAQ imported from nordlandvvs.se (the public 'Vanliga frågor'). Not
+    machine-specific — general questions (troubleshooting, ROT, payment, legal,
+    leakage, DIY). Surfaced to staff + fed to the agent via semantic search."""
+
+    topic = models.CharField(max_length=64, blank=True, help_text="Source topic (frågeämne) slug.")
+    slug = models.SlugField(max_length=200, unique=True)
+    question = models.CharField(max_length=300)
+    answer = models.TextField()
+    lang = models.CharField(max_length=5, choices=LANG_CHOICES, default="sv")
+    source_url = models.URLField(blank=True)
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["topic", "question"]
+        verbose_name = "Site FAQ"
+
+    def __str__(self):
+        return self.question[:70]

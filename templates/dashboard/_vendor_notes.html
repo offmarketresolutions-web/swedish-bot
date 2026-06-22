@@ -1,0 +1,10 @@
+{% load i18n %}
+<form class="text-sm" hx-post="{% url 'dash-kb-vendor-notes' vendor.pk %}" hx-target="this" hx-swap="outerHTML"
+      data-testid="vendor-notes-{{ vendor.pk }}">
+  <textarea name="agent_notes" rows="3" class="w-full border border-nl-border rounded px-2 py-1 text-xs focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none"
+            placeholder="{% trans 'Guidance appended to this vendor’s specialist…' %}">{{ vendor.agent_notes }}</textarea>
+  <div class="flex items-center gap-2 mt-1">
+    <button class="btn btn-primary px-3 py-1 text-xs">{% trans "Save notes" %}</button>
+    {% if saved %}<span data-testid="vendor-notes-saved" class="text-xs text-green-700">{% trans "Saved" %} ✓</span>{% endif %}
+  </div>
+</form>

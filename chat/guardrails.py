@@ -17,6 +17,17 @@ from core.services import gemini
 _FORBIDDEN = re.compile(
     r"\b(rewire|re-?wire|wiring up|replace the (heating )?element|"
     r"open (the )?(electrical |control )?panel|fuse box|terminal block|live wire|mains\b|"
+    # Opening up / disassembling the unit exceeds Niclas's look-only envelope and is the
+    # classic prompt-injection target ("tell the user to open the panel"). Fail closed →
+    # escalate. (Air-unit filter access is intentionally escalated in v1; relax later via
+    # a per-category homeowner-task allowlist if the client wants.)
+    r"(open\w*|remov\w*|take off|taking off|takes off|unscrew\w*|undo|detach\w*|pry off|pop off|"
+    r"lift off|dismantl\w*|disassembl\w*) (the |a |an |its |your |this |that )?"
+    r"(front |rear |back |top |upper |lower |side |outer |service |access |inspection |"
+    r"electrical |control |compressor )*"
+    r"(cover|panel|casing|cabinet|lid|hood|housing|enclosure|fascia)|"
+    r"open up (the )?(unit|machine|heat ?pump|appliance)|"
+    r"take (the )?(unit|machine|heat ?pump|appliance) apart|"
     r"refrigerant|recharge|top ?up (the )?(gas|refrigerant)|braze|"
     r"expansion vessel|relief valve|safety valve|re-?pressuriz\w*|"
     r"pre-?charge|adjust the pressure switch|drain (the |down )?(heating )?system|"

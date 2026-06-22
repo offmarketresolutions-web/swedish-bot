@@ -1,0 +1,57 @@
+{% load i18n %}
+<form class="agent-card nl-card p-4"
+      data-testid="agent-card-{{ p.role }}"
+      hx-post="{% url 'dash-agent-save' p.pk %}" hx-target="this" hx-swap="outerHTML"
+      hx-disabled-elt="find button[data-testid=agent-save-btn]">
+  <div class="flex items-center justify-between gap-3 mb-4">
+    <h2 class="font-semibold text-lg flex items-baseline gap-2">
+      <span class="text-nl-primary">{{ p.get_role_display|default:p.role }}</span>
+      <span class="text-xs font-normal text-nl-base/60">v{{ p.prompt_version }}</span>
+    </h2>
+    <div class="flex items-center gap-2">
+      {% if saved %}<span data-testid="agent-saved" class="text-xs px-2 py-1 rounded bg-green-100 text-green-700">{% trans "Saved" %} ✓</span>{% endif %}
+      {% if error %}<span data-testid="agent-error" class="text-xs px-2 py-1 rounded bg-red-100 text-red-700">{{ error }}</span>{% endif %}
+      {% if p.is_active %}<span class="text-xs px-2 py-1 rounded bg-nl-primaryl text-nl-primaryd">{% trans "active" %}</span>
+      {% else %}<span class="text-xs px-2 py-1 rounded bg-nl-border text-nl-base/60">{% trans "disabled" %}</span>{% endif %}
+    </div>
+  </div>
+
+  <fieldset class="border border-nl-border rounded-md px-3 pt-2 pb-3 mb-4">
+    <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-nl-base/60">{% trans "Runtime" %}</legend>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+      <label class="block col-span-2 md:col-span-1">{% trans "Model" %}
+        <input name="model_id" value="{{ p.model_id }}" class="mt-1 border border-nl-border rounded px-2 py-1 w-full focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none">
+      </label>
+      <label class="block">{% trans "Temperature" %}
+        <input name="temperature" type="number" step="any" min="0" max="2" value="{{ p.temperature|default_if_none:'' }}" class="mt-1 border border-nl-border rounded px-2 py-1 w-full focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none">
+      </label>
+      <label class="block">{% trans "Thinking budget" %}
+        <input name="thinking_budget" type="number" min="0" max="24576" value="{{ p.thinking_budget }}" class="mt-1 border border-nl-border rounded px-2 py-1 w-full focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none">
+      </label>
+      <label class="block">{% trans "Max output tokens" %}
+        <input name="max_output_tokens" type="number" min="1" max="65536" value="{{ p.max_output_tokens|default_if_none:'' }}" class="mt-1 border border-nl-border rounded px-2 py-1 w-full focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none">
+      </label>
+    </div>
+    <div class="flex flex-wrap gap-5 text-sm mt-3">
+      <label class="flex items-center gap-2"><input type="checkbox" name="thinking_enabled" {% if p.thinking_enabled %}checked{% endif %}> {% trans "Thinking enabled" %}</label>
+      <label class="flex items-center gap-2"><input type="checkbox" name="is_active" {% if p.is_active %}checked{% endif %}> {% trans "Active" %}</label>
+    </div>
+  </fieldset>
+
+  <fieldset class="border border-nl-border rounded-md px-3 pt-2 pb-3 mb-4">
+    <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-nl-base/60">{% trans "Prompt" %}</legend>
+    <label class="block text-sm mb-2">{% trans "Language directive" %}
+      <textarea name="language_directive" rows="2" class="mt-1 border border-nl-border rounded px-2 py-1 w-full font-mono text-xs focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none">{{ p.language_directive }}</textarea>
+    </label>
+    <label class="block text-sm">{% trans "Prompt body" %}
+      <textarea name="body" rows="8" class="mt-1 border border-nl-border rounded px-2 py-1 w-full font-mono text-xs focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none">{{ p.body }}</textarea>
+    </label>
+  </fieldset>
+
+  <div class="flex items-center justify-end gap-3 -mx-4 -mb-4 px-4 py-3 border-t border-nl-border bg-nl-bg/60 rounded-b-lg">
+    <span class="text-xs text-nl-base/60 mr-auto">{% trans "Changes apply immediately on save." %}</span>
+    <button class="btn btn-primary" data-testid="agent-save-btn">
+      {% trans "Save" %}<span class="htmx-indicator" aria-hidden="true">…</span>
+    </button>
+  </div>
+</form>

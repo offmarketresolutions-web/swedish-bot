@@ -6,25 +6,15 @@ Usage: python manage.py ingest_pdf <machine_slug> <path/to/manual.pdf> [--lang e
 The specialist loads the PDF into Gemini context as inline bytes; parsed_text here
 is for the token estimate + an audit/searchable copy, NOT for chunk-retrieval.
 """
-import hashlib
 from pathlib import Path
 
-from django.core.files import File
 from django.core.management.base import BaseCommand, CommandError
 
-from kb.models import Machine, MachineDocument
+from kb.ingest import IngestError, ingest_pdf_bytes, parse_pdf_text
+from kb.models import Machine
 
-
-def _parse_pdf_text(path: str) -> str:
-    try:
-        import pdfplumber
-    except ImportError:
-        return ""
-    out = []
-    with pdfplumber.open(path) as pdf:
-        for page in pdf.pages:
-            out.append(page.extract_text() or "")
-    return "\n".join(out)
+# Back-compat alias: import_kb imports _parse_pdf_text from this module.
+_parse_pdf_text = parse_pdf_text
 
 
 class Command(BaseCommand):
@@ -45,16 +35,11 @@ class Command(BaseCommand):
         if not path.exists():
             raise CommandError(f"File not found: {path}")
 
-        text = _parse_pdf_text(str(path))
-        token_estimate = max(len(text) // 4, 0)  # ~4 chars/token heuristic
-        sha = hashlib.sha256(path.read_bytes()).hexdigest()
-
-        doc = MachineDocument(
-            machine=machine, lang=opts["lang"], kind=opts["kind"],
-            parsed_text=text, token_estimate=token_estimate, sha256=sha,
-        )
-        with path.open("rb") as fh:
-            doc.pdf.save(path.name, File(fh), save=True)
+        try:
+            doc = ingest_pdf_bytes(machine, path.read_bytes(), path.name,
+                                   lang=opts["lang"], kind=opts["kind"])
+        except IngestError as exc:
+            raise CommandError(str(exc)) from None
 
         self.stdout.write(self.style.SUCCESS(
-            f"Ingested {path.name} for {machine}: ~{token_estimate} tokens, sha {sha[:12]}"))
+            f"Ingested {path.name} for {machine}: ~{doc.token_estimate} tokens, sha {doc.sha256[:12]}"))

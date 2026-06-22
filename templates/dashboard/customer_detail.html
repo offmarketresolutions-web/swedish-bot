@@ -1,26 +1,72 @@
 {% extends "dashboard/base.html" %}{% load i18n %}
+
+{% block breadcrumb %}
+  <a href="{% url 'dash-customers' %}" class="hover:text-nl-primary">{% trans "Customers" %}</a>
+  <span class="text-nl-base/30">/</span>
+  <span class="text-nl-base/80">{{ customer.name|default:_('(no name)') }}</span>
+{% endblock %}
+
 {% block content %}
-<a href="{% url 'dash-customers' %}" class="text-sm text-slate-500">&larr; {% trans "All customers" %}</a>
-<h1 class="text-2xl font-semibold mb-1">{{ customer.name|default:"(no name)" }}</h1>
-<div class="text-slate-500 mb-6">{{ customer.phone }} · {{ customer.email }} · {{ customer.postal_code }} {{ customer.city }}</div>
+{% blocktrans with phone=customer.phone email=customer.email postal=customer.postal_code city=customer.city asvar sub %}{{ phone }} · {{ email }} · {{ postal }} {{ city }}{% endblocktrans %}
+{% include 'dashboard/_page_header.html' with title=customer.name|default:_('(no name)') subtitle=sub %}
+
+{# ── Analytics ──────────────────────────────────────────────────────── #}
+<section class="mb-6" aria-labelledby="customer-analytics-h" data-testid="customer-analytics">
+  <div class="flex items-center gap-3 mb-3">
+    <h2 id="customer-analytics-h" class="font-semibold">{% trans "Analytics" %}</h2>
+    {% if stats.is_returning %}
+      <span class="inline-flex items-center rounded-full bg-nl-primaryl px-2.5 py-0.5 text-xs font-medium text-nl-primaryd" data-testid="returning-badge">{% trans "Returning customer" %}</span>
+    {% endif %}
+  </div>
+  {% include 'dashboard/_stat_block.html' with stats=stats %}
+  <div class="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-nl-base/60">
+    <span>{% trans "Last contact:" %}
+      <span class="font-medium text-nl-base">{% if stats.last_contact %}{{ stats.last_contact|date:"Y-m-d" }}{% else %}{% trans "—" %}{% endif %}</span>
+    </span>
+    <span>{% trans "Files:" %} <span class="font-medium text-nl-base tabular-nums">{{ stats.files }}</span></span>
+  </div>
+</section>
+
+{# ── Equipment & routing (hyperlinked to brand / machine / type) ────────── #}
+<section class="mb-6 nl-card p-4" data-testid="customer-equipment">
+  <h2 class="font-semibold mb-2">{% trans "Equipment & routing" %}</h2>
+  <div class="flex flex-wrap gap-2">
+    {% if customer.primary_brand %}<a class="inline-flex items-center gap-1 rounded-full border border-nl-primary/30 bg-nl-primaryl/50 text-nl-primaryd px-2.5 py-1 text-sm hover:bg-nl-primaryl" href="{% url 'dash-kb-vendor' customer.primary_brand.pk %}">🏷 {{ customer.primary_brand.name }}</a>{% endif %}
+    {% if customer.primary_machine %}<a class="inline-flex items-center gap-1 rounded-full border border-nl-primary/30 bg-nl-primaryl/50 text-nl-primaryd px-2.5 py-1 text-sm hover:bg-nl-primaryl" href="{% url 'dash-kb-machine-page' customer.primary_machine.pk %}">⚙ {{ customer.primary_machine.vendor.name }} {{ customer.primary_machine.model_name }}</a>{% endif %}
+    {% if customer.primary_category %}<a class="inline-flex items-center gap-1 rounded-full border border-nl-primary/30 bg-nl-primaryl/50 text-nl-primaryd px-2.5 py-1 text-sm hover:bg-nl-primaryl" href="{% url 'dash-kb-category' customer.primary_category.pk %}">📂 {{ customer.primary_category.name }}</a>{% endif %}
+    {% if not customer.primary_brand and not customer.primary_machine and not customer.primary_category %}<span class="text-sm text-nl-base/60">{% trans "No equipment linked yet — it's assigned automatically when a conversation escalates." %}</span>{% endif %}
+  </div>
+  {% if equipment %}<div class="mt-2 text-xs text-nl-base/60">{% trans "All units seen:" %}
+    {% for m in equipment %}<a class="text-nl-primary hover:underline" href="{% url 'dash-kb-machine-page' m.pk %}">{{ m.vendor.name }} {{ m.model_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+  {% if customer.profile_summary %}<div class="mt-3 pt-3 border-t border-nl-border text-sm text-nl-base/70"><span class="font-medium text-nl-base">{% trans "AI summary:" %}</span> {{ customer.profile_summary }}</div>{% endif %}
+</section>
 
 <div class="grid md:grid-cols-3 gap-6">
-  <div class="md:col-span-2 bg-white rounded-lg shadow p-4">
-    <h2 class="font-semibold mb-3">{% trans "Sessions" %}</h2>
+  <div class="md:col-span-2 nl-card p-4">
+    <h2 class="font-semibold mb-3">{% trans "Conversations" %}</h2>
     {% for s in sessions %}
-      <div class="flex justify-between border-b last:border-0 py-2">
-        <a class="text-[#0E2A4F] underline" href="{% url 'dash-session' s.pk %}">{{ s.manufacturer }} {{ s.model }}</a>
-        <span class="text-slate-500 text-sm">{{ s.severity }} · {{ s.status }} · {{ s.created_at|date:"Y-m-d" }}</span>
+      <div class="border-b border-nl-border last:border-0 py-2">
+        <div class="flex justify-between items-center gap-2">
+          <a class="text-nl-primary hover:text-nl-primaryd font-medium" href="{% url 'dash-session' s.pk %}">#{{ s.pk }} · {% if s.machine %}{{ s.machine.vendor.name }} {{ s.machine.model_name }}{% else %}{{ s.manufacturer }} {{ s.model|default:_('(unidentified)') }}{% endif %}</a>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-nl-base/60 text-xs">{{ s.severity }} · {{ s.status }} · {{ s.created_at|date:"Y-m-d" }}</span>
+            {% include 'dashboard/_chat_modal.html' with session=s %}
+          </div>
+        </div>
+        {% if s.ai_summary %}<p class="text-xs text-nl-base/60 mt-1">{{ s.ai_summary|truncatewords:40 }}</p>{% endif %}
       </div>
-      {% if s.ai_summary %}<p class="text-xs text-slate-500 mb-2">{{ s.ai_summary|truncatewords:40 }}</p>{% endif %}
-    {% empty %}<p class="text-slate-400 text-sm">{% trans "No sessions" %}</p>{% endfor %}
+    {% empty %}
+      {% include 'dashboard/_empty_state.html' with icon='chat' heading=_('No conversations') guidance=_('This customer has no support conversations yet.') %}
+    {% endfor %}
   </div>
 
-  <div class="bg-white rounded-lg shadow p-4">
+  <div class="nl-card p-4">
     <h2 class="font-semibold mb-3">{% trans "Uploaded files" %}</h2>
     {% for f in files %}
-      <div class="py-1"><a class="text-[#0E2A4F] underline text-sm" href="{% url 'dash-file' f.pk %}">⬇ {{ f.kind }} · {{ f.created_at|date:"Y-m-d" }}</a></div>
-    {% empty %}<p class="text-slate-400 text-sm">{% trans "No files" %}</p>{% endfor %}
+      <div class="py-1"><a class="text-nl-primary hover:text-nl-primaryd text-sm" href="{% url 'dash-file' f.pk %}">⬇ {{ f.kind }} · {{ f.created_at|date:"Y-m-d" }}</a></div>
+    {% empty %}
+      {% include 'dashboard/_empty_state.html' with icon='book' heading=_('No files') guidance=_('Photos and PDFs the customer uploads will appear here.') %}
+    {% endfor %}
   </div>
 </div>
 {% endblock %}

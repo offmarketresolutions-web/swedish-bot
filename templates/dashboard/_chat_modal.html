@@ -1,0 +1,21 @@
+{% load i18n %}{% comment %}Button + popup that replays a conversation's real chat. Needs `session` in context.{% endcomment %}
+<span x-data="{ open: false }" class="inline-block">
+  <button type="button" class="btn btn-secondary text-xs" @click="open = true"
+          hx-get="{% url 'dash-session-replica' session.pk %}" hx-target="#replica-{{ session.pk }}" hx-swap="innerHTML"
+          data-testid="open-replica">💬 {% trans "View full chat" %}</button>
+  <template x-teleport="body">
+    <div x-show="open" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4"
+         @keydown.escape.window="open = false" role="dialog" aria-modal="true">
+      <div class="absolute inset-0 bg-black/40" @click="open = false"></div>
+      <div class="relative w-full max-w-md max-h-[85vh] flex flex-col rounded-xl overflow-hidden shadow-2xl bg-white">
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-nl-border">
+          <h3 class="font-semibold text-sm">{% trans "Conversation" %} #{{ session.pk }}</h3>
+          <button type="button" @click="open = false" class="text-nl-base/60 hover:text-nl-base text-xl leading-none px-1" aria-label="{% trans 'Close' %}">✕</button>
+        </div>
+        <div id="replica-{{ session.pk }}" class="overflow-y-auto p-4 bg-nl-bg/50" style="min-height:120px">
+          <p class="text-sm text-nl-base/60">{% trans "Loading…" %}</p>
+        </div>
+      </div>
+    </div>
+  </template>
+</span>

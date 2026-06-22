@@ -15,7 +15,12 @@ T = {
         "q_problem": "Got it. In a few words, what's the problem?",
         "q_brand": "Which brand is it?",
         "q_model": "What's the model? A photo of the rating/nameplate is perfect if you have one.",
-        "q_error_code": "Is there an error or alarm code shown? (You can skip this.)",
+        "q_error_code": "Is the machine showing any error or fault code? If so, a photo of the "
+                        "display is perfect — or type the code. (You can skip this.)",
+        "pre_escalate_diag": "Before I pass this to a Nordland VVS technician, please describe the "
+                             "problem in a bit more detail — and if the machine is showing any error "
+                             "or fault code, send a photo of the display (it really helps the "
+                             "technician). If there's no code, just let me know.",
         "reask": "Sorry, I didn't quite catch that. ",
         "contact_name": "What's your name?",
         "contact_phone": "What's the best phone number to reach you?",
@@ -44,7 +49,12 @@ T = {
         "q_problem": "Okej. Beskriv kort vad problemet är.",
         "q_brand": "Vilket märke är det?",
         "q_model": "Vilken modell är det? Ett foto av typskylten är perfekt om du har ett.",
-        "q_error_code": "Visas någon fel- eller larmkod? (Du kan hoppa över detta.)",
+        "q_error_code": "Visar maskinen någon fel- eller larmkod? Ett foto av displayen är perfekt "
+                        "— eller skriv koden. (Du kan hoppa över detta.)",
+        "pre_escalate_diag": "Innan jag skickar detta vidare till en tekniker från Nordland VVS — "
+                             "beskriv gärna problemet lite mer i detalj, och om maskinen visar någon "
+                             "fel- eller larmkod, skicka en bild på displayen (det hjälper teknikern "
+                             "mycket). Finns ingen kod, säg bara till.",
         "reask": "Förlåt, jag uppfattade inte riktigt. ",
         "contact_name": "Vad heter du?",
         "contact_phone": "Vilket telefonnummer når vi dig bäst på?",

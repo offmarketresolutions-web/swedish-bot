@@ -48,8 +48,9 @@ def test_full_swedish_escalation_flow(mock_gemini):
     orch.process_turn(conv, "heat_pump")
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "IVT")
-    res = orch.process_turn(conv, "IVT 490")            # → Swedish escalation lead-in
+    res = orch.process_turn(conv, "IVT 490")            # → Swedish diagnostics ask
     assert "tekniker" in res["message"]
+    orch.process_turn(conv, "skramlar, kod E9")         # diagnostics reply → asks name
     orch.process_turn(conv, "Jan Svensson")
     orch.process_turn(conv, "070-1112233")
     orch.process_turn(conv, "skip")

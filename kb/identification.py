@@ -1,6 +1,6 @@
 """Machine identification (plan §8) — Postgres pg_trgm fuzzy match over the
-catalog. NO embeddings for v1 (the catalog is dozens of SKUs). Identification
-ONLY — never answer retrieval.
+catalog, with an optional embedding fallback (V2) when trigram is unsure.
+Identification ONLY — never answer retrieval.
 """
 from __future__ import annotations
 
@@ -57,4 +57,15 @@ def identify_machine(query: str, *, threshold: float = DEFAULT_THRESHOLD, vendor
     machine, score = best_match(query, vendor=vendor)
     if machine and score >= threshold:
         return machine, score
+    # Trigram unsure → embedding fallback (V2, gated + fail-safe). A wrong manual is
+    # worse than none, so only claim on a high semantic cosine.
+    from kb import semantic
+
+    if semantic.enabled():
+        sm, scos = semantic.semantic_identify(query, vendor=vendor)
+        if sm and scos >= semantic.SEM_IDENTIFY_THRESHOLD:
+            # Report a conservative, trigram-comparable confidence (NOT the raw
+            # cosine) so the specialist's low-confidence safety gates still fire on
+            # this less-certain path.
+            return sm, semantic.SEMANTIC_MATCH_CONFIDENCE
     return None, score

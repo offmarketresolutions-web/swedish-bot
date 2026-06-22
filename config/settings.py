@@ -56,6 +56,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core.middleware.DemoAutoLoginMiddleware",  # LOCAL/DEMO ONLY: open admin (flag-gated)
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -135,6 +136,17 @@ RATE_LIMIT_MESSAGE = int(os.environ.get("RATE_LIMIT_MESSAGE", "40"))   # message
 RATE_LIMIT_WINDOW = int(os.environ.get("RATE_LIMIT_WINDOW", "300"))
 MAX_TOTAL_TURNS = int(os.environ.get("MAX_TOTAL_TURNS", "25"))         # hard per-conversation ceiling
 MAX_IMAGES_PER_CONVERSATION = int(os.environ.get("MAX_IMAGES_PER_CONVERSATION", "8"))
+
+# Embedding-backed semantic search: machine-identification fallback (when trigram
+# is unsure) + most-relevant FAQ/guide retrieval. Trigram + full-PDF-in-context
+# stay the primary, reliable path; this only augments. On by default at runtime;
+# the test suite disables it (autouse fixture) so unit tests stay offline.
+SEMANTIC_SEARCH_ENABLED = _env_bool("SEMANTIC_SEARCH_ENABLED", "1")
+
+# LOCAL/DEMO ONLY (fail-safe OFF). When on: auto-authenticate as a superuser so
+# /admin + /dashboard need no login, and expose the /playground test console + its
+# debug internals. NEVER enable in production — it bypasses all staff auth.
+DEMO_OPEN_ADMIN = _env_bool("DEMO_OPEN_ADMIN", "0")
 
 CSRF_TRUSTED_ORIGINS = _env_list("CSRF_TRUSTED_ORIGINS", "")
 

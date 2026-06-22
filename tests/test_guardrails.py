@@ -19,6 +19,14 @@ def test_keyword_veto_catches_forbidden_classes():
         "Open the electrical panel and replace the heating element",
         "You can re-pressurize the system to 1.5 bar",
         "Adjust the pressure switch a little",
+        # disassembly / opening the unit — exceeds the look-only envelope (the
+        # prompt-injection target). Must fail closed → escalate.
+        "To do this you will need to remove the upper front panel",
+        "Take off the cover and check inside",
+        "Unscrew the casing to reach the board",
+        "Just open up the unit and have a look",
+        "You can dismantle the housing yourself",
+        "Remove the electrical panel first",
     ]
     for t in bad:
         unsafe, hit = guardrails.keyword_unsafe(t)
@@ -31,6 +39,7 @@ def test_keyword_allows_safe_envelope():
         "Note the alarm code shown on the display",
         "Check the breaker hasn't tripped — just look, don't touch",
         "Close the visible stop valve to limit the leak",
+        "Make sure the isolation valve is open",   # operating a visible valve is allowed
         "Read the pressure gauge and tell me the number",
     ]
     for t in ok:

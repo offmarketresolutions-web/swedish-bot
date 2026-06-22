@@ -1,0 +1,21 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{% trans "Equipment types" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dash-kb' %}" class="hover:text-nl-primary">{% trans "Knowledge Base" %}</a>
+  <span class="text-nl-base/60">/</span> <span class="text-nl-base/80">{% trans "Equipment types" %}</span>{% endblock %}
+{% block content %}
+{% trans "Equipment types" as ttl %}
+{% include 'dashboard/_page_header.html' with title=ttl subtitle=_("Browse the catalog by equipment type — every type links to its machines, customers and conversations.") %}
+{% for g in groups %}
+  <h2 class="font-semibold mt-5 mb-2">{{ g.label }}</h2>
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="category-group">
+    {% for c in g.cats %}
+      <a href="{% url 'dash-kb-category' c.pk %}" class="nl-card p-4 hover:border-nl-primary transition block">
+        <div class="font-medium">{{ c.name }}</div>
+        <div class="text-xs text-nl-base/60 mt-0.5">{{ c.n_machines }} {% trans "machine(s)" %}{% if c.parent %} · {% trans "under" %} {{ c.parent.name }}{% endif %}</div>
+      </a>
+    {% endfor %}
+  </div>
+{% empty %}
+  {% include 'dashboard/_empty_state.html' with icon='book' heading=_('No equipment types yet') guidance=_('Seed the knowledge base to populate categories.') %}
+{% endfor %}
+{% endblock %}

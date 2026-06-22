@@ -4,5 +4,13 @@
   "placeholder": "Describe your problem…",
   "typing": "Assistant is typing…",
   "photo": "📷 Photo",
-  "error": "Connection problem. Please try again."
+  "error": "Connection problem. Please try again.",
+  "open": "Open chat",
+  "close": "Close chat",
+  "minimize": "Minimize",
+  "status": "Usually replies within a few minutes",
+  "attach": "Attach file",
+  "remove": "Remove attachment",
+  "file_too_big": "File is too large (max 10 MB).",
+  "file_bad_type": "Only images and PDF files are allowed."
 }

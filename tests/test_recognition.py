@@ -30,6 +30,7 @@ def _to_escalation(conv, mock_gemini):
         "in_docs": True, "report": {}}
     for m in ("heat_pump", "no_heat", "IVT", "IVT 490"):
         orch.process_turn(conv, m)
+    orch.process_turn(conv, "rattles, code E9")  # diagnostics reply → asks name
 
 
 @pytest.fixture

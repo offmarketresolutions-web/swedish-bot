@@ -1,0 +1,79 @@
+{% load i18n %}{% comment %}Clickable agent-flow map. Each node links to its detail/config page.{% endcomment %}
+<svg viewBox="0 0 920 290" class="w-full h-auto" role="img" aria-label="{% trans 'Agent flow: intake to router to specialist or intelligent intake, with a safety backstop and a summarizer' %}">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .node rect{fill:#e9f3fc;stroke:#1a74bf;stroke-width:1.5;transition:fill .12s}
+      .node:hover rect, .node:focus rect{fill:#1a74bf}
+      .node .t{font:600 13px system-ui,sans-serif;fill:#0f4570}
+      .node .s{font:400 10px system-ui,sans-serif;fill:#5b6b7b}
+      .node:hover .t, .node:focus .t, .node:hover .s, .node:focus .s{fill:#fff}
+      .node.cur rect{fill:#1a74bf;stroke:#0f4570;stroke-width:2.5}
+      .node.cur .t, .node.cur .s{fill:#fff}
+      .pill rect{stroke-width:1.5}
+      .pill .t{font:600 12px system-ui,sans-serif}
+      .edge{stroke:#94a3b8;stroke-width:1.6;fill:none}
+      .edge.dash{stroke-dasharray:4 3}
+      .lbl{font:500 10px system-ui,sans-serif;fill:#64748b}
+      a{cursor:pointer}
+    </style>
+  </defs>
+
+  <!-- edges -->
+  <path class="edge" d="M170 60 H206" marker-end="url(#arr)"/>
+  <text class="lbl" x="173" y="52">{% trans "facts" %}</text>
+  <path class="edge" d="M360 52 L396 48" marker-end="url(#arr)"/>
+  <text class="lbl" x="360" y="40">{% trans "supported" %}</text>
+  <path class="edge" d="M285 90 L295 116" marker-end="url(#arr)"/>
+  <text class="lbl" x="298" y="108">{% trans "unsupported" %}</text>
+  <path class="edge" d="M570 38 L614 34" marker-end="url(#arr)"/>
+  <text class="lbl" x="592" y="13" text-anchor="middle">{% trans "conf ≥ 0.80" %}</text>
+  <path class="edge" d="M570 62 L614 96" marker-end="url(#arr)"/>
+  <text class="lbl" x="500" y="86">{% trans "uncertain / unsafe" %}</text>
+  <path class="edge" d="M380 144 L614 116" marker-end="url(#arr)"/>
+  <text class="lbl" x="430" y="150">{% trans "qualified lead" %}</text>
+  <path class="edge dash" d="M485 206 L485 82" marker-end="url(#arr)"/>
+  <text class="lbl" x="492" y="180">{% trans "reviews · vetoes unsafe" %}</text>
+  <path class="edge dash" d="M690 132 L690 206" marker-end="url(#arr)"/>
+  <text class="lbl" x="696" y="172">{% trans "on close" %}</text>
+
+  <!-- nodes (clickable) -->
+  <a href="{% url 'dash-agent-detail' 'intake' %}" class="node{% if current_role == 'intake' %} cur{% endif %}">
+    <rect x="20" y="30" width="150" height="60" rx="10"/>
+    <text x="95" y="56" text-anchor="middle" class="t">1 · {% trans "Intake" %}</text>
+    <text x="95" y="74" text-anchor="middle" class="s">{% trans "gathers the facts" %}</text>
+  </a>
+  <a href="{% url 'dash-agent-detail' 'router' %}" class="node{% if current_role == 'router' %} cur{% endif %}">
+    <rect x="210" y="30" width="150" height="60" rx="10"/>
+    <text x="285" y="56" text-anchor="middle" class="t">2 · {% trans "Router" %}</text>
+    <text x="285" y="74" text-anchor="middle" class="s">{% trans "classify + identify" %}</text>
+  </a>
+  <a href="{% url 'dash-agent-detail' 'specialist' %}" class="node{% if current_role == 'specialist' %} cur{% endif %}">
+    <rect x="396" y="18" width="174" height="62" rx="10"/>
+    <text x="483" y="44" text-anchor="middle" class="t">3 · {% trans "Specialist" %}</text>
+    <text x="483" y="62" text-anchor="middle" class="s">{% trans "answers from the manual" %}</text>
+  </a>
+  <a href="{% url 'dash-agent-detail' 'intelligent_intake' %}" class="node{% if current_role == 'intelligent_intake' %} cur{% endif %}">
+    <rect x="210" y="116" width="170" height="58" rx="10"/>
+    <text x="295" y="140" text-anchor="middle" class="t">3b · {% trans "Intelligent intake" %}</text>
+    <text x="295" y="158" text-anchor="middle" class="s">{% trans "unsupported → lead" %}</text>
+  </a>
+  <a href="{% url 'dash-agent-detail' 'safety' %}" class="node{% if current_role == 'safety' %} cur{% endif %}">
+    <rect x="400" y="206" width="170" height="54" rx="10"/>
+    <text x="485" y="230" text-anchor="middle" class="t">🛡 {% trans "Safety backstop" %}</text>
+    <text x="485" y="247" text-anchor="middle" class="s">{% trans "vetoes unsafe answers" %}</text>
+  </a>
+  <a href="{% url 'dash-agent-detail' 'summarizer' %}" class="node{% if current_role == 'summarizer' %} cur{% endif %}">
+    <rect x="616" y="206" width="170" height="54" rx="10"/>
+    <text x="701" y="230" text-anchor="middle" class="t">✎ {% trans "Summarizer" %}</text>
+    <text x="701" y="247" text-anchor="middle" class="s">{% trans "AI summary for staff" %}</text>
+  </a>
+
+  <!-- outcome pills (not agents) -->
+  <g class="pill"><rect x="616" y="16" width="120" height="40" rx="20" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="676" y="41" text-anchor="middle" class="t" fill="#15803d">✓ {% trans "Solve" %}</text></g>
+  <g class="pill"><rect x="616" y="92" width="150" height="48" rx="14" fill="#ffedd5" stroke="#d9370c"/>
+    <text x="691" y="121" text-anchor="middle" class="t" fill="#9a3412">{% trans "Escalate → lead" %}</text></g>
+</svg>

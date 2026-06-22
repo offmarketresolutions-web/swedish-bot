@@ -22,8 +22,10 @@ RUN uv sync --frozen --no-dev
 ENV PATH="/app/.venv/bin:$PATH"
 
 COPY . .
-RUN python manage.py compilemessages || true
-RUN python manage.py collectstatic --noinput || true
+# DEBUG=1 only for these build steps so the prod fail-closed check (settings.py:
+# raises on dev-secret/non-EU when DEBUG=0) doesn't abort static/i18n collection.
+RUN DJANGO_DEBUG=1 python manage.py compilemessages || true
+RUN DJANGO_DEBUG=1 python manage.py collectstatic --noinput
 
 EXPOSE 8000
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120"]

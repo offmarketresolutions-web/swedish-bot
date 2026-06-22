@@ -1,8 +1,9 @@
-"""Core views: health check (plan §13 Phase 1 DONE check)."""
+"""Core views: health check (plan §13 Phase 1 DONE check) + demo pages."""
 from __future__ import annotations
 
+from django.conf import settings
 from django.db import connection
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import render
 
 from core.services import gemini
@@ -11,6 +12,16 @@ from core.services import gemini
 def widget_demo(request):
     """A standalone page that embeds the widget — simulates the WordPress site."""
     return render(request, "widget_demo.html")
+
+
+def playground(request):
+    """Live test console (chat + capability inspector). Local/demo only — hidden in
+    production so the FSM internals aren't exposed."""
+    if not (getattr(settings, "DEMO_OPEN_ADMIN", False) or settings.DEBUG):
+        raise Http404
+    return render(request, "playground.html", {
+        "embedding_model": gemini.active_embedding_model(),
+    })
 
 
 def healthz(request):

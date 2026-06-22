@@ -43,6 +43,18 @@ class Customer(models.Model):
     consent_to_contact = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # CRM 360 — denormalized from the customer's most recent escalated Session so the
+    # profile itself "logs everything" and links straight to the right machine/brand/type.
+    # Written deterministically by crm.profile.enrich_customer_from_session (never by an LLM).
+    primary_machine = models.ForeignKey(
+        "kb.Machine", null=True, blank=True, on_delete=models.SET_NULL, related_name="owner_customers")
+    primary_category = models.ForeignKey(
+        "kb.Category", null=True, blank=True, on_delete=models.SET_NULL, related_name="owner_customers")
+    primary_brand = models.ForeignKey(
+        "kb.Vendor", null=True, blank=True, on_delete=models.SET_NULL, related_name="owner_customers")
+    equipment_summary = models.CharField(max_length=255, blank=True)  # "IVT Geo 412C · Grundfos SQ"
+    profile_summary = models.TextField(blank=True)                    # AI summary captured at profile creation
+
     def save(self, *args, **kwargs):
         self.phone_hash = phone_hash(self.phone)
         super().save(*args, **kwargs)

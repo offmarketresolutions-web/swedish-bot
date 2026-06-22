@@ -1,0 +1,21 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{% trans "Add customer" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'dash-customers' %}" class="hover:text-nl-primary">{% trans "Customers" %}</a>
+  <span class="text-nl-base/30">/</span>
+  <span class="text-nl-base/80">{% trans "Add customer" %}</span>
+{% endblock %}
+{% block content %}
+{% include "dashboard/_page_header.html" with title=_('Add customer') subtitle=_('Create a customer profile manually. Profiles are normally created from escalated conversations.') %}
+
+<div class="nl-card p-5 max-w-2xl">
+  <form method="post" action="{% url 'dash-customer-new' %}" class="space-y-4">
+    {% csrf_token %}
+    {% include "dashboard/_form_fields.html" with form=form %}
+    <div class="flex items-center gap-2 pt-2">
+      <button class="btn btn-primary">{% trans "Create customer" %}</button>
+      <a href="{% url 'dash-customers' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

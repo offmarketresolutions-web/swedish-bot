@@ -23,13 +23,16 @@ services:
       DJANGO_DEBUG: "0"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,web"
       # Non-default secret so the DEBUG=0 fail-closed check passes (set a real one in prod).
-      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-demo-compose-secret-not-for-production}"
+      DJANGO_SECRET_KEY: "local-demo-secret-not-for-production-change-me-please"
       # SA creds are mounted into the container; override the host path from .env.
       GOOGLE_APPLICATION_CREDENTIALS: /app/secrets/gcp-vertex-ai.json
       # Temporary: the reused SA is us-central1 (non-EU). Allowed only until the
       # europe-north1 project is provisioned (V2 §S5). Remove before real PII.
       ALLOW_NON_EU_RESIDENCY: "1"
       HTTPS_ENABLED: "0"
+      # LOCAL DEMO: open /admin + /dashboard (no login) and enable the /playground
+      # test console. NEVER set this in production.
+      DEMO_OPEN_ADMIN: "1"
     depends_on:
       db:
         condition: service_healthy

@@ -30,7 +30,7 @@ def _classify(system: str) -> str:
         return "specialist"
     if "service coordinator handling equipment we do NOT" in s:
         return "intelligent_intake"
-    if "nameplate photo" in s:
+    if "nameplate photo" in s or "rating plate" in s.lower():
         return "vision"
     if "quality and safety reviewer" in s:
         return "qa"
@@ -81,6 +81,27 @@ class FakeGemini:
                 self.usage_metadata = None
         yield _Chunk("OK")
 
+    def embed(self, texts, *, model=None, task_type="RETRIEVAL_DOCUMENT",
+              output_dimensionality=None, api_key=None):
+        import hashlib
+        dim = output_dimensionality or 768
+        one = isinstance(texts, str)
+        items = [texts] if one else list(texts)
+
+        def _vec(t):
+            import math
+            buf, i = [], 0
+            while len(buf) < dim:  # full-entropy: keep hashing to fill `dim`
+                h = hashlib.sha256(f"{t}:{i}".encode("utf-8")).digest()
+                buf.extend((b / 255.0) * 2 - 1 for b in h)
+                i += 1
+            v = buf[:dim]
+            n = math.sqrt(sum(x * x for x in v)) or 1.0
+            return [x / n for x in v]  # normalized, like the real model
+
+        out = [_vec(t) for t in items]
+        return out[0] if one else out
+
     def create_cache(self, **kw):
         return "mock/cache/abc123"
 
@@ -94,7 +115,7 @@ class FakeGemini:
 @pytest.fixture
 def mock_gemini(monkeypatch):
     fake = FakeGemini()
-    for name in ("generate", "generate_stream", "create_cache", "file_part", "health_check"):
+    for name in ("generate", "generate_stream", "embed", "create_cache", "file_part", "health_check"):
         monkeypatch.setattr(gemini_mod, name, getattr(fake, name))
     return fake
 
@@ -106,3 +127,10 @@ def _clear_cache():
     from django.core.cache import cache
     cache.clear()
     yield
+
+
+@pytest.fixture(autouse=True)
+def _semantic_off(settings):
+    # Semantic (embedding) search is ON in production but OFF by default in tests so
+    # unit tests stay offline + deterministic. Semantic tests opt in explicitly.
+    settings.SEMANTIC_SEARCH_ENABLED = False

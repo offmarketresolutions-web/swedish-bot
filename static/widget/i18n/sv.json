@@ -4,5 +4,13 @@
   "placeholder": "Beskriv ditt problem…",
   "typing": "Assistenten skriver…",
   "photo": "📷 Foto",
-  "error": "Anslutningsproblem. Försök igen."
+  "error": "Anslutningsproblem. Försök igen.",
+  "open": "Öppna chatt",
+  "close": "Stäng chatt",
+  "minimize": "Minimera",
+  "status": "Svarar oftast inom några minuter",
+  "attach": "Bifoga fil",
+  "remove": "Ta bort bilaga",
+  "file_too_big": "Filen är för stor (max 10 MB).",
+  "file_bad_type": "Endast bilder och PDF-filer tillåts."
 }

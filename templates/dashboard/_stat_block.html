@@ -1,0 +1,27 @@
+{% comment %}Compact KPI strip. Usage:
+  {% include 'dashboard/_stat_block.html' with stats=stats %}
+`stats` is a kpis-shaped dict: total, resolved, escalated, leads_captured,
+resolution_rate, escalation_rate, avg_turns (rates are fractions in [0,1]).{% endcomment %}
+{% load i18n %}
+<dl class="grid grid-cols-2 sm:grid-cols-5 gap-px overflow-hidden rounded-lg border border-nl-border bg-nl-border" data-testid="stat-block">
+  <div class="bg-white p-3">
+    <dt class="text-xs text-nl-base/60">{% trans "Sessions" %}</dt>
+    <dd class="mt-0.5 text-xl font-bold tabular-nums">{{ stats.total }}</dd>
+  </div>
+  <div class="bg-white p-3">
+    <dt class="text-xs text-nl-base/60">{% trans "Resolution" %}</dt>
+    <dd class="mt-0.5 text-xl font-bold tabular-nums text-green-700">{% widthratio stats.resolution_rate 1 100 %}%</dd>
+  </div>
+  <div class="bg-white p-3">
+    <dt class="text-xs text-nl-base/60">{% trans "Escalation" %}</dt>
+    <dd class="mt-0.5 text-xl font-bold tabular-nums text-nl-action">{% widthratio stats.escalation_rate 1 100 %}%</dd>
+  </div>
+  <div class="bg-white p-3">
+    <dt class="text-xs text-nl-base/60">{% trans "Leads" %}</dt>
+    <dd class="mt-0.5 text-xl font-bold tabular-nums">{{ stats.leads_captured }}</dd>
+  </div>
+  <div class="bg-white p-3">
+    <dt class="text-xs text-nl-base/60">{% trans "Avg turns" %}</dt>
+    <dd class="mt-0.5 text-xl font-bold tabular-nums">{{ stats.avg_turns }}</dd>
+  </div>
+</dl>

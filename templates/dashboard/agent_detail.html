@@ -1,0 +1,63 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{{ p.get_role_display|default:p.role }} — {% trans "Agent" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dash-agents' %}" class="hover:underline">{% trans "Agents" %}</a> / {{ p.get_role_display|default:p.role }}{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between gap-3 mb-1 flex-wrap" data-testid="agent-detail">
+  <h1 class="text-2xl font-bold flex items-center gap-3">
+    <a href="{% url 'dash-agents' %}" class="text-nl-base/60 hover:text-nl-primary" title="{% trans 'Back to all agents' %}" aria-label="{% trans 'Back to all agents' %}">←</a>
+    {% if info.step %}<span class="text-sm font-semibold px-2 py-0.5 rounded-full bg-nl-primaryl text-nl-primaryd">{% trans "Step" %} {{ info.step }}</span>{% endif %}
+    {{ p.get_role_display|default:p.role }}
+  </h1>
+  <a href="/playground" class="btn btn-secondary text-sm">{% trans "Test in Playground" %} →</a>
+</div>
+{% if info.blurb %}<p class="text-nl-base/60 mb-4 max-w-3xl">{{ info.blurb }}</p>{% endif %}
+
+<div class="nl-card bg-green-50 border-green-200 px-4 py-3 mb-5 text-sm text-green-800 flex items-start gap-2">
+  <span aria-hidden="true">🟢</span>
+  <p>{% trans "Saving here updates the live bot instantly — the next customer conversation uses your new settings. No deploy, no restart." %}</p>
+</div>
+
+<!-- this agent's place in the full flow; the other nodes are clickable -->
+<div class="nl-card p-4 mb-6" data-testid="agent-map">
+  <p class="text-xs text-nl-base/60 mb-2">{% trans "Where this agent sits — click another node to jump to it:" %}</p>
+  {% include "dashboard/_agent_map.html" with current_role=p.role %}
+</div>
+
+<!-- AI prompt assistant: appends to (never rewrites) the current prompt -->
+<div class="nl-card p-4 mb-4" x-data="promptAssist()" data-testid="assist-box">
+  <h2 class="font-semibold flex items-center gap-2 mb-1"><span aria-hidden="true">✨</span> {% trans "AI prompt assistant" %}</h2>
+  <p class="text-sm text-nl-base/60 mb-3">{% trans "Describe what to ADD — e.g. “add a guardrail that we never advise draining a pressurised tank”. Gemini reads the full current prompt and returns it with only your addition; it never removes existing rules. Review the proposal in the prompt body below, then Save." %}</p>
+  <div class="flex flex-col sm:flex-row gap-2 sm:items-start">
+    <textarea x-model="instruction" rows="2" placeholder="{% trans 'I want more guardrails about…' %}"
+              class="flex-1 border border-nl-border rounded px-2 py-1 text-sm focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none" data-testid="assist-input"></textarea>
+    <button class="btn btn-primary shrink-0 sm:self-stretch" @click="generate()" :disabled="busy || !instruction.trim()" data-testid="assist-btn">
+      <span x-text="busy ? '{% trans "Thinking…" %}' : '{% trans "Generate addition" %}'">{% trans "Generate addition" %}</span>
+    </button>
+  </div>
+  <p class="text-sm mt-2" x-show="msg" x-cloak :class="err ? 'text-nl-action' : 'text-green-700'" x-text="msg"></p>
+</div>
+<script>
+  function promptAssist() {
+    return {
+      instruction: "", busy: false, msg: "", err: false,
+      async generate() {
+        if (!this.instruction.trim()) return;
+        this.busy = true; this.msg = ""; this.err = false;
+        try {
+          const fd = new URLSearchParams(); fd.set("instruction", this.instruction);
+          const r = await fetch("{% url 'dash-agent-assist' p.pk %}", { method: "POST", headers: { "X-CSRFToken": "{{ csrf_token }}" }, body: fd });
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.ok) {
+            const ta = document.querySelector('[data-testid="agent-card-{{ p.role }}"] textarea[name=body]');
+            if (ta) { ta.value = j.body; ta.dispatchEvent(new Event("input", { bubbles: true })); ta.scrollIntoView({ behavior: "smooth", block: "center" }); ta.classList.add("ring-2", "ring-nl-primary"); }
+            this.msg = "Proposed an updated prompt (" + j.chars + " chars) — review it in the Prompt body below, then click Save."; this.err = false;
+          } else { this.msg = j.error || "Failed — try again."; this.err = true; }
+        } catch (e) { this.msg = "Failed — try again."; this.err = true; }
+        this.busy = false;
+      },
+    };
+  }
+</script>
+
+{% include "dashboard/_agent_card.html" with p=p saved=saved error=error %}
+{% endblock %}

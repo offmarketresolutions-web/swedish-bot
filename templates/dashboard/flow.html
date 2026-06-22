@@ -1,0 +1,421 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{% trans "Flow builder" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}{% trans "Flow builder" %}{% endblock %}
+{% block content %}
+<div x-data="flowCanvas()" x-init="init()"
+     @pointermove.window="onMove($event)" @pointerup.window="endDrag()"
+     @keydown.escape.window="cancelConnect()" data-testid="flow-builder">
+
+  <div class="flex items-start justify-between gap-3 mb-3 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-bold">{% trans "Flow builder" %}</h1>
+      <p class="text-sm text-nl-base/60 max-w-2xl">{% trans "Drag to arrange. Click a step to configure it. Click an arrow to set the fields collected on that transition. Use the → handle on a step to connect it to another." %}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-xs text-nl-action" x-show="dirty" x-cloak>{% trans "unsaved changes" %}</span>
+      <button class="btn btn-primary" @click="save()" :disabled="saving" data-testid="flow-save">
+        <span x-text="saving ? '{% trans "Saving…" %}' : '{% trans "Save flow" %}'">{% trans "Save flow" %}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="nl-card bg-green-50 border-green-200 px-4 py-2 mb-3 text-sm text-green-800 flex items-start gap-2">
+    <span aria-hidden="true">🟢</span>
+    <p>{% trans "Agent steps edit the live bot directly — saving an agent applies to the next conversation immediately. The hard safety guardrails stay enforced in code and can't be removed here." %}</p>
+  </div>
+
+  <!-- palette -->
+  <div class="flex flex-wrap items-center gap-2 mb-3" data-testid="flow-palette">
+    <span class="text-xs font-medium text-nl-base/60 mr-1">{% trans "Add step:" %}</span>
+    <template x-for="k in kinds" :key="k">
+      <button class="btn btn-secondary text-xs" @click="addNode(k)" :data-testid="'add-'+k">
+        <span x-text="kindIcon(k)+' '+kindLabel(k)"></span>
+      </button>
+    </template>
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-[1fr_330px]">
+    <!-- ───── CANVAS ───── -->
+    <div class="nl-card p-0 overflow-auto relative" style="height:620px" data-testid="flow-canvas">
+      <div class="relative" x-ref="surface" :style="`width:${canvasW}px;height:${canvasH}px`"
+           @click.self="clearSel()"
+           style="background-image:radial-gradient(#e2e8f0 1px,transparent 1px);background-size:22px 22px">
+        <!-- edges: one positioned <svg> per edge (Alpine x-for can't live INSIDE one <svg>) -->
+        <div class="absolute inset-0" style="pointer-events:none">
+          <template x-for="e in edges" :key="e.id">
+            <svg class="absolute left-0 top-0" :width="canvasW" :height="canvasH" style="overflow:visible" :data-testid="'edge-'+e.id">
+              <defs>
+                <marker :id="'fa-'+e.id" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0 0 L10 5 L0 10 z" :fill="isSel('edge',e.id)?'#1a74bf':'#94a3b8'"/>
+                </marker>
+              </defs>
+              <g style="pointer-events:auto;cursor:pointer" @click="selectEdge(e.id)">
+                <path :d="edgePath(e)" fill="none" stroke="transparent" stroke-width="16"/>
+                <path :d="edgePath(e)" fill="none" :stroke="isSel('edge',e.id)?'#1a74bf':'#94a3b8'" :stroke-width="isSel('edge',e.id)?3:2" :marker-end="'url(#fa-'+e.id+')'"/>
+                <text :x="mid(e).x" :y="mid(e).y-6" text-anchor="middle" style="font-size:11px;font-weight:500"
+                      :fill="isSel('edge',e.id)?'#1a74bf':'#64748b'" x-text="edgeLabel(e)"></text>
+              </g>
+            </svg>
+          </template>
+        </div>
+        <!-- nodes -->
+        <template x-for="n in nodes" :key="n.id">
+          <div class="absolute" :style="`left:${n.x}px;top:${n.y}px;width:176px`" :data-testid="'node-'+n.id">
+            <div class="rounded-lg border-2 bg-white shadow-sm transition"
+                 :class="isSel('node',n.id) ? 'ring-2 ring-nl-primary border-nl-primary' : (connectFrom===n.id ? 'border-nl-action' : 'border-nl-border')"
+                 @click.stop="nodeClick(n.id)">
+              <div class="px-2.5 py-1.5 rounded-t-md flex items-center gap-1.5 cursor-move" :class="kindHeader(n.kind)"
+                   @pointerdown="startDrag($event,n.id)">
+                <span x-text="kindIcon(n.kind)" class="text-sm"></span>
+                <span class="text-xs font-semibold truncate flex-1" x-text="n.title || kindLabel(n.kind)"></span>
+              </div>
+              <div class="px-2.5 py-1.5 flex items-center justify-between text-[10px] text-nl-base/60">
+                <span class="truncate" x-text="n.kind==='agent' ? agentModel(n) : n.kind"></span>
+                <button class="text-nl-primary font-bold px-1 rounded hover:bg-nl-primaryl shrink-0"
+                        @click.stop="startConnect(n.id)" title="{% trans 'Connect to another step' %}" :data-testid="'connect-'+n.id">→</button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- ───── SIDE PANEL ───── (sticky + scrolls internally so long prompts don't grow the page) -->
+    <div class="nl-card p-4 self-start lg:sticky lg:top-16 lg:max-h-[80vh] lg:overflow-y-auto" data-testid="flow-panel">
+      <template x-if="!sel">
+        <div class="text-sm text-nl-base/60">
+          <p class="mb-2">{% trans "Nothing selected." %}</p>
+          <p>{% trans "Click a step to edit it, or an arrow to choose which fields to collect on that transition." %}</p>
+        </div>
+      </template>
+
+      <!-- NODE editor -->
+      <template x-if="sel && sel.t==='node' && cur">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold flex items-center gap-1.5"><span x-text="kindIcon(cur.kind)"></span><span x-text="kindLabel(cur.kind)+' step'"></span></h2>
+            <button class="text-xs text-nl-action hover:underline" @click="deleteNode()" data-testid="node-delete">{% trans "Delete" %}</button>
+          </div>
+
+          <label class="block text-sm mb-3">{% trans "Title" %}
+            <input x-model="cur.title" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none" data-testid="node-title">
+          </label>
+
+          <!-- AGENT: edits the live AgentPrompt -->
+          <template x-if="cur.kind==='agent'">
+            <div x-data="{ get a(){ return agents[cur.role] } }">
+              <label class="block text-sm mb-2">{% trans "Agent role" %}
+                <select x-model="cur.role" x-init="$nextTick(() => { $el.value = cur.role })" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm bg-white">
+                  <template x-for="r in Object.keys(agents)" :key="r"><option :value="r" x-text="agents[r].display"></option></template>
+                </select>
+              </label>
+              <template x-if="a">
+                <div class="border border-nl-border rounded-md p-2.5 bg-nl-bg/40">
+                  <div class="text-[11px] font-semibold uppercase tracking-wide text-nl-base/60 mb-2">{% trans "Live agent settings" %} · v<span x-text="a.prompt_version"></span></div>
+                  <label class="block text-sm mb-2">{% trans "Model" %}
+                    <input x-model="a.model_id" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+                  </label>
+                  <div class="grid grid-cols-2 gap-2 mb-2">
+                    <label class="block text-sm">{% trans "Temperature" %}
+                      <input type="number" step="any" min="0" max="2" x-model="a.temperature" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+                    </label>
+                    <label class="block text-sm">{% trans "Max tokens" %}
+                      <input type="number" min="1" max="65536" x-model="a.max_output_tokens" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+                    </label>
+                  </div>
+                  <div class="flex flex-wrap gap-4 text-sm mb-2">
+                    <label class="flex items-center gap-1.5"><input type="checkbox" x-model="a.thinking_enabled"> {% trans "Thinking" %}</label>
+                    <label class="flex items-center gap-1.5"><input type="checkbox" x-model="a.is_active"> {% trans "Active" %}</label>
+                  </div>
+                  <div class="mb-2">
+                    <div class="text-[11px] text-nl-base/60 mb-1">✨ {% trans "AI: add to this prompt (never rewrites)" %}</div>
+                    <div class="flex gap-1.5">
+                      <input x-model="assistText" placeholder="{% trans 'add guardrails about…' %}" class="flex-1 border border-nl-border rounded px-2 py-1 text-xs" data-testid="flow-assist-input">
+                      <button class="btn btn-secondary text-xs shrink-0" @click="assist()" :disabled="assistBusy || !assistText.trim()" data-testid="flow-assist-btn" x-text="assistBusy ? '…' : '{% trans "AI add" %}'">{% trans "AI add" %}</button>
+                    </div>
+                  </div>
+                  <label class="block text-sm mb-2">{% trans "Prompt body" %}
+                    <textarea x-model="a.body" rows="5" class="mt-1 w-full border border-nl-border rounded px-2 py-1 font-mono text-xs"></textarea>
+                  </label>
+                  <div class="flex items-center gap-3">
+                    <button class="btn btn-primary text-xs" @click="saveAgent()" data-testid="node-save-agent">{% trans "Save agent (live)" %}</button>
+                    <a class="text-xs text-nl-primary hover:underline" :href="'/dashboard/agents/'+cur.role+'/'">{% trans "Full editor ↗" %}</a>
+                  </div>
+                </div>
+              </template>
+              <template x-if="!a"><p class="text-xs text-nl-action">{% trans "No prompt row for this role yet." %}</p></template>
+            </div>
+          </template>
+
+          <!-- ASK -->
+          <template x-if="cur.kind==='ask'">
+            <div>
+              <label class="block text-sm mb-2">{% trans "Question to ask" %}
+                <input x-model="cur.config.question" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+              </label>
+              <label class="block text-sm mb-2">{% trans "Save answer as (field name)" %}
+                <input x-model="cur.config.slot" placeholder="error_code" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+              </label>
+              <label class="block text-sm">{% trans "Quick-reply chips (comma-separated)" %}
+                <input x-model="cur.config.chips" placeholder="Yes, No, Not sure" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+              </label>
+            </div>
+          </template>
+
+          <!-- SAY -->
+          <template x-if="cur.kind==='say'">
+            <label class="block text-sm">{% trans "Message to the customer" %}
+              <textarea x-model="cur.config.message" rows="4" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm"></textarea>
+            </label>
+          </template>
+
+          <!-- WAIT -->
+          <template x-if="cur.kind==='wait'">
+            <div class="grid grid-cols-2 gap-2">
+              <label class="block text-sm">{% trans "Wait (seconds)" %}
+                <input type="number" min="0" x-model="cur.config.seconds" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+              </label>
+              <label class="block text-sm col-span-2">{% trans "Reason / note" %}
+                <input x-model="cur.config.reason" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+              </label>
+            </div>
+          </template>
+
+          <!-- REQUEST -->
+          <template x-if="cur.kind==='request'">
+            <div>
+              <div class="grid grid-cols-3 gap-2 mb-2">
+                <label class="block text-sm">{% trans "Method" %}
+                  <select x-model="cur.config.method" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm bg-white">
+                    <option>GET</option><option>POST</option>
+                  </select>
+                </label>
+                <label class="block text-sm col-span-2">{% trans "Save response as" %}
+                  <input x-model="cur.config.save_as" placeholder="booking_slots" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+                </label>
+              </div>
+              <label class="block text-sm mb-2">{% trans "URL" %}
+                <input x-model="cur.config.url" placeholder="https://…" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+              </label>
+              <label class="block text-sm">{% trans "Note" %}
+                <input x-model="cur.config.note" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm">
+              </label>
+            </div>
+          </template>
+
+          <!-- END -->
+          <template x-if="cur.kind==='end'">
+            <label class="block text-sm">{% trans "Outcome" %}
+              <select x-model="cur.config.outcome" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm bg-white">
+                <option value="solve">{% trans "Solve (resolved)" %}</option>
+                <option value="escalate">{% trans "Escalate → lead" %}</option>
+                <option value="other">{% trans "Other" %}</option>
+              </select>
+            </label>
+          </template>
+        </div>
+      </template>
+
+      <!-- EDGE editor -->
+      <template x-if="sel && sel.t==='edge' && cur">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="font-semibold">{% trans "Transition" %}</h2>
+            <button class="text-xs text-nl-action hover:underline" @click="deleteEdge()" data-testid="edge-delete">{% trans "Delete" %}</button>
+          </div>
+          <p class="text-xs text-nl-base/60 mb-3"><span x-text="nodeTitle(cur.source)"></span> → <span x-text="nodeTitle(cur.target)"></span></p>
+          <label class="block text-sm mb-3">{% trans "Arrow label" %}
+            <input x-model="cur.label" class="mt-1 w-full border border-nl-border rounded px-2 py-1 text-sm" data-testid="edge-label">
+          </label>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium">{% trans "Fields to collect here" %}</span>
+            <button class="text-xs text-nl-primary hover:underline" @click="addCollect()" data-testid="edge-add-field">+ {% trans "Add field" %}</button>
+          </div>
+          <template x-if="!cur.collect || !cur.collect.length">
+            <p class="text-xs text-nl-base/60 mb-2">{% trans "No fields collected on this transition." %}</p>
+          </template>
+          <div class="space-y-2">
+            <template x-for="(f,i) in cur.collect" :key="i">
+              <div class="border border-nl-border rounded p-2 bg-nl-bg/40" data-testid="collect-row">
+                <div class="grid grid-cols-2 gap-2">
+                  <input x-model="f.name" placeholder="{% trans 'field name' %}" class="border border-nl-border rounded px-2 py-1 text-xs">
+                  <input x-model="f.label" placeholder="{% trans 'label' %}" class="border border-nl-border rounded px-2 py-1 text-xs">
+                </div>
+                <div class="flex items-center justify-between mt-1.5">
+                  <label class="flex items-center gap-1.5 text-xs"><input type="checkbox" x-model="f.required"> {% trans "required" %}</label>
+                  <button class="text-xs text-nl-action hover:underline" @click="removeCollect(i)">{% trans "remove" %}</button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- tiny toast -->
+  <div x-show="msg" x-transition x-cloak
+       class="fixed bottom-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm"
+       :class="msgType==='error' ? 'bg-red-600' : 'bg-nl-primary'" x-text="msg" data-testid="flow-toast"></div>
+</div>
+
+{{ graph|json_script:"flow-graph" }}
+{{ agents|json_script:"flow-agents" }}
+<script>
+  window.flowCanvas = function () {
+    const GRAPH = JSON.parse(document.getElementById("flow-graph").textContent);
+    const AGENTS = JSON.parse(document.getElementById("flow-agents").textContent);
+    const CSRF = "{{ csrf_token }}";
+    const SAVE_URL = "{% url 'dash-flow-save' %}";
+    const NW = 176, NH = 60;
+    const LABELS = { agent: "Agent", ask: "Ask", say: "Say", wait: "Wait", request: "Request", end: "End" };
+    const ICONS = { agent: "🤖", ask: "❓", say: "💬", wait: "⏱️", request: "🔗", end: "🏁" };
+    const HEADERS = {
+      agent: "bg-nl-primaryl text-nl-primaryd", ask: "bg-amber-100 text-amber-800",
+      say: "bg-sky-100 text-sky-800", wait: "bg-slate-100 text-slate-700",
+      request: "bg-violet-100 text-violet-800", end: "bg-green-100 text-green-800",
+    };
+    return {
+      nodes: GRAPH.nodes || [], edges: GRAPH.edges || [], agents: AGENTS, kinds: Object.keys(LABELS),
+      sel: null, cur: null, connectFrom: null, dragId: null, dragDX: 0, dragDY: 0,
+      saving: false, dirty: false, msg: "", msgType: "", canvasW: 900, canvasH: 560, _tt: null,
+      assistText: "", assistBusy: false,
+
+      init() { this.edges.forEach(e => { if (!Array.isArray(e.collect)) e.collect = []; }); this.relayout(); },
+
+      // labels/icons
+      kindLabel(k) { return LABELS[k] || k; },
+      kindIcon(k) { return ICONS[k] || "•"; },
+      kindHeader(k) { return HEADERS[k] || "bg-slate-100"; },
+      agentModel(n) { const a = this.agents[n.role]; return a ? a.model_id : "(pick a role)"; },
+
+      // selection
+      isSel(t, id) { return this.sel && this.sel.t === t && this.sel.id === id; },
+      nodeById(id) { return this.nodes.find(n => n.id === id); },
+      edgeById(id) { return this.edges.find(e => e.id === id); },
+      nodeTitle(id) { const n = this.nodeById(id); return n ? (n.title || this.kindLabel(n.kind)) : id; },
+      selectNode(id) { this.connectFrom = null; this.sel = { t: "node", id }; this.cur = this.nodeById(id); },
+      selectEdge(id) { this.connectFrom = null; this.sel = { t: "edge", id }; this.cur = this.edgeById(id); },
+      clearSel() { this.sel = null; this.cur = null; this.connectFrom = null; },
+      nodeClick(id) {
+        if (this.connectFrom && this.connectFrom !== id) { this.addEdge(this.connectFrom, id); this.connectFrom = null; }
+        else { this.selectNode(id); }
+      },
+
+      // add / remove
+      uid(p) { let i = 1; while (this.nodes.some(n => n.id === p + i) || this.edges.some(e => e.id === p + i)) i++; return p + i; },
+      addNode(kind) {
+        const id = this.uid(kind + "_");
+        const node = { id, kind, title: this.kindLabel(kind), x: 60 + (this.nodes.length % 6) * 26, y: 60 + (this.nodes.length % 6) * 26, config: {} };
+        if (kind === "agent") {
+          const used = this.nodes.filter(n => n.kind === "agent").map(n => n.role);
+          node.role = Object.keys(this.agents).find(r => !used.includes(r)) || Object.keys(this.agents)[0] || "";
+        }
+        if (kind === "end") node.config.outcome = "escalate";
+        this.nodes.push(node); this.dirty = true; this.selectNode(id); this.relayout();
+      },
+      deleteNode() {
+        if (!this.cur) return;
+        const id = this.cur.id;
+        this.nodes = this.nodes.filter(n => n.id !== id);
+        this.edges = this.edges.filter(e => e.source !== id && e.target !== id);
+        this.dirty = true; this.clearSel();
+      },
+      addEdge(s, t) {
+        if (s === t || this.edges.some(e => e.source === s && e.target === t)) return;
+        const id = this.uid("e_");
+        this.edges.push({ id, source: s, target: t, label: "", collect: [] });
+        this.dirty = true; this.selectEdge(id);
+      },
+      deleteEdge() { if (!this.cur) return; const id = this.cur.id; this.edges = this.edges.filter(e => e.id !== id); this.dirty = true; this.clearSel(); },
+      addCollect() { if (this.cur && this.sel.t === "edge") { if (!this.cur.collect) this.cur.collect = []; this.cur.collect.push({ name: "", label: "", required: true }); this.dirty = true; } },
+      removeCollect(i) { this.cur.collect.splice(i, 1); this.dirty = true; },
+      startConnect(id) { this.connectFrom = id; this.sel = null; this.cur = null; },
+      cancelConnect() { this.connectFrom = null; },
+
+      // drag (rect re-fetched each move → scroll-safe)
+      startDrag(ev, id) {
+        if (ev.button !== undefined && ev.button !== 0) return;
+        this.dragId = id; const n = this.nodeById(id);
+        const r = this.$refs.surface.getBoundingClientRect();
+        this.dragDX = ev.clientX - r.left - n.x; this.dragDY = ev.clientY - r.top - n.y;
+      },
+      onMove(ev) {
+        if (!this.dragId) return;
+        const n = this.nodeById(this.dragId); if (!n) return;
+        const r = this.$refs.surface.getBoundingClientRect();
+        n.x = Math.max(0, Math.round(ev.clientX - r.left - this.dragDX));
+        n.y = Math.max(0, Math.round(ev.clientY - r.top - this.dragDY));
+        this.dirty = true;
+      },
+      endDrag() { if (this.dragId) { this.dragId = null; this.relayout(); } },
+      relayout() {
+        let mx = 900, my = 560;
+        this.nodes.forEach(n => { mx = Math.max(mx, n.x + NW + 80); my = Math.max(my, n.y + NH + 80); });
+        this.canvasW = mx; this.canvasH = my;
+      },
+
+      // edge geometry
+      center(n) { return { x: n.x + NW / 2, y: n.y + NH / 2 }; },
+      border(n, tx, ty) {
+        const c = this.center(n); let dx = tx - c.x, dy = ty - c.y;
+        if (!dx && !dy) return c;
+        const hw = NW / 2, hh = NH / 2;
+        const s = Math.min(dx ? hw / Math.abs(dx) : 1e9, dy ? hh / Math.abs(dy) : 1e9);
+        return { x: c.x + dx * s, y: c.y + dy * s };
+      },
+      _ends(e) {
+        const s = this.nodeById(e.source), t = this.nodeById(e.target);
+        if (!s || !t) return null;
+        const cs = this.center(s), ct = this.center(t);
+        return { a: this.border(s, ct.x, ct.y), b: this.border(t, cs.x, cs.y) };
+      },
+      edgePath(e) { const p = this._ends(e); if (!p) return ""; const mx = (p.a.x + p.b.x) / 2; return `M${p.a.x},${p.a.y} C ${mx},${p.a.y} ${mx},${p.b.y} ${p.b.x},${p.b.y}`; },
+      mid(e) { const p = this._ends(e); return p ? { x: (p.a.x + p.b.x) / 2, y: (p.a.y + p.b.y) / 2 } : { x: 0, y: 0 }; },
+      edgeLabel(e) { const c = (e.collect && e.collect.length) ? ` ·+${e.collect.length}` : ""; return (e.label || "") + c; },
+
+      // toast
+      toast(m, t) { this.msg = m; this.msgType = t || ""; clearTimeout(this._tt); this._tt = setTimeout(() => { this.msg = ""; }, 2800); },
+
+      // persistence
+      async save() {
+        this.saving = true;
+        try {
+          const r = await fetch(SAVE_URL, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify({ nodes: this.nodes, edges: this.edges }) });
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.ok) { this.dirty = false; this.toast(`Flow saved — ${j.nodes} steps, ${j.edges} arrows ✓`); }
+          else { this.toast(j.error || "Save failed", "error"); }
+        } catch (e) { this.toast("Save failed", "error"); }
+        this.saving = false;
+      },
+      async assist() {
+        const a = this.agents[this.cur.role]; if (!a || !this.assistText.trim()) return;
+        this.assistBusy = true;
+        try {
+          const fd = new URLSearchParams(); fd.set("instruction", this.assistText);
+          const r = await fetch(`/dashboard/agents/${a.pk}/assist`, { method: "POST", headers: { "X-CSRFToken": CSRF }, body: fd });
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.ok) { a.body = j.body; this.assistText = ""; this.toast("AI proposed an updated prompt — review it, then Save agent (live)"); }
+          else { this.toast(j.error || "AI failed", "error"); }
+        } catch (e) { this.toast("AI failed", "error"); }
+        this.assistBusy = false;
+      },
+      async saveAgent() {
+        const a = this.agents[this.cur.role]; if (!a) return;
+        const fd = new URLSearchParams();
+        fd.set("model_id", a.model_id || ""); fd.set("body", a.body || ""); fd.set("language_directive", a.language_directive || "");
+        fd.set("temperature", a.temperature == null ? "" : a.temperature);
+        fd.set("thinking_budget", a.thinking_budget == null ? 0 : a.thinking_budget);
+        fd.set("max_output_tokens", a.max_output_tokens == null ? "" : a.max_output_tokens);
+        if (a.thinking_enabled) fd.set("thinking_enabled", "on");
+        if (a.is_active) fd.set("is_active", "on");
+        try {
+          const r = await fetch(`/dashboard/agents/${a.pk}/save`, { method: "POST", headers: { "X-CSRFToken": CSRF }, body: fd });
+          if (r.ok) { this.toast(`${a.display} updated — live in production ✓`); }
+          else { this.toast("Agent save failed", "error"); }
+        } catch (e) { this.toast("Agent save failed", "error"); }
+      },
+    };
+  };
+</script>
+{% endblock %}

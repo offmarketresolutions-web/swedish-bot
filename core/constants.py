@@ -14,19 +14,43 @@ on the $ figures (token COUNTS from the spike are exact; cost = counts × rate).
 """
 from __future__ import annotations
 
+import os
+
 # Logical role -> concrete model id. AgentPrompt.model_id in the DB overrides
 # these per-agent (plan §7 canonical data model); this dict only seeds defaults.
 MODELS = {
     "flash": "gemini-2.5-flash",        # workhorse: 1M ctx, multimodal (verified)
     "flash_lite": "gemini-2.5-flash-lite",  # intake/extraction/router/safety (verified)
     "pro": "gemini-2.5-pro",            # reserved: v2 QA / hard cases
+    # Latest multimodal embedding (GA 2026-04). Override via GEMINI_EMBED_MODEL.
+    # gemini.embed() falls back through EMBED_FALLBACKS if a project hasn't
+    # provisioned it yet (e.g. the reused us-central1 demo project → 404 → 001).
+    "embedding": os.environ.get("GEMINI_EMBED_MODEL", "gemini-embedding-2"),
 }
+
+# Tried in order when the preferred embedding model 404s on the current project.
+EMBED_FALLBACKS = ["gemini-embedding-001"]
 
 # Per-1,000-token prices in USD: (input, output, cached_input).
 PRICING_PER_1K = {
     "gemini-2.5-flash": (0.0003, 0.0025, 0.000075),
     "gemini-2.5-flash-lite": (0.0001, 0.0004, 0.000025),
     "gemini-2.5-pro": (0.00125, 0.010, 0.0003125),
+}
+
+# Embedding output size. gemini-embedding-001 is natively 3072-dim but supports
+# Matryoshka truncation; 768 keeps vectors compact + index-friendly (pgvector
+# indexes cap at 2000 dims) while staying high-quality. Truncated outputs are
+# re-normalized in gemini.embed().
+EMBED_DIM = 768
+
+# Embedding price per 1k INPUT tokens (embeddings have no output tokens).
+EMBED_PRICING_PER_1K = {
+    "gemini-embedding-2": 0.00015,    # provisional — confirm live GA rate
+    "gemini-embedding-001": 0.00015,
+    "text-multilingual-embedding-002": 0.00002,
+    "text-embedding-005": 0.00002,
+    "text-embedding-004": 0.00002,
 }
 
 # Below this many tokens, skip context caching and inline the PDF (plan §8 —

@@ -31,6 +31,12 @@ def _sse(obj: dict) -> str:
     return f"data: {json.dumps(obj)}\n\n"
 
 
+def _debug_enabled(request) -> bool:
+    """Expose FSM internals (the /playground inspector) only locally — never on the
+    public widget endpoint in production."""
+    return bool(getattr(settings, "DEMO_OPEN_ADMIN", False) or settings.DEBUG)
+
+
 def _client_ip(request) -> str:
     xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
     return (xff.split(",")[0].strip() if xff else request.META.get("REMOTE_ADDR", "")) or "unknown"
@@ -90,9 +96,12 @@ def post_message(request, public_id):
             yield _sse(ev)
         if image_error:
             yield _sse({"type": "notice", "message": f"Image not accepted: {image_error}"})
-        yield _sse({"type": "message", "message": result["message"],
-                    "chips": result.get("chips", []), "state": result.get("state"),
-                    "decision": result.get("decision")})
+        frame = {"type": "message", "message": result["message"],
+                 "chips": result.get("chips", []), "state": result.get("state"),
+                 "decision": result.get("decision")}
+        if _debug_enabled(request):
+            frame["debug"] = result.get("debug")
+        yield _sse(frame)
         yield _sse({"type": "final"})
 
     resp = StreamingHttpResponse(stream(), content_type="text/event-stream")

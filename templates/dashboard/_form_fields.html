@@ -1,0 +1,22 @@
+{% comment %}Render a Django form's fields with the shell's styling. Usage:
+  {% include 'dashboard/_form_fields.html' with form=form %}
+Checkboxes render inline (label after the box); everything else stacked.{% endcomment %}
+{% load i18n %}
+{% if form.non_field_errors %}
+  <div class="text-sm text-nl-action mb-2" role="alert">{{ form.non_field_errors }}</div>
+{% endif %}
+{% for field in form %}
+  {% if field.field.widget.input_type == 'checkbox' %}
+    <label class="flex items-center gap-2 text-sm" for="{{ field.id_for_label }}">
+      {{ field }}<span class="font-medium text-nl-base/80">{{ field.label }}</span>
+    </label>
+    {% if field.help_text %}<p class="text-xs text-nl-base/60 -mt-1">{{ field.help_text }}</p>{% endif %}
+  {% else %}
+    <div>
+      <label class="block text-sm font-medium text-nl-base/70 mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<p class="text-xs text-nl-base/60 mt-1">{{ field.help_text }}</p>{% endif %}
+      {% if field.errors %}<p id="{{ field.id_for_label }}-error" role="alert" class="text-xs text-nl-action mt-1">{% for e in field.errors %}{{ e }}{% if not forloop.last %} {% endif %}{% endfor %}</p>{% endif %}
+    </div>
+  {% endif %}
+{% endfor %}

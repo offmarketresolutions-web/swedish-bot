@@ -1,0 +1,23 @@
+{% load i18n %}{% comment %}A page of machine notes + a "load more" control (replaces
+itself with the next page via HTMX → SQL LIMIT/OFFSET). Reads notes / notes_has_more /
+notes_next_offset / machine from context.{% endcomment %}
+{% for n in notes %}
+  <li class="text-sm bg-nl-bg rounded px-3 py-2 flex items-start gap-2" data-testid="note-item">
+    <div class="min-w-0 flex-1 whitespace-pre-line">{{ n.body }}
+      <div class="text-xs text-nl-base/60 mt-1">{{ n.created_by|default:"—" }} · {{ n.updated_at|date:"Y-m-d" }}</div>
+    </div>
+    <button type="button" class="shrink-0 text-nl-base/30 hover:text-nl-action leading-none"
+            title="{% trans 'Delete note' %}" aria-label="{% trans 'Delete note' %}"
+            hx-post="{% url 'dash-kb-note-delete' n.pk %}" hx-target="#kb-panel" hx-swap="innerHTML"
+            hx-confirm="{% trans 'Delete this note?' %}">✕</button>
+  </li>
+{% empty %}
+  <li class="text-xs text-nl-base/60">{% trans "No notes yet." %}</li>
+{% endfor %}
+{% if notes_has_more %}
+  <li data-testid="notes-load-more">
+    <button type="button" class="btn btn-secondary text-xs w-full"
+            hx-get="{% url 'dash-kb-notes' machine.pk %}?offset={{ notes_next_offset }}"
+            hx-target="closest li" hx-swap="outerHTML">{% trans "Load more notes" %}</button>
+  </li>
+{% endif %}

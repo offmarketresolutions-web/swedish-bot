@@ -1,0 +1,37 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{% trans "Agent Config" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}{% trans "Agents" %}{% endblock %}
+{% block content %}
+{% trans "Agent Configuration" as ph_title %}
+{% trans "Tune each agent's prompt, model and runtime settings — changes take effect immediately, no redeploy." as ph_subtitle %}
+{% include "dashboard/_page_header.html" with title=ph_title subtitle=ph_subtitle %}
+
+<div class="grid gap-3 mb-5 sm:grid-cols-2">
+  <div class="nl-card bg-nl-primaryl/60 border-nl-primary/20 px-4 py-3 text-sm text-nl-primaryd flex items-start gap-2">
+    <span aria-hidden="true">🔒</span>
+    <p>{% trans "The hard safety guardrails (electrical / refrigerant / pressure refusals, escalation rules) live in code and cannot be weakened here." %}</p>
+  </div>
+  <div class="nl-card bg-green-50 border-green-200 px-4 py-3 text-sm text-green-800 flex items-start gap-2">
+    <span aria-hidden="true">🟢</span>
+    <p>{% trans "Live in production: every save applies to the next conversation immediately — no deploy, no restart." %}</p>
+  </div>
+</div>
+
+<!-- Clickable flow map: how a conversation moves between agents. Click any agent to configure it. -->
+<div class="nl-card p-5 mb-6" data-testid="agent-map">
+  <div class="flex items-center justify-between mb-3 gap-3 flex-wrap">
+    <h2 class="font-semibold">{% trans "How the agents work together" %}</h2>
+    <p class="text-xs text-nl-base/60">{% trans "Click an agent to open its settings →" %}</p>
+  </div>
+  {% include "dashboard/_agent_map.html" %}
+</div>
+
+<h2 class="font-semibold mb-3">{% trans "All agents" %}</h2>
+<div class="space-y-5" data-testid="agent-list">
+  {% for p in prompts %}
+    {% include "dashboard/_agent_card.html" with p=p saved=False error="" %}
+  {% empty %}
+    <p class="text-nl-base/60">{% trans "No agent prompts seeded yet." %}</p>
+  {% endfor %}
+</div>
+{% endblock %}

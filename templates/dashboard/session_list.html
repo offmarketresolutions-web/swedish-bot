@@ -1,42 +1,104 @@
 {% extends "dashboard/base.html" %}{% load i18n %}
-{% block content %}
-<div class="flex items-center justify-between mb-4">
-  <h1 class="text-2xl font-semibold">{% trans "Sessions" %}</h1>
-  <form method="get" class="flex gap-2 text-sm">
-    <select name="severity" class="border rounded px-2 py-1">
-      <option value="">{% trans "All severities" %}</option>
-      {% for s in severities %}<option value="{{ s }}" {% if s == severity %}selected{% endif %}>{{ s }}</option>{% endfor %}
-    </select>
-    <input name="status" value="{{ status }}" placeholder="{% trans 'status' %}" class="border rounded px-2 py-1">
-    <button class="bg-[#0E2A4F] text-white rounded px-3">{% trans "Filter" %}</button>
-  </form>
-</div>
 
-<div class="bg-white rounded-lg shadow overflow-hidden">
+{% block breadcrumb %}{% trans "Conversations" %}{% endblock %}
+
+{% block content %}
+{% blocktrans count counter=page_obj.paginator.count asvar sub %}{{ counter }} session{% plural %}{{ counter }} sessions{% endblocktrans %}
+{% include 'dashboard/_page_header.html' with title=_('Conversations') subtitle=sub %}
+
+<form method="get" class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+  <input name="q" value="{{ q }}" type="search"
+         placeholder="{% trans 'Search equipment, summary, customer…' %}"
+         aria-label="{% trans 'Search conversations' %}"
+         class="flex-1 min-w-[12rem] rounded-md border border-nl-border bg-white px-3 py-1.5 focus:border-nl-primary focus:outline-none focus:ring-1 focus:ring-nl-primary">
+  <select name="severity" aria-label="{% trans 'Severity' %}"
+          class="rounded-md border border-nl-border bg-white px-2 py-1.5">
+    <option value="">{% trans "All severities" %}</option>
+    {% for s in severities %}<option value="{{ s }}" {% if s == severity %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <input name="status" value="{{ status }}" placeholder="{% trans 'status' %}"
+         aria-label="{% trans 'Status' %}"
+         class="w-28 rounded-md border border-nl-border bg-white px-2 py-1.5">
+  {% if sort_field %}<input type="hidden" name="sort" value="{% if sort_dir == 'desc' %}-{% endif %}{{ sort_field }}">{% endif %}
+  <button class="btn btn-primary">{% trans "Search" %}</button>
+  {% if q or severity or status %}<a href="{% url 'dash-sessions' %}" class="btn btn-secondary">{% trans "Clear" %}</a>{% endif %}
+</form>
+
+<div class="nl-card overflow-hidden">
+  {% if sessions %}
   <table class="w-full text-sm">
-    <thead class="bg-slate-50 text-left text-slate-500">
+    <thead class="hidden md:table-header-group bg-nl-bg text-left text-nl-base/60">
       <tr>
-        <th class="px-3 py-2">#</th><th class="px-3 py-2">{% trans "Equipment" %}</th>
-        <th class="px-3 py-2">{% trans "Problem" %}</th><th class="px-3 py-2">{% trans "Severity" %}</th>
-        <th class="px-3 py-2">{% trans "Decision" %}</th><th class="px-3 py-2">{% trans "Status" %}</th>
-        <th class="px-3 py-2">{% trans "When" %}</th>
+        {% with k='id' label=_('#') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='manufacturer' label=_('Equipment') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        <th class="px-3 py-2 font-medium">{% trans "Customer" %}</th>
+        <th class="px-3 py-2 font-medium">{% trans "Problem" %}</th>
+        {% with k='severity' label=_('Severity') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='decision' label=_('Decision') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='status' label=_('Status') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
+        {% with k='created_at' label=_('When') %}
+        {% if sort_field == k %}
+          <th class="px-3 py-2 font-medium" aria-sort="{% if sort_dir == 'asc' %}ascending{% else %}descending{% endif %}"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={% if sort_dir == 'asc' %}-{% endif %}{{ k }}">{{ label }} <span aria-hidden="true">{% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}</span></a></th>
+        {% else %}
+          <th class="px-3 py-2 font-medium" aria-sort="none"><a class="inline-flex items-center gap-1 hover:text-nl-base" href="?{% if base_qs %}{{ base_qs }}&{% endif %}sort={{ k }}">{{ label }} <span aria-hidden="true" class="text-nl-base/25">↕</span></a></th>
+        {% endif %}
+        {% endwith %}
       </tr>
     </thead>
-    <tbody>
+    <tbody class="block md:table-row-group">
       {% for s in sessions %}
-      <tr class="border-t hover:bg-slate-50">
-        <td class="px-3 py-2"><a class="text-[#0E2A4F] underline" href="{% url 'dash-session' s.pk %}">{{ s.pk }}</a></td>
-        <td class="px-3 py-2">{{ s.manufacturer }} {{ s.model }}</td>
-        <td class="px-3 py-2">{{ s.problem_category|default:"—" }}</td>
-        <td class="px-3 py-2">{{ s.severity|default:"—" }}</td>
-        <td class="px-3 py-2">{{ s.decision|default:"—" }}</td>
-        <td class="px-3 py-2">{{ s.status }}</td>
-        <td class="px-3 py-2 text-slate-500">{{ s.created_at|date:"Y-m-d H:i" }}</td>
+      <tr class="block md:table-row border-t border-nl-border first:border-t-0 md:first:border-t hover:bg-nl-bg/60 p-3 md:p-0">
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="#">
+          <a class="text-nl-primary hover:text-nl-primaryd font-medium" href="{% url 'dash-session' s.pk %}">{{ s.pk }}</a>
+        </td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Equipment' %}">{% if s.machine %}<a class="text-nl-primary hover:underline" href="{% url 'dash-kb-machine-page' s.machine.pk %}">{{ s.machine.vendor.name }} {{ s.machine.model_name }}</a>{% else %}{{ s.manufacturer }} {{ s.model|default:"—" }}{% endif %}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Customer' %}">{% if s.customer %}<a class="text-nl-primary hover:underline" href="{% url 'dash-customer' s.customer.pk %}">{{ s.customer.name|default:s.customer.phone|default:"—" }}</a>{% else %}<span class="text-nl-base/60">—</span>{% endif %}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Problem' %}">{{ s.problem_category|default:"—" }}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Severity' %}">{{ s.severity|default:"—" }}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Decision' %}">{{ s.decision|default:"—" }}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Status' %}">{{ s.status }}</td>
+        <td class="block md:table-cell md:px-3 md:py-2 text-nl-base/60 before:content-[attr(data-label)] before:font-medium before:mr-2 md:before:content-none" data-label="{% trans 'When' %}">{{ s.created_at|date:"Y-m-d H:i" }}</td>
       </tr>
-      {% empty %}
-      <tr><td colspan="7" class="px-3 py-6 text-center text-slate-400">{% trans "No sessions yet" %}</td></tr>
       {% endfor %}
     </tbody>
   </table>
+  {% include 'dashboard/_pagination.html' with page_obj=page_obj querystring=querystring %}
+  {% else %}
+    {% if q or severity or status %}
+      {% include 'dashboard/_empty_state.html' with icon='chat' heading=_('No matching conversations') guidance=_('No sessions match your search or filters. Try broadening them.') cta_label=_('Clear filters') cta_href=request.path %}
+    {% else %}
+      {% include 'dashboard/_empty_state.html' with icon='chat' heading=_('No conversations yet') guidance=_('When a customer chats with the assistant, the session appears here with its AI summary and lead status.') cta_label=_('View site') cta_href='/widget-demo' %}
+    {% endif %}
+  {% endif %}
 </div>
 {% endblock %}

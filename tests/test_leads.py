@@ -79,8 +79,9 @@ def test_escalation_collects_contact_and_creates_lead(seeded, mock_gemini):
     orch.process_turn(conv, "heat_pump")
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "IVT")
-    res = orch.process_turn(conv, "IVT 490")            # → escalate, asks name
+    res = orch.process_turn(conv, "IVT 490")            # → escalate; asks problem detail + error-code photo
     assert res["decision"] == "escalate"
+    orch.process_turn(conv, "It rattles loudly and shows code E9")  # diagnostics reply → asks name
     orch.process_turn(conv, "Jane Tester")              # name → phone
     orch.process_turn(conv, "070-1234567")              # phone → email
     orch.process_turn(conv, "skip")                     # email skipped → postal

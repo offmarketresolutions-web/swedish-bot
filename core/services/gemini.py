@@ -259,6 +259,83 @@ def create_cache(*, model: str, contents, system_instruction=None, ttl_seconds: 
     return cache.name
 
 
+def _l2_normalize(v: list[float]) -> list[float]:
+    import math
+    n = math.sqrt(sum(x * x for x in v)) or 1.0
+    return [x / n for x in v]
+
+
+# The default embedding model actually in use, after fallback resolution (a newer
+# model may not be provisioned on every project — Phase 0 lesson). Cached so we
+# don't re-probe a 404 on every call.
+_RESOLVED_EMBED_MODEL: str | None = None
+
+
+def active_embedding_model() -> str:
+    """The embedding model in use (post-fallback), else the configured preferred one."""
+    return _RESOLVED_EMBED_MODEL or constants.MODELS["embedding"]
+
+
+def _is_not_found(exc) -> bool:
+    s = str(exc)
+    return getattr(exc, "code", None) == 404 or "404" in s or "NOT_FOUND" in s.upper()
+
+
+def embed(
+    texts,
+    *,
+    model: str | None = None,
+    task_type: str = "RETRIEVAL_DOCUMENT",
+    output_dimensionality: int | None = None,
+    api_key: str | None = None,
+):
+    """Embed text with the Gemini embedding model (Vertex). Multilingual — handles
+    Swedish. Pass a single str -> returns one vector; pass a list -> returns a list
+    of vectors. `task_type` tunes the embedding space: RETRIEVAL_DOCUMENT for stored
+    content, RETRIEVAL_QUERY for a user query, SEMANTIC_SIMILARITY for clustering.
+
+    Uses constants.MODELS['embedding'] with graceful fallback through EMBED_FALLBACKS
+    when a model 404s (not provisioned on this project); the winner is cached. An
+    explicit `model` is used as-is. Truncated (dim < 3072) vectors are L2-normalized."""
+    global _RESOLVED_EMBED_MODEL
+    from google.genai import types
+
+    one = isinstance(texts, str)
+    items = [texts] if one else list(texts)
+    if not items:
+        return [] if not one else []
+    dim = output_dimensionality or constants.EMBED_DIM
+    client, _ = make_client(api_key)
+    cfg = types.EmbedContentConfig(task_type=task_type, output_dimensionality=dim)
+
+    if model:
+        candidates = [model]
+    elif _RESOLVED_EMBED_MODEL:
+        candidates = [_RESOLVED_EMBED_MODEL]
+    else:
+        candidates = [constants.MODELS["embedding"], *constants.EMBED_FALLBACKS]
+
+    last_exc = None
+    for idx, cand in enumerate(candidates):
+        try:
+            vecs: list[list[float]] = []
+            for i in range(0, len(items), 100):  # chunk: stay under Vertex per-request cap
+                resp = client.models.embed_content(model=cand, contents=items[i:i + 100], config=cfg)
+                vecs.extend(list(e.values) for e in resp.embeddings)
+            if not model:
+                _RESOLVED_EMBED_MODEL = cand  # remember the working default
+            if dim < 3072:  # Matryoshka truncation -> renormalize (Google guidance)
+                vecs = [_l2_normalize(v) for v in vecs]
+            return vecs[0] if one else vecs
+        except Exception as exc:  # noqa: BLE001
+            if _is_not_found(exc) and idx < len(candidates) - 1:
+                logger.warning("Embedding model %r unavailable (404); falling back.", cand)
+                last_exc = exc
+                continue
+            raise
+    raise last_exc  # pragma: no cover
+
+
 def health_check() -> dict:
     """JSON-serializable Gemini auth status (used by /healthz)."""
     project, location = _resolve_project_and_location()
@@ -281,4 +358,10 @@ def health_check() -> dict:
         "mode": mode, "ready": ready, "reason": reason,
         "project": project, "location": location,
         "has_adc": has_adc, "has_sa_creds": has_sa, "has_api_key": has_key,
+        "llm_model": constants.MODELS["flash"],
+        "embedding_model": constants.MODELS["embedding"],          # configured / preferred
+        # Actually-resolved model for THIS worker (null until its first embed call;
+        # resolution is per-process). Differs from preferred only after a 404 fallback.
+        "embedding_model_active": _RESOLVED_EMBED_MODEL,
+        "embedding_dim": constants.EMBED_DIM,
     }

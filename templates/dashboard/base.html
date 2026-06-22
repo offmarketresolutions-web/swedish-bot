@@ -1,25 +1,77 @@
-{% load i18n %}<!doctype html>
+{% load i18n static %}<!doctype html>
 <html lang="{{ LANGUAGE_CODE|default:'en' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Nordland VVS — Dashboard{% endblock %}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>{% block title %}Nordland VVS{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'dashboard/css/app.css' %}">
+  <script src="{% static 'vendor/htmx.min.js' %}"></script>
+  <script defer src="{% static 'vendor/alpine.min.js' %}"></script>
 </head>
-<body class="bg-slate-100 text-slate-800">
-  <header class="bg-[#0E2A4F] text-white">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-6">
-      <a href="{% url 'dash-overview' %}" class="font-semibold">Nordland VVS · Support</a>
-      <nav class="flex gap-4 text-sm text-slate-200">
-        <a href="{% url 'dash-overview' %}" class="hover:text-white">{% trans "Overview" %}</a>
-        <a href="{% url 'dash-sessions' %}" class="hover:text-white">{% trans "Sessions" %}</a>
-        <a href="{% url 'dash-customers' %}" class="hover:text-white">{% trans "Customers" %}</a>
-        <a href="/admin/" class="hover:text-white">{% trans "Admin" %}</a>
+<body class="bg-nl-bg text-nl-base" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      x-data="{ sidebar: false }" @keydown.escape.window="sidebar = false">
+  <a href="#main" class="nl-skip-link">{% trans "Skip to content" %}</a>
+
+  {% with url=request.resolver_match.url_name %}
+  <div class="min-h-screen flex lg:pl-60">
+    <!-- mobile overlay -->
+    <div x-show="sidebar" @click="sidebar=false" x-transition.opacity
+         class="fixed inset-0 bg-black/40 z-30 lg:hidden" x-cloak></div>
+
+    <!-- sidebar -->
+    <aside id="app-sidebar" class="nl-sidebar" :class="sidebar ? 'translate-x-0' : ''">
+      <a href="{% url 'dash-overview' %}" class="flex items-center gap-2 px-4 h-14 border-b border-white/10">
+        <img src="{% static 'brand/nordland-logo-white.png' %}" onerror="this.src='{% static 'brand/nordland-logo.png' %}';this.classList.add('bg-white','rounded','p-1')" alt="Nordland VVS" class="h-8 w-auto">
+      </a>
+      <nav class="flex-1 overflow-y-auto py-3 text-sm">
+        <a href="{% url 'dash-overview' %}" class="nl-nav {% if url == 'dash-overview' %}nl-nav-on{% endif %}" {% if url == 'dash-overview' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='home' %}<span>{% trans "Overview" %}</span></a>
+        <a href="{% url 'dash-analytics' %}" class="nl-nav {% if url == 'dash-analytics' %}nl-nav-on{% endif %}" {% if url == 'dash-analytics' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='chart' %}<span>{% trans "Analytics" %}</span></a>
+
+        <div class="nl-nav-group">{% trans "Support" %}</div>
+        <a href="{% url 'dash-sessions' %}" class="nl-nav {% if url == 'dash-sessions' or url == 'dash-session' %}nl-nav-on{% endif %}" {% if url == 'dash-sessions' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='chat' %}<span>{% trans "Conversations" %}</span></a>
+        <a href="{% url 'dash-customers' %}" class="nl-nav {% if url == 'dash-customers' or url == 'dash-customer' %}nl-nav-on{% endif %}" {% if url == 'dash-customers' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='users' %}<span>{% trans "Customers" %}</span></a>
+
+        <div class="nl-nav-group">{% trans "Knowledge" %}</div>
+        <a href="{% url 'dash-kb' %}" class="nl-nav {% if url == 'dash-kb' or url == 'dash-kb-vendor' or url == 'dash-kb-machine-page' or url == 'dash-kb-vendor-new' or url == 'dash-kb-machine-new' %}nl-nav-on{% endif %}" {% if url == 'dash-kb' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='book' %}<span>{% trans "Knowledge Base" %}</span></a>
+        <a href="{% url 'dash-faq' %}" class="nl-nav {% if url == 'dash-faq' %}nl-nav-on{% endif %}" {% if url == 'dash-faq' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='book' %}<span>{% trans "FAQ" %}</span></a>
+        <a href="{% url 'dash-agents' %}" class="nl-nav {% if url == 'dash-agents' or url == 'dash-agent-detail' %}nl-nav-on{% endif %}" {% if url == 'dash-agents' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='bot' %}<span>{% trans "Agents" %}</span></a>
+        <a href="{% url 'dash-flow' %}" class="nl-nav {% if url == 'dash-flow' %}nl-nav-on{% endif %}" {% if url == 'dash-flow' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='flow' %}<span>{% trans "Flow builder" %}</span></a>
+
+        <div class="nl-nav-group">{% trans "Tools" %}</div>
+        <a href="/playground" class="nl-nav {% if url == 'playground' %}nl-nav-on{% endif %}">
+          {% include 'dashboard/_icon.html' with name='beaker' %}<span>{% trans "Playground" %}</span></a>
+        <a href="/admin/" class="nl-nav">{% include 'dashboard/_icon.html' with name='cog' %}<span>{% trans "Django Admin" %}</span></a>
       </nav>
+      <div class="px-4 py-3 text-xs text-white/50 border-t border-white/10">Nordland VVS</div>
+    </aside>
+
+    <!-- content column -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="nl-topbar">
+        <button @click="sidebar = !sidebar" class="lg:hidden p-2 -ml-2 text-nl-base/70" aria-label="{% trans 'Toggle navigation' %}" :aria-expanded="sidebar" aria-controls="app-sidebar">
+          {% include 'dashboard/_icon.html' with name='menu' %}
+        </button>
+        <div class="text-sm text-nl-base/60">{% block breadcrumb %}{% endblock %}</div>
+        <div class="ml-auto flex items-center gap-3 text-sm text-nl-base/60">
+          <a href="/widget-demo" class="hover:text-nl-primary">{% trans "View site" %}</a>
+          {% if user.is_authenticated %}<span class="text-nl-base/60">·</span><span>{{ user.get_username }}</span>{% endif %}
+        </div>
+      </header>
+      <main id="main" class="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">
+        {% block content %}{% endblock %}
+      </main>
     </div>
-  </header>
-  <main class="max-w-6xl mx-auto px-4 py-6">
-    {% block content %}{% endblock %}
-  </main>
+  </div>
+  {% endwith %}
+
+  {% include 'dashboard/_toasts.html' %}
 </body>
 </html>

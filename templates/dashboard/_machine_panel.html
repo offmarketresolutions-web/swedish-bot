@@ -1,0 +1,87 @@
+{% load i18n %}
+<div class="nl-card p-5" data-testid="machine-panel" data-machine-id="{{ machine.pk }}">
+  <h2 class="text-lg font-semibold mb-1">{{ machine.vendor.name }} {{ machine.model_name }}</h2>
+  <p class="text-xs text-nl-base/60 mb-4">{{ machine.category.name }} · slug {{ machine.slug }}
+    {% if not machine.is_supported %}· <span class="text-nl-action">{% trans "unsupported" %}</span>{% endif %}</p>
+
+  {% if upload_ok %}<div data-testid="upload-ok" role="status" class="mb-3 text-sm px-3 py-2 rounded bg-green-100 text-green-700">{% trans "Manual ingested and parsed." %}</div>{% endif %}
+  {% if upload_error %}<div data-testid="upload-error" role="alert" class="mb-3 text-sm px-3 py-2 rounded bg-red-100 text-red-700">{{ upload_error }}</div>{% endif %}
+
+  <!-- documents (PDF-first: preview the actual manual, not the parsed vector) -->
+  <h3 class="font-medium text-sm mb-2">{% trans "Manuals" %}</h3>
+  <div class="space-y-2 mb-3" data-testid="doc-rows">
+    {% for d in documents %}
+      <div class="border border-nl-border rounded-lg overflow-hidden" x-data="{ show: false }">
+        <div class="flex items-center gap-3 px-3 py-2">
+          <span class="text-xl" aria-hidden="true">📄</span>
+          <div class="min-w-0">
+            <div class="font-medium text-sm">{{ d.get_kind_display }} <span class="text-nl-base/60 font-normal">· {{ d.lang }}</span></div>
+            <div class="text-xs text-nl-base/60">
+              {% if d.token_estimate %}{% trans "ingested" %} ✓ · ~{{ d.token_estimate }} {% trans "tokens" %}{% else %}{% trans "not parsed" %}{% endif %}
+            </div>
+          </div>
+          <div class="ml-auto flex items-center gap-2 shrink-0">
+            <button type="button" class="btn btn-secondary text-xs" @click="show = !show" :aria-expanded="show" data-testid="doc-preview-btn">
+              <span x-text="show ? '{% trans "Hide" %}' : '{% trans "Preview" %}'">{% trans "Preview" %}</span>
+            </button>
+            <a href="{% url 'dash-kb-doc' d.pk %}" target="_blank" rel="noopener" class="btn btn-secondary text-xs">{% trans "Open" %} ↗</a>
+            <a href="{% url 'dash-kb-doc' d.pk %}?download=1" class="btn btn-secondary text-xs">{% trans "Download" %}</a>
+          </div>
+        </div>
+        <!-- lazy: the PDF only loads when previewed -->
+        <div x-show="show" x-cloak class="border-t border-nl-border bg-nl-bg/40 p-2">
+          <iframe :src="show ? '{% url 'dash-kb-doc' d.pk %}' : ''" loading="lazy"
+                  class="w-full rounded border border-nl-border bg-white" style="height:600px"
+                  title="{% trans 'PDF preview' %}: {{ d.get_kind_display }}" data-testid="doc-preview"></iframe>
+        </div>
+      </div>
+    {% empty %}
+      <p class="py-2 text-nl-base/60 text-sm">{% trans "No manuals yet — upload one below." %}</p>
+    {% endfor %}
+  </div>
+
+  <!-- upload / replace -->
+  <form class="border border-nl-border rounded-lg p-3 mb-5 text-sm grid gap-3 bg-nl-bg/40"
+        hx-post="{% url 'dash-kb-upload' machine.pk %}" hx-target="#kb-panel" hx-swap="innerHTML"
+        hx-encoding="multipart/form-data" enctype="multipart/form-data"
+        hx-disabled-elt="find button" data-testid="upload-form"
+        x-data="{ name: '' }">
+    <div class="font-medium">{% trans "Upload or replace a manual (PDF)" %}</div>
+    <!-- friendlier drop-zone styled label; the native <input type=file> still works -->
+    <label class="flex flex-col items-center justify-center gap-1 border-2 border-dashed border-nl-border rounded-lg px-4 py-6 text-center cursor-pointer hover:border-nl-primary hover:bg-nl-primaryl/40 transition"
+           :class="name && 'border-nl-primary bg-nl-primaryl/40'">
+      <span class="text-2xl" aria-hidden="true">📄</span>
+      <span class="text-nl-primary font-medium" x-text="name || '{% trans "Choose a PDF or drop it here" %}'"></span>
+      <span class="text-xs text-nl-base/60">{% trans "PDF only · re-parsed on upload" %}</span>
+      <input type="file" name="pdf" accept="application/pdf" aria-label="{% trans 'Manual PDF file' %}"
+             class="sr-only" data-testid="pdf-input"
+             @change="name = $event.target.files.length ? $event.target.files[0].name : ''">
+    </label>
+    <div class="flex flex-wrap gap-2 items-center">
+      <select name="lang" aria-label="{% trans 'Manual language' %}" class="border border-nl-border rounded px-2 py-1 bg-white">
+        {% for l in langs %}<option value="{{ l }}" {% if l == 'sv' %}selected{% endif %}>{{ l }}</option>{% endfor %}
+      </select>
+      <select name="kind" aria-label="{% trans 'Document kind' %}" class="border border-nl-border rounded px-2 py-1 bg-white">
+        {% for k in kinds %}<option value="{{ k }}">{{ k }}</option>{% endfor %}
+      </select>
+      <select name="replace_id" aria-label="{% trans 'Replace existing document' %}" class="border border-nl-border rounded px-2 py-1 bg-white">
+        <option value="">{% trans "(new document)" %}</option>
+        {% for d in documents %}<option value="{{ d.pk }}">{% trans "replace" %} {{ d.lang }}/{{ d.get_kind_display }}</option>{% endfor %}
+      </select>
+      <button class="btn btn-danger ml-auto">
+        {% trans "Upload" %}<span class="htmx-indicator" aria-hidden="true">…</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- notes -->
+  <h3 class="font-medium text-sm mb-2">{% trans "Machine notes" %} <span class="text-xs text-nl-base/60">({% trans "injected into the specialist" %})</span></h3>
+  <ul class="space-y-2 mb-3" data-testid="note-list">
+    {% include "dashboard/_notes_more.html" %}
+  </ul>
+  <form class="flex gap-2 text-sm" hx-post="{% url 'dash-kb-note' machine.pk %}" hx-target="#kb-panel" hx-swap="innerHTML"
+        hx-disabled-elt="find button" data-testid="note-form" data-note-form>
+    <input name="body" placeholder="{% trans 'Add a safe, verified note…' %}" aria-label="{% trans 'New machine note' %}" class="flex-1 border border-nl-border rounded px-2 py-1 focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none" data-testid="note-input">
+    <button class="btn btn-primary">{% trans "Add" %}</button>
+  </form>
+</div>

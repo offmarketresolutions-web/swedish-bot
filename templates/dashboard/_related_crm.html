@@ -1,0 +1,22 @@
+{% load i18n %}{% comment %}Customers + recent conversations for a brand/machine/type page. Needs `customers` + `conversations`.{% endcomment %}
+<div class="grid gap-6 sm:grid-cols-2 mt-6" data-testid="related-crm">
+  <div class="nl-card p-4">
+    <h2 class="font-semibold mb-2">{% trans "Customers" %} <span class="text-xs text-nl-base/60">({{ customers|length }})</span></h2>
+    <ul class="divide-y divide-nl-border text-sm">
+      {% for c in customers %}
+        <li class="py-1.5"><a class="text-nl-primary hover:underline" href="{% url 'dash-customer' c.pk %}">{{ c }}</a>
+          {% if c.equipment_summary %}<div class="text-xs text-nl-base/60">{{ c.equipment_summary }}</div>{% endif %}</li>
+      {% empty %}<li class="py-2 text-nl-base/60">{% trans "No customers linked yet." %}</li>{% endfor %}
+    </ul>
+  </div>
+  <div class="nl-card p-4">
+    <h2 class="font-semibold mb-2">{% trans "Recent conversations" %}</h2>
+    <ul class="divide-y divide-nl-border text-sm">
+      {% for s in conversations %}
+        <li class="py-1.5 flex items-center justify-between gap-2">
+          <a class="text-nl-primary hover:underline" href="{% url 'dash-session' s.pk %}">#{{ s.pk }} {{ s.customer.name|default:"" }}</a>
+          <span class="text-xs text-nl-base/60">{{ s.severity }} · {{ s.created_at|date:'Y-m-d' }}</span></li>
+      {% empty %}<li class="py-2 text-nl-base/60">{% trans "No conversations yet." %}</li>{% endfor %}
+    </ul>
+  </div>
+</div>
