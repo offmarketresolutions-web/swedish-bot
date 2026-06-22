@@ -4,6 +4,7 @@ from core import views
 
 urlpatterns = [
     path("healthz", views.healthz, name="healthz"),
+    path("", views.widget_demo, name="home"),  # root = the live chat widget
     path("widget-demo", views.widget_demo, name="widget-demo"),
     path("playground", views.playground, name="playground"),
 ]
