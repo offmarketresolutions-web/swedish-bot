@@ -1,8 +1,10 @@
-"""Guardrail backstop tests (plan §6.4)."""
+"""Guardrail backstop tests (plan §6.4) + per-agent editable guardrails (add-only)."""
 import pytest
+from django.contrib.auth.models import User
 from django.core.management import call_command
 
-from chat import guardrails
+from chat import guardrails, prompts
+from kb.models import AgentGuardrail
 
 pytestmark = pytest.mark.django_db
 
@@ -61,3 +63,34 @@ def test_keyword_veto_overrides_llm(mock_gemini):
     mock_gemini.responses["safety"] = {"unsafe": False}  # LLM says fine...
     unsafe, _ = guardrails.is_unsafe("rewire the board")  # ...but keyword vetoes
     assert unsafe
+
+
+# ── Per-agent editable guardrails (AgentGuardrail, add-only) ──────────────────
+
+@pytest.fixture
+def staff(client):
+    user = User.objects.create_user("ops", password="x", is_staff=True)
+    client.force_login(user)
+    return user
+
+
+def test_active_guardrail_injected_inactive_excluded():
+    g = AgentGuardrail.objects.create(role="specialist", rule="Never mention competitor brands.")
+    out = prompts.render("specialist", locale="en")
+    assert "Never mention competitor brands." in out and "ADDITIONAL GUARDRAILS" in out
+    g.is_active = False
+    g.save()
+    assert "Never mention competitor brands." not in prompts.render("specialist", locale="en")
+
+
+def test_guardrail_add_and_delete_endpoints(staff, client):
+    r = client.post("/dashboard/guardrails/specialist/add", {"rule": "Always confirm the postal code."})
+    assert r.status_code == 200
+    g = AgentGuardrail.objects.get(role="specialist")
+    assert "Always confirm the postal code." in prompts.render("specialist", locale="en")
+    client.post(f"/dashboard/guardrails/{g.pk}/delete")
+    assert not AgentGuardrail.objects.filter(pk=g.pk).exists()
+
+
+def test_guardrails_page_is_staff_only(client):
+    assert client.get("/dashboard/guardrails/").status_code in (302, 403)

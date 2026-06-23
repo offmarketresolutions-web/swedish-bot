@@ -252,6 +252,27 @@ class AgentPrompt(models.Model):
         return f"{self.role} (v{self.prompt_version}, {self.model_id})"
 
 
+class AgentGuardrail(models.Model):
+    """Staff-authored guardrail rules injected per agent (ADD-ONLY). These AUGMENT —
+    never weaken — the hard-coded safety baseline: the _FORBIDDEN keyword veto and the
+    safety classifier still run in code on every reply regardless of what's set here
+    (the LLM is never the security boundary). Read fresh every turn → a save is live
+    immediately, no redeploy."""
+
+    role = models.CharField(max_length=32, choices=AGENT_ROLE_CHOICES)
+    rule = models.TextField(help_text="One guardrail rule, in plain language.")
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["role", "order", "id"]
+
+    def __str__(self):
+        return f"{self.role}: {self.rule[:40]}"
+
+
 class FlowConfig(models.Model):
     """The editable visual flow (the canvas), stored as one JSON graph (singleton).
 

@@ -14,6 +14,10 @@ urlpatterns = [
     path("files/<int:pk>/", views.serve_customer_file, name="dash-file"),
     # Agent Config (HTMX inline save)
     path("agents/", views.agent_config, name="dash-agents"),
+    path("guardrails/", views.guardrails_page, name="dash-guardrails"),
+    path("guardrails/<slug:role>/add", views.guardrail_add, name="dash-guardrail-add"),
+    path("guardrails/<int:pk>/delete", views.guardrail_delete, name="dash-guardrail-delete"),
+    path("guardrails/<int:pk>/toggle", views.guardrail_toggle, name="dash-guardrail-toggle"),
     path("agents/<int:pk>/save", views.agent_save, name="dash-agent-save"),
     path("agents/<int:pk>/assist", views.agent_prompt_assist, name="dash-agent-assist"),
     path("agents/<slug:role>/", views.agent_detail, name="dash-agent-detail"),

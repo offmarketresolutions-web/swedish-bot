@@ -1,0 +1,23 @@
+{% load i18n %}
+{% if rules %}
+  <ul class="divide-y divide-nl-border/60" data-testid="gr-list-{{ role }}">
+    {% for g in rules %}
+      <li class="flex items-start justify-between gap-3 py-2 {% if not g.is_active %}opacity-40{% endif %}">
+        <span class="text-sm text-nl-base/80">{{ g.rule }}</span>
+        <span class="flex items-center gap-1 shrink-0">
+          <button class="btn btn-secondary px-2 py-0.5 text-xs"
+                  hx-post="{% url 'dash-guardrail-toggle' g.pk %}"
+                  hx-target="#gr-list-{{ role }}" hx-swap="innerHTML">
+            {% if g.is_active %}{% trans "On" %}{% else %}{% trans "Off" %}{% endif %}
+          </button>
+          <button class="btn btn-danger px-2 py-0.5 text-xs"
+                  hx-post="{% url 'dash-guardrail-delete' g.pk %}"
+                  hx-target="#gr-list-{{ role }}" hx-swap="innerHTML"
+                  hx-confirm="{% trans 'Remove this guardrail?' %}">✕</button>
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-xs text-nl-base/50 py-2">{% trans "No extra guardrails for this agent yet." %}</p>
+{% endif %}

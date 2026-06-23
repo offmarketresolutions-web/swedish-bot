@@ -42,6 +42,8 @@
           {% include 'dashboard/_icon.html' with name='book' %}<span>{% trans "FAQ" %}</span></a>
         <a href="{% url 'dash-agents' %}" class="nl-nav {% if url == 'dash-agents' or url == 'dash-agent-detail' %}nl-nav-on{% endif %}" {% if url == 'dash-agents' %}aria-current="page"{% endif %}>
           {% include 'dashboard/_icon.html' with name='bot' %}<span>{% trans "Agents" %}</span></a>
+        <a href="{% url 'dash-guardrails' %}" class="nl-nav {% if url == 'dash-guardrails' %}nl-nav-on{% endif %}" {% if url == 'dash-guardrails' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='cog' %}<span>{% trans "Guardrails" %}</span></a>
         <a href="{% url 'dash-flow' %}" class="nl-nav {% if url == 'dash-flow' %}nl-nav-on{% endif %}" {% if url == 'dash-flow' %}aria-current="page"{% endif %}>
           {% include 'dashboard/_icon.html' with name='flow' %}<span>{% trans "Flow builder" %}</span></a>
 

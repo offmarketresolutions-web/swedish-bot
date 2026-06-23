@@ -43,18 +43,36 @@ def config_for(role: str) -> dict:
     return cfg
 
 
+def guardrails_block(role: str) -> str:
+    """Staff-authored, ADD-ONLY guardrails for this agent (kb.AgentGuardrail), appended
+    to the system instruction. Read fresh each turn so an edit is live immediately. The
+    hard-coded code backstop (chat.guardrails) still runs regardless — this can only
+    tighten behaviour, never weaken it."""
+    from kb.models import AgentGuardrail
+    rules = list(AgentGuardrail.objects.filter(role=role, is_active=True)
+                 .values_list("rule", flat=True))
+    if not rules:
+        return ""
+    lines = "\n".join(f"- {r.strip()}" for r in rules if r.strip())
+    return ("\n\nADDITIONAL GUARDRAILS (set by Nordland staff — these ADD to and never "
+            "weaken the rules above):\n" + lines)
+
+
 def render(role: str, *, locale: str = "en", **vars) -> str:
     """Return the full system instruction for an agent: body + language directive,
-    with {placeholders} filled. Missing placeholders are left blank, never crash."""
+    with {placeholders} filled, then any staff-set guardrails. Missing placeholders are
+    left blank, never crash."""
     agent = get_agent(role)
     body = agent.body if agent else ""
     directive = agent.language_directive if agent else ""
     template = body + (directive or "")
     safe = _SafeDict(locale=locale, **{k: ("" if v is None else v) for k, v in vars.items()})
     try:
-        return template.format_map(safe)
+        out = template.format_map(safe)
     except (KeyError, IndexError, ValueError):
-        return template  # never let prompt templating crash a turn
+        out = template  # never let prompt templating crash a turn
+    # Appended AFTER format_map so staff-entered braces can't break placeholder filling.
+    return out + guardrails_block(role)
 
 
 class _SafeDict(dict):
