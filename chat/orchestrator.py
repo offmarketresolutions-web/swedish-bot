@@ -151,18 +151,37 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
 def _intake_step(cs, user_text, locale) -> dict | None:
     current = cs.get("current_slot")
     if current and user_text:
-        on_target, value = extract_answer(current, user_text, cs, locale)
-        if on_target and value:
-            cs["slots"][current] = value
-            cs["reask"] = 0
-        else:
-            cs["reask"] = cs.get("reask", 0) + 1
-            if cs["reask"] >= 2:
-                cs["slots"][current] = "unknown"
+        # A1: opportunistically pull every fact out of a rich opening message (one cheap
+        # call, once per conversation) so we don't ask brand/model/code one at a time.
+        if not cs.get("bulk_done") and intake.looks_rich(user_text):
+            cs["bulk_done"] = True
+            for k, v in intake.bulk_extract(user_text, cs, locale).items():
+                if v and not cs["slots"].get(k):
+                    cs["slots"][k] = v
+        if not cs["slots"].get(current):  # only ask the current slot if bulk didn't fill it
+            on_target, value = extract_answer(current, user_text, cs, locale)
+            if on_target and value:
+                cs["slots"][current] = value
                 cs["reask"] = 0
             else:
-                return {"message": t(locale, "reask") + t(locale, "q_" + current),
-                        "chips": intake.chips_for(current, cs, locale)}
+                cs["reask"] = cs.get("reask", 0) + 1
+                if cs["reask"] >= 2:
+                    cs["slots"][current] = "unknown"
+                    cs["reask"] = 0
+                else:
+                    return {"message": t(locale, "reask") + t(locale, "q_" + current),
+                            "chips": intake.chips_for(current, cs, locale)}
+        else:
+            cs["reask"] = 0
+    # A3: if the model is unknown and there's no nameplate photo yet, ask for a photo ONCE
+    # before falling back to a weak brand-only match.
+    s = cs["slots"]
+    if (s.get("model") == "unknown" and not s.get("nameplate_photo")
+            and not cs.get("photo_nudged") and not is_routable(cs)):
+        cs["photo_nudged"] = True
+        cs["current_slot"] = "model"
+        s["model"] = None  # reopen so a typed model or photo can fill it
+        return {"message": t(locale, "model_photo_nudge"), "chips": []}
     if is_routable(cs):
         cs["state"] = STATE_ROUTING
         return None

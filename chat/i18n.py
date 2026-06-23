@@ -17,6 +17,8 @@ T = {
         "q_model": "What's the model? A photo of the rating/nameplate is perfect if you have one.",
         "q_error_code": "Is the machine showing any error or fault code? If so, a photo of the "
                         "display is perfect — or type the code. (You can skip this.)",
+        "model_photo_nudge": "No problem — if you can, snap a photo of the rating/nameplate and I'll "
+                             "read the exact model off it. Or type 'skip' and we'll do our best.",
         "pre_escalate_diag": "Before I pass this to a Nordland VVS technician, please describe the "
                              "problem in a bit more detail — and if the machine is showing any error "
                              "or fault code, send a photo of the display (it really helps the "
@@ -58,6 +60,8 @@ T = {
         "q_model": "Vilken modell är det? Ett foto av typskylten är perfekt om du har ett.",
         "q_error_code": "Visar maskinen någon fel- eller larmkod? Ett foto av displayen är perfekt "
                         "— eller skriv koden. (Du kan hoppa över detta.)",
+        "model_photo_nudge": "Inga problem — om du kan, ta en bild på typskylten så läser jag av exakt "
+                             "modell. Eller skriv 'skip' så gör vi vårt bästa.",
         "pre_escalate_diag": "Innan jag skickar detta vidare till en tekniker från Nordland VVS — "
                              "beskriv gärna problemet lite mer i detalj, och om maskinen visar någon "
                              "fel- eller larmkod, skicka en bild på displayen (det hjälper teknikern "
