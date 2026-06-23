@@ -27,6 +27,7 @@ urlpatterns = [
     # KB landing (vendors grouped) + brand + machine pages
     path("kb/", views.kb_manager, name="dash-kb"),
     path("kb/categories/", views.category_list, name="dash-kb-categories"),
+    path("kb/category/new/", views.category_new, name="dash-kb-category-new"),
     path("kb/category/<int:pk>/", views.category_detail, name="dash-kb-category"),
     path("kb/vendor/new/", views.vendor_new, name="dash-kb-vendor-new"),
     path("kb/vendor/<int:pk>/", views.kb_vendor, name="dash-kb-vendor"),

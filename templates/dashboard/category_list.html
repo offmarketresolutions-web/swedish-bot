@@ -5,6 +5,7 @@
 {% block content %}
 {% trans "Equipment types" as ttl %}
 {% include 'dashboard/_page_header.html' with title=ttl subtitle=_("Browse the catalog by equipment type — every type links to its machines, customers and conversations.") %}
+<div class="mb-4"><a href="{% url 'dash-kb-category-new' %}" class="btn btn-primary" data-testid="add-category">+ {% trans "New category" %}</a></div>
 {% for g in groups %}
   <h2 class="font-semibold mt-5 mb-2">{{ g.label }}</h2>
   <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="category-group">

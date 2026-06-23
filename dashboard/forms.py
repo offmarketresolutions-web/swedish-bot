@@ -60,6 +60,26 @@ class VendorForm(forms.ModelForm):
         return obj
 
 
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ["name", "parent", "group", "order"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["parent"].required = False
+        self.fields["parent"].help_text = "Optional — a sub-type rolls up to its parent (e.g. Air-to-air → Heat pump)."
+        _style(self.fields)
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if not obj.slug:
+            obj.slug = _unique_slug(Category, obj.name, exclude_pk=obj.pk)
+        if commit:
+            obj.save()
+        return obj
+
+
 class MachineForm(forms.ModelForm):
     # aliases is a JSONField(list); expose it as a comma-separated text box.
     aliases_text = forms.CharField(

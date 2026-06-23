@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 
 from chat import prompts
+from chat.i18n import t
 from core.services import gemini
 
 QUESTION = {
@@ -22,14 +23,62 @@ GREETING = (
 )
 
 
+_MODEL_CHIP_CAP = 8
+
+
+def _family_ids(slug):
+    """A top-level category + its leaf children (heat_pump -> air_to_air, water_to_water…),
+    so 'heat pump' brand/model suggestions include every sub-type. None = no filter."""
+    if not slug or slug == "unknown":
+        return None
+    from kb.models import Category
+    cat = Category.objects.filter(slug=slug).first()
+    if not cat:
+        return None
+    return [cat.id] + list(cat.children.values_list("id", flat=True))
+
+
 def chips_for(slot: str, cs: dict, locale: str = "en") -> list[dict]:
-    """Return [{value, label}] from the DB for this intake step. Problem chips are
-    filtered to the chosen category."""
-    from kb.models import QuickReplyChip
+    """Quick-reply chips, cascaded from the live KB: top-level categories → brands that
+    actually have manuals in that category → a few models of that brand. Only brands/models
+    we can really help with (have a parsed manual) are suggested; the customer can still
+    type anything. Problem chips stay DB-driven (symptom suggestions per category)."""
+    from kb.models import Category, Machine, QuickReplyChip, Vendor
+
+    s = cs["slots"]
+    if slot == "category":
+        # localized labels come from the curated category chips; a NEW category with no
+        # chip yet falls back to its name so it still shows up as a suggestion.
+        labels = {c.value: c.label(locale)
+                  for c in QuickReplyChip.objects.filter(intake_step="category", is_active=True)}
+        cats = Category.objects.filter(parent__isnull=True).order_by("order", "name")
+        chips = [{"value": c.slug, "label": labels.get(c.slug, c.name)} for c in cats]
+        chips.append({"value": "unknown", "label": labels.get("unknown", t(locale, "chip_notsure"))})
+        return chips
+    if slot == "brand":
+        fam = _family_ids(s.get("category"))
+        vq = Vendor.objects.filter(machines__is_supported=True, machines__documents__isnull=False)
+        if fam:
+            vq = vq.filter(machines__category_id__in=fam)
+        chips = [{"value": v.name, "label": v.name} for v in vq.distinct().order_by("name")]
+        chips.append({"value": "other", "label": t(locale, "chip_other")})
+        return chips
+    if slot == "model":
+        mq = Machine.objects.filter(is_supported=True, documents__isnull=False).distinct()
+        fam = _family_ids(s.get("category"))
+        if fam:
+            mq = mq.filter(category_id__in=fam)
+        brand = s.get("brand")
+        if brand and brand not in ("unknown", "other"):
+            mq = mq.filter(vendor__name__iexact=brand)
+        chips = [{"value": m.model_name, "label": m.model_name}
+                 for m in mq.order_by("model_name")[:_MODEL_CHIP_CAP]]
+        chips.append({"value": "unknown", "label": t(locale, "chip_dontknow")})
+        return chips
 
     qs = QuickReplyChip.objects.filter(intake_step=slot, is_active=True)
     if slot == "problem":
-        cat_slug = cs["slots"].get("category")
+        cat_slug = s.get("category")
         qs = qs.filter(category__slug=cat_slug) if cat_slug else qs.filter(category__isnull=True)
     else:
         qs = qs.filter(category__isnull=True)

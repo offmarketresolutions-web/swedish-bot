@@ -927,6 +927,22 @@ def category_list(request):
 
 
 @staff_member_required
+def category_new(request):
+    """Create a new equipment category (becomes a chip suggestion + routing target)."""
+    from dashboard.forms import CategoryForm
+    if request.method == "POST":
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            cat = form.save()
+            resp = redirect("dash-kb-categories")
+            resp["HX-Trigger"] = _toast("success", f"Category “{cat.name}” created.")
+            return resp
+    else:
+        form = CategoryForm()
+    return render(request, "dashboard/category_form.html", {"form": form})
+
+
+@staff_member_required
 def category_detail(request, pk: int):
     from crm.models import Customer, Session
     from kb.models import Category
