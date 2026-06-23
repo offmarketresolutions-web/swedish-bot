@@ -10,6 +10,7 @@
   var script = document.currentScript;
   var API = new URL(script.src).origin;
   var LANG = (script.getAttribute("data-lang") || "en").slice(0, 5);
+  var AUTO_OPEN = script.getAttribute("data-open") === "1";  // open the chat on load (chat pages)
   // Languages offered in the in-widget selector (value must have a widget/i18n/<v>.json).
   var LANGS = [["sv", "Svenska"], ["en", "English"]];
   var BLUE = "#1a74bf", BLUE_DARK = "#155f9e";  // Nordland brand blue + hover shade
@@ -517,4 +518,7 @@
       }
     }
   })();
+
+  // ---- auto-open (a dedicated chat page sets data-open="1") ------------
+  if (AUTO_OPEN && !isOpen()) openPanel();
 })();
