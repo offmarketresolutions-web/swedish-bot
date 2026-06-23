@@ -98,3 +98,26 @@ def test_escalation_collects_contact_and_creates_lead(seeded, mock_gemini):
     assert sess.status == "escalated"
     sr = ServiceRequest.objects.get(session=sess)
     assert LeadDelivery.objects.get(service_request=sr, sink="db").status == "success"
+
+
+def test_declining_all_contact_does_not_record_junk_or_dispatch(seeded, mock_gemini):
+    """A customer who answers 'no' to every contact question must NOT have 'no' stored
+    as their name/phone, and we must not dispatch an unreachable lead — close gracefully."""
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "not sure", "confidence": 0.3, "decision": "escalate",
+        "in_docs": False, "report": {},
+    }
+    conv, _ = orch.open_conversation()
+    for t in ["heat_pump", "no_heat", "IVT", "IVT 490"]:
+        orch.process_turn(conv, t)
+    orch.process_turn(conv, "no")          # diagnostics → name
+    orch.process_turn(conv, "no")          # name declined → phone
+    orch.process_turn(conv, "no")          # phone declined → email
+    orch.process_turn(conv, "no")          # email declined → postal
+    orch.process_turn(conv, "no")          # postal declined → "need a phone" gate
+    final = orch.process_turn(conv, "no")  # still declines → graceful close
+    assert "website" in final["message"].lower()
+    # graceful close: no unreachable lead dispatched, and no junk customer recorded
+    assert ServiceRequest.objects.count() == 0
+    assert not Customer.objects.filter(name="no").exists()
+    assert not Customer.objects.filter(phone__in=("no", "")).exists()

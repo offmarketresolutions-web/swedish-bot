@@ -36,6 +36,11 @@ T = {
                   "touch{phone_sfx} as soon as they can. Is there anything else I can help with?",
         "not_yet": "No problem. Whenever you're ready, you can reach Nordland VVS through the "
                    "contact form on their website. Take care!",
+        "need_contact": "To have a technician follow up I just need a phone number to reach you — "
+                        "what's the best number?",
+        "no_contact_close": "No problem. Without a phone number or email I can't have a technician "
+                            "call you back — but you can always reach Nordland VVS through the contact "
+                            "form on their website. Take care!",
         "handoff": "Based on what you've described, this is best handled by a Nordland VVS "
                    "technician so we get it exactly right. Shall I send your details to them?",
         "terminal": "You're all set — Nordland VVS will follow up. Anything else?",
@@ -73,6 +78,11 @@ T = {
                   "sig{phone_sfx} så snart de kan. Något mer jag kan hjälpa till med?",
         "not_yet": "Inga problem. När du är redo kan du nå Nordland VVS via kontaktformuläret på "
                    "deras webbplats. Ha det bra!",
+        "need_contact": "För att en tekniker ska kunna höra av sig behöver jag bara ett "
+                        "telefonnummer — vilket når dig bäst?",
+        "no_contact_close": "Inga problem. Utan telefonnummer eller e-post kan jag tyvärr inte be en "
+                            "tekniker ringa upp — men du når alltid Nordland VVS via kontaktformuläret "
+                            "på deras webbplats. Ha det bra!",
         "handoff": "Utifrån det du beskrivit är detta något en tekniker från Nordland VVS bör "
                    "hantera. Ska jag skicka dina uppgifter till dem?",
         "terminal": "Då är allt klart — Nordland VVS hör av sig. Något mer?",

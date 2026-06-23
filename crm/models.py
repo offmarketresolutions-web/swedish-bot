@@ -22,7 +22,12 @@ def phone_hash(phone: str) -> str:
 
     from django.conf import settings
 
-    norm = "".join(c for c in (phone or "") if c.isdigit() or c == "+")
+    from chat.sanitize import clean_phone
+    # Normalize to E.164 so the same number matches whatever format it's typed in
+    # ('070-123 45 67' and '+46 70 123 45 67' hash identically). Fall back to a raw
+    # digit strip for any value clean_phone can't parse.
+    # ponytail: existing rows re-hash on their next save; fine for opt-in recognition.
+    norm = clean_phone(phone) or "".join(c for c in (phone or "") if c.isdigit() or c == "+")
     if not norm:
         return ""
     pepper = getattr(settings, "PHONE_HASH_PEPPER", "")

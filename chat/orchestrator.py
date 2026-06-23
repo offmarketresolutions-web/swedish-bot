@@ -428,6 +428,15 @@ def _is_yes(text: str) -> bool:
     return bool(_AFFIRM.search(txt))
 
 
+# Whole-input decline for a contact slot — so "no" is a decline but "Antonio" is a name.
+_DECLINE = re.compile(r"^(no|nope|nah|n/?a|skip|none|-+|nej|inget|ingen|vill inte|"
+                      r"avst\w*|hoppa över|ej)$", re.IGNORECASE)
+
+
+def _is_decline(text: str) -> bool:
+    return bool(_DECLINE.match((text or "").strip().lower()))
+
+
 def _sync_customer(session, cs):
     from crm.models import Customer
 
@@ -492,18 +501,17 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
     cur = cs.get("contact_slot")
     if cur and user_text:
         raw = (user_text or "").strip()
-        skipped = cur == "email" and raw.lower() in ("skip", "none", "no")
-        if skipped:
+        declined = _is_decline(raw)  # "no"/"skip"/"nej" → they're declining, not naming themselves "no"
+        if declined:
             val = ""
         else:  # S1: validate/sanitize + standardize each contact field at capture
             cleaner = {"name": sanitize.clean_name, "phone": sanitize.clean_phone,
                        "email": sanitize.clean_email, "postal_code": sanitize.clean_postal}.get(
                 cur, sanitize.clean_lead_field)
             val = cleaner(raw)
-        # Require real data for the structured slots: re-ask ONCE on junk (so we capture
-        # an actual phone/email, not "okay"), then accept best-effort so a stubborn
-        # customer isn't trapped in a loop.
-        if not val and not skipped and cur in ("name", "phone", "email"):
+        # A real (non-decline) answer that didn't validate (e.g. "bo" for an email, "okay"
+        # for a phone) → re-ask ONCE, then accept best-effort so we don't loop forever.
+        if not val and not declined and cur in ("name", "phone", "email"):
             if not cs.get("reasked_" + cur):
                 cs["reasked_" + cur] = True
                 msg = t(locale, "reask_phone") if cur == "phone" else t(locale, "reask") + t(locale, "contact_" + cur)
@@ -521,6 +529,18 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
     if nxt:
         cs["contact_slot"] = nxt
         return {"message": t(locale, "contact_" + nxt), "chips": [], "decision": "escalate"}
+
+    # A technician can only follow up if there's a phone OR an email. If the customer
+    # declined both, ask once for either; if they still won't, close gracefully rather
+    # than dispatch an unreachable lead.
+    if not cs["contact"].get("phone") and not cs["contact"].get("email"):
+        if not cs.get("asked_reach"):
+            cs["asked_reach"] = True
+            cs["contact_slot"] = "phone"
+            cs["contact"]["phone"] = None  # reopen the slot so a given number is captured
+            return {"message": t(locale, "need_contact"), "chips": [], "decision": "escalate"}
+        cs["state"] = STATE_RESOLVED
+        return {"message": t(locale, "no_contact_close"), "chips": []}
 
     cs["contact_slot"] = None
     cs["awaiting_approval"] = True
