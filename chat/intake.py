@@ -23,7 +23,7 @@ GREETING = (
 )
 
 
-_MODEL_CHIP_CAP = 8
+_MODEL_CHIP_CAP = 6
 
 
 def _family_ids(slug):
@@ -56,15 +56,21 @@ def chips_for(slot: str, cs: dict, locale: str = "en") -> list[dict]:
         chips.append({"value": "unknown", "label": labels.get("unknown", t(locale, "chip_notsure"))})
         return chips
     if slot == "brand":
+        # the brands we service in this category (have a machine), e.g. heat pump -> IVT + Bosch.
+        # Not filtered by manuals — a brand we don't have a manual for still escalates to a lead.
         fam = _family_ids(s.get("category"))
-        vq = Vendor.objects.filter(machines__is_supported=True, machines__documents__isnull=False)
+        vq = Vendor.objects.filter(machines__is_supported=True)
         if fam:
             vq = vq.filter(machines__category_id__in=fam)
         chips = [{"value": v.name, "label": v.name} for v in vq.distinct().order_by("name")]
         chips.append({"value": "other", "label": t(locale, "chip_other")})
         return chips
     if slot == "model":
-        mq = Machine.objects.filter(is_supported=True, documents__isnull=False).distinct()
+        # only a FEW models, and only ones we actually have a manual for (excluding
+        # accessories like a remote control); the customer can type anything else.
+        mq = (Machine.objects.filter(is_supported=True, documents__isnull=False)
+              .exclude(model_name__icontains="remote").exclude(model_name__icontains="fjärr")
+              .distinct())
         fam = _family_ids(s.get("category"))
         if fam:
             mq = mq.filter(category_id__in=fam)
