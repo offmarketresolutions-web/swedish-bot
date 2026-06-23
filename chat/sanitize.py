@@ -45,7 +45,9 @@ def wrap_untrusted(text: str, kind: str = "user_input") -> str:
 _NAME_BAD = re.compile(r"[^\w .'\-]", re.UNICODE)
 _PHONE_BAD = re.compile(r"[^0-9+\-() ]")
 _MODEL = re.compile(r"^[A-Za-z0-9 ./\-]{1,40}$")
-_ERRCODE = re.compile(r"^[A-Za-z0-9\-]{1,16}$")
+# A code SHAPE (must contain a digit), e.g. 'E11', 'H01 5252', 'Z1' — so a real code
+# with a sub-group space is accepted, but free-text phrases ('ignore this') are not.
+_ERRCODE = re.compile(r"^[A-Za-z]{0,4}\d[A-Za-z0-9]*(?:[ \-][A-Za-z0-9]{1,6})?$")
 _POSTAL_BAD = re.compile(r"[^0-9 ]")
 
 
@@ -89,6 +91,25 @@ def clean_model(s: str) -> str:
 def clean_error_code(s: str) -> str:
     s = no_crlf(cap(s, 16))
     return s if _ERRCODE.match(s) else ""
+
+
+# An alarm/fault code embedded in free text: a letter+digits token (E15, H01, F2),
+# optionally followed by a sub-code group (H01 5252). Anchored to NOT match model
+# names like "Geo 412C" (digit-first) or bare years.
+_ERRCODE_IN_TEXT = re.compile(r"\b([A-Za-z]{1,3}\d{1,4}(?:[ \-]\d{2,5})?)\b")
+_ALARM_CONTEXT = re.compile(r"(?i)\b(alarm|larm|error|fault|fel|kod|code|felkod|larmkod)\b")
+
+
+def extract_error_code(text: str) -> str:
+    """Best-effort pull of an alarm/fault code out of a free-text problem description
+    (e.g. 'larm H01 5252 och ingen värme' -> 'H01 5252'). Only fires when the text
+    actually mentions an alarm/error, so plain symptom text never yields a false code.
+    Returns '' if none found."""
+    s = text or ""
+    if not _ALARM_CONTEXT.search(s):
+        return ""
+    m = _ERRCODE_IN_TEXT.search(s)
+    return clean_error_code(m.group(1)) if m else ""
 
 
 def clean_lead_field(s: str, n: int = 200) -> str:

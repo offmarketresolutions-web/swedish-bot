@@ -299,6 +299,13 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
     from kb.models import Machine
 
     machine = Machine.objects.get(id=cs["machine_id"])
+    # If the customer stated an alarm/fault code inside their problem text but it never
+    # landed in the error_code slot, pull it out now — the specialist needs the exact
+    # code to give a grounded answer instead of re-asking for info already provided.
+    if not cs["slots"].get("error_code"):
+        code = sanitize.extract_error_code(cs["slots"].get("problem", ""))
+        if code:
+            cs["slots"]["error_code"] = code
     # The reply budget governs TROUBLESHOOTING turns only (plan §6.2) — intake/contact
     # turns must not consume it, or the customer's first real question gets force-escalated.
     cs["specialist_turns"] = cs.get("specialist_turns", 0) + 1
