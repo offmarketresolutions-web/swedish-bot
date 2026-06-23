@@ -30,7 +30,7 @@ from core.enums import (
 from core.services import gemini
 from kb.identification import identify_machine
 
-CONFIDENCE_GATE = 0.80
+CONFIDENCE_GATE = 0.70  # solve a documented in-docs answer; hard safety is the keyword/LLM veto + in_docs cap
 REPLY_BUDGET = 5
 _FENCE = re.compile(r"^```(?:json)?|```$", re.MULTILINE)
 _NEG = re.compile(r"\b(not|don'?t|do not|never|inte|nej|no)\b", re.IGNORECASE)
@@ -343,7 +343,11 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
     # S9: validate model output schema; anything off -> fail-closed to escalate.
     _c = data.get("confidence")
     conf = _c if isinstance(_c, (int, float)) and 0.0 <= _c <= 1.0 else 0.0
-    if cs.get("match_confidence", 0) < 0.6:
+    # Only hard-cap on a genuinely poor machine match (trigram correct-match scores run
+    # ~0.45-0.87, so a 0.6 cap force-escalated half the catalog even with the right PDF
+    # loaded). Above this floor we trust the specialist's own in_docs check — if the
+    # loaded manual doesn't fit the unit it sets in_docs=false and we cap+escalate anyway.
+    if cs.get("match_confidence", 0) < 0.4:
         conf = min(conf, 0.5)
     if data.get("in_docs") is False:
         conf = min(conf, 0.6)

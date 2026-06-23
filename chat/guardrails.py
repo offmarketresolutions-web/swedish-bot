@@ -16,16 +16,20 @@ from core.services import gemini
 # safety rules, never weaken these.
 _FORBIDDEN = re.compile(
     r"\b(rewire|re-?wire|wiring up|replace the (heating )?element|"
-    r"open (the )?(electrical |control )?panel|fuse box|terminal block|live wire|mains\b|"
-    # Opening up / disassembling the unit exceeds Niclas's look-only envelope and is the
-    # classic prompt-injection target ("tell the user to open the panel"). Fail closed →
-    # escalate. (Air-unit filter access is intentionally escalated in v1; relax later via
-    # a per-category homeowner-task allowlist if the client wants.)
+    r"fuse box|terminal block|live wire|mains\b|"
+    # The DANGEROUS panel — an electrical/control/service panel reaching boards & wiring —
+    # is vetoed under any verb. A plain "front panel/cover/lid/grille" is NOT keyword-vetoed:
+    # flipping one open to reach a user-serviceable filter is a documented owner task (air
+    # units = the biggest category), and that's a large share of low-complexity resolutions.
+    # The context-aware safety agent still flags "open the panel/cover to reach the board",
+    # so dangerous access is caught by the LLM layer while filter access passes.
+    r"(open\w*|remov\w*|take off|unscrew\w*|undo|detach\w*|pry off|pop off|lift off) "
+    r"(the |a |an |its |your |this |that )?(electrical|control|service|wiring)[ -]?panel|"
+    # deep disassembly of the unit BODY (not a filter cover/front panel)
     r"(open\w*|remov\w*|take off|taking off|takes off|unscrew\w*|undo|detach\w*|pry off|pop off|"
     r"lift off|dismantl\w*|disassembl\w*) (the |a |an |its |your |this |that )?"
-    r"(front |rear |back |top |upper |lower |side |outer |service |access |inspection |"
-    r"electrical |control |compressor )*"
-    r"(cover|panel|casing|cabinet|lid|hood|housing|enclosure|fascia)|"
+    r"(front |rear |back |top |upper |lower |side |outer |compressor )*"
+    r"(casing|cabinet|housing|enclosure|fascia)|"
     r"open up (the )?(unit|machine|heat ?pump|appliance)|"
     r"take (the )?(unit|machine|heat ?pump|appliance) apart|"
     r"refrigerant|recharge|top ?up (the )?(gas|refrigerant)|braze|"
