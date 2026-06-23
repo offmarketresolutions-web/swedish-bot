@@ -26,6 +26,7 @@
     title: "Nordland VVS — Support",
     error: "Connection problem. Please try again.",
     open: "Open chat", close: "Close chat", minimize: "Minimize",
+    nudge: "Chat with us",
     status: "Usually replies within a few minutes",
     attach: "Attach file", remove: "Remove attachment",
     file_too_big: "File is too large (max 10 MB).",
@@ -58,6 +59,11 @@
     ".nl-open .nl-ic-x{opacity:1;transform:rotate(0) scale(1)}" +
     ".nl-badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#d9370c;color:#fff;font:700 12px/20px system-ui,Arial,sans-serif;text-align:center;box-shadow:0 0 0 2px #fff;display:none}" +
     ".nl-badge.nl-show{display:block}" +
+    // blue callout that points at the launcher bubble (shown while the chat is closed)
+    ".nl-nudge{position:fixed;right:24px;bottom:90px;max-width:200px;background:" + BLUE + ";color:#fff;font:600 14px/1.35 system-ui,Arial,sans-serif;padding:9px 13px;border-radius:14px;box-shadow:0 6px 18px rgba(26,116,191,.35);z-index:2147483400;cursor:pointer;display:none}" +
+    ".nl-nudge.nl-show{display:block;animation:nl-nudge-in .3s ease}" +
+    ".nl-nudge::after{content:'';position:absolute;right:18px;bottom:-6px;width:13px;height:13px;background:" + BLUE + ";transform:rotate(45deg);border-radius:0 0 3px 0}" +
+    "@keyframes nl-nudge-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}" +
     ".nl-panel{position:fixed;right:20px;bottom:92px;width:380px;max-width:calc(100vw - 32px);height:600px;max-height:calc(100vh - 120px);background:#fff;border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.28);display:none;flex-direction:column;overflow:hidden;z-index:2147483000;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}" +
     ".nl-panel.nl-show{display:flex;animation:nl-rise .18s ease}" +
     "@keyframes nl-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}" +
@@ -215,7 +221,11 @@
   composer.append(errLine, fileChip, inputRow, fileInput);
 
   panel.append(header, log, chipsBar, composer);
-  document.body.append(launcher, panel);
+  var nudge = el("button", "nl-nudge", I18N.nudge);
+  nudge.type = "button";
+  nudge.setAttribute("data-testid", "widget-nudge");
+  nudge.onclick = function () { openPanel(); };
+  document.body.append(launcher, panel, nudge);
 
   // ---- persistence ----------------------------------------------------
   // We persist the transcript (text + who), the chips, the session id and open
@@ -310,6 +320,7 @@
         statusTxt.textContent = I18N.status;
         attachBtn.setAttribute("aria-label", I18N.attach);
         launcher.setAttribute("aria-label", isOpen() ? I18N.close : I18N.open);
+        nudge.textContent = I18N.nudge;
       })
       .catch(function () {});
   }
@@ -452,6 +463,7 @@
     launcher.classList.add("nl-open");
     launcher.setAttribute("aria-expanded", "true");
     launcher.setAttribute("aria-label", I18N.close);
+    nudge.classList.remove("nl-show");  // hide the pointer once the chat is open
     clearUnread();
     if (!started) {
       started = true;
@@ -467,6 +479,7 @@
     launcher.classList.remove("nl-open");
     launcher.setAttribute("aria-expanded", "false");
     launcher.setAttribute("aria-label", I18N.open);
+    nudge.classList.add("nl-show");  // re-show the pointer when the chat is closed
     if (restoreFocus !== false) launcher.focus();
     save();
   }
@@ -521,4 +534,6 @@
 
   // ---- auto-open (a dedicated chat page sets data-open="1") ------------
   if (AUTO_OPEN && !isOpen()) openPanel();
+  // otherwise nudge the visitor toward the bubble with a blue pointer
+  else if (!isOpen()) setTimeout(function () { if (!isOpen()) nudge.classList.add("nl-show"); }, 1000);
 })();

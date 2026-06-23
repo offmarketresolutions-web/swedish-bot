@@ -18,11 +18,6 @@
          font-size:16px;font-weight:600;padding:13px 22px;border-radius:999px;cursor:pointer;
          box-shadow:0 6px 18px rgba(26,116,191,.28);transition:transform .12s,background .12s}
     .cta:hover{background:var(--nl-d);transform:translateY(-1px)}
-    .hint{position:fixed;right:24px;bottom:96px;display:flex;flex-direction:column;align-items:flex-end;
-          gap:4px;color:var(--nl-d);font-weight:600;font-size:14px;pointer-events:none;z-index:2147483600}
-    .hint .arrow{font-size:30px;line-height:1;animation:nl-bounce 1.4s ease-in-out infinite}
-    @keyframes nl-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
-    @media (max-width:480px){.hint{display:none}}
   </style>
 </head>
 <body>
@@ -33,23 +28,16 @@
     <button class="cta" type="button" data-open-chat>💬 Starta chatten</button>
   </main>
 
-  <!-- friendly pointer to the chat bubble (hidden once the chat is open) -->
-  <div class="hint" id="nl-hint"><span>Chatta med oss</span><span class="arrow">↘</span></div>
-
-  <!-- the live support widget, auto-opened on load -->
+  <!-- the live support widget, auto-opened on load (it shows its own blue "Chat with us"
+       pointer at the bubble whenever the chat is closed) -->
   <script src="{% static 'widget/nordland-widget.js' %}" data-lang="sv" data-open="1" defer></script>
   <script>
-    // "Start chat" button + hide the hint once the chat panel is open.
     document.addEventListener("click", function (e) {
       if (e.target.closest("[data-open-chat]")) {
         var b = document.querySelector('[data-testid="widget-bubble"]');
         if (b && !document.querySelector(".nl-panel.nl-show")) b.click();
       }
     });
-    var hint = document.getElementById("nl-hint");
-    setInterval(function () {
-      if (hint) hint.style.display = document.querySelector(".nl-panel.nl-show") ? "none" : "flex";
-    }, 500);
   </script>
 </body>
 </html>
