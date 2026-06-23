@@ -92,7 +92,7 @@ def test_escalation_collects_contact_and_creates_lead(seeded, mock_gemini):
 
     sess = Session.objects.get(conversation=conv)
     assert sess.customer.name == "Jane Tester"
-    assert sess.customer.phone == "070-1234567"
+    assert sess.customer.phone == "+46701234567"   # normalized to E.164 at capture
     assert sess.customer.consent_to_contact is True
     assert sess.booking_requested is True
     assert sess.status == "escalated"

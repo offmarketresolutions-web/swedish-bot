@@ -22,6 +22,9 @@ def test_field_validators_strip_injection():
     assert "\n" not in p and "X" not in p and _re.fullmatch(r"[0-9+\-() ]+", p)  # phone chars only
     assert sanitize.clean_email("a@b.com\nBcc: c@d.com") == ""       # newline → invalid
     assert sanitize.clean_email("a@b.com") == "a@b.com"
+    assert sanitize.clean_phone("070-123 45 67") == "+46701234567"   # national → Sweden E.164
+    assert sanitize.clean_phone("+44 20 7946 0958") == "+442079460958"  # kept its country code
+    assert sanitize.clean_phone("okay") == "" and sanitize.clean_phone("123") == ""  # junk → rejected
     assert sanitize.clean_error_code("E11") == "E11"
     assert sanitize.clean_error_code("ignore this") == ""            # phrase → not a code
     assert sanitize.clean_error_code("H01 5252") == "H01 5252"       # real IVT code keeps its sub-code

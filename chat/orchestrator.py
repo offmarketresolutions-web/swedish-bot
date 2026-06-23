@@ -492,13 +492,24 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
     cur = cs.get("contact_slot")
     if cur and user_text:
         raw = (user_text or "").strip()
-        if raw.lower() in ("skip", "none", "no") and cur == "email":
+        skipped = cur == "email" and raw.lower() in ("skip", "none", "no")
+        if skipped:
             val = ""
-        else:  # S1: validate/sanitize each contact field at capture
+        else:  # S1: validate/sanitize + standardize each contact field at capture
             cleaner = {"name": sanitize.clean_name, "phone": sanitize.clean_phone,
                        "email": sanitize.clean_email, "postal_code": sanitize.clean_postal}.get(
                 cur, sanitize.clean_lead_field)
             val = cleaner(raw)
+        # Require real data for the structured slots: re-ask ONCE on junk (so we capture
+        # an actual phone/email, not "okay"), then accept best-effort so a stubborn
+        # customer isn't trapped in a loop.
+        if not val and not skipped and cur in ("name", "phone", "email"):
+            if not cs.get("reasked_" + cur):
+                cs["reasked_" + cur] = True
+                msg = t(locale, "reask_phone") if cur == "phone" else t(locale, "reask") + t(locale, "contact_" + cur)
+                return {"message": msg, "chips": [], "decision": "escalate"}
+            if cur == "phone":  # gave up validating → keep what they typed for staff
+                val = sanitize.clean_lead_field(raw, 32)
         cs["contact"][cur] = val
         if cur == "phone" and val:  # P-F: recognize a returning customer (minimal disclosure)
             from crm.models import Customer, phone_hash

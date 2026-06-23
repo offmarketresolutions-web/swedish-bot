@@ -22,6 +22,8 @@ T = {
                              "or fault code, send a photo of the display (it really helps the "
                              "technician). If there's no code, just let me know.",
         "reask": "Sorry, I didn't quite catch that. ",
+        "reask_phone": "That doesn't look like a phone number. Please include the area or "
+                       "country code — e.g. 070-123 45 67, or +44 20 7946 0958.",
         "contact_name": "What's your name?",
         "contact_phone": "What's the best phone number to reach you?",
         "contact_email": "And your email? (type 'skip' if you'd rather not share it.)",
@@ -56,6 +58,8 @@ T = {
                              "fel- eller larmkod, skicka en bild på displayen (det hjälper teknikern "
                              "mycket). Finns ingen kod, säg bara till.",
         "reask": "Förlåt, jag uppfattade inte riktigt. ",
+        "reask_phone": "Det ser inte ut som ett telefonnummer. Ange gärna riktnummer eller "
+                       "landskod — t.ex. 070-123 45 67, eller +46 70 123 45 67.",
         "contact_name": "Vad heter du?",
         "contact_phone": "Vilket telefonnummer når vi dig bäst på?",
         "contact_email": "Och din e-post? (skriv 'skip' om du hellre avstår.)",

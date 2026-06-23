@@ -56,7 +56,22 @@ def clean_name(s: str) -> str:
 
 
 def clean_phone(s: str) -> str:
-    return _PHONE_BAD.sub("", no_crlf(cap(s, 32))).strip()
+    """Normalize to E.164 ('+CCdigits'); '' if it isn't a plausible phone. A national
+    number (leading 0) assumes Sweden (+46); '00' / '+' prefixes are kept as the country
+    code; bare digits without a code are rejected as ambiguous.
+    ponytail: regex E.164 shape-check, swap in `phonenumbers` if you need real per-country
+    range validation (rejects e.g. +46 numbers that don't map to an assigned range)."""
+    raw = re.sub(r"[^\d+]", "", no_crlf(cap(s, 32)))
+    if raw.startswith("00"):
+        num = "+" + raw[2:]
+    elif raw.startswith("+"):
+        num = "+" + raw[1:].replace("+", "")
+    elif raw.startswith("0"):
+        num = "+46" + raw.lstrip("0")
+    else:
+        num = ""  # bare digits with no country code → ambiguous, reject
+    digits = num[1:]
+    return num if num.startswith("+") and digits.isdigit() and 8 <= len(digits) <= 15 else ""
 
 
 def clean_email(s: str) -> str:
