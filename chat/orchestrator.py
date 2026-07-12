@@ -461,10 +461,15 @@ def _is_decline(text: str) -> bool:
 
 
 def _sync_customer(session, cs):
-    from crm.models import Customer
+    from crm.models import Customer, phone_hash
 
-    c = session.customer or Customer()
     ct = cs["contact"]
+    c = session.customer
+    if c is None:
+        # P-F: a returning caller must land on their existing profile (matched by
+        # peppered phone hash), not a duplicate row — the File Hub keys folders by pk.
+        h = phone_hash(ct.get("phone") or "")
+        c = (Customer.objects.filter(phone_hash=h).first() if h else None) or Customer()
     c.name = ct.get("name") or c.name
     c.phone = ct.get("phone") or c.phone
     c.email = ct.get("email") or c.email

@@ -32,11 +32,23 @@ _FORBIDDEN = re.compile(
     r"(casing|cabinet|housing|enclosure|fascia)|"
     r"open up (the )?(unit|machine|heat ?pump|appliance)|"
     r"take (the )?(unit|machine|heat ?pump|appliance) apart|"
+    # bare deep component (no casing-noun needed): "open/unscrew the compressor"
+    r"(open\w*|remov\w*|take off|unscrew\w*|undo|detach\w*|pry off|pop off|lift off|"
+    r"dismantl\w*|disassembl\w*) (the |a |an |its |your |this |that )?compressor\b|"
     r"refrigerant|recharge|top ?up (the )?(gas|refrigerant)|braze|"
     r"expansion vessel|relief valve|safety valve|re-?pressuriz\w*|"
     r"pre-?charge|adjust the pressure switch|drain (the |down )?(heating )?system|"
     r"flue|combustion|gas valve|burner|bypass (the )?(interlock|safety)|"
-    r"disable (the )?safety|legionella (cycle|treatment|flush))\b",
+    r"disable (the )?safety|legionella (cycle|treatment|flush)|"
+    # Swedish aliases — sv is the primary locale, so the deterministic veto must not
+    # be English-only. Same tuning: instruction-class terms, not mere mention.
+    r"köldmedi\w*|kylkrets\w*|fyll(a|er)? på (gas\w*|köldmedi\w*)|löd(a|er|ning)\b|"
+    r"elskåp\w*|kopplingsplint\w*|strömförande|"
+    r"expansionskärl\w*|säkerhetsventil\w*|gasventil\w*|brännar\w*|rökgas\w*|"
+    r"koppla förbi|inaktivera säkerhet\w*|"
+    r"(öppna|demonter\w*|ta isär|skruva (upp|loss|isär)) (den |en |ett |din |er )?"
+    r"(enhet\w*|maskin\w*|värmepump\w*|aggregat\w*|kompressor\w*)|"
+    r"töm(ma|mer)? (ner |ur )?(system\w*|köldmedi\w*|anläggning\w*)|tappa ur system\w*)\b",
     re.IGNORECASE,
 )
 
