@@ -31,3 +31,10 @@ def test_demo_page_embeds_widget(client):
     resp = client.get("/widget-demo")
     assert resp.status_code == 200
     assert b"nordland-widget.js" in resp.content
+
+
+def test_homepage_demo_renders_and_embeds_widget(client):
+    resp = client.get("/demo/homepage")
+    assert resp.status_code == 200
+    assert b"<script" in resp.content
+    assert b"nordland-widget.js" in resp.content
