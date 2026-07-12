@@ -132,12 +132,15 @@ def session_detail(request, pk: int):
             setattr(session, f, request.POST.get(f) == "on")
         session.save()
         return redirect("dash-session", pk=pk)
-    messages = session.conversation.messages.all() if session.conversation_id else []
+    messages = list(session.conversation.messages.all()) if session.conversation_id else []
+    # Images attached to THIS case, shown inline as a thumbnail strip (req 5).
+    case_images = [m for m in messages if m.image]
     deliveries = []
     for sr in session.service_requests.all():
         deliveries += list(sr.deliveries.all())
     return render(request, "dashboard/session_detail.html", {
         "session": session, "messages": messages, "deliveries": deliveries,
+        "case_images": case_images,
         "severities": [s[0] for s in SEVERITY_CHOICES],
     })
 
@@ -178,51 +181,72 @@ def customer_list(request):
     })
 
 
+def _customer_machine_docs(customer, sessions):
+    """Machine-documentation manifest for the customer: every distinct machine seen
+    across their cases, each with its uploaded manuals (or a 'not loaded' flag)."""
+    from kb.models import Machine
+    ids, seen = [], set()
+    if customer.primary_machine_id:
+        ids.append(customer.primary_machine_id); seen.add(customer.primary_machine_id)
+    for s in sessions:
+        if s.machine_id and s.machine_id not in seen:
+            seen.add(s.machine_id); ids.append(s.machine_id)
+    machines = Machine.objects.filter(pk__in=ids).select_related("vendor").prefetch_related("documents")
+    rows = []
+    for m in machines:
+        docs = list(m.documents.all())
+        rows.append({"machine": m, "documents": docs, "loaded": bool(docs)})
+    return rows
+
+
 @staff_member_required
 def customer_detail(request, pk: int):
-    from crm.models import Customer
+    from crm.models import FILE_FOLDERS, Customer
     customer = get_object_or_404(
         Customer.objects.select_related("primary_machine__vendor", "primary_category", "primary_brand"), pk=pk)
-    sessions = customer.sessions.select_related(
-        "machine", "machine__vendor", "category").order_by("-created_at")
+    sessions = list(customer.sessions.select_related(
+        "machine", "machine__vendor", "category").order_by("-created_at"))
     # distinct equipment seen across all the customer's conversations (for the Equipment panel)
     equipment, seen = [], set()
     for s in sessions:
         if s.machine_id and s.machine_id not in seen:
             seen.add(s.machine_id); equipment.append(s.machine)
-    return render(request, "dashboard/customer_detail.html",
-                  {"customer": customer, "sessions": sessions, "files": customer.files.all(),
-                   "equipment": equipment, "stats": analytics.customer_stats(customer)})
+    all_files = list(customer.files.select_related("source_message").all())
+    # Manifest tab (a) customer uploads; tab (c) invoices/other staff-stored files.
+    uploads = [f for f in all_files if f.folder == "uploads"]
+    stored = [f for f in all_files if f.folder in ("invoices", "docs")]
+    return render(request, "dashboard/customer_detail.html", {
+        "customer": customer, "sessions": sessions, "files": all_files,
+        "uploads": uploads, "stored_files": stored,
+        "machine_docs": _customer_machine_docs(customer, sessions),
+        "equipment": equipment, "stats": analytics.customer_stats(customer),
+        "folders": FILE_FOLDERS,
+    })
 
 
 @staff_member_required
 @require_POST
 def customer_file_upload(request, pk: int):
-    """Staff-attach a photo/PDF to a customer's CRM profile (CustomerFile)."""
-    import hashlib
-
-    from django.core.files.base import ContentFile
-
-    from crm.models import Customer, CustomerFile
+    """Staff-attach a photo/PDF/invoice to a customer's CRM profile via the File Hub
+    storage service (per-customer folder + Drive mirror). Folder chosen in the form."""
+    from crm import storage
+    from crm.models import Customer
     customer = get_object_or_404(Customer, pk=pk)
     f = request.FILES.get("file")
+    folder = request.POST.get("folder") or "invoices"
     MAX = 20 * 1024 * 1024
     msg_kind, msg = "error", "No file selected."
     if f and f.size and f.size > MAX:
         msg = f"File too large ({f.size // 1024 // 1024} MB > 20 MB)."
     elif f:
         data = f.read()
-        sha = hashlib.sha256(data).hexdigest()
-        if CustomerFile.objects.filter(customer=customer, sha256=sha).exists():
-            msg_kind, msg = "info", "That file is already on this customer."
-        else:
-            name, ct = (f.name or "").lower(), (f.content_type or "").lower()
-            kind = ("photo" if ct.startswith("image/") or name.endswith((".jpg", ".jpeg", ".png", ".webp", ".gif"))
-                    else "pdf" if name.endswith(".pdf") or "pdf" in ct else "other")
-            cf = CustomerFile(customer=customer, kind=kind, sha256=sha)
-            cf.file.save(f.name, ContentFile(data), save=False)
-            cf.save()
+        _cf, created = storage.register_file(
+            customer, content=data, filename=f.name or "upload", folder=folder,
+            source="staff", content_type=f.content_type or "")
+        if created:
             msg_kind, msg = "success", "File uploaded."
+        else:
+            msg_kind, msg = "info", "That file is already on this customer."
     resp = redirect("dash-customer", pk=pk)
     resp["HX-Trigger"] = _toast(msg_kind, msg)
     return resp
@@ -265,6 +289,36 @@ def serve_document(request, pk: int):
         raise Http404 from exc
     resp["X-Content-Type-Options"] = "nosniff"
     return resp
+
+
+@staff_member_required
+def machine_docs(request, pk: int):
+    """HTMX partial: a machine's PDF documentation for the pop-up overlay. Renders
+    an inline PDF viewer per document, or a graceful 'documentation not loaded'
+    state when no manual has been ingested for the machine yet."""
+    from kb.models import Machine
+    machine = get_object_or_404(Machine.objects.select_related("vendor"), pk=pk)
+    return render(request, "dashboard/_machine_docs.html",
+                  {"machine": machine, "documents": list(machine.documents.all())})
+
+
+# ── Integration settings (n8n Google Drive mirror) ─────────────────────────────
+
+@staff_member_required
+def integration_settings(request):
+    """Configure the outbound n8n webhook (URL + shared secret) that mirrors newly
+    registered customer files to Google Drive. Default OFF."""
+    from crm.models import IntegrationSettings
+    cfg = IntegrationSettings.load()
+    if request.method == "POST":
+        cfg.n8n_webhook_url = (request.POST.get("n8n_webhook_url") or "").strip()[:200]
+        cfg.n8n_shared_secret = (request.POST.get("n8n_shared_secret") or "").strip()[:255]
+        cfg.n8n_enabled = request.POST.get("n8n_enabled") == "on"
+        cfg.save()
+        resp = redirect("dash-settings")
+        resp["HX-Trigger"] = _toast("success", "Integration settings saved.")
+        return resp
+    return render(request, "dashboard/settings.html", {"cfg": cfg})
 
 
 # ── Agent Config (V2 P-D UI): edit AgentPrompt rows with HTMX inline save ──────

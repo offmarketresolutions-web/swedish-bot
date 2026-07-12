@@ -10,6 +10,7 @@ admin.site.index_title = "Knowledge base, agents & CRM"
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/chat/", include("chat.urls")),
+    path("api/voice/", include("voice.urls")),
     path("dashboard/", include("dashboard.urls")),
     path("", include("core.urls")),
 ]

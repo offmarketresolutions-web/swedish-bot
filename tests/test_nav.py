@@ -1,0 +1,47 @@
+"""Sidebar reachability: every link in the dashboard nav resolves and renders 200,
+and the Settings area exposes both tabs (integrations + API credentials)."""
+import pytest
+from django.contrib.auth.models import User
+from django.urls import reverse
+
+pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture
+def staff(client):
+    user = User.objects.create_user("ops", password="x", is_staff=True)
+    client.force_login(user)
+    return user
+
+
+# Every named route the sidebar links to (base.html), in nav order.
+SIDEBAR_ROUTES = [
+    "dash-overview", "dash-analytics",
+    "dash-sessions", "dash-customers",
+    "dash-kb", "dash-faq", "dash-agents", "dash-guardrails", "dash-flow",
+    "dash-voice-phone",
+    "homepage-demo",
+    "dash-settings", "dash-voice-credentials",
+]
+
+
+@pytest.mark.parametrize("name", SIDEBAR_ROUTES)
+def test_sidebar_link_renders(staff, client, name):
+    resp = client.get(reverse(name))
+    assert resp.status_code == 200, f"{name} -> {resp.status_code}"
+
+
+def test_settings_pages_cross_link_via_tabs(staff, client):
+    for name in ("dash-settings", "dash-voice-credentials"):
+        html = client.get(reverse(name)).content.decode()
+        assert 'data-testid="settings-tabs"' in html
+        assert reverse("dash-settings") in html
+        assert reverse("dash-voice-credentials") in html
+
+
+def test_sidebar_contains_all_groups_and_demo_links(staff, client):
+    html = client.get(reverse("dash-overview")).content.decode()
+    for route in SIDEBAR_ROUTES:
+        assert reverse(route) in html, f"sidebar missing link to {route}"
+    assert 'data-testid="nav-homepage-demo"' in html
+    assert 'data-testid="nav-test-chat"' in html

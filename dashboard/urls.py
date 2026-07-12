@@ -1,8 +1,14 @@
 from django.urls import path
 
-from dashboard import views
+from dashboard import views, voice_views
 
 urlpatterns = [
+    # Voice / phone control plane
+    path("voice/", voice_views.voice_phone, name="dash-voice-phone"),
+    path("voice/publish", voice_views.voice_publish, name="dash-voice-publish"),
+    path("voice/credentials/", voice_views.voice_credentials, name="dash-voice-credentials"),
+    path("voice/calls/<str:call_id>/fetch", voice_views.voice_fetch_conversation,
+         name="dash-voice-fetch"),
     path("", views.overview, name="dash-overview"),
     path("analytics/", views.analytics_dashboard, name="dash-analytics"),
     path("sessions/", views.session_list, name="dash-sessions"),
@@ -12,6 +18,9 @@ urlpatterns = [
     path("customers/<int:pk>/", views.customer_detail, name="dash-customer"),
     path("customers/<int:pk>/files/upload", views.customer_file_upload, name="dash-customer-file-upload"),
     path("files/<int:pk>/", views.serve_customer_file, name="dash-file"),
+    # Machine documentation pop-up (PDF overlay) + integration settings
+    path("kb/machine/<int:pk>/docs", views.machine_docs, name="dash-machine-docs"),
+    path("settings/", views.integration_settings, name="dash-settings"),
     # Agent Config (HTMX inline save)
     path("agents/", views.agent_config, name="dash-agents"),
     path("guardrails/", views.guardrails_page, name="dash-guardrails"),

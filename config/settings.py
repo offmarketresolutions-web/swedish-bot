@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "chat",
     "crm",
     "dashboard",
+    "voice",
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "uploads/"
 MEDIA_ROOT = BASE_DIR / "data" / "uploads"
 
+# Absolute base URL for building outbound file links (n8n Drive mirror). Blank in dev.
+PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "")
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ── Email (lead sink; console backend in dev) ─────────────────────────
@@ -150,6 +154,29 @@ DEMO_OPEN_ADMIN = _env_bool("DEMO_OPEN_ADMIN", "0")
 
 CSRF_TRUSTED_ORIGINS = _env_list("CSRF_TRUSTED_ORIGINS", "")
 
+# ── Voice / phone channel (Vapi) + WhatsApp Cloud API + n8n ───────────────────
+# All DB-editable from the dashboard credentials catalog (live-applied over these .env defaults).
+VAPI_PRIVATE_KEY = os.environ.get("VAPI_PRIVATE_KEY", "")
+VAPI_WEBHOOK_SECRET = os.environ.get("VAPI_WEBHOOK_SECRET", "")
+VAPI_PHONE_NUMBER_ID = os.environ.get("VAPI_PHONE_NUMBER_ID", "")
+VAPI_ASSISTANT_ID = os.environ.get("VAPI_ASSISTANT_ID", "")
+VAPI_ASSISTANT_MODEL = os.environ.get("VAPI_ASSISTANT_MODEL", "")
+VAPI_VOICE_ID = os.environ.get("VAPI_VOICE_ID", "")
+VAPI_SIGNATURE_HEADER = os.environ.get("VAPI_SIGNATURE_HEADER", "X-Vapi-Signature")
+VAPI_SECRET_HEADER = os.environ.get("VAPI_SECRET_HEADER", "X-Vapi-Secret")
+
+WA_PHONE_NUMBER_ID = os.environ.get("WA_PHONE_NUMBER_ID", "")
+WA_ACCESS_TOKEN = os.environ.get("WA_ACCESS_TOKEN", "")
+WA_APP_SECRET = os.environ.get("WA_APP_SECRET", "")
+WA_VERIFY_TOKEN = os.environ.get("WA_VERIFY_TOKEN", "")
+WA_PHOTO_TEMPLATE_NAME = os.environ.get("WA_PHOTO_TEMPLATE_NAME", "")
+WA_GRAPH_VERSION = os.environ.get("WA_GRAPH_VERSION", "v21.0")
+
+N8N_WEBHOOK_URL = os.environ.get("N8N_WEBHOOK_URL", "")
+
+# Local-dev webhook bypass — honored ONLY when DEBUG (fail-closed in prod, see boot guard below).
+VOICE_WEBHOOK_DEV_BYPASS = _env_bool("VOICE_WEBHOOK_DEV_BYPASS", "0")
+
 if not DEBUG:
     from django.core.exceptions import ImproperlyConfigured
 
@@ -164,6 +191,19 @@ if not DEBUG:
             f"Vertex location '{_loc or '(unset)'}' is not EU (GDPR). Set GOOGLE_CLOUD_LOCATION "
             "to a europe-* region, or ALLOW_NON_EU_RESIDENCY=1 to override (NOT for real PII)."
         )
+    # Fail-closed: the phone-hash pepper must differ from SECRET_KEY (cross-channel join key).
+    if PHONE_HASH_PEPPER == SECRET_KEY:
+        raise ImproperlyConfigured("PHONE_HASH_PEPPER must differ from DJANGO_SECRET_KEY.")
+    # Fail-closed: the voice channel webhooks are signature-authed — refuse to boot with the
+    # channel enabled but its shared secrets unset. Set VOICE_ENABLED=0 to run without the channel.
+    if _env_bool("VOICE_ENABLED", "1"):
+        _missing = [n for n in ("VAPI_WEBHOOK_SECRET", "WA_APP_SECRET") if not os.environ.get(n)]
+        if _missing:
+            raise ImproperlyConfigured(
+                f"Voice channel enabled but {', '.join(_missing)} unset (fail-closed). "
+                "Set them, or VOICE_ENABLED=0 to disable the phone/WhatsApp channel."
+            )
+
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SESSION_COOKIE_HTTPONLY = True
     X_FRAME_OPTIONS = "DENY"

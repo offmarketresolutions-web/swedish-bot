@@ -47,11 +47,23 @@
         <a href="{% url 'dash-flow' %}" class="nl-nav {% if url == 'dash-flow' %}nl-nav-on{% endif %}" {% if url == 'dash-flow' %}aria-current="page"{% endif %}>
           {% include 'dashboard/_icon.html' with name='flow' %}<span>{% trans "Flow builder" %}</span></a>
 
+        <div class="nl-nav-group">{% trans "Phone / Voice" %}</div>
+        <a href="{% url 'dash-voice-phone' %}" class="nl-nav {% if url == 'dash-voice-phone' %}nl-nav-on{% endif %}" {% if url == 'dash-voice-phone' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='bot' %}<span>{% trans "Phone assistant" %}</span></a>
+
         <div class="nl-nav-group">{% trans "Tools" %}</div>
         <a href="/widget-demo" target="_blank" rel="noopener" class="nl-nav" data-testid="nav-test-chat">
           {% include 'dashboard/_icon.html' with name='beaker' %}<span>{% trans "Test chat" %} ↗</span></a>
+        <a href="{% url 'homepage-demo' %}" target="_blank" rel="noopener" class="nl-nav" data-testid="nav-homepage-demo">
+          {% include 'dashboard/_icon.html' with name='beaker' %}<span>{% trans "Homepage demo" %} ↗</span></a>
         <a href="/playground" class="nl-nav {% if url == 'playground' %}nl-nav-on{% endif %}">
           {% include 'dashboard/_icon.html' with name='beaker' %}<span>{% trans "Playground" %}</span></a>
+
+        <div class="nl-nav-group">{% trans "Settings" %}</div>
+        <a href="{% url 'dash-settings' %}" class="nl-nav {% if url == 'dash-settings' %}nl-nav-on{% endif %}" {% if url == 'dash-settings' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='cog' %}<span>{% trans "Integrations" %}</span></a>
+        <a href="{% url 'dash-voice-credentials' %}" class="nl-nav {% if url == 'dash-voice-credentials' %}nl-nav-on{% endif %}" {% if url == 'dash-voice-credentials' %}aria-current="page"{% endif %}>
+          {% include 'dashboard/_icon.html' with name='cog' %}<span>{% trans "API credentials" %}</span></a>
         <a href="/admin/" class="nl-nav">{% include 'dashboard/_icon.html' with name='cog' %}<span>{% trans "Django Admin" %}</span></a>
       </nav>
       <div class="px-4 py-3 text-xs text-white/50 border-t border-white/10">Nordland VVS</div>
