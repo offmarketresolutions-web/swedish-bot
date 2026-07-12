@@ -68,13 +68,34 @@ class Customer(models.Model):
         return self.name or self.phone or f"Customer<{self.pk}>"
 
 
+# Per-customer folder layout on local disk (Customer File Hub). Every customer gets
+# media/customers/<id>/{uploads,invoices,docs}/ materialized by crm.storage.
+FILE_FOLDERS = ("uploads", "invoices", "docs")
+FILE_SOURCES = ("chat", "whatsapp", "staff")
+
+
+def customer_file_path(instance, filename):
+    """Organize customer files into per-customer folders on disk (Customer File Hub).
+    e.g. customers/42/invoices/<filename>. instance.customer_id + instance.folder
+    must be set before the file is saved (crm.storage.register_file does this)."""
+    folder = instance.folder if instance.folder in FILE_FOLDERS else "uploads"
+    cid = instance.customer_id or "unassigned"
+    return f"customers/{cid}/{folder}/{filename}"
+
+
 class CustomerFile(models.Model):
-    """Every photo/PDF a customer uploaded, retained on their CRM profile (V2 P-E).
-    Copied out of the transcript so it survives conversation purges."""
+    """Every photo/PDF/invoice on a customer's CRM profile (V2 P-E + File Hub).
+    Copied out of the transcript so it survives conversation purges, and mirrored
+    to Google Drive via the optional n8n sink on registration."""
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="files")
-    file = models.FileField(upload_to="customer_files/")
+    file = models.FileField(upload_to=customer_file_path)
     kind = models.CharField(max_length=16, default="photo")  # photo | pdf | other
+    folder = models.CharField(max_length=16, default="uploads")  # uploads | invoices | docs
+    source = models.CharField(max_length=16, default="staff")    # chat | whatsapp | staff
+    original_name = models.CharField(max_length=255, blank=True)
+    # Drive mirror link returned by the n8n Google Drive workflow (blank until mirrored).
+    drive_url = models.URLField(blank=True)
     sha256 = models.CharField(max_length=64, blank=True)
     source_message = models.ForeignKey(
         "chat.Message", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
@@ -84,8 +105,32 @@ class CustomerFile(models.Model):
         unique_together = [("customer", "sha256")]
         ordering = ["-created_at"]
 
+    @property
+    def is_image(self) -> bool:
+        return self.kind == "photo"
+
     def __str__(self):
-        return f"File<cust={self.customer_id} {self.kind}>"
+        return f"File<cust={self.customer_id} {self.folder}/{self.kind}>"
+
+
+class IntegrationSettings(models.Model):
+    """Singleton dashboard-editable config for the outbound n8n Google Drive mirror.
+    Default OFF — nothing fires until an operator sets a URL and flips the toggle."""
+
+    n8n_webhook_url = models.URLField(blank=True)
+    n8n_shared_secret = models.CharField(max_length=255, blank=True)
+    n8n_enabled = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "integration settings"
+
+    @classmethod
+    def load(cls) -> "IntegrationSettings":
+        return cls.objects.first() or cls.objects.create()
+
+    def __str__(self):
+        return f"IntegrationSettings<n8n={'on' if self.n8n_enabled else 'off'}>"
 
 
 class Session(models.Model):

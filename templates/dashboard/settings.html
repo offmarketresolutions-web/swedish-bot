@@ -1,0 +1,27 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+
+{% block breadcrumb %}<span class="text-nl-base/80">{% trans "Settings" %}</span>{% endblock %}
+
+{% block content %}
+{% include 'dashboard/_page_header.html' with title=_('Settings') subtitle=_('Integrations and API credentials — applied live, no redeploy.') %}
+{% include 'dashboard/_settings_tabs.html' %}
+
+<section class="nl-card p-4 max-w-2xl" data-testid="settings-n8n">
+  <h2 class="font-semibold mb-1">{% trans "n8n → Google Drive mirror" %}</h2>
+  <p class="text-sm text-nl-base/60 mb-4">{% trans "When enabled, every newly registered customer file is POSTed (signed) to your n8n webhook, which mirrors it into a per-customer Google Drive folder and returns the Drive link. Default off. Import tools/n8n/drive_mirror.workflow.json into n8n." %}</p>
+  <form method="post" class="space-y-3 text-sm">
+    {% csrf_token %}
+    <label class="block">{% trans "n8n webhook URL" %}
+      <input type="url" name="n8n_webhook_url" value="{{ cfg.n8n_webhook_url }}" placeholder="https://n8n.example.com/webhook/nordland-drive"
+             class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5">
+    </label>
+    <label class="block">{% trans "Shared secret" %}
+      <input type="text" name="n8n_shared_secret" value="{{ cfg.n8n_shared_secret }}" placeholder="openssl rand -hex 32"
+             class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5" autocomplete="off">
+      <span class="text-xs text-nl-base/50">{% trans "Signs the payload as HMAC-SHA256 in the X-Nordland-Signature header. Set the same value in the n8n workflow." %}</span>
+    </label>
+    <label class="flex items-center gap-2"><input type="checkbox" name="n8n_enabled" {% if cfg.n8n_enabled %}checked{% endif %}> {% trans "Enable mirror" %}</label>
+    <button class="btn btn-primary">{% trans "Save" %}</button>
+  </form>
+</section>
+{% endblock %}

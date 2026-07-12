@@ -36,11 +36,23 @@
 
   <!-- editable reporting fields + customer + leads -->
   <div class="space-y-6">
+    {% if case_images %}
+    <div class="nl-card p-4" data-testid="case-attachments">
+      <h2 class="font-semibold mb-2">{% trans "Attachments" %} ({{ case_images|length }})</h2>
+      <div class="flex flex-wrap gap-2">
+        {% for m in case_images %}
+          <a href="{{ m.image.url }}" target="_blank" rel="noopener" title="{{ m.created_at|date:'Y-m-d H:i' }}">
+            <img src="{{ m.image.url }}" alt="" class="h-20 w-20 rounded object-cover border border-nl-border hover:ring-2 hover:ring-nl-primary"></a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
     <div class="nl-card p-4">
       <h2 class="font-semibold mb-3">{% trans "Report" %}</h2>
       <dl class="text-sm space-y-1 mb-3">
         <div class="flex justify-between gap-2"><dt class="text-nl-base/60">{% trans "Equipment" %}</dt><dd class="text-right">
           {% if session.machine %}<a class="text-nl-primary hover:underline" href="{% url 'dash-kb-machine-page' session.machine.pk %}">{{ session.machine.vendor.name }} {{ session.machine.model_name }}</a>
+          <div class="mt-0.5">{% include 'dashboard/_machine_doc_modal.html' with machine=session.machine label=_('View documentation') %}</div>
           {% else %}{{ session.manufacturer }} {{ session.model|default:"—" }}{% endif %}</dd></div>
         <div class="flex justify-between gap-2"><dt class="text-nl-base/60">{% trans "Brand" %}</dt><dd class="text-right">
           {% if session.machine %}<a class="text-nl-primary hover:underline" href="{% url 'dash-kb-vendor' session.machine.vendor.pk %}">{{ session.machine.vendor.name }}</a>
