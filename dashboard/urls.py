@@ -57,6 +57,8 @@ urlpatterns = [
     path("faq/", views.faq_list, name="dash-faq"),
     path("faq/category/new/", views.faq_entry_new, name="dash-faq-entry-new"),
     path("faq/site/new/", views.site_faq_new, name="dash-site-faq-new"),
+    path("faq/pending/<str:kind>/<int:pk>/approve", views.faq_approve, name="dash-faq-approve"),
+    path("faq/pending/<str:kind>/<int:pk>/reject", views.faq_reject, name="dash-faq-reject"),
     # CRM create
     path("customers/new/", views.customer_new, name="dash-customer-new"),
 ]

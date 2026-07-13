@@ -110,11 +110,11 @@ def rank_guides(query: str, *, locale: str = "en", top_k: int = 3):
     rows: list[tuple] = []
     for g in GenericGuide.objects.filter(lang__in=[locale, "en"]):
         rows.append((f"g{g.pk}", f"[{g.kind}] {g.body}"))
-    for fa in FAQEntry.objects.all():
+    for fa in FAQEntry.objects.filter(is_approved=True):
         t = fa.text(locale)
         if t:
             rows.append((f"f{fa.pk}", f"Q: {t.question}\nA: {t.answer}"))
-    for s in SiteFAQ.objects.filter(is_active=True):
+    for s in SiteFAQ.objects.filter(is_active=True, is_approved=True):
         rows.append((f"s{s.pk}", f"Q: {s.question}\nA: {s.answer}"))
     if not rows:
         return []

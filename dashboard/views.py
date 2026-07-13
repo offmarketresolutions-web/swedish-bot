@@ -1014,10 +1014,27 @@ def category_detail(request, pk: int):
 
 # ── Site FAQ (read surface, grouped by topic, searchable) ──────────────────────
 
+def _faq_pending_ctx() -> dict:
+    """Rows imported by import_general_knowledge (or hand-added unapproved) that
+    are excluded from retrieval (kb/semantic.py, chat/context.py) until staff
+    approve them here (V2 plan §D2 — approval-gated general knowledge)."""
+    from kb.models import FAQEntry, SiteFAQ
+    pending_entries = list(FAQEntry.objects.filter(is_approved=False)
+                           .select_related("category").prefetch_related("texts")
+                           .order_by("category__name", "order", "id"))
+    for e in pending_entries:
+        # FAQEntry.text() takes a required-default lang arg, which templates
+        # can't parameterize — precompute a sv-first preview here instead.
+        e.preview_text = e.text("sv") or e.text("en")
+    pending_site_faqs = SiteFAQ.objects.filter(is_approved=False).order_by("topic", "question")
+    return {"pending_entries": pending_entries, "pending_site_faqs": pending_site_faqs,
+            "pending_count": len(pending_entries) + pending_site_faqs.count()}
+
+
 @staff_member_required
 def faq_list(request):
     from kb.models import SiteFAQ
-    qs = SiteFAQ.objects.filter(is_active=True)
+    qs = SiteFAQ.objects.filter(is_active=True, is_approved=True)
     q = (request.GET.get("q") or "").strip()
     if q:
         qs = qs.filter(Q(question__icontains=q) | Q(answer__icontains=q))
@@ -1027,9 +1044,40 @@ def faq_list(request):
         topics.setdefault(f.topic or "General", []).append(f)
     topic_groups = [{"topic": t, "faqs": items} for t, items in topics.items()]
     topic_groups.sort(key=lambda g: g["topic"].lower())
-    return render(request, "dashboard/faq.html", {
-        "topic_groups": topic_groups, "q": q, "total": len(faqs),
-    })
+    ctx = {"topic_groups": topic_groups, "q": q, "total": len(faqs)}
+    ctx.update(_faq_pending_ctx())
+    return render(request, "dashboard/faq.html", ctx)
+
+
+@staff_member_required
+@require_POST
+def faq_approve(request, kind: str, pk: int):
+    from django.http import Http404
+    from kb.models import FAQEntry, SiteFAQ
+    model = {"entry": FAQEntry, "site": SiteFAQ}.get(kind)
+    if model is None:
+        raise Http404
+    obj = get_object_or_404(model, pk=pk)
+    obj.is_approved = True
+    obj.save(update_fields=["is_approved"])
+    resp = render(request, "dashboard/_faq_pending.html", _faq_pending_ctx())
+    resp["HX-Trigger"] = _toast("success", "Approved — live in retrieval now ✓")
+    return resp
+
+
+@staff_member_required
+@require_POST
+def faq_reject(request, kind: str, pk: int):
+    from django.http import Http404
+    from kb.models import FAQEntry, SiteFAQ
+    model = {"entry": FAQEntry, "site": SiteFAQ}.get(kind)
+    if model is None:
+        raise Http404
+    obj = get_object_or_404(model, pk=pk)
+    obj.delete()
+    resp = render(request, "dashboard/_faq_pending.html", _faq_pending_ctx())
+    resp["HX-Trigger"] = _toast("info", "Rejected — removed.")
+    return resp
 
 
 @staff_member_required

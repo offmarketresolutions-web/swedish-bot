@@ -15,6 +15,14 @@
   <p>{% trans "Site FAQ is the public “Vanliga frågor”, searched by the assistant. Category FAQ is tied to an equipment type and is injected into the specialist (configure which categories on the specialist agent). Both are also editable in Django Admin." %}</p>
 </div>
 
+<section class="mb-8">
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-nl-base/60 mb-3" data-testid="faq-pending-heading">
+    {% trans "Väntar på godkännande" %}{% if pending_count %} ({{ pending_count }}){% endif %}
+  </h2>
+  <p class="text-xs text-nl-base/50 mb-3">{% trans "Imported general knowledge is excluded from the assistant until approved here." %}</p>
+  {% include "dashboard/_faq_pending.html" %}
+</section>
+
 <form method="get" class="mb-5 flex flex-wrap items-center gap-2 text-sm">
   <input name="q" value="{{ q }}" type="search"
          placeholder="{% trans 'Search questions and answers…' %}"
