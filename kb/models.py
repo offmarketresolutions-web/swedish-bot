@@ -151,6 +151,23 @@ class FAQEntry(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="faqs")
     key = models.SlugField(max_length=64)
     order = models.IntegerField(default=0)
+    # Approval + general-knowledge metadata (V2 §D2 — extends FAQEntry rather than a
+    # new model). default=True keeps existing hand-authored rows live; imported rows
+    # explicitly land unapproved (README: "review required before production").
+    is_approved = models.BooleanField(default=True)
+    source_type = models.CharField(max_length=64, blank=True)
+    source_id = models.CharField(max_length=32, blank=True, db_index=True,
+                                  help_text="External id (e.g. FAQ import faq_id) for idempotent re-import.")
+    applicable_subtypes = models.JSONField(default=list, blank=True,
+                                            help_text="Category-leaf slugs this entry applies to; empty = all.")
+    onset_type = models.CharField(max_length=12, blank=True, help_text="any|sudden|long_term")
+    safe_customer_checks = models.TextField(blank=True)
+    service_trigger = models.TextField(blank=True)
+    keywords = models.JSONField(default=list, blank=True)
+    manufacturer = models.ForeignKey(
+        Vendor, null=True, blank=True, on_delete=models.SET_NULL, related_name="+",
+        help_text="Optional — narrows this entry to one manufacturer.")
+    exclusions = models.TextField(blank=True)
 
     class Meta:
         unique_together = [("category", "key")]
@@ -377,6 +394,7 @@ class SiteFAQ(models.Model):
     lang = models.CharField(max_length=5, choices=LANG_CHOICES, default="sv")
     source_url = models.URLField(blank=True)
     is_active = models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

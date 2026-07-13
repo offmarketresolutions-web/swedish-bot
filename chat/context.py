@@ -43,7 +43,7 @@ def collect_knowledge(machine, locale: str = "en", *, query: str = "") -> tuple[
     faq_text = ""
     if cfg.get("inject_faq", True) and machine:
         cat_ids = cfg.get("faq_category_ids") or ([machine.category_id] if machine.category_id else [])
-        for faq in FAQEntry.objects.filter(category_id__in=cat_ids):
+        for faq in FAQEntry.objects.filter(category_id__in=cat_ids, is_approved=True):
             t = faq.text(locale)
             if t:
                 faq_text += f"Q: {t.question}\nA: {t.answer}\n"
