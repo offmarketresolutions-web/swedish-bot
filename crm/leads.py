@@ -50,11 +50,11 @@ def _payload(session) -> dict:
 
 
 def attach_customer_files(session) -> int:
-    """Copy uploaded photos/PDFs from the transcript onto the customer's CRM profile
-    (V2 P-E), so they survive a conversation purge. Idempotent by content hash."""
-    from django.core.files.base import ContentFile
-
-    from crm.models import CustomerFile
+    """Copy uploaded photos from the transcript onto the customer's CRM profile
+    (V2 P-E) via the Customer File Hub storage service, so they land in the
+    per-customer uploads/ folder, survive a conversation purge, and get mirrored to
+    Drive. Idempotent by content hash. Additive — same rows as before, better home."""
+    from crm import storage
 
     c = session.customer
     if not c:
@@ -66,17 +66,16 @@ def attach_customer_files(session) -> int:
             data = m.image.read()
         except Exception:  # noqa: BLE001
             continue
-        sha = hashlib.sha256(data).hexdigest()
-        if CustomerFile.objects.filter(customer=c, sha256=sha).exists():
-            continue
-        cf = CustomerFile(customer=c, sha256=sha, kind="photo", source_message=m)
-        cf.file.save(f"{sha[:12]}.jpg", ContentFile(data), save=True)
-        n += 1
+        _cf, created = storage.register_file(
+            c, content=data, filename=f"{hashlib.sha256(data).hexdigest()[:12]}.jpg",
+            folder="uploads", source="chat", kind="photo", source_message=m)
+        n += created
     return n
 
 
 def create_and_dispatch(session, reason: str = ""):
     """Create (or reuse) the ServiceRequest and fire all sinks. Returns (sr, results)."""
+    reason = reason[:120]  # guardrail LLM reasons are unbounded; column is varchar(120)
     if not session.ai_summary:
         session.ai_summary = build_summary(session)
         session.save(update_fields=["ai_summary"])

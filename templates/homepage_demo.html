@@ -1,0 +1,350 @@
+{% load static %}<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nordland VVS — Din auktoriserade värmepumpsinstallatör</title>
+  <style>
+    :root{--nl:#1a74bf;--nl-d:#0f4570;--ink:#1b2b3d;--muted:#3b536b;--line:#e3ecf5}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+         color:var(--ink);background:#fff;line-height:1.5}
+    a{color:inherit}
+    img,svg{display:block;max-width:100%}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+    /* Demo badge */
+    .demo-badge{background:var(--nl-d);color:#fff;text-align:center;font-size:13px;
+                padding:6px 12px;letter-spacing:.02em}
+
+    /* Header */
+    header.site{border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:20}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;
+         max-width:1120px;margin:0 auto}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;
+           color:var(--nl-d);text-decoration:none;letter-spacing:-.01em}
+    .brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--nl),var(--nl-d));
+                display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px}
+    nav.links{display:flex;gap:26px;font-size:15px;font-weight:600}
+    nav.links a{text-decoration:none;color:var(--muted)}
+    nav.links a:hover{color:var(--nl-d)}
+    .nav-cta{display:none}
+    @media (min-width:820px){.nav-cta{display:inline-flex}}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;
+         font-weight:700;font-size:15px;padding:12px 22px;cursor:pointer;text-decoration:none;
+         transition:transform .12s ease,background .12s ease,box-shadow .12s ease}
+    .btn-primary{background:var(--nl);color:#fff;box-shadow:0 8px 20px rgba(26,116,191,.28)}
+    .btn-primary:hover{background:var(--nl-d);transform:translateY(-1px)}
+    .btn-ghost{background:#fff;color:var(--nl-d);border:1.5px solid var(--nl);}
+    .btn-ghost:hover{background:#eef6fd}
+
+    /* Hero */
+    .hero{position:relative;overflow:hidden;
+          background:radial-gradient(1100px 520px at 78% -10%,#e9f3fc 0%,#f6f9fc 55%,#fff 100%)}
+    .hero-inner{display:grid;grid-template-columns:1fr;gap:36px;padding:64px 24px 56px;
+                max-width:1120px;margin:0 auto;align-items:center}
+    @media (min-width:900px){.hero-inner{grid-template-columns:1.05fr .95fr;padding:88px 24px 72px}}
+    .eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.04em;
+             text-transform:uppercase;color:var(--nl-d);background:#e9f3fc;border-radius:999px;
+             padding:6px 14px;margin-bottom:18px}
+    h1{font-size:38px;line-height:1.12;letter-spacing:-.02em;margin:0 0 14px;font-weight:800}
+    @media (min-width:900px){h1{font-size:48px}}
+    h2.subhead{font-size:19px;font-weight:700;color:var(--nl-d);margin:0 0 14px}
+    .hero p.body{font-size:16.5px;color:var(--muted);max-width:52ch;margin:0 0 28px}
+    .hero-ctas{display:flex;flex-wrap:wrap;gap:14px}
+
+    .hero-art{aspect-ratio:4/3;border-radius:22px;position:relative;overflow:hidden;
+              background:linear-gradient(160deg,var(--nl) 0%,var(--nl-d) 100%);
+              box-shadow:0 24px 48px rgba(15,69,112,.22)}
+    .hero-art svg{width:100%;height:100%}
+
+    /* Sections */
+    section{padding:64px 24px}
+    .section-head{max-width:640px;margin:0 auto 40px;text-align:center}
+    .section-head h2{font-size:30px;letter-spacing:-.01em;margin:0 0 12px;font-weight:800}
+    .section-head p{color:var(--muted);font-size:16px;margin:0}
+
+    /* Regional coverage */
+    .coverage{background:#f6f9fc}
+    .coverage-inner{display:grid;grid-template-columns:1fr;gap:28px;max-width:1120px;margin:0 auto;
+                     align-items:center}
+    @media (min-width:900px){.coverage-inner{grid-template-columns:1fr 1fr}}
+    .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 24px}
+    .pill{font-size:13.5px;font-weight:600;background:#fff;border:1px solid var(--line);
+          border-radius:999px;padding:6px 14px;color:var(--nl-d)}
+    .coverage-art{border-radius:20px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+
+    /* Service cards */
+    .cards{display:grid;grid-template-columns:1fr;gap:22px;max-width:1120px;margin:0 auto}
+    @media (min-width:720px){.cards{grid-template-columns:repeat(3,1fr)}}
+    .card{border:1px solid var(--line);border-radius:18px;padding:28px 24px;background:#fff;
+          box-shadow:0 6px 20px rgba(15,43,66,.05);display:flex;flex-direction:column;gap:12px;
+          transition:transform .15s ease,box-shadow .15s ease}
+    .card:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(15,43,66,.10)}
+    .card-icon{width:52px;height:52px;border-radius:14px;background:#e9f3fc;color:var(--nl-d);
+               display:flex;align-items:center;justify-content:center}
+    .card h3{margin:6px 0 0;font-size:19px;font-weight:800}
+    .card p{margin:0;color:var(--muted);font-size:15px;flex:1}
+    .card a.link{font-weight:700;color:var(--nl-d);text-decoration:none;font-size:14.5px}
+    .card a.link:hover{text-decoration:underline}
+
+    /* Unique-solution band */
+    .band{background:linear-gradient(120deg,var(--nl) 0%,var(--nl-d) 100%);color:#fff;
+          border-radius:24px;max-width:1120px;margin:0 auto;padding:52px 36px;text-align:center}
+    .band h2{margin:0 0 12px;font-size:28px;font-weight:800}
+    .band p{margin:0 auto 24px;max-width:60ch;color:#e6f0fa;font-size:16px}
+
+    /* Water test callout */
+    .callout{background:#f6f9fc}
+    .callout-inner{display:grid;grid-template-columns:1fr;gap:28px;max-width:1120px;margin:0 auto;
+                   align-items:center}
+    @media (min-width:900px){.callout-inner{grid-template-columns:.9fr 1.1fr}}
+    .callout-art{border-radius:20px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+    .callout-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:22px}
+
+    /* Trust strip */
+    .trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .trust-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:1120px;
+                 margin:0 auto;text-align:center}
+    @media (min-width:700px){.trust-inner{grid-template-columns:repeat(4,1fr)}}
+    .trust-num{font-size:28px;font-weight:800;color:var(--nl-d)}
+    .trust-label{font-size:13.5px;color:var(--muted)}
+
+    /* Footer */
+    footer.site{background:var(--nl-d);color:#dce9f5;padding:48px 24px 28px}
+    .footer-grid{display:grid;grid-template-columns:1fr;gap:28px;max-width:1120px;margin:0 auto}
+    @media (min-width:720px){.footer-grid{grid-template-columns:2fr 1fr 1fr}}
+    .footer-grid h4{color:#fff;font-size:14px;margin:0 0 12px;letter-spacing:.02em}
+    .footer-grid ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14.5px}
+    .footer-grid a{text-decoration:none;color:#cfe0f0}
+    .footer-grid a:hover{color:#fff}
+    .footer-bottom{max-width:1120px;margin:36px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,.15);
+                   font-size:13px;color:#9db8cf;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
+  </style>
+</head>
+<body>
+
+  <div class="demo-badge">Demo — förhandsvisning av widget · inte den riktiga nordlandvvs.se</div>
+
+  <header class="site">
+    <div class="nav">
+      <a class="brand" href="#top">
+        <span class="brand-mark">NV</span>
+        Nordland VVS
+      </a>
+      <nav class="links">
+        <a href="#tjanster">Tjänster</a>
+        <a href="#omraden">Områden</a>
+        <a href="#vattenprov">Vattenprov</a>
+        <a href="#kontakt">Kontakt</a>
+      </nav>
+      <a class="btn btn-primary nav-cta" href="#kontakt">Gratis offert</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero" style="padding:0">
+      <div class="hero-inner">
+        <div>
+          <span class="eyebrow">Auktoriserad IVT-återförsäljare</span>
+          <h1>Din auktoriserade värmepumpsinstallatör</h1>
+          <h2 class="subhead">Din helhetsleverantör av VVS</h2>
+          <p class="body">Nordland VVS är ett komplett företag för installation av värme och vatten.
+             Oavsett om du önskar uppdatera ditt värmesystem, borra efter vatten eller installera
+             ett filter så är vi rätt partner för dig.</p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary" href="#kontakt">Gratis offert</a>
+            <a class="btn btn-ghost" href="#kontakt">Boka service</a>
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="none"/>
+            <circle cx="320" cy="40" r="90" fill="rgba(255,255,255,.08)"/>
+            <circle cx="40" cy="270" r="120" fill="rgba(255,255,255,.06)"/>
+            <!-- stylised heat pump unit -->
+            <rect x="120" y="120" width="160" height="110" rx="14" fill="rgba(255,255,255,.92)"/>
+            <rect x="136" y="140" width="128" height="14" rx="7" fill="#1a74bf"/>
+            <rect x="136" y="162" width="80" height="10" rx="5" fill="#bcd7ef"/>
+            <rect x="136" y="180" width="100" height="10" rx="5" fill="#bcd7ef"/>
+            <circle cx="240" cy="205" r="16" fill="#0f4570"/>
+            <circle cx="240" cy="205" r="7" fill="#fff"/>
+            <!-- pipes -->
+            <path d="M120 230 L90 260 L60 260" stroke="rgba(255,255,255,.85)" stroke-width="8" fill="none" stroke-linecap="round"/>
+            <path d="M280 230 L310 260 L340 260" stroke="rgba(255,255,255,.85)" stroke-width="8" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Regional coverage -->
+    <section class="coverage" id="omraden">
+      <div class="coverage-inner">
+        <div>
+          <h2 style="font-size:28px;font-weight:800;margin:0 0 8px;letter-spacing:-.01em">
+            Installation av värmepumpar och rörarbeten
+          </h2>
+          <h3 style="font-size:17px;font-weight:700;color:var(--nl-d);margin:0 0 14px">
+            Helhetslösningar i Kramfors, Härnösand, Sundsvall, Gävle och Älvkarleby
+          </h3>
+          <p style="color:var(--muted);margin:0">
+            Vi är en auktoriserad återförsäljare och installatör för IVT&#39;s heltäckande program
+            av värmepumpar inom bergvärme, jordvärme, luft/vatten, luft/luft och frånluft.
+          </p>
+          <div class="pill-row">
+            <span class="pill">Kramfors</span>
+            <span class="pill">Härnösand</span>
+            <span class="pill">Sundsvall</span>
+            <span class="pill">Gävle</span>
+            <span class="pill">Älvkarleby</span>
+          </div>
+          <a class="btn btn-primary" href="#tjanster">Se våra tjänster</a>
+        </div>
+        <div class="coverage-art" aria-hidden="true">
+          <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="260" fill="#eef6fd"/>
+            <path d="M0 190 Q80 150 160 190 T400 190 V260 H0 Z" fill="#dbeafc"/>
+            <path d="M0 210 Q100 180 200 210 T400 210 V260 H0 Z" fill="#c8e0f6"/>
+            <g stroke="#1a74bf" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="2 10">
+              <path d="M40 60 L360 60"/>
+              <path d="M40 90 L360 90"/>
+            </g>
+            <circle cx="90" cy="60" r="7" fill="#0f4570"/>
+            <circle cx="200" cy="90" r="7" fill="#1a74bf"/>
+            <circle cx="310" cy="60" r="7" fill="#0f4570"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Service cards -->
+    <section id="tjanster">
+      <div class="section-head">
+        <h2>Specialister på VVS-installationer</h2>
+        <p>Från värmepump till vattenbrunn — en enda leverantör för hela installationen.</p>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 6v11h-5v-6H10v6H5V9l7-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Värmepumpar</h3>
+          <p>Vi är en auktoriserad återförsäljare och installatör för IVT&#39;s heltäckande program
+             av värmepumpar — bergvärme, luft/vatten, luft/luft och frånluft.</p>
+          <a class="link" href="#kontakt">Läs mer om värmepumpar →</a>
+        </div>
+        <div class="card">
+          <div class="card-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.8"/></svg>
+          </div>
+          <h3>Vattenpumpar</h3>
+          <p>Installation, service och byte av vattenpumpar för villa och fritidshus — vi hjälper
+             dig hela vägen från brunn till tappställe.</p>
+          <a class="link" href="#kontakt">Läs mer om vattenpumpar →</a>
+        </div>
+        <div class="card">
+          <div class="card-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2C9 7 6 10.5 6 14.5A6 6 0 0018 14.5C18 10.5 15 7 12 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Vattenbrunnar</h3>
+          <p>Borrning, renovering och kapacitetsutredning av vattenbrunnar — grunden för en trygg
+             och stabil vattenförsörjning.</p>
+          <a class="link" href="#kontakt">Läs mer om vattenbrunnar →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Unique solution band -->
+    <section style="padding-top:8px">
+      <div class="band">
+        <h2>En unik lösning inom VVS</h2>
+        <p>Vi erbjuder dig allt från en enda källa, t.ex. luftkonditionering, ventilation,
+           uppvärmning och VVS.</p>
+        <a class="btn" style="background:#fff;color:var(--nl-d)" href="#kontakt">Kontakta oss</a>
+      </div>
+    </section>
+
+    <!-- Water test callout -->
+    <section class="callout" id="vattenprov">
+      <div class="callout-inner">
+        <div class="callout-art" aria-hidden="true">
+          <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="260" fill="#eef6fd"/>
+            <path d="M160 40c26 34 46 62 46 92a46 46 0 11-92 0c0-30 20-58 46-92z" fill="#1a74bf" opacity=".9"/>
+            <path d="M160 90c14 20 24 34 24 50a24 24 0 11-48 0c0-16 10-30 24-50z" fill="#fff" opacity=".55"/>
+          </svg>
+        </div>
+        <div>
+          <h2 style="font-size:26px;font-weight:800;margin:0 0 10px;letter-spacing:-.01em">
+            Allt börjar med en vattenanalys!
+          </h2>
+          <p style="color:var(--muted);margin:0;max-width:52ch">
+            Om vattnet ändrar lukt, smak eller färg är en vattenanalys på sin plats. Vi hjälper
+            dig ta reda på vad vattnet innehåller — och vad som behöver göras åt det.
+          </p>
+          <div class="callout-ctas">
+            <a class="btn btn-primary" href="#kontakt">Gratis offert</a>
+            <a class="btn btn-ghost" href="#tjanster">Se alla våra tjänster</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust strip -->
+    <section class="trust" style="padding:36px 24px">
+      <div class="trust-inner">
+        <div><div class="trust-num">20+</div><div class="trust-label">år i branschen</div></div>
+        <div><div class="trust-num">5</div><div class="trust-label">kommuner vi servar</div></div>
+        <div><div class="trust-num">IVT</div><div class="trust-label">auktoriserad återförsäljare</div></div>
+        <div><div class="trust-num">24/7</div><div class="trust-label">chatt-support online</div></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer / contact — placeholder details only, no fabricated real contact info -->
+  <footer class="site" id="kontakt">
+    <div class="footer-grid">
+      <div>
+        <h4>Nordland VVS</h4>
+        <p style="max-width:44ch;color:#cfe0f0;font-size:14.5px;margin:0">
+          Helhetsleverantör av värmepumpar, vattenpumpar och vattenrening i Kramfors, Härnösand,
+          Sundsvall, Gävle och Älvkarleby.
+        </p>
+      </div>
+      <div>
+        <h4>Tjänster</h4>
+        <ul>
+          <li><a href="#tjanster">Värmepumpar</a></li>
+          <li><a href="#tjanster">Vattenpumpar</a></li>
+          <li><a href="#vattenprov">Vattenprov</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Kontakt</h4>
+        <ul>
+          <li>Se nordlandvvs.se för kontaktuppgifter</li>
+          <li><a href="#top" data-open-chat>Chatta med oss →</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© Nordland VVS — demo-sida, ej den riktiga webbplatsen</span>
+      <span>Widget-drift: 3dpresence</span>
+    </div>
+  </footer>
+
+  <!-- the live support widget — same-origin embed, unmodified script (per DEPLOY.md) -->
+  <script src="{% static 'widget/nordland-widget.js' %}" data-lang="sv" defer></script>
+  <script>
+    document.addEventListener("click", function (e) {
+      if (e.target.closest("[data-open-chat]")) {
+        e.preventDefault();
+        var b = document.querySelector('[data-testid="widget-bubble"]');
+        if (b && !document.querySelector(".nl-panel.nl-show")) b.click();
+      }
+    });
+  </script>
+</body>
+</html>

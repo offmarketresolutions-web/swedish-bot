@@ -122,3 +122,15 @@ def test_declining_all_contact_does_not_record_junk_or_dispatch(seeded, mock_gem
     assert ServiceRequest.objects.count() == 0
     assert not Customer.objects.filter(name="no").exists()
     assert not Customer.objects.filter(phone__in=("no", "")).exists()
+
+
+@pytest.mark.django_db
+def test_long_guardrail_reason_is_clamped(mock_gemini):
+    """An unbounded LLM guardrail reason must not overflow escalation_reason varchar(120).
+
+    Regression: live eval R013 crashed lead dispatch with StringDataRightTruncation."""
+    sess = _session_with_customer()
+    long_reason = "customer asked about opening the sealed refrigerant circuit " * 10
+    sr, _results = leads.create_and_dispatch(sess, reason=long_reason)
+    assert len(sr.escalation_reason) <= 120
+    assert sr.escalation_reason == long_reason[:120]

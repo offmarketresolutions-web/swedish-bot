@@ -1,0 +1,22 @@
+{% load i18n %}{% comment %}PDF documentation for a machine, loaded into the overlay. Needs `machine`, `documents`.{% endcomment %}
+<div data-testid="machine-docs">
+  {% if documents %}
+    <div class="mb-2 text-xs text-nl-base/60">{{ machine.vendor.name }} {{ machine.model_name }} — {{ documents|length }} {% trans "document(s)" %}</div>
+    {% for d in documents %}
+      <div class="mb-3">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-sm font-medium">{{ d.get_kind_display }} · {{ d.lang }}</span>
+          <a class="text-nl-primary hover:underline text-xs" href="{% url 'dash-kb-doc' d.pk %}?download=1">⬇ {% trans "Download" %}</a>
+        </div>
+        <iframe src="{% url 'dash-kb-doc' d.pk %}" class="w-full rounded border border-nl-border" style="height:60vh" title="{{ machine.model_name }} {{ d.get_kind_display }}"></iframe>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="py-8 text-center" data-testid="docs-not-loaded">
+      <div class="text-3xl mb-2">📄</div>
+      <p class="text-sm font-medium">{% trans "Documentation not loaded" %}</p>
+      <p class="text-xs text-nl-base/60 mt-1">{% blocktrans with name=machine.model_name %}No manual has been ingested for {{ name }} yet.{% endblocktrans %}</p>
+      <a class="btn btn-secondary text-xs mt-3 inline-block" href="{% url 'dash-kb-machine-page' machine.pk %}">{% trans "Open machine page to upload" %}</a>
+    </div>
+  {% endif %}
+</div>

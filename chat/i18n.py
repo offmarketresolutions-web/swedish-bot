@@ -21,6 +21,11 @@ T = {
                         "display is perfect — or type the code. (You can skip this.)",
         "model_photo_nudge": "No problem — if you can, snap a photo of the rating/nameplate and I'll "
                              "read the exact model off it. Or type 'skip' and we'll do our best.",
+        "brand_reconfirm": "Got it — should I switch to {brand} instead? I'll pull up the right "
+                           "manual for it. (Yes to switch, or no to keep the original.)",
+        "confirm_fix": "Did that fix it?",
+        "confirm_resolved": "Great — glad that sorted it! If anything else comes up, just let "
+                            "me know.",
         "pre_escalate_diag": "Before I pass this to a Nordland VVS technician, please describe the "
                              "problem in a bit more detail — and if the machine is showing any error "
                              "or fault code, send a photo of the display (it really helps the "
@@ -53,6 +58,8 @@ T = {
         "chip_notsure": "Not sure",
         "chip_other": "Other / not listed",
         "chip_dontknow": "I don't know",
+        "chip_yes": "Yes",
+        "chip_no": "No",
         "welcome_back": "Welcome back — good to hear from you again; I can see we've helped you before.",
         "phone_connector": "on",
     },
@@ -69,6 +76,10 @@ T = {
                         "— eller skriv koden. (Du kan hoppa över detta.)",
         "model_photo_nudge": "Inga problem — om du kan, ta en bild på typskylten så läser jag av exakt "
                              "modell. Eller skriv 'skip' så gör vi vårt bästa.",
+        "brand_reconfirm": "Okej — ska jag byta till {brand} istället? Då tar jag fram rätt manual. "
+                           "(Ja för att byta, eller nej för att behålla den ursprungliga.)",
+        "confirm_fix": "Löste det problemet?",
+        "confirm_resolved": "Vad bra — kul att det löste sig! Hör av dig om något mer dyker upp.",
         "pre_escalate_diag": "Innan jag skickar detta vidare till en tekniker från Nordland VVS — "
                              "beskriv gärna problemet lite mer i detalj, och om maskinen visar någon "
                              "fel- eller larmkod, skicka en bild på displayen (det hjälper teknikern "
@@ -102,6 +113,8 @@ T = {
         "chip_notsure": "Vet inte",
         "chip_other": "Annat / inte listat",
         "chip_dontknow": "Jag vet inte",
+        "chip_yes": "Ja",
+        "chip_no": "Nej",
         "welcome_back": "Välkommen tillbaka — kul att höra från dig igen; jag ser att vi har hjälpt dig tidigare.",
         "phone_connector": "på",
     },

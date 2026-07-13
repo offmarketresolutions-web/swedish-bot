@@ -10,13 +10,12 @@ import re
 from chat import prompts
 from core.services import gemini
 
-# Forbidden: instructing the customer to perform pro/licensed work. Tuned to catch
-# instruction phrasing, not mere mention ("the wiring is fine" is OK; "rewire" not).
-# This baseline is HARD-CODED in code (V2 §S10) — admin config/notes can only ADD
-# safety rules, never weaken these.
-_FORBIDDEN = re.compile(
+# Forbidden INSTRUCTIONS: phrasings that ARE an instruction to perform pro/licensed work
+# (a verb + the regulated target, or an inherently-instructional verb). Vetoed
+# unconditionally. Tuned to catch instruction phrasing, not mere mention ("the wiring is
+# fine" is OK; "rewire" not). HARD-CODED baseline (V2 §S10) — admin config can only ADD.
+_FORBIDDEN_INSTRUCTION = re.compile(
     r"\b(rewire|re-?wire|wiring up|replace the (heating )?element|"
-    r"fuse box|terminal block|live wire|mains\b|"
     # The DANGEROUS panel — an electrical/control/service panel reaching boards & wiring —
     # is vetoed under any verb. A plain "front panel/cover/lid/grille" is NOT keyword-vetoed:
     # flipping one open to reach a user-serviceable filter is a documented owner task (air
@@ -32,13 +31,52 @@ _FORBIDDEN = re.compile(
     r"(casing|cabinet|housing|enclosure|fascia)|"
     r"open up (the )?(unit|machine|heat ?pump|appliance)|"
     r"take (the )?(unit|machine|heat ?pump|appliance) apart|"
-    r"refrigerant|recharge|top ?up (the )?(gas|refrigerant)|braze|"
-    r"expansion vessel|relief valve|safety valve|re-?pressuriz\w*|"
-    r"pre-?charge|adjust the pressure switch|drain (the |down )?(heating )?system|"
-    r"flue|combustion|gas valve|burner|bypass (the )?(interlock|safety)|"
-    r"disable (the )?safety|legionella (cycle|treatment|flush))\b",
+    # bare deep component (no casing-noun needed): "open/unscrew the compressor"
+    r"(open\w*|remov\w*|take off|unscrew\w*|undo|detach\w*|pry off|pop off|lift off|"
+    r"dismantl\w*|disassembl\w*) (the |a |an |its |your |this |that )?compressor\b|"
+    r"recharge|top ?up (the )?(gas|refrigerant)|braze|re-?pressuriz\w*|"
+    r"adjust the pressure switch|drain (the |down )?(heating )?system|"
+    r"bypass (the )?(interlock|safety)|disable (the )?safety|legionella (cycle|treatment|flush)|"
+    # Pure electrical / combustion / gas danger — regulated even to name to a customer, so
+    # these stay ALWAYS-veto (unlike the refrigerant/pressure NOUNS below, which are exempt
+    # on bare mention). Restores the pre-split baseline for this life-safety subset.
+    r"fuse box|terminal block|live wire|mains\b|flue|combustion|gas valve|burner|"
+    r"elskåp\w*|kopplingsplint\w*|strömförande|gasventil\w*|brännar\w*|rökgas\w*|"
+    # Swedish aliases — sv is the primary locale, so the deterministic veto must not
+    # be English-only. Same tuning: instruction-class terms, not mere mention.
+    r"fyll(a|er)? på (gas\w*|köldmedi\w*)|löd(a|er|ning)\b|"
+    r"koppla förbi|inaktivera säkerhet\w*|"
+    r"(öppna|demonter\w*|ta isär|skruva (upp|loss|isär)) (den |en |ett |din |er )?"
+    r"(enhet\w*|maskin\w*|värmepump\w*|aggregat\w*|kompressor\w*)|"
+    r"töm(ma|mer)? (ner |ur )?(system\w*|köldmedi\w*|anläggning\w*)|tappa ur system\w*)\b",
     re.IGNORECASE,
 )
+
+# Regulated-domain NOUNS. Naming one is fine ("the refrigerant circuit is sealed — that's
+# technician-only work" must survive); it only trips the veto when a MANIPULATION cue sits
+# next to it (i.e. the draft is telling the customer to touch/open/alter it). Bare mentions
+# fall through to the context-aware LLM classifier, so a specialist's safe explanation is no
+# longer suppressed into a zero-content escalation (gap #4). Instruction phrasings above
+# still veto unconditionally.
+_FORBIDDEN_NOUN = re.compile(
+    r"\b(refrigerant|pre-?charge|expansion vessel|relief valve|safety valve|pressure switch|"
+    r"köldmedi\w*|kylkrets\w*|expansionskärl\w*|säkerhetsventil\w*)\b",
+    re.IGNORECASE,
+)
+# Manipulation cues — verbs that turn a noun-mention into an instruction to DO the work.
+# Look-only words (check, look, read, note, observe, confirm, switch off at the main) are
+# deliberately absent: observing is always safe.
+_MANIP_CUE = re.compile(
+    r"\b(open\w*|remov\w*|take off|taking off|unscrew\w*|undo|detach\w*|pry|pop|lift off|"
+    r"dismantl\w*|disassembl\w*|replac\w*|swap|recharg\w*|refill\w*|top ?up|fill\w*|add\b|"
+    r"drain\w*|empt\w*|bleed|vent\w*|release|adjust\w*|loosen\w*|tighten\w*|disconnect\w*|"
+    r"reconnect\w*|connect\w*|rewire|wir\w*|braz\w*|solder\w*|bypass\w*|disabl\w*|"
+    r"pressuriz\w*|touch\w*|handl\w*|measur\w*|mess with|work on|get into|access\w*|tamper\w*|"
+    r"crack\b|öppna\w*|ta bort|ta isär|skruva\w*|demonter\w*|byt\w*|fyll\w*|töm\w*|tappa\w*|"
+    r"lossa\w*|koppla\w*|löd\w*|mät\w*|rör(a|er)?|pilla\w*|meka\w*|släpp\w*)\b",
+    re.IGNORECASE,
+)
+_NOUN_CUE_WINDOW = 45  # chars each side of a noun to look for a manipulation cue
 
 # Output-side leak detection (V2 §S4/S10): the model echoing our trust-boundary
 # delimiters or being coaxed into revealing the system prompt.
@@ -46,8 +84,17 @@ _LEAK = re.compile(r"<<\s*/?\s*(?:UNTRUSTED|END_UNTRUSTED)|system prompt|these i
 
 
 def keyword_unsafe(text: str) -> tuple[bool, str]:
-    m = _FORBIDDEN.search(text or "")
-    return (True, m.group(0)) if m else (False, "")
+    t = text or ""
+    m = _FORBIDDEN_INSTRUCTION.search(t)
+    if m:
+        return True, m.group(0)
+    # A regulated-domain noun only vetoes when a manipulation cue sits near it (instruction),
+    # not on bare mention (safe explanation → let the LLM layer judge).
+    for nm in _FORBIDDEN_NOUN.finditer(t):
+        lo, hi = max(0, nm.start() - _NOUN_CUE_WINDOW), min(len(t), nm.end() + _NOUN_CUE_WINDOW)
+        if _MANIP_CUE.search(t[lo:hi]):
+            return True, nm.group(0)
+    return False, ""
 
 
 def classify_unsafe(draft: str, *, locale: str = "en") -> tuple[bool, str]:

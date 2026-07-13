@@ -1,0 +1,124 @@
+{
+  "name": "Nordland — Customer File → Google Drive mirror",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nordland-drive",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook (file registered)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "nordland-drive-mirror"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ 'name = \"Customer ' + $json.body.customer_id + ' - ' + $json.body.customer_name + '\" and mimeType = \"application/vnd.google-apps.folder\" and trashed = false' }}",
+        "returnAll": false,
+        "limit": 1,
+        "filter": {},
+        "options": {}
+      },
+      "id": "drive-search-folder",
+      "name": "Search customer folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [430, 300],
+      "credentials": { "googleDriveOAuth2Api": { "id": "REPLACE_ME", "name": "Google Drive account" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-folder-exists",
+      "name": "Folder exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ 'Customer ' + $('Webhook (file registered)').item.json.body.customer_id + ' - ' + $('Webhook (file registered)').item.json.body.customer_name }}",
+        "options": {}
+      },
+      "id": "drive-create-folder",
+      "name": "Create customer folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [890, 420],
+      "credentials": { "googleDriveOAuth2Api": { "id": "REPLACE_ME", "name": "Google Drive account" } }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Webhook (file registered)').item.json.body.file_url }}",
+        "responseFormat": "file",
+        "options": {}
+      },
+      "id": "http-download",
+      "name": "Download file",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "name": "={{ $('Webhook (file registered)').item.json.body.filename }}",
+        "driveId": { "mode": "list", "value": "My Drive" },
+        "folderId": "={{ $('Folder exists?').item.json.id || $('Create customer folder').item.json.id }}",
+        "options": {}
+      },
+      "id": "drive-upload",
+      "name": "Upload to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1350, 300],
+      "credentials": { "googleDriveOAuth2Api": { "id": "REPLACE_ME", "name": "Google Drive account" } }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"drive_url\": $json.webViewLink } }}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond with Drive link",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1580, 300]
+    }
+  ],
+  "connections": {
+    "Webhook (file registered)": { "main": [[{ "node": "Search customer folder", "type": "main", "index": 0 }]] },
+    "Search customer folder": { "main": [[{ "node": "Folder exists?", "type": "main", "index": 0 }]] },
+    "Folder exists?": {
+      "main": [
+        [{ "node": "Download file", "type": "main", "index": 0 }],
+        [{ "node": "Create customer folder", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create customer folder": { "main": [[{ "node": "Download file", "type": "main", "index": 0 }]] },
+    "Download file": { "main": [[{ "node": "Upload to Drive", "type": "main", "index": 0 }]] },
+    "Upload to Drive": { "main": [[{ "node": "Respond with Drive link", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": { "description": "Search-then-create a per-customer Drive folder, upload the registered file, return the Drive link to Django." }
+}

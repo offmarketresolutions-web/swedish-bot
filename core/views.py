@@ -14,6 +14,13 @@ def widget_demo(request):
     return render(request, "widget_demo.html")
 
 
+def homepage_demo(request):
+    """Structure-faithful clone of nordlandvvs.se's homepage with the live widget
+    embedded same-origin — doubles as the client-facing sales demo (design doc
+    docs/plans/2026-07-12-design-homepage-widget-voice.md §1)."""
+    return render(request, "homepage_demo.html")
+
+
 def playground(request):
     """Live test console (chat + capability inspector). Local/demo only — hidden in
     production so the FSM internals aren't exposed."""

@@ -20,10 +20,10 @@ _REPLY_RE = _re.compile(r"Reply:\s*(.+)", _re.DOTALL)
 
 def _classify(system: str) -> str:
     s = system or ""
-    if "extract one field" in s:
-        return "extractor"
     if "pull out every field" in s:  # bulk multi-fact extractor (chat.intake.bulk_extract)
         return "bulk"
+    if "extract one field" in s:
+        return "extractor"
     if "safety backstop" in s:
         return "safety"
     if "routing classifier" in s:
