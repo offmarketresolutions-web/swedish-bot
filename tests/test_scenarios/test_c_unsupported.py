@@ -97,9 +97,33 @@ def test_c4_legacy_ivt_model_unknown_forces_escalation(seeded, mock_gemini):
     assert res.get("decision") == "escalate"
     conv.refresh_from_db()
     assert conv.case_state["escalation_reason"] in ("unsupported", "low_confidence", "decision")
+    # R006 (2026-07-12 live eval): with the model unknown, a brand-only query ("IVT") must
+    # NOT silently bind a real IVT machine (e.g. IVT 490) via a weak vendor-scoped fuzzy
+    # match -- that fabricates a model the customer never confirmed. No real model/nameplate
+    # text -> no identification at all.
+    assert conv.case_state["machine_id"] is None
+    assert conv.case_state["match_confidence"] == 0.0
     finish_escalation(conv, name="Bengt", phone="070-103 20 30")
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()
 
+
+# R006 -- customer explicitly says "I don't know the model" (the extractor resolves this
+# straight to "unknown", the real path -- not the reask-exhaustion path C4 exercises).
+# Brand alone ("IVT") must not fuzzy-bind a real machine (e.g. IVT 490) and let the
+# specialist present it as fact -- generic-category guidance / escalate instead.
+def test_r006_says_dont_know_model_does_not_bind_or_fabricate_machine(seeded, mock_gemini):
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "there is water drops on the pipe of my heat pump")
+    orch.process_turn(conv, "IVT")
+    mock_gemini.responses["extractor"] = {"on_target": True, "value": "unknown"}
+    res = orch.process_turn(conv, "I don't know the model. It's just an IVT.")
+    conv.refresh_from_db()
+    assert conv.case_state["slots"]["model"] == "unknown"
+    # never silently bind a machine (and thus never present a made-up model as fact)
+    assert conv.case_state["machine_id"] is None
+    assert conv.case_state["match_confidence"] == 0.0
+    assert "490" not in res["message"] and "402" not in res["message"]
 
 # C5 -- unclear brand -> photo request -> identification -> referral (unsupported)
 def test_c5_photo_identifies_unsupported_daikin(seeded, mock_gemini):

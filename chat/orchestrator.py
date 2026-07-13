@@ -261,14 +261,22 @@ def _route(conversation, cs, events, locale):
     from kb.models import Category, ProblemCategory, Vendor
 
     s = cs["slots"]
-    query = sanitize.cap(
-        " ".join(x for x in [s.get("brand"), s.get("model"), s.get("ocr_text")] if x and x != "unknown"), 120)
     brand = s.get("brand")
     vendor = None
     if brand and brand != "unknown":  # vendor-scope identification once the brand is known
         vendor = (Vendor.objects.filter(name__iexact=brand).first()
                   or Vendor.objects.filter(slug=str(brand).lower()).first())
-    machine, score = identify_machine(query, vendor=vendor)
+    # R006: identify ONLY on real model/nameplate text. Brand alone is too weak a query --
+    # pg_trgm can score ANY machine of that vendor above threshold and silently bind a
+    # machine the customer never confirmed (e.g. "I don't know the model, it's an IVT"
+    # fuzzy-matching "IVT 490"). No model/OCR text -> no identification, falls through to
+    # STATE_UNSUPPORTED (generic category guidance + escalate) instead of fabricating one.
+    ident_bits = [x for x in (s.get("model"), s.get("ocr_text")) if x and x != "unknown"]
+    if ident_bits:
+        query = sanitize.cap(" ".join(([brand] if vendor else []) + ident_bits), 120)
+        machine, score = identify_machine(query, vendor=vendor)
+    else:
+        machine, score = None, 0.0
     cs["match_confidence"] = score
 
     data = _call_router(conversation, cs, machine, locale)
