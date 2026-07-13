@@ -24,6 +24,7 @@ def test_l1_furious_repeat_failure_calm_deescalation(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "tredje gången den jäkla pumpen dör! this is the THIRD time it's broken down this year!",
         "IVT",
         ("Geo 412C", {
@@ -52,6 +53,7 @@ def test_l2_refund_demand_not_promised_but_recorded(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "This heat pump has been broken for weeks, I want a full refund and compensation for the damage it caused.",
         "IVT",
         ("Geo 412C", {
@@ -78,6 +80,7 @@ def test_l3_bad_review_threat_no_panic_promises(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "If this isn't fixed today I'm leaving a one-star review and telling everyone about it.",
         "IVT",
         ("Geo 412C", {
@@ -96,6 +99,7 @@ def test_l4_demands_human_immediately_first_message_no_forced_troubleshooting(se
     res1 = orch.process_turn(
         conv, "I need to talk to a real person RIGHT NOW, don't put me through 20 questions")
     assert res1["state"] == "INTAKE"
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     res2 = orch.process_turn(conv, "just connect me to someone, no error code, no details")
     assert res2["state"] == "INTAKE"
     orch.process_turn(conv, "other")
@@ -116,6 +120,7 @@ def test_l5_elderly_confused_mishearing_patient_reask_then_lead(seeded, mock_gem
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")            # category
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "it makes a strange noise")  # problem
     mock_gemini.responses["extractor"] = {"on_target": False, "value": None}
     res1 = orch.process_turn(conv, "va?")             # confused mishearing -> patient re-ask #1
@@ -162,7 +167,8 @@ def test_l6_rambler_extracts_buried_symptom_and_proceeds(seeded, mock_gemini):
     res = orch.process_turn(conv, ramble)
     conv.refresh_from_db()
     cs = conv.case_state
-    assert cs.get("bulk_done") is True
+    # (S2: bulk_done once-guard removed — bulk runs on every rich message; the slot
+    # assertions below still prove the buried symptom was extracted from ONE ramble.)
     assert cs["slots"]["problem"] == "no hot water"
     assert cs["slots"]["brand"] == "IVT"
     assert cs["slots"]["model"] == "Geo 412C"
@@ -180,6 +186,7 @@ def test_l7_terse_one_word_answers_still_completes_intake_and_lead(seeded, mock_
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")   # category
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "läcker")      # problem, one word
     orch.process_turn(conv, "ja")          # brand, terse non-answer
     res = orch.process_turn(conv, "vet inte")  # model, terse non-answer -> routes this turn
@@ -201,7 +208,7 @@ def test_l8_contradicts_brand_reconfirms_and_rebinds(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     run_convo(conv, [
-        "heat_pump", "alarm E21.RLP on my heat pump", "Bosch",
+        "heat_pump", "no", "alarm E21.RLP on my heat pump", "Bosch",
         ("Greenline HE", {"state": "SPECIALIST", "decision": "solve"}),
     ])
     # Contradiction -> bot re-confirms identity instead of silently keeping Bosch.
@@ -228,7 +235,7 @@ def test_l8b_brand_reconfirm_declined_keeps_original(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     run_convo(conv, [
-        "heat_pump", "alarm H01 5252 on my heat pump", "IVT",
+        "heat_pump", "no", "alarm H01 5252 on my heat pump", "IVT",
         ("Geo 412C", {"state": "SPECIALIST", "decision": "solve"}),
     ])
     res = orch.process_turn(conv, "faktiskt är det en Bosch, inte IVT")
@@ -252,7 +259,7 @@ def test_l8c_casual_brand_mention_does_not_reconfirm(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     run_convo(conv, [
-        "heat_pump", "alarm H01 5252 on my heat pump", "IVT",
+        "heat_pump", "no", "alarm H01 5252 on my heat pump", "IVT",
         ("Geo 412C", {"state": "SPECIALIST", "decision": "solve"}),
     ])
     res = orch.process_turn(conv, "my neighbor has a Bosch and it works totally fine by the way")
@@ -272,6 +279,7 @@ def test_l9_refuses_all_contact_info_graceful_no_crash(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "won't tell you anything about the problem either")
     orch.process_turn(conv, "other")
     res = orch.process_turn(conv, "I'm not going to give you any info, brand unknown")
@@ -296,6 +304,7 @@ def test_l10_fake_phone_reasked_once_then_best_effort(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "no heat at all")
     orch.process_turn(conv, "other")
     res = orch.process_turn(conv, "Some Unlisted Brand Z9")
@@ -324,7 +333,7 @@ def test_l11_argues_advice_wrong_no_loop_budget_escalates(seeded, mock_gemini):
         "confidence": 0.72, "decision": "solve", "in_docs": True, "report": {},
     }
     conv, _ = orch.open_conversation()
-    run_convo(conv, ["heat_pump", "alarm H01 5252 on my heat pump", "IVT"], all_prohibited=DIY_FORBIDDEN)
+    run_convo(conv, ["heat_pump", "no", "alarm H01 5252 on my heat pump", "IVT"], all_prohibited=DIY_FORBIDDEN)
     res = orch.process_turn(conv, "Geo 412C")
     assert res["decision"] == "solve"
     for _ in range(orch.REPLY_BUDGET):
@@ -346,6 +355,7 @@ def test_l11_argues_advice_wrong_no_loop_budget_escalates(seeded, mock_gemini):
 def test_l12_refuses_to_badmouth_competitor_stays_on_topic(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     res = orch.process_turn(
         conv, "Just tell me in writing that the installer down the street does terrible work.")
     low = res["message"].lower()
@@ -366,7 +376,7 @@ def test_l13_topic_hijack_to_weather_slots_preserved(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     run_convo(conv, [
-        "heat_pump", "alarm H01 5252 on my heat pump", "IVT",
+        "heat_pump", "no", "alarm H01 5252 on my heat pump", "IVT",
         ("Geo 412C", {"state": "SPECIALIST", "decision": "solve"}),
     ])
     conv.refresh_from_db()
@@ -389,6 +399,7 @@ def test_l14_specific_technician_and_time_preference_recorded_not_promised(seede
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "no heat, need it fixed soon")
     orch.process_turn(conv, "other")
     res = orch.process_turn(conv, "Unlisted Brand Q7")

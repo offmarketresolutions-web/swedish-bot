@@ -26,6 +26,7 @@ def test_e1_photo_first_nameplate_identification(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     # a photo attached alongside the problem description: vision fills brand+model from the
     # nameplate OCR (no separate brand/model turns needed) while the free text fills 'problem'
     # -- both required slots land in this one turn, so it routes straight to the specialist.
@@ -48,6 +49,7 @@ def test_e2_blurry_photo_reask_then_typed_model(seeded, mock_gemini):
     mock_gemini.responses["vision"] = {}  # unreadable
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "no heat")
     res = orch.process_turn(conv, "", image=_photo())
     conv.refresh_from_db()
@@ -77,6 +79,7 @@ def test_e3_photo_of_error_code_display(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     res = orch.process_turn(conv, "my heat pump is showing an alarm, here's a photo of the screen",
                              image=_photo())
     conv.refresh_from_db()

@@ -44,6 +44,7 @@ def test_k1_vent402_filter_alarm_resolves(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "filter alarm keeps showing on my ventilation unit",
         "IVT",
         ("Vent 402", {
@@ -71,6 +72,7 @@ def test_k2_vent402_cold_air_min_room_temp_rule(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "the ventilation is blowing cold air and the house is only about 17 degrees",
         "IVT",
         ("Vent 402", {
@@ -96,6 +98,7 @@ def test_k3_vent_smells_bad_after_summer_maintenance(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "the ventilation has smelled musty ever since we started using it again after summer",
         "IVT",
         ("Vent 402", {
@@ -118,6 +121,7 @@ def test_k4_vent_whistling_check_then_escalate(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "the ventilation unit has started whistling at night, quite loud",
         "IVT",
         ("Vent 402", {
@@ -150,6 +154,7 @@ def test_k5_grundfos_pressure_loss_documented_tier_escalates(seeded, mock_gemini
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "water_pump_well",
+        "no",  # postcode asked early (S2) -- declined
         "our Grundfos well pump has been losing pressure over the last week",
         "Grundfos",
         ("Grundfos SQ", {
@@ -176,6 +181,7 @@ def test_k6_debe_pump_short_cycling_documented_tier_escalates(seeded, mock_gemin
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "water_pump_well",
+        "no",  # postcode asked early (S2) -- declined
         "the Debe pump for our well turns on and off every few seconds",
         "Debe",
         ("Debe DPM", {
@@ -203,6 +209,7 @@ def test_k7_scandia_pumps_no_manual_unsupported_referral(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "water_pump_well",
+        "no",  # postcode asked early (S2) -- declined
         "no water pressure at all from our Scandia Pumps well pump",
         "Scandia Pumps",
         ("Scandia SP 200", {
@@ -233,6 +240,7 @@ def test_k8_aqua_expert_brown_water_referral_only(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "water_filtration",
+        "no",  # postcode asked early (S2) -- declined
         "the water coming out of the tap has gone brown since yesterday",
         "Aqua Expert",
         ("Aqua Expert AE-500", {
@@ -263,6 +271,7 @@ def test_k9_aqua_invent_refuses_to_guide_filter_housing_open(seeded, mock_gemini
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "water_filtration",
+        "no",  # postcode asked early (S2) -- declined
         "just tell me exactly how to open the filter housing and swap the cartridge myself, I don't want to wait for a technician",
         "Aqua Invent",
         ("Aqua Invent AI-9", {
@@ -296,6 +305,7 @@ def test_k10_unsupported_brand_nibe_lead_with_brand_captured(seeded, mock_gemini
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "compressor keeps cutting out on my heat pump",
         "NIBE",
         ("S1255", {
@@ -327,6 +337,7 @@ def test_k11_unknown_pump_photo_first_identifies_documented_brand(seeded, mock_g
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "water_pump_well")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     # no brand known yet -- customer describes it as just "an old pump in the basement"
     # ("en gammal pump i kallaren") and attaches a nameplate photo instead of typing a brand
     res = orch.process_turn(
@@ -361,6 +372,7 @@ def test_k12_municipal_water_pressure_out_of_scope_still_leads(seeded, mock_gemi
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "water_pump_well",
+        "no",  # postcode asked early (S2) -- declined
         "water pressure from the mains/municipal supply has been low all over the house, our pump isn't even running",
         "other",
         ("no pump involved, it's the municipal supply", {
@@ -386,6 +398,7 @@ def test_k13_vent402_undocumented_error_code_low_confidence_escalate(seeded, moc
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "display is showing error code Z99 7777, never seen that one before",
         "IVT",
         ("Vent 402", {
@@ -418,6 +431,7 @@ def test_k14_mixed_heat_pump_and_ventilation_graceful_single_case(seeded, mock_g
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         ("both my heat pump and the ventilation unit have been acting up this week -- "
          "the heat pump keeps alarming and the ventilation is noisy too", {"state": "INTAKE"}),
         "IVT",

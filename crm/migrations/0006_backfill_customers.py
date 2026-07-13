@@ -9,6 +9,12 @@ from django.db import migrations
 
 
 def forwards(apps, schema_editor):
+    # Fresh DB (e.g. the test database): nothing to backfill — and calling the live-model
+    # backfill here would crash, because later migrations (crm 0007+) add Session columns
+    # that don't exist yet at this point in the graph. exists() selects no columns.
+    Session = apps.get_model("crm", "Session")
+    if not Session.objects.exists():
+        return
     from crm.backfill import backfill_customers
     backfill_customers()
 

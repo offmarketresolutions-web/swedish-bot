@@ -39,7 +39,8 @@ def test_i2_multi_fact_single_message_bulk_extracted(seeded, mock_gemini):
               "house is a bit cold, particle filter light is on.")
     conv.refresh_from_db()
     cs = conv.case_state
-    assert cs.get("bulk_done") is True
+    # (S2: the bulk_done once-guard is gone — bulk now runs on every rich intake message;
+    # the slot assertions below still prove the single-message multi-fact extraction.)
     assert cs["slots"]["category"] == "heat_pump"
     assert cs["slots"]["brand"] == "IVT"
     assert cs["slots"]["model"] == "Geo 412C"
@@ -55,6 +56,7 @@ def test_i3_session_resume_preserves_case_state(seeded, mock_gemini):
 
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "no heat")
     turns_before = conv.case_state["turns"]
 
@@ -74,6 +76,7 @@ def test_i3_session_resume_preserves_case_state(seeded, mock_gemini):
 def test_i4_gibberish_and_empty_input_no_crash(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     res = orch.process_turn(conv, "asdkjh qwe ;;;; \U0001F525\U0001F525")
     assert res["message"]  # graceful re-ask, no crash
     conv.refresh_from_db()

@@ -18,6 +18,7 @@ def _to_unsupported_escalation(conv, mock_gemini):
         "answer_to_customer": "I'll get a Nordland technician to help.",
     }
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "no heat at all")
     orch.process_turn(conv, "other")
     res = orch.process_turn(conv, "Some Unlisted Brand X1")

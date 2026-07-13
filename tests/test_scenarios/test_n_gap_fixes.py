@@ -31,6 +31,7 @@ def _to_solve(conv, mock_gemini):
     mock_gemini.responses["specialist"] = dict(_SOLVE_FILTER)
     return run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "H01 5252 filter alarm keeps showing",
         "IVT",
         ("Geo 412C", {"state": "SPECIALIST", "decision": "solve",
@@ -115,8 +116,9 @@ def test_gap2_symptom_opener_lands_category_and_problem_no_apology(seeded, mock_
     assert cs["slots"]["problem"]
     low = res["message"].lower()
     assert "didn't catch" not in low and "uppfattade inte" not in low
-    # advances to the next missing slot (brand), not a restart-from-equipment reask
-    assert "brand" in low or "märke" in low
+    # advances to the next missing slot (now postal_code, asked early per S2), not a
+    # restart-from-equipment reask
+    assert "postal code" in low or "postnummer" in low
 
 
 def test_gap2_partial_bulk_does_not_apologize(seeded, mock_gemini):
@@ -146,7 +148,7 @@ def test_gap5_name_conflict_skips_welcome_back(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     run_convo(conv, [
-        "heat_pump", "no heat at all", "IVT", ("Geo 412C", {"state": "ESCALATE"}),
+        "heat_pump", "no", "no heat at all", "IVT", ("Geo 412C", {"state": "ESCALATE"}),
     ], all_prohibited=DIY_FORBIDDEN)
     orch.process_turn(conv, "skip")            # diag -> name
     orch.process_turn(conv, "Björn")           # DIFFERENT name than the on-file Anna

@@ -35,6 +35,7 @@ def test_a1_ivt_geo_filter_h01_5252(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "showing an alarm H01 5252",
         "IVT",
         ("Geo 412C", {
@@ -64,6 +65,7 @@ def test_a2_vent_402_filter_change(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "airflow is weak and it's gotten noisy",
         "IVT",
         ("Vent 402", {
@@ -87,6 +89,7 @@ def test_a3_thermostat_valves_perceived_fault(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "house won't get warm enough even though the heat pump seems to be running fine",
         "IVT",
         ("Geo 412C", {
@@ -110,6 +113,7 @@ def test_a4_acknowledge_clear_condensation_alarm(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "there's a warning on my controller, everything else works, message mentions moisture on the pipes",
         "IVT",
         ("Geo 412C", {
@@ -132,6 +136,7 @@ def test_a5_breaker_reset(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "heat pump display is completely dead",
         "IVT",
         ("Geo 412C", {
@@ -155,6 +160,7 @@ def test_a6_condensation_is_normal(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "there is water drops on the pipe of my heat pump. is it broken?",
         "IVT",
         ("Geo 412C", {
@@ -176,6 +182,7 @@ def test_a7_hot_water_eco_to_comfort(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "not enough hot water lately",
         "IVT",
         ("Geo 412C", {
@@ -196,6 +203,7 @@ def test_a8_noisy_vent_filter_rambling_intake(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         # a run-on, rambling problem description -- the free-text 'problem' slot must
         # accept it verbatim (>=2 words shortcut, no LLM extraction needed) rather than
         # getting derailed or bouncing the customer back with a re-ask.
