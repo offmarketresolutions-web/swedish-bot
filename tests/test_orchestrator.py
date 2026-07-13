@@ -16,6 +16,7 @@ def seeded():
 def _drive_to_specialist(conv):
     """Run the intake turns for a supported IVT 490 heat-pump case."""
     orch.process_turn(conv, "heat_pump")   # category (chip)
+    orch.process_turn(conv, "no")          # postcode asked early → declined → unknown
     orch.process_turn(conv, "no_heat")     # problem (chip)
     orch.process_turn(conv, "IVT")         # brand (chip)
     return orch.process_turn(conv, "IVT 490")  # model (free text) → routes + specialist
@@ -26,6 +27,7 @@ def test_escalation_asks_for_problem_and_error_photo_before_contact(seeded, mock
     problem description + a photo of any error code; only then does it ask for name."""
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")                           # postcode (declined)
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "other")
     res = orch.process_turn(conv, "Aqua Invent X")          # unsupported → escalate
@@ -103,6 +105,7 @@ def test_guardrail_vetoes_unsafe_answer(seeded, mock_gemini):
 def test_unsupported_brand_becomes_qualified_lead(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")                 # postcode (declined)
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "other")              # unsupported brand
     res = orch.process_turn(conv, "Mitsubishi MSZ-2024")  # not in catalog

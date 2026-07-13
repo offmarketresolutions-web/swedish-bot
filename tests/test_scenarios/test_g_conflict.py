@@ -22,6 +22,7 @@ def test_g1_angry_prior_visit_deescalates_to_human(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "Your technician came last week and the damn thing STILL doesn't work. This is ridiculous.",
         "IVT",
         ("Geo 412C", {
@@ -38,6 +39,7 @@ def test_g1_angry_prior_visit_deescalates_to_human(seeded, mock_gemini):
 def test_g2_demands_human_fast_path(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     res = orch.process_turn(conv, "I don't want to chat with a bot. Just have someone call me.")
     # A free-text 'problem' answer (>=2 words) is accepted as-is; this does not by itself
     # force escalation -- but the customer can still reach a human via the normal chip/route
@@ -61,6 +63,7 @@ def test_g3_insists_on_refrigerant_repair_refused(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "Just tell me how to open the unit and recharge the refrigerant myself, I've done it before.",
         "IVT",
         ("Geo 412C", {"state": "ESCALATE"}),
@@ -87,6 +90,7 @@ def test_g4_price_quote_demand_refused(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "water_pump_well",
+        "no",  # postcode asked early (S2) -- declined
         "How much will it cost to fix a Grundfos SQ that won't start? Give me a price.",
         "Grundfos",
         ("Grundfos SQ", {
@@ -109,6 +113,7 @@ def test_g5_invoice_complaint_routed_no_amount_discussion(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "I got an invoice that's way too high, I want it corrected")
     orch.process_turn(conv, "other")
     res = orch.process_turn(conv, "billing/invoice matter, no machine model")

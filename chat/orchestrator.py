@@ -207,11 +207,12 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
 def _intake_step(cs, user_text, locale) -> dict | None:
     current = cs.get("current_slot")
     if current and user_text:
-        # A1: opportunistically pull every fact out of a rich opening message (one cheap
-        # call, once per conversation) so we don't ask brand/model/code one at a time.
+        # Per-turn multi-fact mining (plan S2): pull EVERY fact the customer states out of
+        # any rich message, on every intake turn (once-guard removed) — merging ONLY into
+        # empty slots so an earlier confirmed answer is never clobbered. slots.model stays
+        # raw customer text.
         just_bulked = False
-        if not cs.get("bulk_done") and intake.looks_rich(user_text):
-            cs["bulk_done"] = True
+        if intake.looks_rich(user_text):
             extracted = intake.bulk_extract(user_text, cs, locale)
             for k, v in extracted.items():
                 if v and not cs["slots"].get(k):
@@ -221,6 +222,14 @@ def _intake_step(cs, user_text, locale) -> dict | None:
             cs["reask"] = 0
         else:
             on_target, value = extract_answer(current, user_text, cs, locale)
+            # Postcode is normalized to 5 digits on capture; an undecodable answer rides
+            # the same 2-reask→unknown machinery as any off-target reply (plan S2 §4).
+            if current == "postal_code" and on_target and value and value != "unknown":
+                norm = sanitize.normalize_postcode(value)
+                if norm:
+                    value = norm
+                else:
+                    on_target = False
             if on_target and value:
                 cs["slots"][current] = value
                 cs["reask"] = 0
@@ -386,6 +395,73 @@ def _match_routing_rule(cs, cat, pc):
     return None
 
 
+_CHECK_TAGS = {"pending": "awaiting result", "helped": "helped",
+               "no_help": "didn't help", "refused": "refused"}
+
+
+def _previous_checks_block(cs) -> str:
+    """Bullet list of every safe check already suggested + its outcome, injected into the
+    specialist so it never re-suggests a completed check (plan S2 §5)."""
+    checks = cs.get("report", {}).get("checks", [])
+    if not checks:
+        return ""
+    return "\n".join(f"– {c.get('step','')} → {_CHECK_TAGS.get(c.get('result'), c.get('result',''))}"
+                     for c in checks if c.get("step"))
+
+
+def _apply_extracted_facts(cs, data) -> None:
+    """Per-turn multi-fact merge from the specialist's own output (zero extra LLM calls).
+    Facts land ONLY into empty slots; slots.model is raw customer text and is never
+    overwritten by a catalog name. check_results resolve the pending checks (plan S2 §3/§5).
+    Tolerates the whole key being absent."""
+    ef = data.get("extracted_facts") or {}
+    if not isinstance(ef, dict):
+        ef = {}
+    slots = cs["slots"]
+    for k in ("onset", "alarm_text", "error_code", "installer", "operating_context"):
+        v = ef.get(k)
+        if v and not slots.get(k):
+            slots[k] = str(v)[:200]
+    rd = ef.get("readings")
+    if isinstance(rd, list) and rd and not slots.get("readings"):
+        slots["readings"] = [str(x)[:40] for x in rd if str(x).strip()][:8]
+    mt = ef.get("model_text")  # raw customer wording only; never a catalog name over a real model
+    if mt and not slots.get("model"):
+        cleaned = sanitize.clean_model(str(mt))
+        if cleaned:
+            slots["model"] = cleaned
+    # Resolve every currently-pending check with the reported outcome + mirror into
+    # troubleshooting_performed (plan S2 §5).
+    crs = ef.get("check_results") or []
+    result = None
+    if isinstance(crs, list):
+        for cr in crs:
+            if isinstance(cr, dict) and cr.get("result") in ("helped", "no_help", "refused"):
+                result = cr["result"]
+    if result:
+        tp = cs["report"].setdefault("troubleshooting_performed", [])
+        for chk in cs["report"].get("checks", []):
+            if chk.get("result") == "pending":
+                chk["result"] = result
+                mirror = f"{chk.get('step','')} → {_CHECK_TAGS[result]}"
+                if mirror not in tp:
+                    tp.append(mirror)
+
+
+def _record_checks_given(cs, data) -> None:
+    """Append the safe checks the specialist just suggested to report.checks as pending,
+    so the next turn's check_results can resolve them and we never re-suggest them."""
+    steps = data.get("safe_steps_given") or []
+    if not isinstance(steps, list):
+        return
+    known = {c.get("step") for c in cs["report"].get("checks", [])}
+    for s in steps:
+        s = str(s).strip()
+        if s and s not in known:
+            cs["report"].setdefault("checks", []).append({"step": s[:200], "result": "pending"})
+            known.add(s)
+
+
 def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=False) -> dict | None:
     from kb.models import Machine
 
@@ -454,6 +530,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         category=machine.category.slug, brand_notes=brand_notes, faq=faq,
         problem=cs["slots"].get("problem", ""), symptoms="", error_code=cs["slots"].get("error_code") or "",
         serial=cs["slots"].get("serial") or "", forced_wrapup=str(forced).lower(),
+        previous_checks=_previous_checks_block(cs),
     )
     turn = ("Customer problem: " + sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem")
             + f"\nError code: {sanitize.clean_error_code(cs['slots'].get('error_code') or '') or 'none'}.")
@@ -491,7 +568,13 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     cs["decision"] = data["decision"] if data.get("decision") in ("solve", "escalate") else "escalate"
     cs["severity"] = (data["severity"] if data.get("severity") in ("urgent", "normal", "service")
                       else (cs.get("severity") or "normal"))
-    cs["report"].update({k: v for k, v in (data.get("report") or {}).items() if v is not None})
+    cs["report"].update({k: v for k, v in (data.get("report") or {}).items()
+                         if v is not None and k != "checks"})
+    # Per-turn fact merge + check memory (plan S2): resolve the checks the customer just
+    # reported on, then record the new checks this turn suggested. Both after report.update
+    # so the specialist's troubleshooting_performed list is augmented, not overwritten.
+    _apply_extracted_facts(cs, data)
+    _record_checks_given(cs, data)
 
     unsafe, reason = guardrails.is_unsafe(answer, locale=locale)
     # During a clarify pass we skip the low-confidence/in_docs cap and the budget gate (a
@@ -564,6 +647,13 @@ def _next_contact_slot(cs) -> str | None:
 
     for s in CONTACT_SLOTS:
         if cs["contact"].get(s) is None:
+            # Postcode was asked early in intake — if we already have it, copy it into the
+            # contact record and never re-ask (plan S2 §4).
+            if s == "postal_code":
+                pc = cs["slots"].get("postal_code")
+                if pc and pc != "unknown":
+                    cs["contact"]["postal_code"] = pc
+                    continue
             return s
     return None
 

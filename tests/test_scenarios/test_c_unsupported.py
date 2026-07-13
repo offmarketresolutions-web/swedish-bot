@@ -21,6 +21,7 @@ def test_c1_unsupported_brand_nibe(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "error 163 on the display",
         "other",
         # no Machine row for NIBE -> ROUTING sends it through _unsupported_step, which
@@ -49,6 +50,7 @@ def test_c2_unsupported_brand_thermia(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "making a grinding noise",
         "other",
         ("Thermia Diplomat", {"state": "ESCALATE", "decision": "escalate"}),
@@ -68,6 +70,7 @@ def test_c3_commercial_plant_out_of_scope(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "we run a 200 kW commercial heat pump plant in an apartment block, one compressor is faulting",
         "other",
         ("commercial plant, no single model plate", {"state": "ESCALATE", "decision": "escalate"}),
@@ -80,6 +83,7 @@ def test_c3_commercial_plant_out_of_scope(seeded, mock_gemini):
 def test_c4_legacy_ivt_model_unknown_forces_escalation(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "very old heat pump from the 90s, model plate is worn")
     orch.process_turn(conv, "IVT")
     # Two off-target model answers force the slot to "unknown" (plan §C4).
@@ -114,6 +118,7 @@ def test_c4_legacy_ivt_model_unknown_forces_escalation(seeded, mock_gemini):
 def test_r006_says_dont_know_model_does_not_bind_or_fabricate_machine(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "there is water drops on the pipe of my heat pump")
     orch.process_turn(conv, "IVT")
     mock_gemini.responses["extractor"] = {"on_target": True, "value": "unknown"}
@@ -135,6 +140,7 @@ def test_c5_photo_identifies_unsupported_daikin(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     orch.process_turn(conv, "some kind of heat pump outside is leaking a bit of water, not sure the brand")
     photo = SimpleUploadedFile("plate.jpg", b"\xff\xd8\xff\xe0fakejpeg", content_type="image/jpeg")
     res = orch.process_turn(conv, "", image=photo)

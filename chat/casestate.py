@@ -8,8 +8,14 @@ from core.enums import STATE_INTAKE
 
 # Intake slots gathered before routing. Contact slots (name/phone/email/postal)
 # are gathered lazily at escalation, exempt from the reply budget (plan §6.1/§6.2).
-REQUIRED_SLOTS = ["category", "problem", "brand", "model"]
+# postal_code is asked EARLY (right after category) — it never blocks routing
+# (is_routable ignores it) but seeds the S5 service-area check (plan S2/D1).
+REQUIRED_SLOTS = ["category", "postal_code", "problem", "brand", "model"]
 OPTIONAL_SLOTS = ["error_code", "serial"]
+# Multi-fact slots mined per-turn (bulk_extract + specialist extracted_facts). Kept
+# JSON-only unless a Session column exists (plan D1). slots.model stays RAW customer
+# text — never overwritten by a catalog machine name (enforced in every merge site).
+EXTRA_SLOTS = ["subtype", "alarm_text", "onset", "operating_context", "installer", "warranty"]
 CONTACT_SLOTS = ["name", "phone", "email", "postal_code"]
 
 
@@ -18,13 +24,18 @@ def new_case_state() -> dict:
         "state": STATE_INTAKE,
         "current_slot": None,
         "reask": 0,
-        "slots": {k: None for k in REQUIRED_SLOTS + OPTIONAL_SLOTS}
-        | {"nameplate_photo": False, "ocr_text": None},
+        "slots": {k: None for k in REQUIRED_SLOTS + OPTIONAL_SLOTS + EXTRA_SLOTS}
+        | {"nameplate_photo": False, "ocr_text": None, "readings": []},
         "contact": {k: None for k in CONTACT_SLOTS} | {"consent": None},
         "contact_slot": None,
         "awaiting_approval": False,
         "escalation_reason": "",
         "machine_id": None,
+        "model_confirmed": False,
+        "await_model_confirm": False,
+        "pending_candidate_ids": [],
+        "service_area": "unknown",
+        "specialist_mode": "manual",
         "match_confidence": 0.0,
         "problem_category": None,
         "severity": "",
@@ -35,6 +46,9 @@ def new_case_state() -> dict:
             "resolved": None,
             "service_recommended": None,
             "booking_requested": None,
+            "checks": [],
+            "form_type": "",
+            "form_status": "none",
         },
     }
 
@@ -86,7 +100,28 @@ def flush_to_session(conversation, cs: dict, *, machine=None, problem_category=N
     if cs.get("decision"):
         session.decision = cs["decision"]
     session.state = cs.get("state", "")
+    # New typed columns (plan S2 migration). postal_code/onset/installer come from the
+    # early-mined slots; escalation_reason closes a known reporting gap; service-area +
+    # form fields are populated by later sprints but the flush plumbing lands now.
+    if s.get("postal_code") and s.get("postal_code") != "unknown":
+        session.postal_code = s["postal_code"]
+    if s.get("onset"):
+        session.onset = s["onset"]
+    if s.get("installer"):
+        session.installer = s["installer"]
+    if cs.get("escalation_reason"):
+        session.escalation_reason = cs["escalation_reason"][:64]
+    if cs.get("service_area") and cs["service_area"] != "unknown":
+        session.service_area_status = cs["service_area"][:16]
     rep = cs.get("report", {})
+    if rep.get("service_area_name"):
+        session.service_area_name = rep["service_area_name"][:120]
+    if rep.get("form_status") == "shown":
+        session.form_shown = True
+    if rep.get("form_url"):
+        session.form_url = rep["form_url"][:200]
+    if rep.get("form_category"):
+        session.form_category = rep["form_category"][:32]
     if rep.get("troubleshooting_performed"):
         session.troubleshooting_performed = rep["troubleshooting_performed"]
     for f in ("resolved", "service_recommended", "booking_requested"):

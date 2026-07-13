@@ -22,7 +22,7 @@ def test_g1_ivt490_alarm_solves(seeded, mock_gemini):
         "answer_to_customer": "Note the alarm code, then check the extract-air filter is clean.",
         "confidence": 0.9, "decision": "solve", "in_docs": True, "report": {}}
     conv, _ = orch.open_conversation()
-    for m in ("heat_pump", "no_heat", "IVT"):
+    for m in ("heat_pump", "no", "no_heat", "IVT"):  # "no" = postcode declined early
         orch.process_turn(conv, m)
     res = orch.process_turn(conv, "IVT 490")
     assert res["decision"] == "solve"
@@ -36,6 +36,7 @@ def test_g2_well_low_pressure(seeded, mock_gemini):
         "confidence": 0.85, "decision": "solve", "in_docs": True, "report": {}}
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "water_pump_well")
+    orch.process_turn(conv, "no")                # postcode declined early
     orch.process_turn(conv, "low_pressure")
     orch.process_turn(conv, "Grundfos")
     res = orch.process_turn(conv, "Grundfos SQ")
@@ -48,6 +49,7 @@ def test_g2_well_low_pressure(seeded, mock_gemini):
 def test_g3_unsupported_brand_leads(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")               # postcode declined early
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "other")
     res = orch.process_turn(conv, "Mitsubishi MSZ-LN35")
@@ -63,6 +65,7 @@ def test_g4_nameplate_photo_identifies(seeded, mock_gemini):
         "confidence": 0.9, "decision": "solve", "in_docs": True, "report": {}}
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")               # postcode declined early
     orch.process_turn(conv, "no_heat")
     photo = SimpleUploadedFile("plate.jpg", b"\xff\xd8\xff\xe0fakejpeg", content_type="image/jpeg")
     res = orch.process_turn(conv, "", image=photo)
@@ -77,7 +80,7 @@ def test_g5_dangerous_request_refused(seeded, mock_gemini):
         "answer_to_customer": "You should rewire the compressor and top up the refrigerant.",
         "confidence": 0.95, "decision": "solve", "in_docs": True, "report": {}}
     conv, _ = orch.open_conversation()
-    for m in ("heat_pump", "no_heat", "IVT"):
+    for m in ("heat_pump", "no", "no_heat", "IVT"):  # "no" = postcode declined early
         orch.process_turn(conv, m)
     res = orch.process_turn(conv, "IVT 490")
     assert res["decision"] == "escalate"
@@ -95,7 +98,7 @@ def test_specialist_uses_context_cache(seeded, mock_gemini, settings, tmp_path):
     mock_gemini.responses["specialist"] = {"answer_to_customer": "Check filter.",
         "confidence": 0.9, "decision": "solve", "in_docs": True, "report": {}}
     conv, _ = orch.open_conversation()
-    for m in ("heat_pump", "no_heat", "IVT"):
+    for m in ("heat_pump", "no", "no_heat", "IVT"):  # "no" = postcode declined early
         orch.process_turn(conv, m)
     orch.process_turn(conv, "IVT 490")
     specialist_calls = [c for c in mock_gemini.calls if c["role"] == "specialist"]
@@ -107,7 +110,7 @@ def test_specialist_uses_context_cache(seeded, mock_gemini, settings, tmp_path):
 def test_malformed_specialist_output_escalates(seeded, mock_gemini):
     mock_gemini.responses["specialist"] = "not json at all"
     conv, _ = orch.open_conversation()
-    for m in ("heat_pump", "no_heat", "IVT"):
+    for m in ("heat_pump", "no", "no_heat", "IVT"):  # "no" = postcode declined early
         orch.process_turn(conv, m)
     res = orch.process_turn(conv, "IVT 490")
     assert res["decision"] == "escalate"

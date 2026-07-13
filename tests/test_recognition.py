@@ -28,7 +28,7 @@ def _to_escalation(conv, mock_gemini):
     mock_gemini.responses["specialist"] = {
         "answer_to_customer": "Uncertain.", "confidence": 0.4, "decision": "solve",
         "in_docs": True, "report": {}}
-    for m in ("heat_pump", "no_heat", "IVT", "IVT 490"):
+    for m in ("heat_pump", "no", "no_heat", "IVT", "IVT 490"):  # "no" = postcode declined early
         orch.process_turn(conv, m)
     orch.process_turn(conv, "rattles, code E9")  # diagnostics reply → asks name
 

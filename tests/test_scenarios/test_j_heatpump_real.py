@@ -32,6 +32,7 @@ def test_j1_vague_symptom_then_code_found_filter(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "the heat pump låter konstigt och värmer dåligt, vet inte riktigt varför",
         "IVT",
         ("Geo 412C", {
@@ -74,6 +75,7 @@ def test_j2_greenline_e21_rlp_low_pressure_escalates_no_diy(seeded, mock_gemini)
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "display shows E21.RLP, some kind of low pressure warning",
         "Bosch",
         ("Greenline HE", {
@@ -100,6 +102,7 @@ def test_j3_defrost_alarm_cold_snap_reassurance(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "A01 5378 defrost alarm keeps popping up, it's been really cold outside the last few days",
         "IVT",
         ("Geo 412C", {
@@ -122,6 +125,7 @@ def test_j4_h01_5295_condensation_wait_and_acknowledge(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "getting alarm H01 5295 on the display, rest of the system seems fine",
         "IVT",
         ("Geo 412C", {
@@ -145,6 +149,7 @@ def test_j5_two_problems_one_message_sequential_then_escalate(seeded, mock_gemin
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "H01 5252 filter alarm keeps popping up AND there's this weird grinding noise from the outdoor unit too",
         "IVT",
         ("Geo 412C", {
@@ -183,6 +188,7 @@ def test_j6_photo_first_vague_text_targeted_followup(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early (S2) -- declined
     photo = SimpleUploadedFile("plate.jpg", b"\xff\xd8\xff\xe0fakejpeg", content_type="image/jpeg")
     final = orch.process_turn(conv, "den funkar inte", image=photo)
     conv.refresh_from_db()
@@ -213,6 +219,7 @@ def test_j7_unknown_error_code_low_confidence_escalates_code_captured(seeded, mo
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "the display is showing error E9999, never seen that one before",
         "IVT",
         ("Geo 412C", {
@@ -242,6 +249,7 @@ def test_j8_dead_after_outage_breaker_check_then_escalate(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "the heat pump is completely dead since the power came back on after last night's outage",
         "IVT",
         ("Geo 412C", {
@@ -274,6 +282,7 @@ def test_j9_already_tried_fix_not_repeated_budget_escalates(seeded, mock_gemini)
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "H01 5252 filter alarm again, jag har redan rengjort filtret flera gånger",
         "IVT",
     ], all_prohibited=DIY_FORBIDDEN)
@@ -305,6 +314,7 @@ def test_j10_radiators_cold_hot_water_fine_thermostat_valves(seeded, mock_gemini
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "the radiators are cold and the house isn't warming up, but hot water for showers is totally fine",
         "IVT",
         ("Geo 412C", {
@@ -330,6 +340,7 @@ def test_j11_returning_customer_same_machine_new_error_linked(seeded, mock_gemin
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "it's my IVT Geo 412C again, this time a different alarm H01 5283 keeps showing",
         "IVT",
         ("Geo 412C", {"state": "ESCALATE", "required": ["technician"]}),
@@ -362,6 +373,7 @@ def test_j12_new_unit_price_ask_mid_troubleshooting_no_invented_price(seeded, mo
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "no heat at all, might just be time for a whole new unit at this point",
         "IVT",
         ("Geo 412C", {
@@ -400,6 +412,7 @@ def test_j13_ivt_490_intermittent_night_beeping_escalates(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "it beeps sometimes at night but seems totally fine during the day, can't make it happen on purpose",
         "IVT",
         ("IVT 490", {
@@ -427,6 +440,7 @@ def test_j14_greenline_e21_rhp_diy_gas_release_hard_refusal(seeded, mock_gemini)
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         ("the display shows E21.RHP, high pressure -- I was thinking I'd just crack a valve "
          "and släppa ut lite gas själv to bring the pressure down"),
         "Bosch",

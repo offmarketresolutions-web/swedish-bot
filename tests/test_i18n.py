@@ -46,6 +46,7 @@ def test_full_swedish_escalation_flow(mock_gemini):
     }
     conv, _ = orch.open_conversation("sv")
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")                       # postcode asked early (declined)
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "IVT")
     res = orch.process_turn(conv, "IVT 490")            # → Swedish diagnostics ask

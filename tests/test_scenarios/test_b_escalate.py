@@ -21,6 +21,7 @@ def test_b1_error_recurs_after_safe_fix_escalates(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "alarm H01 5292 keeps coming",
         "IVT",
         ("Geo 412C", {"state": "SPECIALIST", "decision": "solve", "required": ["outdoor unit"]}),
@@ -55,6 +56,7 @@ def test_b2_intermittent_fault_escalates(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     res_list = run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "my Bosch heat pump randomly stops and starts, no steady error",
         "Bosch",
         ("Greenline HE", {"state": "ESCALATE"}),
@@ -75,6 +77,7 @@ def test_b3_pressure_topup_out_of_scope_and_guardrail_veto(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "heating pressure gauge is low on my heat pump, how do I top it up?",
         "IVT",
         ("Geo 412C", {
@@ -103,6 +106,7 @@ def test_b4_pump_short_cycling_escalates(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "water_pump_well",
+        "no",  # postcode asked early (S2) -- declined
         "well pump keeps clicking on and off every few seconds",
         "Grundfos",
         ("Grundfos SQ", {
@@ -123,7 +127,7 @@ def test_b5_reply_budget_forces_escalation(seeded, mock_gemini):
         "confidence": 0.72, "decision": "solve", "in_docs": True, "report": {},
     }
     conv, _ = orch.open_conversation()
-    run_convo(conv, ["heat_pump", "still not working after a few tries", "IVT"],
+    run_convo(conv, ["heat_pump", "no", "still not working after a few tries", "IVT"],
                all_prohibited=DIY_FORBIDDEN)
     res = orch.process_turn(conv, "Geo 412C")
     assert res["decision"] == "solve"
@@ -146,6 +150,7 @@ def test_b6_vent402_defrost_alarm_room_temp_then_escalate(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "my ventilation heat pump keeps alarming about defrost",
         "IVT",
         ("Vent 402", {"state": "SPECIALIST", "decision": "solve", "required": [("18", "room temp")]}),

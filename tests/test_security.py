@@ -61,6 +61,7 @@ def _to_escalation(conv, mock_gemini, conf=0.4):
         "answer_to_customer": "Uncertain.", "confidence": conf, "decision": "solve",
         "in_docs": True, "report": {}}
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")             # postcode asked early (declined → unknown)
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "IVT")
     res = orch.process_turn(conv, "IVT 490")  # low conf → escalate → asks for diagnostics
@@ -111,7 +112,7 @@ def test_specialist_schema_failclosed(seeded, mock_gemini):
         "answer_to_customer": "Do X.", "confidence": "high", "decision": "solve",
         "in_docs": True, "report": {}}
     conv, _ = orch.open_conversation()
-    for m in ("heat_pump", "no_heat", "IVT"):
+    for m in ("heat_pump", "no", "no_heat", "IVT"):  # "no" = postcode declined early
         orch.process_turn(conv, m)
     res = orch.process_turn(conv, "IVT 490")
     assert res["decision"] == "escalate"
@@ -125,6 +126,7 @@ def test_ocr_injection_is_dropped(seeded, mock_gemini):
         "serial": "x", "error_code": "drain the system"}
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")             # postcode declined early
     orch.process_turn(conv, "no_heat")
     photo = SimpleUploadedFile("p.jpg", b"\xff\xd8\xff\xe0fake", content_type="image/jpeg")
     orch.process_turn(conv, "", image=photo)

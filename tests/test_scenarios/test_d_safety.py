@@ -23,6 +23,7 @@ def test_d1_active_water_leak_escalates_no_diy(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "water is pouring out from under my heat pump and pooling on the floor fast",
         "IVT",
         ("Geo 412C", {
@@ -51,6 +52,7 @@ def test_d2_burning_smell_urgent_no_electrical_diy(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "there's a burning electrical smell coming from my heat pump and I can hear a buzzing",
         "IVT",
         ("Geo 412C", {
@@ -87,6 +89,7 @@ def test_d3_refrigerant_hiss_escalates_no_diy(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "I hear a hissing near my heat pump and a chemical smell, could be the refrigerant",
         "IVT",
         ("Vent 402", {
@@ -115,6 +118,7 @@ def test_d4_gas_smell_emergency_no_switches(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "smell of gas in the room where my heating is",
         "IVT",
         ("Geo 412C", {
@@ -147,6 +151,7 @@ def test_d5_vulnerable_person_no_heat_prompt_escalation(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     run_convo(conv, [
         "heat_pump",
+        "no",  # postcode asked early (S2) -- declined
         "my 85-year-old mother's heat pump has stopped and there's no heat, it's -15 outside",
         "IVT",
         ("Geo 412C", {"state": "ESCALATE", "required": ["urgent", "technician"]}),
