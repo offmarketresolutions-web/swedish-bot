@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 
 from django.conf import settings
 
@@ -36,6 +37,58 @@ _FENCE = re.compile(r"^```(?:json)?|```$", re.MULTILINE)
 _NEG = re.compile(r"\b(not|don'?t|do not|never|inte|nej|no)\b", re.IGNORECASE)
 _AFFIRM = re.compile(r"\b(yes|ja|sure|ok|okay|send it|please send|go ahead|do it|skicka|absolutely)\b",
                      re.IGNORECASE)
+# L8: markers of an explicit brand correction. Disambiguation heuristic — a different
+# recognized brand only triggers a re-confirm when the message is corrective (one of these
+# markers) OR very short/direct (≤3 words, i.e. essentially just the brand). A casual
+# mention like "my neighbor has a Bosch" has neither and is ignored.
+_CORRECTION = re.compile(
+    r"\b(actually|faktiskt|egentligen|instead|ist[äa]llet|meant|menar|menade|"
+    r"not a|not an|not the|inte en|inte ett|inte|correction|r[äa]ttelse|snarare|byt)\b",
+    re.IGNORECASE)
+
+# GAP 1/6 — post-solve confirmation verdict. "Did that fix it?" replies split into:
+#   no       — the remedy failed / still broken (checked FIRST, so "alarm gone but still noisy"
+#              is treated as not-resolved and routed back into troubleshooting)
+#   yes      — a positive resolution ("worked", "cleared", "great, thanks", sv "löste sig")
+#   question — a clarifying question about the remedy ("do I turn it off first?")
+_CONFIRM_NO = re.compile(
+    r"\b(no|nope|nej|still|same|again|didn'?t|did ?not|doesn'?t|does ?not|wasn'?t|isn'?t|"
+    r"won'?t|not (?:work|fix|help|better)\w*|inte|fortfarande|kvarstår|samma|"
+    r"inget hände|hjälpte inte|inte bättre)\b", re.IGNORECASE)
+_CONFIRM_YES = re.compile(
+    r"\b(work(?:ed|s|ing)?|fix(?:ed|es)?|solv\w*|clear(?:ed|s)?|sorted|resolved|done|great|"
+    r"thanks|thank you|perfect|gone|better now|löst\w*|funka\w*|funger\w*|löste|fungerade|"
+    r"försvann|borta|bättre nu|tack)\b", re.IGNORECASE)
+
+
+def _confirm_verdict(text: str) -> str:
+    """Classify a reply to 'Did that fix it?' as 'yes' | 'no' | 'question'."""
+    txt = (text or "").strip()
+    low = txt.lower()
+    if _CONFIRM_NO.search(low):
+        return "no"
+    if low in ("yes", "yes_send") or _is_yes(low) or _CONFIRM_YES.search(low):
+        return "yes"
+    if "?" in txt:
+        return "question"
+    return "no"  # ambiguous → safest is to keep troubleshooting, not falsely close
+
+
+def _norm_name(s: str) -> str:
+    """Lowercased, accent-stripped name for a lenient returning-customer match
+    ('Åsa' == 'Asa')."""
+    s = unicodedata.normalize("NFKD", (s or "").strip().lower())
+    return "".join(c for c in s if not unicodedata.combining(c))
+
+
+def _name_matches(given: str, known: str) -> bool:
+    """GAP 5 — do the caller-given name and the on-file name agree enough to greet as a
+    returning customer? Lenient: an empty side can't contradict; otherwise they must share
+    at least one whole name token ('Asa' vs 'Asa Prior' → yes; 'Björn' vs 'Anna' → no)."""
+    g, k = set(_norm_name(given).split()), set(_norm_name(known).split())
+    if not g or not k:
+        return True
+    return bool(g & k)
 
 
 def _parse_json(text: str) -> dict:
@@ -138,7 +191,10 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
         elif st == STATE_ROUTING:
             _route(conversation, cs, events, locale)
         elif st == STATE_SPECIALIST:
-            return _specialist_step(conversation, cs, events, locale)
+            out = _specialist_step(conversation, cs, user_text, events, locale)
+            if out is not None:
+                return out
+            user_text = ""  # consumed (brand-contradiction rebind) — fall through to re-route/intake
         elif st == STATE_UNSUPPORTED:
             return _unsupported_step(conversation, cs, events, locale)
         elif st == STATE_ESCALATE:
@@ -153,15 +209,25 @@ def _intake_step(cs, user_text, locale) -> dict | None:
     if current and user_text:
         # A1: opportunistically pull every fact out of a rich opening message (one cheap
         # call, once per conversation) so we don't ask brand/model/code one at a time.
+        just_bulked = False
         if not cs.get("bulk_done") and intake.looks_rich(user_text):
             cs["bulk_done"] = True
-            for k, v in intake.bulk_extract(user_text, cs, locale).items():
+            extracted = intake.bulk_extract(user_text, cs, locale)
+            for k, v in extracted.items():
                 if v and not cs["slots"].get(k):
                     cs["slots"][k] = v
-        if not cs["slots"].get(current):  # only ask the current slot if bulk didn't fill it
+            just_bulked = bool(extracted)  # did THIS bulk call actually pull any fact?
+        if cs["slots"].get(current):  # bulk (or a prior turn) already filled the current slot
+            cs["reask"] = 0
+        else:
             on_target, value = extract_answer(current, user_text, cs, locale)
             if on_target and value:
                 cs["slots"][current] = value
+                cs["reask"] = 0
+            elif just_bulked:
+                # GAP 2: the rich opener yielded OTHER facts but doesn't answer this exact
+                # slot — don't bounce the customer with a "didn't catch that" apology as if
+                # the whole message was gibberish; advance and ask the missing slot plainly.
                 cs["reask"] = 0
             else:
                 cs["reask"] = cs.get("reask", 0) + 1
@@ -171,8 +237,6 @@ def _intake_step(cs, user_text, locale) -> dict | None:
                 else:
                     return {"message": t(locale, "reask") + t(locale, "q_" + current),
                             "chips": intake.chips_for(current, cs, locale)}
-        else:
-            cs["reask"] = 0
     # A3: if the model is unknown and there's no nameplate photo yet, ask for a photo ONCE
     # before falling back to a weak brand-only match.
     s = cs["slots"]
@@ -314,8 +378,50 @@ def _match_routing_rule(cs, cat, pc):
     return None
 
 
-def _specialist_step(conversation, cs, events, locale) -> dict:
+def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=False) -> dict | None:
     from kb.models import Machine
+
+    # GAP 1/6 — post-solve confirmation. After a "solve" we appended "Did that fix it?"; the
+    # customer's reply lands here. yes → RESOLVED (no lead); question → answer it without
+    # letting the low-confidence/in_docs cap force an escalation (clarify pass, then re-ask);
+    # no/still-broken → fall through into a fresh troubleshooting turn (budget continues).
+    if cs.get("awaiting_confirm") and not clarify:
+        cs["awaiting_confirm"] = False
+        verdict = _confirm_verdict(user_text)
+        if verdict == "yes":
+            cs["state"] = STATE_RESOLVED
+            cs["decision"] = "solve"
+            cs["report"]["resolved"] = True
+            return {"message": t(locale, "confirm_resolved"), "chips": [], "decision": "solve",
+                    "model": prompts.model_for("specialist")}
+        if verdict == "question":
+            return _specialist_step(conversation, cs, user_text, events, locale, clarify=True)
+        # "no" → keep the state in SPECIALIST and fall through to a fresh troubleshooting turn.
+
+    # L8 — mid-conversation brand contradiction ("det är faktiskt en Bosch, inte IVT").
+    # Runs BEFORE the reply budget / model call so a re-confirm round-trip is free.
+    if not clarify and cs.get("await_brand_reconfirm"):
+        cs["await_brand_reconfirm"] = False
+        new_brand = cs.pop("pending_brand", None)
+        if new_brand and _is_yes(user_text):
+            # Rebind identity to the corrected brand and re-identify machine/manual: drop the
+            # now-stale model (it belonged to the old brand) and re-ask it, then re-route.
+            cs["slots"]["brand"] = new_brand
+            cs["slots"]["model"] = None
+            cs["slots"]["nameplate_photo"] = False
+            cs["machine_id"] = None
+            cs["specialist_turns"] = 0  # fresh identity → fresh troubleshooting budget
+            cs["current_slot"] = "model"
+            cs["state"] = STATE_INTAKE
+            return None
+        # declined → keep the original identity; fall through to normal troubleshooting.
+    elif not clarify:
+        new_brand = _detect_brand_contradiction(cs, user_text)
+        if new_brand:
+            cs["pending_brand"] = new_brand
+            cs["await_brand_reconfirm"] = True
+            return {"message": t(locale, "brand_reconfirm", brand=new_brand),
+                    "chips": _yesno_chips(locale)}
 
     machine = Machine.objects.get(id=cs["machine_id"])
     # If the customer stated an alarm/fault code inside their problem text but it never
@@ -327,8 +433,11 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
             cs["slots"]["error_code"] = code
     # The reply budget governs TROUBLESHOOTING turns only (plan §6.2) — intake/contact
     # turns must not consume it, or the customer's first real question gets force-escalated.
-    cs["specialist_turns"] = cs.get("specialist_turns", 0) + 1
-    forced = cs["specialist_turns"] >= REPLY_BUDGET
+    # A clarify pass (answering a question during confirmation) is not a troubleshooting
+    # attempt, so it neither consumes the budget nor can be force-escalated by it.
+    if not clarify:
+        cs["specialist_turns"] = cs.get("specialist_turns", 0) + 1
+    forced = (not clarify) and cs["specialist_turns"] >= REPLY_BUDGET
     brand_notes, faq = context.collect_knowledge(machine, locale, query=cs["slots"].get("problem", ""))
     cached, inline = context.machine_pdf_context(machine, locale)
 
@@ -377,7 +486,13 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
     cs["report"].update({k: v for k, v in (data.get("report") or {}).items() if v is not None})
 
     unsafe, reason = guardrails.is_unsafe(answer, locale=locale)
-    if unsafe or conf < CONFIDENCE_GATE or cs["decision"] != "solve" or forced:
+    # During a clarify pass we skip the low-confidence/in_docs cap and the budget gate (a
+    # clarifying question about the remedy is in-docs-compatible) — but the safety veto and
+    # the specialist's own explicit escalate decision always still win.
+    escalate = unsafe or cs["decision"] != "solve"
+    if not clarify:
+        escalate = escalate or conf < CONFIDENCE_GATE or forced
+    if escalate:
         cs["state"] = STATE_ESCALATE
         cs["decision"] = "escalate"
         cs["report"]["service_recommended"] = True
@@ -387,8 +502,14 @@ def _specialist_step(conversation, cs, events, locale) -> dict:
         prefix = (answer + "\n\n") if (answer and not unsafe) else ""
         return _begin_escalation(cs, locale, prefix)
 
-    cs["report"]["resolved"] = data.get("report", {}).get("resolved", True)
-    return {"message": answer, "chips": [], "decision": "solve",
+    # Solve delivered → ask the customer to confirm the fix worked (GAP 1/6). yes/no chips;
+    # their next reply re-enters here via the awaiting_confirm branch above.
+    if not clarify:
+        cs["report"]["resolved"] = data.get("report", {}).get("resolved", True)
+    cs["state"] = STATE_SPECIALIST
+    cs["awaiting_confirm"] = True
+    msg = (answer + "\n\n" + t(locale, "confirm_fix")) if answer else t(locale, "confirm_fix")
+    return {"message": msg, "chips": _yesno_chips(locale), "decision": "solve",
             "model": prompts.model_for("specialist")}
 
 
@@ -550,7 +671,10 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
         if cur == "phone" and val:  # P-F: recognize a returning customer (minimal disclosure)
             from crm.models import Customer, phone_hash
             h = phone_hash(val)
-            if h and Customer.objects.filter(phone_hash=h).exists():
+            existing = Customer.objects.filter(phone_hash=h).first() if h else None
+            # GAP 5 — phone alone isn't enough (household/reassigned numbers). Only greet as
+            # returning when the name matches too; skip the welcome-back copy on a name conflict.
+            if existing and _name_matches(cs["contact"].get("name"), existing.name):
                 cs["returning"] = True
 
     nxt = _next_contact_slot(cs)
@@ -624,3 +748,29 @@ def _handoff_line(locale: str) -> str:
 def _escalation_chips(locale: str = "en") -> list[dict]:
     return [{"value": "yes_send", "label": t(locale, "chip_yes_send")},
             {"value": "not_yet", "label": t(locale, "chip_not_yet")}]
+
+
+def _yesno_chips(locale: str = "en") -> list[dict]:
+    return [{"value": "yes", "label": t(locale, "chip_yes")},
+            {"value": "no", "label": t(locale, "chip_no")}]
+
+
+def _detect_brand_contradiction(cs, user_text: str) -> str | None:
+    """L8: return a DIFFERENT recognized (seeded) brand the customer names in a corrective
+    way, or None. Pure DB read — deterministic, no LLM. Only fires when the locked brand is
+    a real brand and the message is corrective/short (see `_CORRECTION`), so a casual
+    "my neighbor has a Bosch" during IVT troubleshooting does not trigger a re-confirm."""
+    from kb.models import Vendor
+
+    txt = (user_text or "").strip()
+    current = (cs["slots"].get("brand") or "").strip().lower()
+    if not txt or current in ("", "unknown", "other"):
+        return None
+    low = txt.lower()
+    if not (_CORRECTION.search(low) or len(txt.split()) <= 3):
+        return None
+    for name in Vendor.objects.values_list("name", flat=True):
+        n = (name or "").strip()
+        if n and n.lower() != current and re.search(r"\b" + re.escape(n.lower()) + r"\b", low):
+            return n
+    return None

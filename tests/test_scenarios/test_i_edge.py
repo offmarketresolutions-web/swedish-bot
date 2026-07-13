@@ -23,9 +23,9 @@ def test_i1_language_stays_fixed_for_the_session(seeded, mock_gemini):
 
 # I2 -- multi-issue single message (multi-fact intake / bulk extraction)
 def test_i2_multi_fact_single_message_bulk_extracted(seeded, mock_gemini):
-    # bulk_extract's system prompt doesn't match any of conftest._classify's phrases, so it
-    # is mocked via the generic 'other' role (see conftest.py::FakeGemini._classify).
-    mock_gemini.responses["other"] = {
+    # bulk_extract is mocked via the dedicated 'bulk' role (conftest.py::FakeGemini._classify
+    # matches its "pull out every field" system prompt).
+    mock_gemini.responses["bulk"] = {
         "category": "heat_pump", "brand": "IVT", "model": "Geo 412C",
         "error_code": "H01 5252", "problem": "cold house + filter light",
     }

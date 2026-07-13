@@ -20,6 +20,8 @@ _REPLY_RE = _re.compile(r"Reply:\s*(.+)", _re.DOTALL)
 
 def _classify(system: str) -> str:
     s = system or ""
+    if "pull out every field" in s:
+        return "bulk"
     if "extract one field" in s:
         return "extractor"
     if "safety backstop" in s:
@@ -43,6 +45,11 @@ class FakeGemini:
         self.calls: list[dict] = []
 
     def _default(self, role: str, contents) -> object:
+        if role == "bulk":
+            # default: extract nothing (each test overrides responses["bulk"] to script the
+            # symptom-opener slots it wants). Keeps the offline suite deterministic.
+            return {"category": None, "brand": None, "model": None, "error_code": None,
+                    "problem": None}
         if role == "safety":
             return {"unsafe": False, "reason": ""}
         if role == "router":

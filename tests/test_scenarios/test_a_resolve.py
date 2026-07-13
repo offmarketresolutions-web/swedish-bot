@@ -1,16 +1,15 @@
 """Category A -- autonomously resolvable (test plan §Category A, scenarios A1-A8).
 Bot solves; decision=='solve'; Session.resolved True; no ServiceRequest.
 
-NOTE on terminal state: the test plan (§Category A) describes the final state
-as RESOLVED after the customer confirms the fix worked. The actual orchestrator
-(`chat/orchestrator.py::_specialist_step`) never transitions
-STATE_SPECIALIST -> STATE_RESOLVED on a successful solve -- it stays in
-SPECIALIST so the customer can keep asking follow-up questions in the same
-conversation (there is no explicit "close" action on the happy path, only on
-the escalation-approval path via `_escalate_step`). This is a genuine
-plan/reality gap, not a bug we should paper over: these tests assert the real
-terminal state (SPECIALIST, decision=='solve') plus the Session/DB facts the
-plan actually cares about (resolved flag, no lead).
+NOTE on terminal state: after a specialist "solve" the bot now appends a
+"Did that fix it?" confirmation (GAP 1/6 fix in
+`chat/orchestrator.py::_specialist_step`). The solve turn itself stays in
+STATE_SPECIALIST with decision=='solve' (now carrying yes/no chips); the
+customer's *next* reply drives the terminal state -- a "yes" transitions to
+STATE_RESOLVED with Session.resolved=True and NO ServiceRequest (test plan
+§Category A / SRS R1), while a "no"/"still broken" reply routes back into
+troubleshooting. These tests assert that real behavior plus the Session/DB
+facts the plan cares about (resolved flag, no lead).
 """
 import pytest
 
@@ -43,9 +42,9 @@ def test_a1_ivt_geo_filter_h01_5252(seeded, mock_gemini):
             "required": ["filter", ("clean", "rinse"), ("alarm", "H01 5252")],
         }),
     ], all_prohibited=DIY_FORBIDDEN)
-    # customer confirms; the reply is a normal continuation of the specialist turn
+    # customer confirms the fix worked -> RESOLVED terminal, no lead (SRS R1)
     final = orch.process_turn(conv, "Great, I cleaned it and the alarm cleared.")
-    assert final["state"] == "SPECIALIST" and final["decision"] == "solve"
+    assert final["state"] == "RESOLVED" and final["decision"] == "solve"
     sess = Session.objects.get(conversation=conv)
     assert sess.decision == "solve"
     assert sess.resolved is True
