@@ -90,6 +90,17 @@ def clean_postal(s: str) -> str:
     return _POSTAL_BAD.sub("", no_crlf(cap(s, 20)))[:10]
 
 
+# A Swedish postcode is 5 digits, often written 'NNN NN'. Pull the first such group out
+# of a free-text reply ('postnummer 852 34, Sundsvall' -> '85234'). Space-tolerant.
+# Returns '' when no 5-digit group is present (full geocoding lands in S5).
+_POSTCODE_SE = re.compile(r"(?<!\d)(\d{3})\s?(\d{2})(?!\d)")
+
+
+def normalize_postcode(s: str) -> str:
+    m = _POSTCODE_SE.search(no_crlf(cap(s, 40)))
+    return (m.group(1) + m.group(2)) if m else ""
+
+
 def clean_address(s: str) -> str:
     return strip_control(no_crlf(cap(s, 160)))
 

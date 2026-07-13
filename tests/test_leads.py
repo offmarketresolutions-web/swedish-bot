@@ -77,6 +77,7 @@ def test_escalation_collects_contact_and_creates_lead(seeded, mock_gemini):
     }
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")                       # postcode asked early (declined → unknown)
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "IVT")
     res = orch.process_turn(conv, "IVT 490")            # → escalate; asks problem detail + error-code photo
@@ -108,7 +109,7 @@ def test_declining_all_contact_does_not_record_junk_or_dispatch(seeded, mock_gem
         "in_docs": False, "report": {},
     }
     conv, _ = orch.open_conversation()
-    for t in ["heat_pump", "no_heat", "IVT", "IVT 490"]:
+    for t in ["heat_pump", "no", "no_heat", "IVT", "IVT 490"]:  # "no" = postcode declined early
         orch.process_turn(conv, t)
     orch.process_turn(conv, "no")          # diagnostics → name
     orch.process_turn(conv, "no")          # name declined → phone

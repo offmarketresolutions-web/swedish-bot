@@ -12,6 +12,8 @@ T = {
         "greeting": "Hi! I'm Nordland VVS's assistant. I can help with heat pumps, "
                     "water pumps/wells and water filtration. Let's figure out what's going on.",
         "q_category": "To start, what kind of equipment is it?",
+        "q_postal_code": "What's the postal code where the equipment is installed? I need it to "
+                         "check whether the address is within our service area.",
         "q_problem": "Got it. In a few words, what's the problem?",
         "q_brand": "Which brand is it?",
         "q_model": "What's the model? A photo of the rating/nameplate is perfect if you have one.",
@@ -58,6 +60,8 @@ T = {
         "greeting": "Hej! Jag är Nordland VVS assistent. Jag kan hjälpa till med värmepumpar, "
                     "vattenpumpar/brunnar och vattenfilter. Låt oss ta reda på vad som händer.",
         "q_category": "Till att börja med, vilken typ av utrustning gäller det?",
+        "q_postal_code": "Vilket postnummer finns anläggningen på? Jag behöver det för att "
+                         "kontrollera om adressen ligger inom vårt arbetsområde.",
         "q_problem": "Okej. Beskriv kort vad problemet är.",
         "q_brand": "Vilket märke är det?",
         "q_model": "Vilken modell är det? Ett foto av typskylten är perfekt om du har ett.",

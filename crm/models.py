@@ -127,6 +127,19 @@ class Session(models.Model):
     reply_turns = models.IntegerField(default=0)
     status = models.CharField(max_length=16, default="active")  # active|resolved|escalated|closed
 
+    # Case-state expansion (plan S2). postal_code/onset/installer are mined early;
+    # escalation_reason closes a known reporting gap; service-area + form columns are
+    # written by later sprints (S5/S6) but the columns + flush plumbing land now.
+    postal_code = models.CharField(max_length=16, blank=True)
+    service_area_status = models.CharField(max_length=16, blank=True)  # inside|border|outside|unknown
+    service_area_name = models.CharField(max_length=120, blank=True)
+    onset = models.CharField(max_length=16, blank=True)               # sudden|gradual|always
+    installer = models.CharField(max_length=32, blank=True)           # nordland|bylunds|nordborr|other
+    form_shown = models.BooleanField(null=True, blank=True)
+    form_url = models.CharField(max_length=200, blank=True)
+    form_category = models.CharField(max_length=32, blank=True)
+    escalation_reason = models.CharField(max_length=64, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

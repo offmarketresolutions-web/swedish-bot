@@ -22,6 +22,7 @@ def test_routing_rule_routes_to_maintenance(seeded, mock_gemini):
         "in_docs": True, "report": {}}
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")                         # postcode asked early (declined)
     orch.process_turn(conv, "it is leaking water badly")  # free-text problem w/ keyword
     orch.process_turn(conv, "IVT")
     res = orch.process_turn(conv, "IVT 490")
@@ -34,6 +35,7 @@ def test_urgent_rule_sets_urgent_severity(seeded, mock_gemini):
     RoutingRule.objects.create(name="flood", match_keyword="flood", action="urgent_contact")
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "water_pump_well")
+    orch.process_turn(conv, "no")                     # postcode asked early (declined)
     orch.process_turn(conv, "basement is flooding")
     orch.process_turn(conv, "Grundfos")
     orch.process_turn(conv, "Grundfos SQ")

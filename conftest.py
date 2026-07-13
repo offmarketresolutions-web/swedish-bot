@@ -22,6 +22,8 @@ def _classify(system: str) -> str:
     s = system or ""
     if "extract one field" in s:
         return "extractor"
+    if "pull out every field" in s:  # bulk multi-fact extractor (chat.intake.bulk_extract)
+        return "bulk"
     if "safety backstop" in s:
         return "safety"
     if "routing classifier" in s:
@@ -52,9 +54,19 @@ class FakeGemini:
             return {"on_target": True, "value": (m.group(1).strip() if m else "")}
         if role == "vision":
             return {}
+        if role == "bulk":
+            # bulk_extract: default states nothing (all null) so it never fabricates slots;
+            # tests that exercise multi-fact mining override mock_gemini.responses["bulk"].
+            return {"category": None, "subtype": None, "brand": None, "model": None,
+                    "error_code": None, "alarm_text": None, "onset": None, "postal_code": None,
+                    "installer": None, "operating_context": None, "readings": [], "problem": None}
         if role == "specialist":
             return {"answer_to_customer": "Let me check.", "confidence": 0.0,
-                    "decision": "escalate", "in_docs": False, "report": {}}
+                    "decision": "escalate", "in_docs": False,
+                    "extracted_facts": {"onset": None, "alarm_text": None, "model_text": None,
+                                        "error_code": None, "readings": [], "installer": None,
+                                        "operating_context": None, "check_results": []},
+                    "report": {}}
         if role == "intelligent_intake":
             return {"answer_to_customer": "I'll get a Nordland technician to help.",
                     "decision": "escalate", "severity": "normal", "report": {}}

@@ -43,6 +43,7 @@ def test_full_solve_over_http(client, seeded, mock_gemini):
     }
     pid = client.post("/api/chat/session", data="{}", content_type="application/json").json()["public_id"]
     _say(client, pid, "heat_pump")
+    _say(client, pid, "no")          # postcode asked early (declined)
     _say(client, pid, "no_heat")
     _say(client, pid, "IVT")
     final = _say(client, pid, "IVT 490")

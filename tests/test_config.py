@@ -23,6 +23,7 @@ def _solve(mock_gemini):
 
 def _drive(conv):
     orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")          # postcode asked early (declined)
     orch.process_turn(conv, "no_heat")
     orch.process_turn(conv, "IVT")
     return orch.process_turn(conv, "IVT 490")
