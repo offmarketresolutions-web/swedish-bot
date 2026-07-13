@@ -39,8 +39,8 @@ def seeded():
 
 
 def test_returning_customer_recognized_minimal_disclosure(seeded, mock_gemini):
-    Customer.objects.create(name="Prior", phone="070-1234567",
-                            consent_to_contact=True)  # prior contact on file
+    Customer.objects.create(name="Jan", phone="070-1234567",
+                            consent_to_contact=True)  # prior contact on file (same name)
     conv, _ = orch.open_conversation()
     _to_escalation(conv, mock_gemini)
     orch.process_turn(conv, "Jan")

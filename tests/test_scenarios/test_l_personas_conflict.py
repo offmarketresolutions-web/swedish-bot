@@ -137,7 +137,7 @@ def test_l5_elderly_confused_mishearing_patient_reask_then_lead(seeded, mock_gem
 # L6 -- rambler: a long message mixing weather, grandkids, and one buried
 # symptom -- multi-fact intake extracts the real symptom, then proceeds.
 def test_l6_rambler_extracts_buried_symptom_and_proceeds(seeded, mock_gemini):
-    mock_gemini.responses["other"] = {
+    mock_gemini.responses["bulk"] = {
         "category": "heat_pump", "brand": "IVT", "model": "Geo 412C",
         "error_code": None, "problem": "no hot water",
     }
@@ -192,16 +192,9 @@ def test_l7_terse_one_word_answers_still_completes_intake_and_lead(seeded, mock_
 
 
 # L8 -- customer contradicts themselves mid-conversation (Bosch first, then IVT).
-# Plan requires the bot to re-confirm machine identity before advancing; this
-# documents a real gap -- the FSM never re-reads slots once filled/routed.
-@pytest.mark.xfail(
-    reason="L8 bug: chat/orchestrator.py._specialist_step never re-reads the customer's "
-           "later brand contradiction back into cs['slots'] -- once brand/model are filled "
-           "and routed, the stale identity/machine_id is kept for the rest of the "
-           "conversation with no re-confirmation prompt.",
-    strict=False,
-)
-def test_l8_contradicts_brand_should_reconfirm_identity(seeded, mock_gemini):
+# Plan requires the bot to re-confirm machine identity before advancing: detect the
+# contradiction, ask to re-confirm, and on confirmation rebind brand + machine/manual.
+def test_l8_contradicts_brand_reconfirms_and_rebinds(seeded, mock_gemini):
     mock_gemini.responses["specialist"] = {
         "answer_to_customer": "Check the outdoor unit for the E21.RLP pressure fault.",
         "confidence": 0.85, "decision": "solve", "in_docs": True, "report": {},
@@ -211,9 +204,63 @@ def test_l8_contradicts_brand_should_reconfirm_identity(seeded, mock_gemini):
         "heat_pump", "alarm E21.RLP on my heat pump", "Bosch",
         ("Greenline HE", {"state": "SPECIALIST", "decision": "solve"}),
     ])
-    orch.process_turn(conv, "wait sorry, I actually meant IVT, not Bosch")
+    # Contradiction -> bot re-confirms identity instead of silently keeping Bosch.
+    res = orch.process_turn(conv, "wait sorry, I actually meant IVT, not Bosch")
+    assert res["state"] == "SPECIALIST"
+    assert "IVT" in res["message"]
+    conv.refresh_from_db()
+    assert conv.case_state["slots"]["brand"] == "Bosch"  # not switched until confirmed
+    assert conv.case_state.get("await_brand_reconfirm") is True
+    # Confirm -> rebind to IVT and drop the stale Bosch model (re-identify from there).
+    orch.process_turn(conv, "ja")
     conv.refresh_from_db()
     assert conv.case_state["slots"]["brand"] == "IVT"
+    assert not conv.case_state["slots"].get("model")
+    assert conv.case_state.get("await_brand_reconfirm") is False
+
+
+# L8b -- customer declines the re-confirm ("nej") -> original identity is kept and
+# troubleshooting resumes; no rebind.
+def test_l8b_brand_reconfirm_declined_keeps_original(seeded, mock_gemini):
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Please clean the particle filter and clear the alarm.",
+        "confidence": 0.85, "decision": "solve", "in_docs": True, "report": {},
+    }
+    conv, _ = orch.open_conversation()
+    run_convo(conv, [
+        "heat_pump", "alarm H01 5252 on my heat pump", "IVT",
+        ("Geo 412C", {"state": "SPECIALIST", "decision": "solve"}),
+    ])
+    res = orch.process_turn(conv, "faktiskt är det en Bosch, inte IVT")
+    assert res["state"] == "SPECIALIST"
+    assert "Bosch" in res["message"]
+    conv.refresh_from_db()
+    assert conv.case_state.get("await_brand_reconfirm") is True
+    res2 = orch.process_turn(conv, "nej, glöm det")   # decline -> keep IVT, resume specialist
+    assert res2["decision"] == "solve"
+    conv.refresh_from_db()
+    assert conv.case_state["slots"]["brand"] == "IVT"
+    assert conv.case_state.get("await_brand_reconfirm") is False
+
+
+# L8c -- false-positive guard: a casual mention of another brand ("my neighbor has a
+# Bosch") during IVT troubleshooting must NOT trigger a re-confirm or rebind.
+def test_l8c_casual_brand_mention_does_not_reconfirm(seeded, mock_gemini):
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Please clean the particle filter and clear the alarm.",
+        "confidence": 0.85, "decision": "solve", "in_docs": True, "report": {},
+    }
+    conv, _ = orch.open_conversation()
+    run_convo(conv, [
+        "heat_pump", "alarm H01 5252 on my heat pump", "IVT",
+        ("Geo 412C", {"state": "SPECIALIST", "decision": "solve"}),
+    ])
+    res = orch.process_turn(conv, "my neighbor has a Bosch and it works totally fine by the way")
+    assert res["decision"] == "solve"                 # normal troubleshooting, not a re-confirm
+    assert "switch to bosch" not in res["message"].lower()
+    conv.refresh_from_db()
+    assert conv.case_state["slots"]["brand"] == "IVT"  # unchanged
+    assert not conv.case_state.get("await_brand_reconfirm")
 
 
 # L9 -- customer refuses to give ANY contact info -- escalation ends gracefully,
