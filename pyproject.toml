@@ -18,8 +18,10 @@ dependencies = [
 [dependency-groups]
 dev = [
     "fpdf2>=2.8.7",
+    "playwright>=1.61.0",
     "pytest>=8.3",
     "pytest-django>=4.9",
+    "pytest-playwright>=0.8.0",
     "ruff>=0.8",
 ]
 
@@ -37,6 +39,7 @@ python_files = ["test_*.py", "tests.py"]
 addopts = "-m 'not live'"
 markers = [
     "live: hits the real Vertex Gemini API (opt-in: pytest -m live)",
+    "e2e: real-browser Playwright end-to-end suite (opt-in: pytest -m e2e; also marked live so the default 'not live' run skips it)",
 ]
 
 [tool.uv]

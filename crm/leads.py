@@ -75,6 +75,7 @@ def attach_customer_files(session) -> int:
 
 def create_and_dispatch(session, reason: str = ""):
     """Create (or reuse) the ServiceRequest and fire all sinks. Returns (sr, results)."""
+    reason = reason[:120]  # guardrail LLM reasons are unbounded; column is varchar(120)
     if not session.ai_summary:
         session.ai_summary = build_summary(session)
         session.save(update_fields=["ai_summary"])
