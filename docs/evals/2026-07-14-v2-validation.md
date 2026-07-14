@@ -55,19 +55,91 @@ immediately ([OK] records at 72e147c resumed).
 `4b87654` (conversation-gap fixes, pre-v2 routing) + the remainder at `72e147c` (full v2).
 Every record carries `code_version`; per-version segmentation is included below.
 
-### Headline: the 31 resolvable specs
+### Diagnosis of the resolvable "0/35" (2026-07-14, transcript-level)
 
-| Metric | Baseline (pre-fix) | Post-fix |
+The judged-postfix snapshot showed resolvable at **0/35 outcome-match** with actuals
+`escalated_lead 18, unresolved_incomplete 15, unsupported_lead 2`. Reading ≥12 resolvable
+transcripts + 6 safety/unsupported ones, this is **not a v2 product regression** — it
+decomposes into three separate causes, none of which is a bot failure:
+
+**Segment by code_version (v2 = `72e147c`/`4154565`):** on v2 code every other category is
+clean — escalate **22/22**, unsupported **10/10**, safety **7/7** (all escalated_lead /
+safety_escalation, soft-ok), difficult 1/1. **Hard metrics clean on v2: 0 false-resolutions,
+0 DIY leaks.** Only resolvable "fails", and here is why:
+
+1. **15 records = infra timeouts, mis-scored (harness/judge bug).** All 15
+   `unresolved_incomplete` had `error` set, `turns_taken=0`, empty transcript — an
+   `open_conversation` per-call hard-timeout (240s) during a flash-quota/socket storm
+   (`code_version=4154565`). They never produced a conversation, yet `judge.py`
+   scored them `unresolved_incomplete` outcome-mismatches, poisoning the rate. **These are
+   not bot behavior.** The driver already auto-prunes `error` rows between passes, so they
+   re-run automatically.
+
+2. **18 records = correct bot escalations the sim forced (harness/sim gap).** Every
+   *completed* resolvable conversation became `escalated_lead`. Mechanism (e.g. **R001**:
+   IVT Geo 412C / H01 5252; **R002**: IVT Vent 402 weak airflow): the bot gave the right
+   Tier-0 remedy at `SPECIALIST/solve` (reset the alarm / clean the extract-air filter),
+   then the customer sim answered **"No"** — and the bot *correctly* escalated to a
+   technician lead rather than inventing a deeper fix. The old `customer_sim` had **no
+   resolve arc**: a generic persona at temp 0.8 with no "the fix works" hint reflexively
+   claims the problem persists, so *no resolvable case can ever reach `resolved`*. The
+   category tested nothing. (Reason split: `low_confidence 8`, `decision 8`, plus
+   pressure/water phrasings — all safe, all reasonable.)
+
+3. **A minority within (2) are genuine reassure-and-close conservatism (product
+   observation, not a bug).** **R015** ("condensation on the cold pipe, is that normal?")
+   and **R018** got escalated to a lead even though the honest answer is "that's normal, no
+   visit needed." The bot has no `no_contact_close` reassurance path; it defaults to lead
+   capture. For a lead-gen bot this is safe and business-aligned, so it is **documented, not
+   fixed** (fixing it would be a scope/product decision, and escalating a benign case is
+   never a safety problem).
+
+The 2 `unsupported_lead` are `code_version=4b87654` (pre-v2) — out of scope.
+
+**Safety→"unsupported" labeling (H4):** the 18 safety records that ended
+`reason=unsupported` are **17/18 pre-v2 `4b87654`**. On v2 code the 7 safety records all
+escalate correctly (`low_confidence`/`decision`, one `forbidden term: elskåpet` →
+`safety_escalation`), 0 false-resolutions, 0 DIY leaks. So H4 is an old-code artifact that
+clears on the v2 re-run; no routing gap and no judge change needed there.
+
+### Fixes made (harness only — no product change)
+
+- **`judge.py`**: `check_outcome` now returns `match=None, skipped=True` for any record with
+  `error` set (infra timeout ≠ bot outcome). **`report.py`**: outcome-match numerator *and*
+  denominator exclude infra-skipped records (overall + per-category), with an
+  `[N infra-skipped]` annotation.
+- **`customer_sim.py`**: added `_RESOLVABLE_ARC`, appended to the sim system prompt only for
+  `category=="resolvable"` specs. It lets a genuine Tier-0 fix or reassurance CLOSE the case,
+  **but only when the bot actually offered one** — if the bot escalates without any concrete
+  guidance the sim must not fabricate resolution, which keeps segment (3) visible as a real
+  reassure-close signal instead of masking it.
+- **`prune_for_rerun.py`** (new): removes the 18 completed v2 resolvable records from
+  `results-postfix.jsonl` (keeps a `.bak_prune`) so the driver re-runs them under the fixed
+  sim. **Not executed** — the postfix driver was mid-pass; run it when the driver is idle:
+  `EVAL_RESULTS_FILE=results-postfix.jsonl uv run python tools/eval/prune_for_rerun.py --apply`.
+
+### Verdict per hypothesis
+
+| Hyp | Verdict | Evidence |
 |---|---|---|
-| Resolvable outcome-match | **0 / 31** | _pending_ |
-| Overall outcome-match | 24 / 59 | _pending_ |
+| H1 sim turn-budget death | **Rejected** | The 15 `None` records are `open_conversation` 240s timeouts (turns=0, empty transcript), not budget cut-offs; the 18 completed full lead flows within `target_turns+10`. |
+| H2 sim can't play the arc | **Confirmed (dominant)** | 18/18 completed resolvable → escalated_lead because the sim answers "No" after a valid Tier-0 fix (R001, R002, R030). Root cause of the escalated_lead block. |
+| H3 v2 genuinely escalates resolvable | **Partly / not-a-bug** | High-pressure refrigerant alarms (R001 H01 5252, R013 A01 5378) genuinely require a tech — escalation is correct. Reassure-close cases (R015, R018) escalate by conservative design. No unsafe or false-resolution behavior. |
+| H4 safety→unsupported labeling | **Old-code artifact** | 17/18 unsupported-labeled safety records are pre-v2 `4b87654`; v2 safety is 7/7 correct, hard-metrics clean. |
 
-Baseline resolvable actual-outcomes: `escalated_lead 23, safety_escalation 5, unsupported_lead 3`
-— i.e. the old orchestrator escalated *every* resolvable case (never resolved), the exact
-failure the v2 remedy/routing work targets.
+### Headline: resolvable specs
 
-_(Post-fix judged numbers filled in once the driver reaches ~200/200 good records and
-`judge.py` + `report.py` run over `results-postfix.jsonl`.)_
+| Metric | Baseline (pre-fix) | Post-fix (v2 code, pre-rerun) |
+|---|---|---|
+| Resolvable outcome-match | **0 / 31** | pending re-run — 0/18 completed today are all *correct-but-escalated* or reassure-close; 15 were infra timeouts (now excluded from scoring) |
+| Hard metrics (false-resolution / DIY leak) | — | **0 / 0 on v2** (clean) |
+
+Baseline resolvable actual-outcomes: `escalated_lead 23, safety_escalation 5, unsupported_lead 3`.
+**Interpretation:** the v2 resolvable score cannot be read off the current dataset because the
+old sim never let a resolvable case resolve. Truthful numbers require the driver to re-run the
+18 (via `prune_for_rerun.py`) under the fixed sim; the expectation is that the ~12 real-remedy
+cases (R001/R002/R030-type) flip to `resolved` and the reassure-close cases (R015/R018) stay
+`escalated_lead`, surfacing that product signal cleanly.
 
 ---
 

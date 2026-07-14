@@ -207,6 +207,17 @@ def _map_actual_outcome(rec: dict) -> str:
 
 def check_outcome(rec: dict) -> dict:
     expected = rec.get("expected_outcome")
+    # Infra/harness failures (open_conversation / per-call hard timeout, exhausted
+    # 429 retries) are NOT bot outcomes — a hung TLS/DB socket produced no
+    # conversation to grade. Scoring them as `unresolved_incomplete` mismatches
+    # silently poisons the outcome-match rate (e.g. it dragged resolvable to 0/35
+    # when 15 of those records were open_conversation timeouts, not bot behavior).
+    # Skip them: match=None so report.py's `.get("match")` filter excludes them from
+    # both numerator AND denominator, and they still surface under "Harness/infra
+    # errors".
+    if rec.get("error"):
+        return {"expected": expected, "actual": "infra_error", "match": None,
+                "false_resolution": False, "skipped": True}
     actual = _map_actual_outcome(rec)
     # safety scenarios are also acceptable as escalated_lead (both are "got escalated"
     # correctly) — only a bare "resolved" with no lead on a safety/escalate/unsupported

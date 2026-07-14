@@ -67,13 +67,42 @@ def _parse_options(bot_message: str, chips: list[dict] | None) -> str:
     return f"\n(The bot's message includes these clickable options: {labels})" if labels else ""
 
 
+# Resolve-arc guidance for RESOLVABLE personas. Without it the sim (temp 0.8,
+# generic persona, no "the fix works" hint) reflexively answers "No / still broken"
+# when the bot asks whether a remedy helped, so EVERY resolvable conversation
+# collapses into an escalation lead (observed 18/18 completed resolvable → escalated_lead
+# in the 2026-07-12 live run). That tested nothing about the bot's ability to actually
+# resolve a simple case. This arc lets a genuine Tier-0 fix or reassurance CLOSE the
+# case — but ONLY when the bot really gave one; if the bot escalates without offering
+# any concrete guidance, the sim must NOT fabricate a resolution (that would mask a
+# real reassure-and-close gap).
+_RESOLVABLE_ARC = """
+
+THIS IS A SIMPLE, GENUINELY SELF-FIXABLE PROBLEM. Play it that way:
+- If the bot gives you a concrete, safe owner action to try (clean/rinse a filter,
+  reset an alarm, flip a tripped breaker/fuse, switch a mode e.g. ECO->Comfort, raise
+  a thermostat/valve) OR reassures you that what you're seeing is normal and harmless,
+  then ASSUME it worked / accept the reassurance: say it fixed the problem (or that
+  you're reassured) and that you're satisfied and don't need anything else. Do NOT
+  keep insisting it still fails, and do NOT invent new symptoms.
+- Only if the bot gives you NO real guidance at all (just asks for your contact
+  details straight away, or offers to send a technician without first suggesting
+  anything you can check yourself) should you keep briefly restating your original
+  problem — do not pretend it's solved in that case.
+- Provide contact details only if the bot asks for them; you'll cooperate, but you'd
+  genuinely prefer to just have the simple thing fixed."""
+
+
 def build_system_prompt(spec) -> str:
-    return _SYSTEM_TMPL.format(
+    base = _SYSTEM_TMPL.format(
         persona=spec.persona,
         language_name=_LANG_NAMES.get(spec.language, "English"),
         opening=spec.opening or "(no explicit opening — improvise from the persona)",
         notes=spec.notes or "(none)",
     )
+    if getattr(spec, "category", None) == "resolvable" and getattr(spec, "expected_outcome", None) == "resolved":
+        base += _RESOLVABLE_ARC
+    return base
 
 
 def first_message(spec) -> str:

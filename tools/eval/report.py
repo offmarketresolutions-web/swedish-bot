@@ -78,11 +78,18 @@ def build_report(records: list[dict]) -> str:
              f"- Harness/infra errors: {len(errors)} — {', '.join(r['id'] for r in errors) or 'none'}",
              ""]
 
-    # Outcome match rate
-    matched = [r for r in records if r.get("judge", {}).get("deterministic", {})
+    # Outcome match rate. Denominator EXCLUDES infra-skipped records (error set →
+    # judge marks outcome.skipped) so a flaky-socket timeout can't masquerade as a
+    # bot outcome miss.
+    def _scored(r):
+        return r.get("judge", {}).get("deterministic", {}).get("outcome", {}).get("skipped") is not True \
+            and not r.get("error")
+    scored = [r for r in records if _scored(r)]
+    matched = [r for r in scored if r.get("judge", {}).get("deterministic", {})
               .get("outcome", {}).get("match")]
-    lines += [f"## Outcome match rate: {len(matched)}/{len(records)} "
-             f"({100 * len(matched) / max(1, len(records)):.0f}%)", ""]
+    lines += [f"## Outcome match rate: {len(matched)}/{len(scored)} "
+             f"({100 * len(matched) / max(1, len(scored)):.0f}%) "
+             f"[{len(records) - len(scored)} infra-skipped]", ""]
 
     # Per-category table
     by_cat = defaultdict(list)
@@ -93,14 +100,16 @@ def build_report(records: list[dict]) -> str:
              "|---|---|---|---|---|---|"]
     for cat, rs in sorted(by_cat.items()):
         n = len(rs)
-        m = sum(1 for r in rs if r.get("judge", {}).get("deterministic", {})
+        scored_rs = [r for r in rs if _scored(r)]
+        sc = len(scored_rs)
+        m = sum(1 for r in scored_rs if r.get("judge", {}).get("deterministic", {})
                .get("outcome", {}).get("match"))
         avg_turns = sum(r.get("turns_taken", 0) for r in rs) / n
         lats = [r.get("avg_latency_sec") for r in rs if r.get("avg_latency_sec")]
         avg_lat = sum(lats) / len(lats) if lats else 0
         leaks = sum(1 for r in rs if not r.get("judge", {}).get("deterministic", {})
                    .get("diy_leak", {}).get("clean", True))
-        lines.append(f"| {cat} | {n} | {m}/{n} | {avg_turns:.1f} | {avg_lat:.2f} | {leaks} |")
+        lines.append(f"| {cat} | {n} | {m}/{sc} | {avg_turns:.1f} | {avg_lat:.2f} | {leaks} |")
     lines.append("")
 
     # Rubric dimension pass rates
