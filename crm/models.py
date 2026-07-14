@@ -281,3 +281,24 @@ class LeadDelivery(models.Model):
 
     def __str__(self):
         return f"LeadDelivery<{self.pk}> {self.sink}={self.status}"
+
+
+class FormButton(models.Model):
+    """Owner-configured website-form action buttons (plan S6/D2). The bot never
+    invents URLs — a chip with a url is emitted only from an active row here."""
+
+    CATEGORY = [
+        ("heat_pump", "Heat pump service"),
+        ("water_pump_well", "Water pump / well service"),
+        ("water_filtration", "Water filter service"),
+        ("quote_request", "Quote request"),
+    ]
+
+    category_slug = models.CharField(max_length=32, choices=CATEGORY, unique=True)
+    label = models.CharField(max_length=80)
+    url = models.URLField()
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"FormButton<{self.category_slug}> {self.label}"
