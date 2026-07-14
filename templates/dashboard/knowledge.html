@@ -1,0 +1,62 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{% trans "Knowledge" %} — {{ label }} — Nordland VVS{% endblock %}
+{% block breadcrumb %}{% trans "Knowledge" %} / {{ label }}{% endblock %}
+{% block content %}
+{% include "dashboard/_page_header.html" with title=_('Kunskapsbank') subtitle=label %}
+
+<div class="flex gap-1 mb-6 border-b border-nl-border text-sm" data-testid="knowledge-tabs">
+  {% for t in tabs %}
+    <a href="{% url 'dash-knowledge' t.slug %}"
+       class="px-3 py-2 -mb-px border-b-2 {% if t.active %}border-nl-primary font-semibold{% else %}border-transparent text-nl-base/60 hover:text-nl-base{% endif %}">
+      {{ t.label }}</a>
+  {% endfor %}
+</div>
+
+<div class="flex flex-wrap items-center gap-4 mb-5 text-sm" data-testid="knowledge-counts">
+  <span class="nl-card px-3 py-1.5">{% trans "Total" %}: <b>{{ total }}</b></span>
+  <span class="nl-card px-3 py-1.5 text-nl-primaryd">{% trans "Approved" %}: <b>{{ approved_count }}</b></span>
+  <span class="nl-card px-3 py-1.5 text-nl-base/70">{% trans "Pending" %}: <b>{{ pending_count }}</b></span>
+  <span class="flex-1"></span>
+  {% if is_site %}
+    <a href="{% url 'dash-site-faq-new' %}" class="btn btn-primary" data-testid="knowledge-new">+ {% trans "Ny post" %}</a>
+  {% else %}
+    <a href="{% url 'dash-knowledge-new' family %}" class="btn btn-primary" data-testid="knowledge-new">+ {% trans "Ny post" %}</a>
+  {% endif %}
+</div>
+
+{% if subtype_chips %}
+<div class="flex flex-wrap items-center gap-1.5 mb-4 text-xs" data-testid="knowledge-subtype-chips">
+  <a href="{% url 'dash-knowledge' family %}"
+     class="px-2 py-0.5 rounded-full {% if not subtype %}bg-nl-primary text-white{% else %}bg-nl-bg text-nl-base/70 hover:bg-nl-primaryl{% endif %}">{% trans "All" %}</a>
+  {% for st in subtype_chips %}
+    <a href="{% url 'dash-knowledge' family %}?subtype={{ st }}"
+       class="px-2 py-0.5 rounded-full {% if subtype == st %}bg-nl-primary text-white{% else %}bg-nl-bg text-nl-base/70 hover:bg-nl-primaryl{% endif %}">{{ st }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<form method="get" class="mb-5 flex flex-wrap items-center gap-2 text-sm"
+      hx-get="{% url 'dash-knowledge' family %}" hx-target="#knowledge-list" hx-swap="outerHTML"
+      hx-push-url="true" data-testid="knowledge-filter">
+  <input name="q" value="{{ q }}" type="search"
+         placeholder="{% trans 'Search question, answer, keywords…' %}"
+         aria-label="{% trans 'Search knowledge' %}"
+         class="flex-1 min-w-[12rem] rounded-md border border-nl-border bg-white px-3 py-1.5 focus:border-nl-primary focus:outline-none focus:ring-1 focus:ring-nl-primary">
+  {% if not is_site %}
+  <select name="onset" class="rounded-md border border-nl-border bg-white px-2 py-1.5">
+    <option value="">{% trans "Onset: all" %}</option>
+    {% for o in onsets %}<option value="{{ o }}" {% if onset == o %}selected{% endif %}>{{ o }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <select name="status" class="rounded-md border border-nl-border bg-white px-2 py-1.5">
+    <option value="">{% trans "Status: all" %}</option>
+    <option value="approved" {% if status == 'approved' %}selected{% endif %}>{% trans "Approved" %}</option>
+    <option value="pending" {% if status == 'pending' %}selected{% endif %}>{% trans "Pending" %}</option>
+  </select>
+  {% if subtype %}<input type="hidden" name="subtype" value="{{ subtype }}">{% endif %}
+  <button class="btn btn-primary">{% trans "Filter" %}</button>
+  <a href="{% url 'dash-knowledge' family %}" class="btn btn-secondary">{% trans "Clear" %}</a>
+</form>
+
+{% include "dashboard/_knowledge_list.html" %}
+{% endblock %}

@@ -1,8 +1,16 @@
 from django.urls import path
 
-from dashboard import views, voice_views
+from dashboard import knowledge, views, voice_views
 
 urlpatterns = [
+    # General knowledge curation (one page per category family)
+    path("knowledge/", knowledge.knowledge_index, name="dash-knowledge-index"),
+    path("knowledge/entry/<int:pk>/edit/", knowledge.knowledge_entry_edit, name="dash-knowledge-entry-edit"),
+    path("knowledge/site/<int:pk>/edit/", knowledge.knowledge_site_edit, name="dash-knowledge-site-edit"),
+    path("knowledge/<str:kind>/<int:pk>/toggle", knowledge.knowledge_toggle, name="dash-knowledge-toggle"),
+    path("knowledge/<str:kind>/<int:pk>/delete", knowledge.knowledge_delete, name="dash-knowledge-delete"),
+    path("knowledge/<slug:family>/new/", knowledge.knowledge_entry_new, name="dash-knowledge-new"),
+    path("knowledge/<slug:family>/", knowledge.knowledge_page, name="dash-knowledge"),
     # Voice / phone control plane
     path("voice/", voice_views.voice_phone, name="dash-voice-phone"),
     path("voice/publish", voice_views.voice_publish, name="dash-voice-publish"),

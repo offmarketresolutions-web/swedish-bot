@@ -40,6 +40,8 @@
           {% include 'dashboard/_icon.html' with name='book' %}<span>{% trans "Knowledge Base" %}</span></a>
         <a href="{% url 'dash-faq' %}" class="nl-nav {% if url == 'dash-faq' %}nl-nav-on{% endif %}" {% if url == 'dash-faq' %}aria-current="page"{% endif %}>
           {% include 'dashboard/_icon.html' with name='book' %}<span>{% trans "FAQ" %}</span></a>
+        <a href="{% url 'dash-knowledge-index' %}" class="nl-nav {% if url == 'dash-knowledge' or url == 'dash-knowledge-index' or url == 'dash-knowledge-new' or url == 'dash-knowledge-entry-edit' or url == 'dash-knowledge-site-edit' %}nl-nav-on{% endif %}" {% if url == 'dash-knowledge' %}aria-current="page"{% endif %} data-testid="nav-knowledge">
+          {% include 'dashboard/_icon.html' with name='book' %}<span>{% trans "Kunskapsbank" %}</span></a>
         <a href="{% url 'dash-agents' %}" class="nl-nav {% if url == 'dash-agents' or url == 'dash-agent-detail' %}nl-nav-on{% endif %}" {% if url == 'dash-agents' %}aria-current="page"{% endif %}>
           {% include 'dashboard/_icon.html' with name='bot' %}<span>{% trans "Agents" %}</span></a>
         <a href="{% url 'dash-guardrails' %}" class="nl-nav {% if url == 'dash-guardrails' %}nl-nav-on{% endif %}" {% if url == 'dash-guardrails' %}aria-current="page"{% endif %}>

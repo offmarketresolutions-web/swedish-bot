@@ -158,6 +158,94 @@ class FAQEntryForm(forms.Form):
         return entry
 
 
+ONSET_CHOICES = [("", "—"), ("any", "Any"), ("sudden", "Sudden"), ("long_term", "Long-term")]
+
+
+class KnowledgeEntryForm(forms.Form):
+    """Create/edit a general-knowledge FAQEntry with ALL v2 metadata + sv text
+    (en optional). Editing NEVER touches is_approved — the owner curates approval
+    explicitly via the toggle."""
+
+    category = forms.ModelChoiceField(queryset=Category.objects.none(), label="Category")
+    question = forms.CharField(label="Question (sv)", widget=forms.Textarea(attrs={"rows": 2}))
+    answer = forms.CharField(label="Answer (sv)", widget=forms.Textarea(attrs={"rows": 5}))
+    question_en = forms.CharField(label="Question (en)", required=False,
+                                  widget=forms.Textarea(attrs={"rows": 2}))
+    answer_en = forms.CharField(label="Answer (en)", required=False,
+                                widget=forms.Textarea(attrs={"rows": 4}))
+    applicable_subtypes = forms.MultipleChoiceField(
+        required=False, widget=forms.CheckboxSelectMultiple,
+        help_text="Leaf sub-types this entry applies to; none checked = all.")
+    onset_type = forms.ChoiceField(choices=ONSET_CHOICES, required=False)
+    safe_customer_checks = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows": 3}))
+    service_trigger = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows": 3}))
+    keywords = forms.CharField(required=False, help_text="Comma-separated keywords.")
+    manufacturer = forms.ModelChoiceField(queryset=Vendor.objects.order_by("name"), required=False)
+    exclusions = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows": 2}))
+
+    def __init__(self, *args, family_categories=None, leaf_slugs=(), instance=None, **kwargs):
+        self.instance = instance
+        super().__init__(*args, **kwargs)
+        cats = family_categories if family_categories is not None else Category.objects.order_by("name")
+        self.fields["category"].queryset = (
+            cats if hasattr(cats, "model")
+            else Category.objects.filter(pk__in=[c.pk for c in cats]).order_by("name"))
+        self.fields["applicable_subtypes"].choices = [(s, s) for s in leaf_slugs]
+        if instance is not None and not self.is_bound:
+            txt = instance.text("sv")
+            txt_en = instance.texts.filter(lang="en").first()
+            self.initial.update({
+                "category": instance.category_id,
+                "question": txt.question if txt else "",
+                "answer": txt.answer if txt else "",
+                "question_en": txt_en.question if txt_en else "",
+                "answer_en": txt_en.answer if txt_en else "",
+                "applicable_subtypes": instance.applicable_subtypes or [],
+                "onset_type": instance.onset_type,
+                "safe_customer_checks": instance.safe_customer_checks,
+                "service_trigger": instance.service_trigger,
+                "keywords": ", ".join(instance.keywords or []),
+                "manufacturer": instance.manufacturer_id,
+                "exclusions": instance.exclusions,
+            })
+            # instance may carry subtype slugs outside this family's leaves — keep them valid.
+            known = {s for s, _ in self.fields["applicable_subtypes"].choices}
+            extra = [s for s in (instance.applicable_subtypes or []) if s not in known]
+            if extra:
+                self.fields["applicable_subtypes"].choices += [(s, s) for s in extra]
+        _style(self.fields, area=("question", "answer", "question_en", "answer_en",
+                                  "safe_customer_checks", "service_trigger", "exclusions"))
+        self.fields["applicable_subtypes"].widget.attrs["class"] = _CHECK
+
+    def clean_keywords(self):
+        raw = self.cleaned_data.get("keywords", "")
+        return [k.strip() for k in raw.split(",") if k.strip()]
+
+    def save(self):
+        d = self.cleaned_data
+        entry = self.instance
+        if entry is None:
+            entry = FAQEntry(category=d["category"],
+                             key=_unique_faq_key(d["category"], d["question"]))
+        else:
+            entry.category = d["category"]
+        entry.applicable_subtypes = d["applicable_subtypes"]
+        entry.onset_type = d["onset_type"]
+        entry.safe_customer_checks = d["safe_customer_checks"]
+        entry.service_trigger = d["service_trigger"]
+        entry.keywords = d["keywords"]
+        entry.manufacturer = d["manufacturer"]
+        entry.exclusions = d["exclusions"]
+        entry.save()  # is_approved untouched by design
+        FAQEntryText.objects.update_or_create(
+            faq=entry, lang="sv", defaults={"question": d["question"], "answer": d["answer"]})
+        if d["question_en"] or d["answer_en"]:
+            FAQEntryText.objects.update_or_create(
+                faq=entry, lang="en",
+                defaults={"question": d["question_en"], "answer": d["answer_en"]})
+        return entry
+
+
 class SiteFAQForm(forms.ModelForm):
     """Add a SITE FAQ — the public-style list shown on the FAQ page (SiteFAQ)."""
     class Meta:

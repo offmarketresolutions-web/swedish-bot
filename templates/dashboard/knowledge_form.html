@@ -1,0 +1,21 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{{ title }} — Nordland VVS{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'dash-knowledge' family %}" class="hover:text-nl-primary">{% trans "Knowledge" %} / {{ label }}</a>
+  <span class="text-nl-base/30">/</span>
+  <span class="text-nl-base/80">{{ title }}</span>
+{% endblock %}
+{% block content %}
+{% include "dashboard/_page_header.html" with title=title subtitle=label %}
+
+<div class="nl-card p-5 max-w-2xl">
+  <form method="post" class="space-y-4" data-testid="knowledge-form">
+    {% csrf_token %}
+    {% include "dashboard/_form_fields.html" with form=form %}
+    <div class="flex items-center gap-2 pt-2">
+      <button class="btn btn-primary">{% trans "Save" %}</button>
+      <a href="{% url 'dash-knowledge' family %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
