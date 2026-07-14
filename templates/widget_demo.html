@@ -30,7 +30,7 @@
 
   <!-- the live support widget, auto-opened on load (it shows its own blue "Chat with us"
        pointer at the bubble whenever the chat is closed) -->
-  <script src="{% static 'widget/nordland-widget.js' %}" data-lang="sv" data-open="1" defer></script>
+  <script src="{% static 'widget/nordland-widget.js' %}?v=2" data-lang="sv" data-open="1" defer></script>
   <script>
     document.addEventListener("click", function (e) {
       if (e.target.closest("[data-open-chat]")) {

@@ -38,3 +38,24 @@ def test_homepage_demo_renders_and_embeds_widget(client):
     assert resp.status_code == 200
     assert b"<script" in resp.content
     assert b"nordland-widget.js" in resp.content
+
+
+def test_renderchips_renders_a_link_for_url_chips():
+    js = (WIDGET / "nordland-widget.js").read_text(encoding="utf-8")
+    # url chips render as an <a target=_blank rel=noopener>, not a send-button.
+    assert 'c.url' in js
+    assert 'noopener' in js
+
+
+def test_demo_form_page_renders_and_embeds_prefill_snippet(client):
+    resp = client.get("/demo/form")
+    assert resp.status_code == 200
+    assert b"nordland-prefill.js" in resp.content
+    assert b'data-testid="service-form"' in resp.content
+
+
+def test_prefill_snippet_reads_nl_case_param():
+    snippet = (Path(settings.BASE_DIR) / "static" / "prefill" / "nordland-prefill.js").read_text(encoding="utf-8")
+    assert "nl_case" in snippet
+    assert "/api/prefill/" in snippet
+    assert "FIELD_MAP" in snippet

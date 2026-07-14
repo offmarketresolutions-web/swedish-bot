@@ -101,6 +101,7 @@
     ".nl-chip{border:1px solid " + BLUE + ";color:" + BLUE + ";background:#fff;border-radius:18px;padding:6px 13px;font-size:13px;cursor:pointer;transition:background .12s ease,color .12s ease;font-family:inherit}" +
     ".nl-chip:hover{background:" + BLUE + ";color:#fff}" +
     ".nl-chip:focus-visible{outline:2px solid " + BLUE + ";outline-offset:1px}" +
+    ".nl-chip-link{text-decoration:none;display:inline-block}" +
     ".nl-composer{border-top:1px solid #e8edf3;background:#fff;padding:8px 10px}" +
     ".nl-filechip{display:none;align-items:center;gap:8px;background:#eef4fb;border:1px solid #d6e4f3;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:13px;color:#1b2b3d}" +
     ".nl-filechip.nl-show{display:inline-flex}" +
@@ -272,6 +273,16 @@
     clearChips();
     lastChips = chips || [];
     lastChips.forEach(function (c) {
+      if (c.url) {
+        var a = el("a", "nl-chip nl-chip-link", c.label || c.value);
+        a.href = c.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.setAttribute("data-testid", "chip-link");
+        a.setAttribute("data-value", c.value || c.url);
+        chipsBar.appendChild(a);
+        return;
+      }
       var btn = el("button", "nl-chip", c.label || c.value);
       btn.type = "button";
       btn.setAttribute("data-testid", "chip");

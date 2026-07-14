@@ -1,0 +1,43 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+
+{% block breadcrumb %}<span class="text-nl-base/80">{% trans "Website & forms" %}</span>{% endblock %}
+
+{% block content %}
+{% include 'dashboard/_page_header.html' with title=_('Website & forms') subtitle=_('Chip URLs the bot may offer a customer — the bot never invents a link, only what is set and active here.') %}
+{% include 'dashboard/_settings_tabs.html' %}
+
+<section class="nl-card p-4 max-w-2xl mb-6" data-testid="settings-form-buttons">
+  <h2 class="font-semibold mb-1">{% trans "Form buttons" %}</h2>
+  <p class="text-sm text-nl-base/60 mb-4">
+    {% trans "One URL per case category. Each active row's URL gets a signed prefill token (?nl_case=…) appended automatically when the bot offers it as a chip, so the customer's answers carry over to your real form." %}
+  </p>
+  <form method="post" action="{% url 'dash-forms' %}" class="space-y-4 text-sm">
+    {% csrf_token %}
+    {% for fb in buttons %}
+      <div class="border border-nl-border rounded-md p-3" data-testid="form-button-row-{{ fb.category_slug }}">
+        <div class="font-semibold mb-2">{{ fb.get_category_slug_display }}</div>
+        <label class="block mb-2">{% trans "Label" %}
+          <input type="text" name="label_{{ fb.category_slug }}" value="{{ fb.label }}"
+                 class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5">
+        </label>
+        <label class="block mb-2">{% trans "URL" %}
+          <input type="url" name="url_{{ fb.category_slug }}" value="{{ fb.url }}"
+                 placeholder="https://www.nordlandvvs.se/kontakt"
+                 class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5">
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="active_{{ fb.category_slug }}" {% if fb.is_active %}checked{% endif %}>
+          {% trans "Active" %}
+        </label>
+      </div>
+    {% endfor %}
+    <button class="btn btn-primary">{% trans "Save" %}</button>
+  </form>
+</section>
+
+<section class="nl-card p-4 max-w-2xl text-sm text-nl-base/70" data-testid="prefill-install-hint">
+  <h2 class="font-semibold mb-1">{% trans "Prefill snippet install" %}</h2>
+  <p>{% trans "When you're ready to install the prefill snippet on the real WordPress form, follow" %}
+    <code class="text-xs bg-nl-border/30 px-1 py-0.5 rounded">docs/plans/2026-07-13-prefill-install.md</code>.</p>
+</section>
+{% endblock %}

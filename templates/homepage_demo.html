@@ -139,7 +139,7 @@
         <a href="#vattenprov">Vattenprov</a>
         <a href="#kontakt">Kontakt</a>
       </nav>
-      <a class="btn btn-primary nav-cta" href="#kontakt">Gratis offert</a>
+      <a class="btn btn-primary nav-cta" href="{% url 'demo-form' %}">Gratis offert</a>
     </div>
   </header>
 
@@ -155,7 +155,7 @@
              Oavsett om du önskar uppdatera ditt värmesystem, borra efter vatten eller installera
              ett filter så är vi rätt partner för dig.</p>
           <div class="hero-ctas">
-            <a class="btn btn-primary" href="#kontakt">Gratis offert</a>
+            <a class="btn btn-primary" href="{% url 'demo-form' %}">Gratis offert</a>
             <a class="btn btn-ghost" href="#kontakt">Boka service</a>
           </div>
         </div>
@@ -285,7 +285,7 @@
             dig ta reda på vad vattnet innehåller — och vad som behöver göras åt det.
           </p>
           <div class="callout-ctas">
-            <a class="btn btn-primary" href="#kontakt">Gratis offert</a>
+            <a class="btn btn-primary" href="{% url 'demo-form' %}">Gratis offert</a>
             <a class="btn btn-ghost" href="#tjanster">Se alla våra tjänster</a>
           </div>
         </div>
@@ -336,7 +336,7 @@
   </footer>
 
   <!-- the live support widget — same-origin embed, unmodified script (per DEPLOY.md) -->
-  <script src="{% static 'widget/nordland-widget.js' %}" data-lang="sv" defer></script>
+  <script src="{% static 'widget/nordland-widget.js' %}?v=2" data-lang="sv" defer></script>
   <script>
     document.addEventListener("click", function (e) {
       if (e.target.closest("[data-open-chat]")) {
