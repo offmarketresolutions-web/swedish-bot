@@ -172,6 +172,10 @@ def test_l6_rambler_extracts_buried_symptom_and_proceeds(seeded, mock_gemini):
     assert cs["slots"]["problem"] == "no hot water"
     assert cs["slots"]["brand"] == "IVT"
     assert cs["slots"]["model"] == "Geo 412C"
+    # S7: postcode-early now holds for rich openers too — one postnummer question,
+    # then the buried-symptom case routes straight to a solve.
+    assert "postnummer" in res["message"].lower() or "postal code" in res["message"].lower()
+    res = orch.process_turn(conv, "852 34")
     assert res["decision"] == "solve"
     low = res["message"].lower()
     assert "hot water" in low or "hot-water" in low

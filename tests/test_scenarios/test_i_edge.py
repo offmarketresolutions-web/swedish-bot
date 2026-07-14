@@ -45,7 +45,10 @@ def test_i2_multi_fact_single_message_bulk_extracted(seeded, mock_gemini):
     assert cs["slots"]["brand"] == "IVT"
     assert cs["slots"]["model"] == "Geo 412C"
     assert cs["slots"]["error_code"] == "H01 5252"
-    # all required slots were filled from ONE message -> routes straight through, no re-ask
+    # S7: postcode-early now holds for rich openers too — ONE postnummer question
+    # precedes routing; answering it routes straight to the specialist, no re-ask.
+    assert "postal code" in res["message"].lower() or "postnummer" in res["message"].lower()
+    res = orch.process_turn(conv, "85234")
     assert res["decision"] == "solve"
     assert "filter" in res["message"].lower()
 

@@ -1,0 +1,63 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+django: version: 5.2.15, settings: config.settings (from ini)
+rootdir: C:\Users\vladi\OneDrive\Desktop\swedish-bot
+configfile: pyproject.toml
+plugins: anyio-4.14.0, base-url-2.1.0, django-4.12.0, playwright-0.8.0
+collecting ... collected 2 items
+
+tests/e2e/test_browser_v2.py::test_v2_a_postcode_early FAILED
+tests/e2e/test_browser_v2.py::test_v2_d_dashboard_tabs PASSED
+
+================================== FAILURES ===================================
+__________________________ test_v2_a_postcode_early ___________________________
+
+page = <Page url='http://127.0.0.1:8077/demo/homepage'>
+
+    def test_v2_a_postcode_early(page: Page):
+        """A rich opener (brand+model+symptom) should let the bot reach the
+        postnummer ask within its first two questions rather than re-interrogating
+        the basics."""
+        page.goto(f"{BASE_URL}/demo/homepage")
+        open_widget(page)
+    
+        opener = ("Min IVT Geo 412C värmepump ger inte tillräckligt varmt vatten "
+                  "och huset är kallt")
+        reply = send_text(page, opener)
+    
+        questions_seen = 0
+        postcode_within_two = _looks_like_postcode_ask(reply) and _is_question(reply)
+        if _is_question(reply):
+            questions_seen += 1
+            if _looks_like_postcode_ask(reply):
+                postcode_within_two = True
+    
+        generic_answers = ["Det började igår", "Nej ingen felkod", "Jag vet inte modellen exakt"]
+        for ans in generic_answers:
+            if questions_seen >= 2:
+                break
+            reply = send_text(page, ans)
+            if _looks_like_postcode_ask(reply):
+                postcode_within_two = True
+                break
+            if _is_question(reply):
+                questions_seen += 1
+    
+        shot_v2(page, "a_postcode_early.png")
+>       assert postcode_within_two, (
+            f"bot did not ask for postnummer within its first 2 questions; "
+            f"last reply: {reply!r}")
+E       AssertionError: bot did not ask for postnummer within its first 2 questions; last reply: 'Jag vill gärna att en tekniker från Nordland VVS hjälper dig med detta. Får jag ta några uppgifter så de kan höra av sig — vad heter du?'
+E       assert False
+
+tests\e2e\test_browser_v2.py:99: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\django\db\backends\utils.py:98
+  C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\django\db\backends\utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_browser_v2.py::test_v2_a_postcode_early - AssertionErro...
+============== 1 failed, 1 passed, 1 warning in 74.75s (0:01:14) ==============

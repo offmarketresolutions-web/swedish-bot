@@ -321,6 +321,15 @@ def _intake_step(cs, user_text, locale) -> dict | None:
         s["model"] = None  # reopen so a typed model or photo can fill it
         return {"message": t(locale, "model_photo_nudge"), "chips": []}
     if is_routable(cs):
+        # Postcode-early holds for RICH openers too (S7 fix, e2e scenario a): a
+        # message that fills category+identity+problem at once made is_routable()
+        # true and skipped the early postnummer ask entirely. Ask it ONCE before
+        # routing; the normal 2-reask→unknown machinery keeps it non-blocking,
+        # and an already-stated ("85234") or declined ("unknown") postcode skips.
+        if not s.get("postal_code"):
+            cs["current_slot"] = "postal_code"
+            return {"message": t(locale, "q_postal_code"),
+                    "chips": intake.chips_for("postal_code", cs, locale)}
         cs["state"] = STATE_ROUTING
         return None
     nxt = next_required_slot(cs)

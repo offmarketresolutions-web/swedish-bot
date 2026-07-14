@@ -88,6 +88,45 @@ def test_postcode_asked_right_after_category(seeded, mock_gemini):
     assert _cs(conv)["current_slot"] == "postal_code"
 
 
+def test_postcode_asked_even_when_rich_opener_makes_case_routable(seeded, mock_gemini):
+    """S7 regression (found by e2e scenario a): a rich opener that fills
+    category+brand+model+problem makes is_routable() true, and intake used to
+    short-circuit straight to ROUTING — the early postnummer ask was skipped
+    entirely (it then only surfaced at lead-contact time). Postcode-early must
+    hold for rich openers too: one postnummer question BEFORE routing."""
+    mock_gemini.responses["bulk"] = {
+        "category": "heat_pump", "subtype": None, "brand": "IVT", "model": "Geo 600",
+        "error_code": "H01 5252", "alarm_text": None, "onset": None, "postal_code": None,
+        "installer": None, "operating_context": None, "readings": [],
+        "problem": "not enough hot water, house cold",
+    }
+    conv, _ = orch.open_conversation()
+    res = orch.process_turn(
+        conv, "My IVT Geo 600 heat pump shows H01 5252, not enough hot water, house cold")
+    low = res["message"].lower()
+    assert "postal code" in low or "postnummer" in low, low
+    assert _cs(conv)["current_slot"] == "postal_code"
+    # answering it proceeds into routing/specialist on the next turn (non-blocking)
+    orch.process_turn(conv, "85234")
+    assert _cs(conv)["slots"]["postal_code"] == "85234"
+
+
+def test_postcode_not_reasked_when_rich_opener_contains_it(seeded, mock_gemini):
+    """If the rich opener already states the postcode, routing proceeds without
+    an extra postnummer question."""
+    mock_gemini.responses["bulk"] = {
+        "category": "heat_pump", "subtype": None, "brand": "IVT", "model": "Geo 600",
+        "error_code": None, "alarm_text": None, "onset": None, "postal_code": "85234",
+        "installer": None, "operating_context": None, "readings": [],
+        "problem": "no heat",
+    }
+    conv, _ = orch.open_conversation()
+    res = orch.process_turn(conv, "IVT Geo 600 no heat, I'm at 852 34 Sundsvall")
+    low = res["message"].lower()
+    assert "postal code" not in low and "postnummer" not in low, low
+    assert _cs(conv)["slots"]["postal_code"] == "85234"
+
+
 def test_postcode_two_reasks_then_unknown(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     orch.process_turn(conv, "heat_pump")            # → asks postcode

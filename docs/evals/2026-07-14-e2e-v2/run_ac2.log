@@ -1,0 +1,92 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+django: version: 5.2.15, settings: config.settings (from ini)
+rootdir: C:\Users\vladi\OneDrive\Desktop\swedish-bot
+configfile: pyproject.toml
+plugins: anyio-4.14.0, base-url-2.1.0, django-4.12.0, playwright-0.8.0
+collecting ... collected 2 items
+
+tests/e2e/test_browser_v2.py::test_v2_a_postcode_early PASSED
+tests/e2e/test_browser_v2.py::test_v2_c_form_button_prefill FAILED
+
+================================== FAILURES ===================================
+________________________ test_v2_c_form_button_prefill ________________________
+
+page = <Page url='http://127.0.0.1:8077/demo/form?nl_case=eyJzaWQiOjI4M30:1wjSB5:JGJ4Tb1cmIrMBxxAWygQ-NVcLbGK1juGILEqfr9XjRE'>
+orm = <pytest_django.plugin.DjangoDbBlocker object at 0x0000025D8ECB3230>
+
+    def test_v2_c_form_button_prefill(page: Page, orm):
+        """Drive a full escalation lead; assert the post-lead thanks emits a
+        target=_blank form-chip whose href carries ?nl_case=<token>, then open
+        /demo/form?nl_case=<token> and assert the prefill populated the fields."""
+        from crm.models import FormButton
+    
+        # Ensure an active quote_request FormButton exists (the fallback the chip
+        # resolves to regardless of the case category). Construction mirrors
+        # tests/test_scenarios/test_q_form_chip.py + dashboard's 4-fixed-rows seed.
+        with orm.unblock():
+            FormButton.objects.update_or_create(
+                category_slug="quote_request",
+                defaults={"label": "Begär offert", "is_active": True,
+                          "url": "https://www.nordlandvvs.se/offert"},
+            )
+    
+        page.goto(f"{BASE_URL}/demo/homepage")
+        open_widget(page)
+    
+        reply = send_text(page, "Jag har en NIBE pump som låter konstigt")
+        dispatched = False
+        for _ in range(16):
+            low = reply.lower()
+            kind, payload = _drive_answer(low)
+            if kind == "chip" and payload == "yes_send":
+                prev = _bot_count(page)
+                page.locator('[data-testid="chip"][data-value="yes_send"]').click()
+                reply = _wait_bot_settled(page, prev)
+                dispatched = True
+                break
+            if kind.startswith("chip:"):
+                val = kind.split(":", 1)[1]
+                loc = page.locator(f'[data-testid="chip"][data-value="{val}"]')
+                reply = click_chip(page, value=val) if loc.count() else send_text(page, payload)
+            else:
+                reply = send_text(page, payload)
+        assert dispatched, f"never reached approval; last reply: {reply!r}"
+        shot_v2(page, "c1_lead_done.png")
+    
+        # The thanks turn renders the form chip as a target=_blank anchor.
+        link = page.locator('[data-testid="chip-link"][data-value="open_form"]')
+        expect(link.first).to_be_visible(timeout=10_000)
+        href = link.first.get_attribute("href")
+        assert href and "nl_case=" in href, f"form-chip href missing nl_case token: {href!r}"
+        token = href.split("nl_case=", 1)[1]
+        shot_v2(page, "c2_form_chip.png")
+    
+        # Open the prefill form directly with the extracted token.
+        page.goto(f"{BASE_URL}/demo/form?nl_case={token}")
+        # The banner flips visible only after prefill actually filled >=1 field.
+        expect(page.locator('[data-testid="prefill-banner"]')).to_be_visible(timeout=10_000)
+    
+        # Technical postal_code is always in the prefill payload (session field).
+        expect(page.locator('[data-field="postal_code"]')).to_have_value("11152")
+        # Contact name/phone appear only when the customer consented; assert when present.
+        name_val = page.locator('[data-field="name"]').input_value()
+        phone_val = page.locator('[data-field="phone"]').input_value()
+        if name_val:
+            assert name_val == "Erik Testsson", name_val
+        if phone_val:
+>           assert "070" in phone_val, phone_val
+E           AssertionError: +46701234567
+E           assert '070' in '+46701234567'
+
+tests\e2e\test_browser_v2.py:224: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\django\db\backends\utils.py:98
+  C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\django\db\backends\utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_browser_v2.py::test_v2_c_form_button_prefill - Assertio...
+=================== 1 failed, 1 passed, 1 warning in 35.99s ===================

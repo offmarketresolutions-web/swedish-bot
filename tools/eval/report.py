@@ -7,11 +7,17 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+import os
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 EVAL_DIR = REPO_ROOT / "docs" / "evals" / "2026-07-12-live-eval"
-JUDGED_PATH = EVAL_DIR / "judged.jsonl"
-REPORT_PATH = EVAL_DIR / "REPORT.md"
-TRANSCRIPTS_DIR = EVAL_DIR / "transcripts"
+# EVAL_RESULTS_FILE selects the dataset (mirrors judge.py). judged/report/transcript
+# names are derived so each dataset gets its own outputs.
+_RESULTS_NAME = os.environ.get("EVAL_RESULTS_FILE", "results.jsonl")
+_STEM = _RESULTS_NAME.replace("results", "", 1).replace(".jsonl", "")  # "" | "-postfix" | "-v2"
+JUDGED_PATH = EVAL_DIR / _RESULTS_NAME.replace("results", "judged", 1)
+REPORT_PATH = EVAL_DIR / f"REPORT{_STEM}.md"
+TRANSCRIPTS_DIR = EVAL_DIR / f"transcripts{_STEM}"
 
 
 def load() -> list[dict]:

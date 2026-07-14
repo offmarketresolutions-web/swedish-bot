@@ -1,0 +1,21 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+django: version: 5.2.15, settings: config.settings (from ini)
+rootdir: C:\Users\vladi\OneDrive\Desktop\swedish-bot
+configfile: pyproject.toml
+plugins: anyio-4.14.0, base-url-2.1.0, django-4.12.0, playwright-0.8.0
+collecting ... collected 4 items
+
+tests/e2e/test_browser_v2.py::test_v2_a_postcode_early PASSED
+tests/e2e/test_browser_v2.py::test_v2_b_model_disambiguation PASSED
+tests/e2e/test_browser_v2.py::test_v2_c_form_button_prefill PASSED
+tests/e2e/test_browser_v2.py::test_v2_d_dashboard_tabs PASSED
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\django\db\backends\utils.py:98
+  C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\django\db\backends\utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 4 passed, 1 warning in 50.09s ========================

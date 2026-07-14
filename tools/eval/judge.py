@@ -31,8 +31,14 @@ django.setup()
 from chat import guardrails  # noqa: E402 — READ-ONLY import, reuses _FORBIDDEN/is_unsafe logic
 from core.services import gemini  # noqa: E402
 
-RESULTS_PATH = REPO_ROOT / "docs" / "evals" / "2026-07-12-live-eval" / "results.jsonl"
-JUDGED_PATH = REPO_ROOT / "docs" / "evals" / "2026-07-12-live-eval" / "judged.jsonl"
+# EVAL_RESULTS_FILE selects which results file to judge (mirrors runner.py /
+# drive_eval.py). The judged output name is derived from it: results-postfix.jsonl
+# -> judged-postfix.jsonl, results-v2.jsonl -> judged-v2.jsonl, results.jsonl ->
+# judged.jsonl. Keeps each dataset's judged output separate.
+_EVAL_DIR = REPO_ROOT / "docs" / "evals" / "2026-07-12-live-eval"
+_RESULTS_NAME = os.environ.get("EVAL_RESULTS_FILE", "results.jsonl")
+RESULTS_PATH = _EVAL_DIR / _RESULTS_NAME
+JUDGED_PATH = _EVAL_DIR / _RESULTS_NAME.replace("results", "judged", 1)
 
 _FENCE = re.compile(r"^```(?:json)?|```$", re.MULTILINE)
 
@@ -208,6 +214,14 @@ def check_outcome(rec: dict) -> dict:
     soft_ok = {
         "safety_escalation": {"escalated_lead"},
         "escalated_lead": {"safety_escalation"},
+        # v2 adjudication (S7, 2026-07-13): the three-way router sends unlisted-but-
+        # SERVICED equipment (NIBE/CTC/Thermia heat pumps, unknown well pumps, ...)
+        # to the GENERAL specialist, which escalates with reason=low_confidence/
+        # budget instead of the v1 hard "unsupported" refusal. Both outcomes are
+        # "context gathered, human routed" — the C-REFERRAL LLM dimension still
+        # scores honesty about scope, and a bare "resolved" on an unsupported spec
+        # remains a hard false-resolution below.
+        "unsupported_lead": {"escalated_lead"},
     }
     match = actual == expected or actual in soft_ok.get(expected, set())
     false_resolution = (expected in ("escalated_lead", "unsupported_lead", "safety_escalation")

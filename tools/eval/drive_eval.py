@@ -11,6 +11,7 @@ Usage:  POSTGRES_DB=eval_nordland python tools/eval/drive_eval.py
 """
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import subprocess
@@ -19,6 +20,7 @@ import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(REPO_ROOT))
 # EVAL_RESULTS_FILE keeps post-fix runs (merged conversation-gap fixes) in a
 # separate dataset from the frozen pre-fix baseline in results.jsonl. The child
 # runner inherits the same env var, so driver and runner always agree on the file.
@@ -40,7 +42,13 @@ PASS_PLAN = [
     (3, 1300), (3, 1300), (2, 1400), (2, 1400),
     (2, 1400), (1, 1400), (1, 1400), (1, 1400), (1, 1400), (1, 1400),
 ]
-TARGET = 200
+
+def _target_for_set(eval_set: str) -> int:
+    """Count specs in the requested eval_set (personas.py has no django dependency)."""
+    from tools.eval import personas
+    if eval_set == "all":
+        return len(personas.SPECS)
+    return len([s for s in personas.SPECS if getattr(s, "eval_set", "core") == eval_set])
 
 
 def _load():
@@ -64,6 +72,13 @@ def _prune_errors_keep_good() -> tuple[int, int]:
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--set", dest="eval_set", type=str, default="core",
+                    help="eval_set to converge: 'core' (default) | 'v2' | 'all'")
+    args = ap.parse_args()
+    TARGET = _target_for_set(args.eval_set)
+    print(f"[drive] eval_set={args.eval_set} TARGET={TARGET} RESULTS={RESULTS.name}", flush=True)
+
     for i, (workers, wall) in enumerate(PASS_PLAN, 1):
         good, _ = _prune_errors_keep_good()
         if good >= TARGET:
@@ -75,7 +90,7 @@ def main():
         env["EVAL_CONV_WALL_S"] = str(wall)
         env["EVAL_CONV_HARD_S"] = str(wall + 150)
         # Runner skips ids already present (the good ones) and attempts the rest once.
-        proc = subprocess.run([PY, str(RUNNER), "--workers", str(workers)],
+        proc = subprocess.run([PY, str(RUNNER), "--workers", str(workers), "--set", args.eval_set],
                               cwd=str(REPO_ROOT), env=env)
         print(f"[drive] pass {i} runner exited rc={proc.returncode} at "
               f"{time.strftime('%H:%M:%S')}", flush=True)

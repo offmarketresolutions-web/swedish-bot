@@ -394,6 +394,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--ids", type=str, default=None, help="comma-separated spec ids")
+    ap.add_argument("--set", dest="eval_set", type=str, default="core",
+                    help="eval_set to run: 'core' (default, original 200) | 'v2' (new-scope) | 'all'")
     ap.add_argument("--workers", type=int, default=6)
     args = ap.parse_args()
 
@@ -411,6 +413,8 @@ def main():
             print(f"WARNING: unknown ids requested: {missing}")
     else:
         specs = list(personas.SPECS)
+        if args.eval_set and args.eval_set != "all":
+            specs = [s for s in specs if getattr(s, "eval_set", "core") == args.eval_set]
         if args.limit:
             specs = specs[: args.limit]
 

@@ -3,49 +3,80 @@ C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\django\db\ba
 Performing system checks...
 
 System check identified no issues (0 silenced).
-July 13, 2026 - 07:53:13
+July 13, 2026 - 17:45:37
 Django version 5.2.15, using settings 'config.settings'
 Starting development server at http://127.0.0.1:8077/
 Quit the server with CTRL-BREAK.
 
 WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
 For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
-[13/Jul/2026 07:53:13] "GET /admin/login/ HTTP/1.1" 200 4404
-[13/Jul/2026 07:53:16] "GET /demo/homepage HTTP/1.1" 200 17922
-[13/Jul/2026 07:53:16] "GET /static/widget/nordland-widget.js HTTP/1.1" 200 28114
-[13/Jul/2026 07:53:16] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
-[13/Jul/2026 07:53:17] "GET /demo/homepage HTTP/1.1" 200 17922
-[13/Jul/2026 07:53:17] "GET /static/widget/nordland-widget.js HTTP/1.1" 200 28114
-[13/Jul/2026 07:53:17] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
-[13/Jul/2026 07:53:17] "GET /static/widget/i18n/sv.json HTTP/1.1" 200 544
-[13/Jul/2026 07:53:17] "POST /api/chat/session HTTP/1.1" 200 552
-[13/Jul/2026 07:53:17] "POST /api/chat/d963a143-7039-40a3-b117-38751ea5412b/message HTTP/1.1" 200 627
+[13/Jul/2026 17:45:37] "GET /admin/login/ HTTP/1.1" 200 4404
+[13/Jul/2026 17:45:44] "GET /demo/homepage HTTP/1.1" 200 17932
+[13/Jul/2026 17:45:44] "GET /static/widget/nordland-widget.js?v=2 HTTP/1.1" 200 29074
+[13/Jul/2026 17:45:44] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
+[13/Jul/2026 17:45:45] "GET /static/widget/i18n/sv.json HTTP/1.1" 200 544
+[13/Jul/2026 17:45:45] "POST /api/chat/session HTTP/1.1" 200 552
 Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
 Gemini auth: system clock off by -3528s from real UTC — signing JWTs from monotonic-anchored real UTC instead.
 AFC is enabled with max remote calls: 10.
-HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
-[13/Jul/2026 07:53:22] "POST /api/chat/d963a143-7039-40a3-b117-38751ea5412b/message HTTP/1.1" 200 786
-[13/Jul/2026 07:53:22] "GET /demo/homepage HTTP/1.1" 200 17922
-[13/Jul/2026 07:53:23] "GET /static/widget/nordland-widget.js HTTP/1.1" 200 28114
-[13/Jul/2026 07:53:23] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
-[13/Jul/2026 07:53:23] "GET /static/widget/i18n/sv.json HTTP/1.1" 200 544
-[13/Jul/2026 07:53:23] "POST /api/chat/session HTTP/1.1" 200 552
-Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
-AFC is enabled with max remote calls: 10.
-HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
-[13/Jul/2026 07:53:25] "POST /api/chat/07930a7a-e7db-4a94-b891-ed86a02a10b3/message HTTP/1.1" 200 743
-[13/Jul/2026 07:53:25] "GET /demo/homepage HTTP/1.1" 200 17922
-[13/Jul/2026 07:53:25] "GET /static/widget/nordland-widget.js HTTP/1.1" 200 28114
-[13/Jul/2026 07:53:25] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
-[13/Jul/2026 07:53:26] "GET /static/widget/i18n/sv.json HTTP/1.1" 200 544
-[13/Jul/2026 07:53:26] "POST /api/chat/session HTTP/1.1" 200 552
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
 Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
 AFC is enabled with max remote calls: 10.
 HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
-[13/Jul/2026 07:53:27] "POST /api/chat/8a061e96-fba0-412f-9258-53b453128376/message HTTP/1.1" 200 771
+[13/Jul/2026 17:45:51] "POST /api/chat/a7a3320f-044a-477b-a550-28d2baf4e031/message HTTP/1.1" 200 469
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
 Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
 AFC is enabled with max remote calls: 10.
 HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[13/Jul/2026 17:45:53] "POST /api/chat/a7a3320f-044a-477b-a550-28d2baf4e031/message HTTP/1.1" 200 516
+[13/Jul/2026 17:45:54] "GET /demo/homepage HTTP/1.1" 200 17932
+[13/Jul/2026 17:45:54] "GET /static/widget/nordland-widget.js?v=2 HTTP/1.1" 200 29074
+[13/Jul/2026 17:45:54] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
+[13/Jul/2026 17:45:54] "GET /static/widget/i18n/sv.json HTTP/1.1" 200 544
+[13/Jul/2026 17:45:54] "POST /api/chat/session HTTP/1.1" 200 552
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[13/Jul/2026 17:45:56] "POST /api/chat/6ffa4315-7dbf-4ef2-b924-3239770e6d5b/message HTTP/1.1" 200 516
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[13/Jul/2026 17:45:57] "POST /api/chat/6ffa4315-7dbf-4ef2-b924-3239770e6d5b/message HTTP/1.1" 200 563
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[13/Jul/2026 17:45:58] "POST /api/chat/6ffa4315-7dbf-4ef2-b924-3239770e6d5b/message HTTP/1.1" 200 519
+[13/Jul/2026 17:45:59] "GET /demo/homepage HTTP/1.1" 200 17932
+[13/Jul/2026 17:45:59] "GET /static/widget/nordland-widget.js?v=2 HTTP/1.1" 200 29074
+[13/Jul/2026 17:45:59] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
+[13/Jul/2026 17:45:59] "GET /static/widget/i18n/sv.json HTTP/1.1" 200 544
+[13/Jul/2026 17:45:59] "POST /api/chat/session HTTP/1.1" 200 552
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[13/Jul/2026 17:46:01] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 520
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+[13/Jul/2026 17:46:03] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 567
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[13/Jul/2026 17:46:04] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 547
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
 Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
 HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-2:embedContent "HTTP/1.1 404 Not Found"
 Embedding model 'gemini-embedding-2' unavailable (404); falling back.
@@ -54,65 +85,47 @@ Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1
 HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
 Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
 AFC is enabled with max remote calls: 10.
-HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
-Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
-AFC is enabled with max remote calls: 10.
 HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
-[13/Jul/2026 07:53:34] "POST /api/chat/8a061e96-fba0-412f-9258-53b453128376/message HTTP/1.1" 200 1064
-[13/Jul/2026 07:53:35] "POST /api/chat/8a061e96-fba0-412f-9258-53b453128376/message HTTP/1.1" 200 673
-[13/Jul/2026 07:53:35] "POST /api/chat/8a061e96-fba0-412f-9258-53b453128376/message HTTP/1.1" 200 552
-[13/Jul/2026 07:53:35] "POST /api/chat/8a061e96-fba0-412f-9258-53b453128376/message HTTP/1.1" 200 553
-[13/Jul/2026 07:53:36] "POST /api/chat/8a061e96-fba0-412f-9258-53b453128376/message HTTP/1.1" 200 580
-[13/Jul/2026 07:53:36] "POST /api/chat/8a061e96-fba0-412f-9258-53b453128376/message HTTP/1.1" 200 717
 Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
 AFC is enabled with max remote calls: 10.
-HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
-[13/Jul/2026 07:53:38] "POST /api/chat/8a061e96-fba0-412f-9258-53b453128376/message HTTP/1.1" 200 793
-[13/Jul/2026 07:53:39] "GET /dashboard/ HTTP/1.1" 302 0
-[13/Jul/2026 07:53:39] "GET /admin/login/?next=/dashboard/ HTTP/1.1" 200 4448
-[13/Jul/2026 07:53:39] "GET /static/admin/css/base.css HTTP/1.1" 200 22120
-[13/Jul/2026 07:53:39] "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
-[13/Jul/2026 07:53:39] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
-[13/Jul/2026 07:53:39] "GET /static/admin/css/nordland-admin.css HTTP/1.1" 200 9888
-[13/Jul/2026 07:53:39] "GET /static/admin/css/login.css HTTP/1.1" 200 951
-[13/Jul/2026 07:53:39] "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
-[13/Jul/2026 07:53:39] "GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
-[13/Jul/2026 07:53:39] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
-[13/Jul/2026 07:53:39] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
-[13/Jul/2026 07:53:40] "POST /admin/login/?next=/dashboard/ HTTP/1.1" 302 0
-[13/Jul/2026 07:53:40] "GET /dashboard/ HTTP/1.1" 200 13264
-[13/Jul/2026 07:53:40] "GET /static/dashboard/css/app.css HTTP/1.1" 200 28402
-[13/Jul/2026 07:53:40] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:40] "GET /static/vendor/htmx.min.js HTTP/1.1" 200 48101
-[13/Jul/2026 07:53:40] "GET /static/vendor/alpine.min.js HTTP/1.1" 200 44659
-[13/Jul/2026 07:53:40] "GET /dashboard/analytics/ HTTP/1.1" 200 42208
-[13/Jul/2026 07:53:40] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:40] "GET /dashboard/sessions/ HTTP/1.1" 200 63188
-[13/Jul/2026 07:53:40] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:40] "GET /dashboard/customers/ HTTP/1.1" 200 19351
-[13/Jul/2026 07:53:40] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:40] "GET /dashboard/voice/ HTTP/1.1" 200 24438
-[13/Jul/2026 07:53:40] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:40] "GET /dashboard/voice/credentials/ HTTP/1.1" 200 22247
-[13/Jul/2026 07:53:40] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:41] "GET /dashboard/settings/ HTTP/1.1" 200 12472
-[13/Jul/2026 07:53:41] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:41] "GET /dashboard/kb/ HTTP/1.1" 200 32696
-[13/Jul/2026 07:53:41] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:41] "GET /dashboard/faq/ HTTP/1.1" 200 69690
-[13/Jul/2026 07:53:41] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:41] "GET /dashboard/guardrails/ HTTP/1.1" 200 19082
-[13/Jul/2026 07:53:41] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:41] "GET /dashboard/flow/ HTTP/1.1" 200 67328
-[13/Jul/2026 07:53:41] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:41] "GET /demo/homepage HTTP/1.1" 200 17922
-[13/Jul/2026 07:53:41] "GET /static/widget/nordland-widget.js HTTP/1.1" 200 28114
-[13/Jul/2026 07:53:41] "GET /dashboard/customers/3/ HTTP/1.1" 200 19208
-[13/Jul/2026 07:53:41] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
-[13/Jul/2026 07:53:42] "GET /dashboard/kb/machine/1/docs HTTP/1.1" 200 593
-[13/Jul/2026 07:53:42] "GET /dashboard/kb/document/1/pdf HTTP/1.1" 200 20631
-[13/Jul/2026 07:53:42] "GET /demo/homepage HTTP/1.1" 200 17922
-[13/Jul/2026 07:53:42] "GET /static/widget/nordland-widget.js HTTP/1.1" 200 28114
-[13/Jul/2026 07:53:42] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
-[13/Jul/2026 07:53:42] "GET /static/widget/i18n/sv.json HTTP/1.1" 200 544
-[13/Jul/2026 07:53:42] "POST /api/chat/session HTTP/1.1" 200 552
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+[13/Jul/2026 17:46:13] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 865
+[13/Jul/2026 17:46:14] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 672
+[13/Jul/2026 17:46:14] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 551
+[13/Jul/2026 17:46:14] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 552
+[13/Jul/2026 17:46:15] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 716
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+[13/Jul/2026 17:46:16] "POST /api/chat/e58cfd95-5227-48a8-8505-1aa1b9f3687f/message HTTP/1.1" 200 930
+[13/Jul/2026 17:46:16] "GET /demo/form?nl_case=eyJzaWQiOjI4N30:1wjSDw:WkgZRTbqJ7Rq6hkwlEihkUzeYcrL2Tyv84VTkfzL-ZE HTTP/1.1" 200 8430
+[13/Jul/2026 17:46:17] "GET /static/prefill/nordland-prefill.js?v=1 HTTP/1.1" 200 2275
+[13/Jul/2026 17:46:17] "GET /api/prefill/eyJzaWQiOjI4N30%3A1wjSDw%3AWkgZRTbqJ7Rq6hkwlEihkUzeYcrL2Tyv84VTkfzL-ZE HTTP/1.1" 200 324
+[13/Jul/2026 17:46:17] "GET /dashboard/ HTTP/1.1" 302 0
+[13/Jul/2026 17:46:17] "GET /admin/login/?next=/dashboard/ HTTP/1.1" 200 4448
+[13/Jul/2026 17:46:17] "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+[13/Jul/2026 17:46:17] "GET /static/admin/css/base.css HTTP/1.1" 200 22120
+[13/Jul/2026 17:46:17] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+[13/Jul/2026 17:46:17] "GET /static/admin/css/login.css HTTP/1.1" 200 951
+[13/Jul/2026 17:46:17] "GET /static/brand/nordland-logo.png HTTP/1.1" 200 15682
+[13/Jul/2026 17:46:17] "GET /static/admin/css/nordland-admin.css HTTP/1.1" 200 9888
+[13/Jul/2026 17:46:17] "GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+[13/Jul/2026 17:46:17] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[13/Jul/2026 17:46:17] "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+[13/Jul/2026 17:46:18] "POST /admin/login/?next=/dashboard/ HTTP/1.1" 302 0
+[13/Jul/2026 17:46:18] "GET /dashboard/ HTTP/1.1" 200 13405
+[13/Jul/2026 17:46:18] "GET /static/dashboard/css/app.css HTTP/1.1" 200 28402
+[13/Jul/2026 17:46:18] "GET /static/vendor/htmx.min.js HTTP/1.1" 200 48101
+[13/Jul/2026 17:46:18] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
+[13/Jul/2026 17:46:18] "GET /static/vendor/alpine.min.js HTTP/1.1" 200 44659
+[13/Jul/2026 17:46:18] "GET /dashboard/settings/ HTTP/1.1" 200 12794
+[13/Jul/2026 17:46:18] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
+[13/Jul/2026 17:46:18] "GET /dashboard/settings/service-area/ HTTP/1.1" 200 17736
+[13/Jul/2026 17:46:18] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
+[13/Jul/2026 17:46:19] "GET /dashboard/settings/forms/ HTTP/1.1" 200 15810
+[13/Jul/2026 17:46:19] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
+[13/Jul/2026 17:46:19] "POST /dashboard/settings/forms/ HTTP/1.1" 302 0
+[13/Jul/2026 17:46:19] "GET /dashboard/settings/forms/ HTTP/1.1" 200 15817
+[13/Jul/2026 17:46:19] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
+[13/Jul/2026 17:46:20] "GET /dashboard/faq/ HTTP/1.1" 200 207308
+[13/Jul/2026 17:46:20] "GET /static/brand/nordland-logo-white.png HTTP/1.1" 404 1901
