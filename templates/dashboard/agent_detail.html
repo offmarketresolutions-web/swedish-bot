@@ -17,7 +17,8 @@
   <p>{% trans "Saving here updates the live bot instantly — the next customer conversation uses your new settings. No deploy, no restart." %}</p>
 </div>
 
-<!-- this agent's place in the full flow; the other nodes are clickable -->
+<!-- this agent's place in the full flow; the other tabs/nodes are clickable -->
+{% include "dashboard/_agent_tabs.html" %}
 <div class="nl-card p-4 mb-6" data-testid="agent-map">
   <p class="text-xs text-nl-base/60 mb-2">{% trans "Where this agent sits — click another node to jump to it:" %}</p>
   {% include "dashboard/_agent_map.html" with current_role=p.role %}
@@ -58,6 +59,8 @@
     };
   }
 </script>
+
+{% include "dashboard/_knowledge_faq_section.html" %}
 
 {% include "dashboard/_agent_card.html" with p=p saved=saved error=error %}
 {% endblock %}

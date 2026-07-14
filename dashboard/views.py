@@ -489,17 +489,21 @@ def service_area_test(request):
 # ── Agent Config (V2 P-D UI): edit AgentPrompt rows with HTMX inline save ──────
 
 def _agent_card_ctx(prompt, *, saved=False, error=""):
-    from kb.models import Category
+    from kb.models import Category, Tool
     return {"p": prompt, "saved": saved, "error": error,
             "all_categories": Category.objects.order_by("name"),
-            "faq_category_ids": set(prompt.faq_categories.values_list("id", flat=True))}
+            "faq_category_ids": set(prompt.faq_categories.values_list("id", flat=True)),
+            "all_tools": Tool.objects.order_by("name"),
+            "enabled_tool_ids": set(prompt.tools.values_list("id", flat=True))}
 
 
 @staff_member_required
 def agent_config(request):
     from kb.models import AgentPrompt
-    prompts = AgentPrompt.objects.order_by("role")
-    return render(request, "dashboard/agent_config.html", {"prompts": prompts})
+
+    from core.agent_registry import layers_ctx
+    return render(request, "dashboard/agent_config.html",
+                  {"prompts": AgentPrompt.objects.order_by("role"), "tabs": layers_ctx()})
 
 
 @staff_member_required
@@ -511,7 +515,7 @@ def agent_save(request, pk: int):
     p = get_object_or_404(AgentPrompt, pk=pk)
     errors = []
 
-    for f in ("model_id", "body", "language_directive"):
+    for f in ("model_id", "body", "language_directive", "common_issues"):
         if f in request.POST:
             setattr(p, f, request.POST[f])
 
@@ -543,6 +547,11 @@ def agent_save(request, pk: int):
         # which categories' FAQ to inject (empty = the machine's own category)
         cat_ids = [c for c in request.POST.getlist("faq_categories") if c.isdigit()]
         p.faq_categories.set(cat_ids)
+        # tool checkboxes: only present in the POST body when the editor sent them
+        # (agent_detail's form does; keep old callers that omit it a no-op).
+        if "tools_submitted" in request.POST:
+            tool_ids = [t for t in request.POST.getlist("tools") if t.isdigit()]
+            p.tools.set(tool_ids)
     resp = render(request, "dashboard/_agent_card.html",
                   _agent_card_ctx(p, saved=not errors, error="; ".join(errors)))
     if errors:
@@ -554,20 +563,15 @@ def agent_save(request, pk: int):
     return resp
 
 
-# Short, staff-facing blurb + flow position per agent role (drives the map + detail pages).
-AGENT_FLOW = {
-    "intake": {"step": "1", "blurb": "Gathers the facts one at a time with quick-reply chips: "
-               "equipment type, problem, brand/model (or a nameplate photo). Never diagnoses."},
-    "router": {"step": "2", "blurb": "Classifies the case and identifies the exact machine "
-               "(trigram + embedding). Decides supported brand → Specialist, else → Intelligent intake."},
-    "specialist": {"step": "3", "blurb": "Answers from the machine's full manual within a safe envelope. "
-                   "Solves only when confident + in-docs; otherwise escalates. Never instructs unsafe work."},
-    "intelligent_intake": {"step": "3b", "blurb": "Handles equipment we don't have manuals for: collects a "
-                           "qualified lead and escalates — no fabricated repair steps."},
-    "safety": {"step": "✓", "blurb": "Backstop that reviews specialist drafts and vetoes any unsafe "
-               "instruction → forces escalation. The hard guardrail lives in code too."},
-    "summarizer": {"step": "✎", "blurb": "Writes the staff-facing AI summary of the conversation on close."},
-}
+# Backward-compat alias: some older templates/tests may still import AGENT_FLOW.
+# The canonical source is now core/agent_registry.py (ROLE_INFO); this is derived,
+# not hand-maintained.
+def _agent_flow_compat() -> dict:
+    from core.agent_registry import ROLE_INFO
+    return {role: {"step": info.flow_position, "blurb": info.blurb} for role, info in ROLE_INFO.items()}
+
+
+AGENT_FLOW = _agent_flow_compat()
 
 
 # The hard-coded safety baseline (chat/guardrails.py) — shown READ-ONLY on the
@@ -638,12 +642,35 @@ def guardrail_toggle(request, pk: int):
 
 @staff_member_required
 def agent_detail(request, role: str):
-    """Per-agent detail/config page (reached from the flow map). Edits save inline via
+    """Per-agent detail/config page (reached from the flow tabs). Edits save inline via
     HTMX (agent_save) and are live in production immediately."""
-    from kb.models import AgentPrompt
+    from kb.models import AgentPrompt, Tool
+
+    from core.agent_registry import ROLE_INFO, layer_for_role, layers_ctx
     p = get_object_or_404(AgentPrompt, role=role)
+    info = ROLE_INFO.get(role)
     ctx = _agent_card_ctx(p)
-    ctx["info"] = AGENT_FLOW.get(role, {})
+    ctx["info"] = {"step": info.flow_position, "blurb": info.blurb} if info else {}
+    ctx["role_info"] = info
+    layer = layer_for_role(role)
+    ctx["layer"] = layer
+    ctx["tabs"] = layers_ctx()
+    ctx["current_role"] = role
+    ctx["current_layer_key"] = layer.key if layer else None
+    family = info.knowledge_family if info else None
+    ctx["knowledge_family"] = family
+    if family:
+        from dashboard.knowledge import FAMILIES, _family_categories
+        from kb.models import FAQEntry
+        cats = _family_categories(FAMILIES[family]["root"])
+        entries = list(FAQEntry.objects.filter(category__in=cats, is_approved=True)
+                       .prefetch_related("texts").order_by("category__name", "order", "id")[:8])
+        for e in entries:
+            e.preview_text = e.text("sv") or e.text("en")
+        ctx["faq_entries"] = entries
+        ctx["faq_family_label"] = FAMILIES[family]["label"]
+    ctx["all_tools"] = Tool.objects.order_by("name")
+    ctx["enabled_tool_ids"] = set(p.tools.values_list("id", flat=True))
     return render(request, "dashboard/agent_detail.html", ctx)
 
 

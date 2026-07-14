@@ -63,6 +63,32 @@
     </label>
   </fieldset>
 
+  <fieldset class="border border-nl-border rounded-md px-3 pt-2 pb-3 mb-4" data-testid="common-issues">
+    <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-nl-base/60">{% trans "Common issues & solutions" %}</legend>
+    <p class="text-xs text-nl-base/60 mb-2">{% trans "Freeform owner notes for this agent. Not yet auto-injected into the live prompt — recorded here for the team." %}</p>
+    <textarea name="common_issues" rows="4" class="border border-nl-border rounded px-2 py-1 w-full text-sm focus:border-nl-primary focus:ring-1 focus:ring-nl-primary outline-none" placeholder="{% trans 'e.g. Customers often confuse E5 with E9 on IVT units…' %}">{{ p.common_issues }}</textarea>
+  </fieldset>
+
+  <fieldset class="border border-nl-border rounded-md px-3 pt-2 pb-3 mb-4" data-testid="tool-calls">
+    <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-nl-base/60">{% trans "Tool calls" %}</legend>
+    <p class="text-xs text-nl-base/60 mb-2">{% trans "Enable a capability with one click — the agent instantly has access." %}</p>
+    <input type="hidden" name="tools_submitted" value="1">
+    <div class="grid sm:grid-cols-2 gap-2 text-sm">
+      {% for t in all_tools %}
+        <label class="flex items-start gap-2 {% if not t.is_active %}opacity-50{% endif %}">
+          <input type="checkbox" name="tools" value="{{ t.pk }}" {% if t.pk in enabled_tool_ids %}checked{% endif %} class="mt-0.5">
+          <span>
+            <span class="font-medium">{{ t.name }}</span>
+            {% if not t.is_active %}<span class="text-xs text-nl-base/50">({% trans "not built yet" %})</span>{% endif %}
+            <br><span class="text-xs text-nl-base/60">{{ t.description }}</span>
+          </span>
+        </label>
+      {% empty %}
+        <p class="text-nl-base/60 col-span-2">{% trans "No tools registered." %}</p>
+      {% endfor %}
+    </div>
+  </fieldset>
+
   <div class="flex items-center justify-end gap-3 -mx-4 -mb-4 px-4 py-3 border-t border-nl-border bg-nl-bg/60 rounded-b-lg">
     <span class="text-xs text-nl-base/60 mr-auto">{% trans "Changes apply immediately on save." %}</span>
     <button class="btn btn-primary" data-testid="agent-save-btn">

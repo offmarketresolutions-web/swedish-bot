@@ -1,0 +1,21 @@
+{% load i18n %}
+<div class="nl-card p-4 mb-4" data-testid="faq-section">
+  <h2 class="font-semibold mb-1">{% trans "FAQ" %}</h2>
+  {% if knowledge_family %}
+    <p class="text-sm text-nl-base/60 mb-3">
+      {% blocktrans with label=faq_family_label %}Approved knowledge for {{ label }}.{% endblocktrans %}
+      <a href="{% url 'dash-knowledge' family=knowledge_family %}" class="text-nl-primary hover:underline">{% trans "Open the full knowledge page →" %}</a>
+    </p>
+    <ul class="space-y-1 text-sm">
+      {% for e in faq_entries %}
+        <li class="border-b border-nl-border/60 pb-1">
+          <a href="{% url 'dash-knowledge-entry-edit' pk=e.pk %}" class="hover:underline">{{ e.preview_text.question|default:e.key }}</a>
+        </li>
+      {% empty %}
+        <li class="text-nl-base/60">{% trans "No approved entries yet." %}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-nl-base/60" data-testid="faq-none">{% trans "No knowledge corpus — by design (this agent doesn't map to a single knowledge family)." %}</p>
+  {% endif %}
+</div>

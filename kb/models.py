@@ -240,6 +240,31 @@ class QuickReplyChipText(models.Model):
         unique_together = [("chip", "lang")]
 
 
+class Tool(models.Model):
+    """The 'MCP-style' tool registry (V2 S9): a capability an agent can be given
+    with one click. `handler_ref` is a dotted path to the real function today —
+    this model does not execute anything itself, it only records which agents
+    are allowed to use which capability. The orchestrator-side consumer is
+    kb.tooling.enabled_tools_for_role (read-only helper; wiring is a separate
+    conversation-core task)."""
+
+    slug = models.SlugField(max_length=64, unique=True)
+    name = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    kind = models.CharField(max_length=16, default="internal",
+                             help_text="Capability kind, e.g. 'internal' (today) or 'mcp' (future).")
+    handler_ref = models.CharField(max_length=200, blank=True,
+                                    help_text="Dotted path to the function/module implementing this tool.")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class AgentPrompt(models.Model):
     """The editable system-prompt + model id per agent role. model_id here is the
     single source of truth for which model an agent uses (plan §7, resolves crit 0.3)."""
@@ -264,6 +289,17 @@ class AgentPrompt(models.Model):
     prompt_version = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # Freeform owner notes (V2 S9). Not yet injected into any prompt — the
+    # conversation-core agent owns wiring this into context assembly; this is
+    # just the field + editor. HOOK: chat/prompts.py config_for(role) is where
+    # per-role context is assembled today (see AgentPrompt.inject_faq handling)
+    # — that is the natural place to splice common_issues in later.
+    common_issues = models.TextField(
+        blank=True,
+        help_text="Freeform notes: common issues & solutions staff have seen for this agent.")
+    tools = models.ManyToManyField(
+        Tool, blank=True, related_name="agents",
+        help_text="Tools this agent may call ('MCP-style' 1-click enable).")
 
     def __str__(self):
         return f"{self.role} (v{self.prompt_version}, {self.model_id})"
@@ -403,3 +439,32 @@ class SiteFAQ(models.Model):
 
     def __str__(self):
         return self.question[:70]
+
+
+class Embedding(models.Model):
+    """Persisted per-scope embedding vector (S10) — replaces the volatile
+    Django-cache vectors in kb/semantic.py's `_corpus_vectors` for registry-declared
+    corpora, so a cold cache no longer means a full re-embed on the next request.
+
+    Keyed by (source_model, object_id, lang, scope): the same row can carry a
+    different vector per agent-role scope in principle (a scope tag, not a second
+    source of truth for the text itself — the text always comes from the source
+    row). `content_hash` makes `build_embeddings` idempotent and incremental: a row
+    is only re-embedded when its text actually changed.
+    """
+
+    source_model = models.CharField(max_length=32, help_text="e.g. FAQEntry, GenericGuide, SiteFAQ.")
+    object_id = models.PositiveIntegerField()
+    lang = models.CharField(max_length=5, choices=LANG_CHOICES, default="en")
+    scope = models.CharField(max_length=32, help_text="Agent role this embedding is scoped to (kb.corpus registry).")
+    content_hash = models.CharField(max_length=64)
+    vector = models.JSONField(help_text="768-float embedding vector (core.constants.EMBED_DIM).")
+    model_name = models.CharField(max_length=64, help_text="Embedding model that produced this vector.")
+    embedded_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("source_model", "object_id", "lang", "scope")]
+        indexes = [models.Index(fields=["scope", "source_model"])]
+
+    def __str__(self):
+        return f"Embedding<{self.source_model}:{self.object_id}/{self.lang}@{self.scope}>"

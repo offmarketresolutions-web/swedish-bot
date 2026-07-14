@@ -17,12 +17,17 @@
   </div>
 </div>
 
+<!-- Horizontal tab strip: layers in flow order. General is a dropdown (hover/click). -->
+<div class="mb-6">
+  <div class="flex items-center justify-between mb-2 gap-3 flex-wrap">
+    <h2 class="font-semibold">{% trans "How the agents work together" %}</h2>
+    <p class="text-xs text-nl-base/60">{% trans "Click a layer to open its agent(s) →" %}</p>
+  </div>
+  {% include "dashboard/_agent_tabs.html" %}
+</div>
+
 <!-- Clickable flow map: how a conversation moves between agents. Click any agent to configure it. -->
 <div class="nl-card p-5 mb-6" data-testid="agent-map">
-  <div class="flex items-center justify-between mb-3 gap-3 flex-wrap">
-    <h2 class="font-semibold">{% trans "How the agents work together" %}</h2>
-    <p class="text-xs text-nl-base/60">{% trans "Click an agent to open its settings →" %}</p>
-  </div>
   {% include "dashboard/_agent_map.html" %}
 </div>
 
