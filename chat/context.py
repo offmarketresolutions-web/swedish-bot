@@ -60,6 +60,37 @@ def collect_knowledge(machine, locale: str = "en", *, query: str = "") -> tuple[
     return notes_text, cap(faq_text, 1500)
 
 
+def collect_general_knowledge(cs, locale: str = "en", *, machine=None) -> str:
+    """Approved, category-level general knowledge for THIS case — the 'retrieval before
+    manual' layer (plan D2). Filtered to the category family + the stated leaf sub-type +
+    onset (+ the machine's manufacturer when known), approved-only. Ranked semantically
+    when enabled, else by a deterministic keyword-overlap fallback so retrieval never
+    silently vanishes. Includes each entry's safe_customer_checks + service_trigger."""
+    from chat.intake import _family_ids
+    from chat.sanitize import cap, wrap_untrusted
+    from kb import semantic
+
+    slots = cs.get("slots", {})
+    cat_ids = _family_ids(slots.get("category"))
+    manufacturer = machine.vendor if (machine and machine.vendor_id) else None
+    entries = semantic.rank_general_knowledge(
+        slots.get("problem") or "", category_ids=cat_ids, subtype=slots.get("subtype"),
+        onset=slots.get("onset"), manufacturer=manufacturer, locale=locale, top_k=3)
+    parts: list[str] = []
+    for fa, _score in entries:
+        txt = fa.text(locale)
+        if not txt:
+            continue
+        block = f"Q: {txt.question}\nA: {txt.answer}"
+        if fa.safe_customer_checks:
+            block += f"\nSafe customer checks: {fa.safe_customer_checks}"
+        if fa.service_trigger:
+            block += f"\nWhen to book a technician: {fa.service_trigger}"
+        parts.append(block)
+    raw = "\n\n".join(parts)
+    return wrap_untrusted(cap(raw, 1500), "general_knowledge") if raw else ""
+
+
 def models_q(machine):
     from django.db.models import Q
 
@@ -84,6 +115,13 @@ def machine_pdf_context(machine, locale: str = "en"):
     total_tokens = sum(d.token_estimate or 0 for d in docs)
     parts = [gemini.file_part(d.pdf.path) for d in docs if d.pdf]
     if not parts:
+        # S1 loaded some manuals as TEXT only (no PDF) — IVT Geo 412C / Vent 402 /
+        # Greenline HE. Fall back to the parsed_text so a text-only manual still reaches
+        # the specialist instead of the machine silently losing its documentation.
+        from chat.sanitize import cap, wrap_untrusted
+        texts = [d.parsed_text for d in docs if (d.parsed_text or "").strip()]
+        if texts:
+            return None, [wrap_untrusted(cap("\n\n".join(texts), 12000), "manual")]
         return None, []
 
     if total_tokens < CACHE_MIN_TOKENS:

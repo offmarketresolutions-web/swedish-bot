@@ -12,6 +12,7 @@ from kb.models import AgentPrompt
 _FALLBACK_MODEL = {
     "intake": MODELS["flash_lite"], "router": MODELS["flash_lite"],
     "specialist": MODELS["flash"], "intelligent_intake": MODELS["flash"],
+    "intelligent_specialist": MODELS["flash"],
     "summarizer": MODELS["flash_lite"], "safety": MODELS["flash_lite"],
 }
 

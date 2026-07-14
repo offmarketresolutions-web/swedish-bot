@@ -34,6 +34,8 @@ def new_case_state() -> dict:
         "model_confirmed": False,
         "await_model_confirm": False,
         "pending_candidate_ids": [],
+        "model_search_mode": False,
+        "model_gave_up": False,
         "service_area": "unknown",
         "specialist_mode": "manual",
         "match_confidence": 0.0,
@@ -85,7 +87,11 @@ def flush_to_session(conversation, cs: dict, *, machine=None, problem_category=N
 
     s = cs["slots"]
     session, _ = Session.objects.get_or_create(conversation=conversation)
-    session.machine = machine or session.machine
+    # No-auto-bind (plan S3): only persist a catalog Machine once the customer has
+    # CONFIRMED the exact model. An unconfirmed / general-mode case never sets Session.machine
+    # (Session.model still keeps the raw customer text below).
+    if machine is not None and cs.get("model_confirmed"):
+        session.machine = machine
     session.manufacturer = s.get("brand") or session.manufacturer
     session.model = s.get("model") or session.model
     session.serial = s.get("serial") or session.serial

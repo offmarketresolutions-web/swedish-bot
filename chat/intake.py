@@ -71,7 +71,9 @@ def chips_for(slot: str, cs: dict, locale: str = "en") -> list[dict]:
         mq = (Machine.objects.filter(is_supported=True, documents__isnull=False)
               .exclude(model_name__icontains="remote").exclude(model_name__icontains="fjärr")
               .distinct())
-        fam = _family_ids(s.get("category"))
+        # Narrow to the stated leaf sub-type when known (e.g. subtype=water_to_water),
+        # else the whole category family (plan S3 §2).
+        fam = _family_ids(s.get("subtype")) or _family_ids(s.get("category"))
         if fam:
             mq = mq.filter(category_id__in=fam)
         brand = s.get("brand")
@@ -79,6 +81,7 @@ def chips_for(slot: str, cs: dict, locale: str = "en") -> list[dict]:
             mq = mq.filter(vendor__name__iexact=brand)
         chips = [{"value": m.model_name, "label": m.model_name}
                  for m in mq.order_by("model_name")[:_MODEL_CHIP_CAP]]
+        chips.append({"value": "other_model", "label": t(locale, "chip_other_model")})
         chips.append({"value": "unknown", "label": t(locale, "chip_dontknow")})
         return chips
 
@@ -114,6 +117,17 @@ _INSTALLERS = ("nordland", "bylunds", "nordborr", "other")
 _ONSETS = ("sudden", "gradual", "always")
 
 
+def _brand_allowed(cs: dict) -> set[str]:
+    """The brands we recognize by name: the category's chip brands ∪ every ACTIVE Vendor
+    (incl. the non-catalog brands seeded for preservation — NIBE, CTC, Thermia…). A stated
+    brand outside this set is still kept verbatim (never squashed to 'other')."""
+    from kb.models import Vendor
+
+    allowed = {c["value"] for c in chips_for("brand", cs)}
+    allowed |= set(Vendor.objects.filter(is_active=True).values_list("name", flat=True))
+    return allowed
+
+
 def bulk_extract(user_text: str, cs: dict, locale: str = "en") -> dict:
     """Pull EVERY fact the customer states out of one free-text message in a single cheap
     call — so we don't ask them one at a time, and so mid-conversation detail is captured
@@ -125,7 +139,7 @@ def bulk_extract(user_text: str, cs: dict, locale: str = "en") -> dict:
     if not text:
         return {}
     cats = sorted(_allowed_values("category", cs))
-    brands = sorted(_allowed_values("brand", cs))
+    brands = sorted(_brand_allowed(cs))
     subtypes = _leaf_subtypes()
     system = (
         "You read ONE customer message to a Swedish home-equipment helpdesk (heat pumps, "
@@ -137,8 +151,9 @@ def bulk_extract(user_text: str, cs: dict, locale: str = "en") -> dict:
         "water_pump_well; brown/smelly/bad-tasting water or a filter -> water_filtration. "
         "Only null if the family is genuinely unclear.\n"
         f"- subtype: one of {subtypes} (the equipment sub-type, ONLY if clearly stated), else null.\n"
-        f"- brand: one of {brands} (exact value; a real brand not listed -> 'other'), else null. "
-        "Do NOT guess a brand that isn't stated.\n"
+        f"- brand: one of {brands} (copy that exact value) if it matches; otherwise, if the "
+        "customer clearly states a real brand NOT in that list, return it verbatim as written; "
+        "else null. Do NOT guess a brand that isn't stated, and do NOT return 'other'.\n"
         "- model: the model designation exactly as written (e.g. 'Geo 412C'), else null. "
         "Never invent a model.\n"
         "- error_code: a fault/alarm code exactly as written (e.g. 'H01 5252'), else null. "
@@ -175,8 +190,11 @@ def bulk_extract(user_text: str, cs: dict, locale: str = "en") -> dict:
         out["category"] = d["category"]
     if d.get("subtype") in subtypes:
         out["subtype"] = d["subtype"]
-    if d.get("brand") in brands:
-        out["brand"] = d["brand"]
+    b = (d.get("brand") or "").strip()
+    if b and b.lower() != "other":
+        # Known chip/vendor brand -> exact value; an unlisted real brand -> keep raw
+        # sanitized text (cap 40) so NIBE/CTC/Thermia survive instead of squashing to 'other'.
+        out["brand"] = b if b in brands else sanitize.clean_lead_field(b, 40)
     md = sanitize.clean_model(str(d.get("model") or ""))
     if md:
         out["model"] = md
@@ -235,7 +253,8 @@ Decide two things and nothing else:
 2) value — the normalized answer.
 
 Normalization:
-- ENUM field (category, brand): return the value EXACTLY as written in the allowed list above — copy that string verbatim, never the human label and never a paraphrase. If the reply clearly means one allowed entry but is misspelled, abbreviated, or in Swedish, map it to that exact entry. If it names something real but not in the list, use the catch-all ("other" for brand, "unknown" for category) when present; otherwise on_target is false.
+- ENUM field (category): return the value EXACTLY as written in the allowed list above — copy that string verbatim, never the human label and never a paraphrase. If the reply clearly means one allowed entry but is misspelled, abbreviated, or in Swedish, map it to that exact entry. If it names something real but not in the list, use the catch-all "unknown" when present; otherwise on_target is false.
+- BRAND field: if the reply matches an allowed entry, copy that exact string. If it names a real brand NOT in the list (e.g. NIBE, CTC, Thermia, Daikin), return that brand name verbatim as written — do NOT collapse it to "other". Only "unknown" for a genuine "I don't know".
 - FREE-TEXT field (problem, model, error_code): return the customer's own words, trimmed and cleaned. Never add, guess, or invent a model number, code, or detail the customer did not state.
 - Any "I don't know / no idea / can't remember / not sure" (in any language): on_target is true, value is "unknown".
 
@@ -255,7 +274,11 @@ Output ONLY this JSON object, nothing else: {{"on_target": true/false, "value": 
         )
         data = json.loads(resp.text)
         val = data.get("value")
-        return bool(data.get("on_target")), ("" if val is None else str(val))
+        val = "" if val is None else str(val)
+        if slot == "brand" and val and val.lower() not in ("unknown", "other"):
+            from chat import sanitize
+            val = val if val in allowed else sanitize.clean_lead_field(val, 40)
+        return bool(data.get("on_target")), val
     except Exception:  # noqa: BLE001
         # Fail open for free-text fields (accept the raw text); strict for enums.
         if slot in ("problem", "model", "error_code"):

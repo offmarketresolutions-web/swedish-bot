@@ -18,6 +18,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import math
+import re
 
 from django.conf import settings
 from django.core.cache import cache as django_cache
@@ -98,6 +99,75 @@ def semantic_identify(query: str, *, vendor=None):
         return None, 0.0
     machine = Machine.objects.filter(pk=best_id).first()  # fail-safe vs a concurrent delete
     return (machine, best) if machine else (None, 0.0)
+
+
+def _tok(s: str) -> list[str]:
+    return re.findall(r"[a-z0-9åäö]+", (s or "").lower())
+
+
+def _onset_match(entry_onset: str, want: str) -> bool:
+    """FAQ onset_type vocab is any|sudden|long_term; case onset is sudden|gradual|always.
+    Empty / 'any' entry applies to all. 'sudden'->'sudden'; 'gradual'/'always'->'long_term'."""
+    ot = (entry_onset or "").strip().lower()
+    if not ot or ot == "any" or not want:
+        return True
+    if ot == "sudden":
+        return want == "sudden"
+    if ot == "long_term":
+        return want in ("gradual", "always")
+    return True
+
+
+def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset=None,
+                           manufacturer=None, locale: str = "en", top_k: int = 3):
+    """Return up to top_k (FAQEntry, score) approved general-knowledge entries relevant to
+    the case, filtered by category family + applicable_subtypes + onset (+ manufacturer,
+    incl. brand-agnostic entries). Semantic cosine when enabled; else a deterministic
+    keyword-overlap fallback so retrieval never silently vanishes when embeddings are off."""
+    from django.db.models import Q
+
+    from kb.models import FAQEntry
+
+    qs = FAQEntry.objects.filter(is_approved=True)
+    if category_ids:
+        qs = qs.filter(category_id__in=category_ids)
+    if manufacturer is not None:
+        qs = qs.filter(Q(manufacturer=manufacturer) | Q(manufacturer__isnull=True))
+
+    rows: list[tuple] = []  # (FAQEntry, blob)
+    for fa in qs.select_related("manufacturer"):
+        subs = fa.applicable_subtypes or []
+        if subtype and subs and subtype not in subs:
+            continue  # narrowed to sub-types that exclude this one
+        if not _onset_match(fa.onset_type, onset):
+            continue
+        txt = fa.text(locale)
+        if not txt:
+            continue
+        blob = f"{txt.question} {txt.answer} {' '.join(str(k) for k in (fa.keywords or []))}"
+        rows.append((fa, blob))
+    if not rows:
+        return []
+
+    q = (query or "").strip()
+    if not enabled() or not q:
+        # Deterministic keyword-overlap fallback (offline path).
+        qtok = set(_tok(q))
+        if not qtok:
+            return []
+        scored = sorted(((len(qtok & set(_tok(blob))), fa) for fa, blob in rows),
+                        key=lambda x: x[0], reverse=True)
+        return [(fa, float(n)) for n, fa in scored[:top_k] if n > 0]
+
+    try:
+        qv = gemini.embed(q, task_type="RETRIEVAL_QUERY")
+        vecs = _corpus_vectors("sem:genknow", [(f"f{fa.pk}", blob) for fa, blob in rows])
+    except Exception:  # noqa: BLE001
+        logger.warning("rank_general_knowledge failed", exc_info=True)
+        return []
+    fa_by_id = {f"f{fa.pk}": fa for fa, _ in rows}
+    scored = sorted(((_cos(qv, v), gid) for gid, v in vecs.items()), reverse=True)
+    return [(fa_by_id[gid], s) for s, gid in scored[:top_k] if gid in fa_by_id]
 
 
 def rank_guides(query: str, *, locale: str = "en", top_k: int = 3):
