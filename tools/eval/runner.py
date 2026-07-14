@@ -153,8 +153,26 @@ _gemini.generate = _resilient_llm(_gemini.generate)
 _gemini.embed = _resilient_llm(_gemini.embed)
 _gemini.generate_stream = _throttled(_gemini.generate_stream)
 
-RESULTS_PATH = REPO_ROOT / "docs" / "evals" / "2026-07-12-live-eval" / "results.jsonl"
+# Dataset separation (coordinator, 2026-07-13): the 59 pre-fix records in
+# results.jsonl are the frozen baseline (old orchestrator). Runs against the merged
+# conversation-gap fixes (commits b00e035+0d06dba) write to a separate file via
+# EVAL_RESULTS_FILE, and every record carries the git SHA it ran against.
+RESULTS_PATH = REPO_ROOT / "docs" / "evals" / "2026-07-12-live-eval" / os.environ.get(
+    "EVAL_RESULTS_FILE", "results.jsonl")
 _WRITE_LOCK = threading.Lock()
+
+
+def _git_sha() -> str:
+    try:
+        import subprocess
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=str(REPO_ROOT),
+                             capture_output=True, text=True, timeout=10)
+        return out.stdout.strip() or "unknown"
+    except Exception:  # noqa: BLE001
+        return "unknown"
+
+
+CODE_VERSION = _git_sha()
 
 _TRANSIENT_MARKERS = ("429", "resource_exhausted", "503", "unavailable", "deadline",
                       "internal", "500", "timeout")
@@ -311,6 +329,7 @@ def run_one(spec) -> dict:
     wallclock = time.time() - t0
     return {
         "id": spec.id,
+        "code_version": CODE_VERSION,
         "category": spec.category,
         "persona": spec.persona,
         "language": spec.language,
@@ -338,7 +357,7 @@ def _infra_record(spec, msg: str) -> dict:
     abandon (hung past the hard cap). `error` set → judge.py skips the LLM judge
     and report.py counts it under harness/infra errors, never as a bot failure."""
     return {
-        "id": spec.id, "category": spec.category, "persona": spec.persona,
+        "id": spec.id, "code_version": CODE_VERSION, "category": spec.category, "persona": spec.persona,
         "language": spec.language, "expected_outcome": spec.expected_outcome,
         "expected_escalation_reason": spec.expected_escalation_reason, "notes": spec.notes,
         "target_turns": spec.target_turns, "turns_taken": 0, "final_state": None,
@@ -397,11 +416,16 @@ def main():
 
     done = _load_done_ids()
     todo = [s for s in specs if s.id not in done]
-    # Shuffle so a pass doesn't front-load the same cluster of long/looping specs
-    # (they sit first in the catalog and would otherwise block every pass's start,
-    # starving throughput and hiding early progress). Deterministic per-day seed.
+    # Category-priority order (coordinator, 2026-07-13): safety/difficult/edge have
+    # never produced a completed conversation and carry the hard release metrics, so
+    # they run FIRST; resolvable next (the before/after vs the 31-conv pre-fix
+    # baseline is the key deliverable). Shuffle within each priority group with a
+    # deterministic seed so no single long/looping cluster front-loads a pass.
+    _PRIO = {"safety": 0, "difficult": 1, "edge": 2, "resolvable": 3,
+             "adversarial": 4, "unsupported": 5, "escalate": 6}
     import random as _r
     _r.Random(20260713).shuffle(todo)
+    todo.sort(key=lambda s: _PRIO.get(s.category, 9))
     print(f"DB: {settings.DATABASES['default']['NAME']} | total specs selected: {len(specs)} | "
           f"already done: {len(specs) - len(todo)} | to run: {len(todo)}")
 

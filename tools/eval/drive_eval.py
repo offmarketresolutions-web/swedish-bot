@@ -19,7 +19,11 @@ import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-RESULTS = REPO_ROOT / "docs" / "evals" / "2026-07-12-live-eval" / "results.jsonl"
+# EVAL_RESULTS_FILE keeps post-fix runs (merged conversation-gap fixes) in a
+# separate dataset from the frozen pre-fix baseline in results.jsonl. The child
+# runner inherits the same env var, so driver and runner always agree on the file.
+RESULTS = REPO_ROOT / "docs" / "evals" / "2026-07-12-live-eval" / os.environ.get(
+    "EVAL_RESULTS_FILE", "results.jsonl")
 RUNNER = REPO_ROOT / "tools" / "eval" / "runner.py"
 PY = sys.executable
 

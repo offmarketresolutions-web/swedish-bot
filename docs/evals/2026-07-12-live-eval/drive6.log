@@ -1,0 +1,1750 @@
+[drive] pass 1: 58/200 good; launching runner --workers 3 wall_cap=1300s at 12:55:18
+C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\django\db\backends\utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+  warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+Gemini auth: system clock off by -3528s from real UTC — signing JWTs from monotonic-anchored real UTC instead.
+Gemini auth: system clock off by -3528s from real UTC — signing JWTs from monotonic-anchored real UTC instead.
+AFC is enabled with max remote calls: 10.
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-2:embedContent "HTTP/1.1 404 Not Found"
+Embedding model 'gemini-embedding-2' unavailable (404); falling back.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+DB: eval_nordland | total specs selected: 200 | already done: 58 | to run: 142
+[hb] alive — 0/142 finished this run (12:56:19)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 0/142 finished this run (12:57:19)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Timeout (0:03:00)!
+Thread 0x00008174 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1140 in read
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1285 in recv
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_backends\sync.py", line 128 in read
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 217 in _receive_event
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 177 in _receive_response_headers
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 106 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection.py", line 103 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py", line 236 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_transports\default.py", line 250 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 1014 in _send_single_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 979 in _send_handling_redirects
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 942 in _send_handling_auth
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 914 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1387 in _request_once
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\tenacity\__init__.py", line 473 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1411 in _request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1618 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 4916 in _generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 6488 in generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\core\services\gemini.py", line 196 in generate
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 126 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000692c (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 402 in _unsupported_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 143 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00009bd8 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000334c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008d70 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00002fcc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000091f0 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008238 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000958c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000358c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 367 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005608 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 421 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 445 in <module>
+[hb] alive — 0/142 finished this run (12:58:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[OK]   A003 (adversarial) state=RESOLVED turns=8 avg_lat=23.490704029798508
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 1/142 finished this run (12:59:20)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+[hb] alive — 1/142 finished this run (13:00:20)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Timeout (0:03:00)!
+Thread 0x0000990c (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 104 in _throttle
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 124 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000b010 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000045b8 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1138 in read
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1304 in recv_into
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\socket.py", line 719 in readinto
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\http\client.py", line 292 in _read_status
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\http\client.py", line 331 in begin
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\http\client.py", line 1430 in getresponse
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\connection.py", line 571 in getresponse
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\connectionpool.py", line 534 in _make_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\connectionpool.py", line 788 in urlopen
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\requests\adapters.py", line 696 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\requests\sessions.py", line 784 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\requests\sessions.py", line 651 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\auth\transport\requests.py", line 188 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\oauth2\_client.py", line 196 in _token_endpoint_request_no_throw
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\oauth2\_client.py", line 267 in _token_endpoint_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\oauth2\_client.py", line 307 in jwt_grant
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\oauth2\service_account.py", line 461 in _perform_refresh_token
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\auth\credentials.py", line 517 in refresh
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 219 in refresh_auth
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 2216 in get_token_from_credentials
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1173 in _access_token
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1340 in _request_once
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\tenacity\__init__.py", line 473 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1411 in _request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1618 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 4916 in _generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 6488 in generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\core\services\gemini.py", line 196 in generate
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 126 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00009244 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00007c10 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008174 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008d70 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00002fcc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000091f0 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008238 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000958c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000358c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 367 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005608 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 421 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 445 in <module>
+[hb] alive — 1/142 finished this run (13:01:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 1/142 finished this run (13:02:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+[hb] alive — 1/142 finished this run (13:03:20)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Timeout (0:03:00)!
+Thread 0x00003014 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000ac28 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000a048 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1140 in read
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1285 in recv
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_backends\sync.py", line 128 in read
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 217 in _receive_event
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 177 in _receive_response_headers
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 106 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection.py", line 103 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py", line 236 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_transports\default.py", line 250 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 1014 in _send_single_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 979 in _send_handling_redirects
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 942 in _send_handling_auth
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 914 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1387 in _request_once
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\tenacity\__init__.py", line 473 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1411 in _request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1618 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 4916 in _generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 6488 in generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\core\services\gemini.py", line 196 in generate
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 126 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000990c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000b010 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00009244 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00007c10 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008174 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008d70 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00002fcc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000091f0 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008238 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000958c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000358c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 367 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005608 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 421 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 445 in <module>
+[hb] alive — 1/142 finished this run (13:04:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+[hb] alive — 1/142 finished this run (13:05:20)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+Gemini auth: system clock off by -3528s from real UTC — signing JWTs from monotonic-anchored real UTC instead.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 1/142 finished this run (13:06:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[FAIL] U003 (unsupported) — Traceback (most recent call last):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284, in run_one
+    result = _retry(lambda: process_turn(conv, user_text, image=None)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Timeout (0:03:00)!
+Thread 0x00009ddc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1140 in read
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1285 in recv
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_backends\sync.py", line 128 in read
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 217 in _receive_event
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 177 in _receive_response_headers
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 106 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection.py", line 103 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py", line 236 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_transports\default.py", line 250 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 1014 in _send_single_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 979 in _send_handling_redirects
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 942 in _send_handling_auth
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 914 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1387 in _request_once
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\tenacity\__init__.py", line 473 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1411 in _request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1618 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 4916 in _generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 6488 in generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\core\services\gemini.py", line 196 in generate
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 126 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000058a4 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00004628 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00007ea0 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003014 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000ac28 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000a048 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000990c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000b010 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00009244 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00007c10 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008174 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00002fcc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000091f0 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008238 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000958c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000358c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 367 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005608 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 421 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 445 in <module>
+[hb] alive — 2/142 finished this run (13:07:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+[hb] alive — 2/142 finished this run (13:08:20)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+[hb] alive — 2/142 finished this run (13:09:20)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[FAIL] X005 (edge) — Traceback (most recent call last):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284, in run_one
+    result = _retry(lambda: process_turn(conv, user_text, image=None)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Timeout (0:03:00)!
+Thread 0x0000878c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1372 in do_handshake
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1076 in _create
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 455 in wrap_socket
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\util\ssl_.py", line 477 in _ssl_wrap_socket_impl
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\util\ssl_.py", line 433 in ssl_wrap_socket
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\connection.py", line 975 in _ssl_wrap_socket_and_match_hostname
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\connection.py", line 796 in connect
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\connectionpool.py", line 1106 in _validate_conn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\connectionpool.py", line 464 in _make_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\urllib3\connectionpool.py", line 788 in urlopen
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\requests\adapters.py", line 696 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\requests\sessions.py", line 784 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\requests\sessions.py", line 651 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\auth\transport\requests.py", line 188 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\oauth2\_client.py", line 196 in _token_endpoint_request_no_throw
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\oauth2\_client.py", line 267 in _token_endpoint_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\oauth2\_client.py", line 307 in jwt_grant
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\oauth2\service_account.py", line 461 in _perform_refresh_token
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\auth\credentials.py", line 517 in refresh
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 219 in refresh_auth
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 2216 in get_token_from_credentials
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1173 in _access_token
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1340 in _request_once
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\tenacity\__init__.py", line 473 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1411 in _request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1618 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 4916 in _generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 6488 in generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\core\services\gemini.py", line 196 in generate
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 126 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00006cfc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1140 in read
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1285 in recv
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_backends\sync.py", line 128 in read
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 217 in _receive_event
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 177 in _receive_response_headers
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 106 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection.py", line 103 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py", line 236 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_transports\default.py", line 250 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 1014 in _send_single_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 979 in _send_handling_redirects
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 942 in _send_handling_auth
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 914 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1387 in _request_once
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\tenacity\__init__.py", line 473 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1411 in _request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1618 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 4916 in _generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 6488 in generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\core\services\gemini.py", line 196 in generate
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 126 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000ab5c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008f44 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00009ddc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000058a4 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00004628 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00007ea0 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003014 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000ac28 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000a048 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000990c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000b010 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00009244 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00007c10 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008174 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000091f0 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008238 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000958c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000358c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 367 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005608 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 421 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 445 in <module>
+[hb] alive — 3/142 finished this run (13:10:20)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 3/142 finished this run (13:11:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[FAIL] D004 (difficult) — Traceback (most recent call last):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284, in run_one
+    result = _retry(lambda: process_turn(conv, user_text, image=None)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+[hb] alive — 4/142 finished this run (13:12:20)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Timeout (0:03:00)!
+Thread 0xHTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+00005424 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 104 in _throttle
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 124 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00002b04 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00004980 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 358 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 141 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 85 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005ffc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000878c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00006cfc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000ab5c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008f44 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00009ddc (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000058a4 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 177 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 196 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 284 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00004628 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00003014 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000ac28 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000a048 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000990c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000b010 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00007c10 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008174 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x000091f0 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00008238 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000958c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 358 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000358c (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 367 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005608 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 421 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 445 in <module>
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+[hb] alive — 4/142 finished this run (13:13:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 4/142 finished this run (13:14:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 4/142 finished this run (13:15:20)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini auth: system clock off by -3528s from real UTC — signing JWTs from monotonic-anchored real UTC instead.
+AFC is enabled with max remote calls: 10.

@@ -1,0 +1,4 @@
+C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\django\db\backends\utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+  warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+DB: eval_nordland | total specs selected: 1 | already done: 1 | to run: 0
+Nothing to do (all selected specs already in results.jsonl).

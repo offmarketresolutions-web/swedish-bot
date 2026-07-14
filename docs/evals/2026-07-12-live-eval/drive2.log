@@ -1,0 +1,9 @@
+[drive] pass 1: 58/200 good; launching runner --workers 6 wall_cap=700s at 12:09:19
+Traceback (most recent call last):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\drive_eval.py", line 94, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\drive_eval.py", line 67, in main
+    env = dict(os.environ)
+               ^^
+UnboundLocalError: cannot access local variable 'os' where it is not associated with a value

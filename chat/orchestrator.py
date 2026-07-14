@@ -72,20 +72,30 @@ def _wants_form(text: str) -> bool:
     return bool(_FORM_ASK.search(text or ""))
 
 
-def _attach_form_chip(cs, result) -> None:
+def _attach_form_chip(cs, result, conversation=None) -> None:
     """Append the FormButton chip to a reply's chips (idempotent) and mark it SHOWN on the
     case report so the flush persists Session.form_shown/url/category. No-op when there's no
-    active button or the service-area gate suppressed it (outside_area)."""
+    active button or the service-area gate suppressed it (outside_area). When the
+    conversation already has a Session, the URL carries the signed ?nl_case= prefill token."""
     from crm.form_buttons import form_button_for
 
     btn = form_button_for(cs)
     if btn is None:
         return
     chips = result.get("chips") or []
-    # TODO(merge): token added at merge via chat.prefill.build_form_url(btn.url, session)
-    # (S6 sibling scope — absent in this worktree; emit the plain URL for now).
+    url = btn.url
+    session = None
+    if conversation is not None:
+        try:
+            session = conversation.session
+        except Exception:  # no Session row yet (reverse OneToOne raises)
+            session = None
+    if session is not None:
+        from chat.prefill import build_form_url
+
+        url = build_form_url(btn.url, session)
     if not any((c or {}).get("value") == "open_form" for c in chips):
-        chips.append({"value": "open_form", "label": btn.label, "url": btn.url})
+        chips.append({"value": "open_form", "label": btn.label, "url": url})
     result["chips"] = chips
     rep = cs["report"]
     rep["form_status"] = "shown"
@@ -184,7 +194,7 @@ def process_turn(conversation: Conversation, user_text: str = "", image=None) ->
     # (post-lead thanks, service recommendation, explicit "book service/quote" ask). Attaching
     # here — before the flush below — means Session.form_shown/url/category ride the same save.
     if cs.pop("_emit_form", False):
-        _attach_form_chip(cs, result)
+        _attach_form_chip(cs, result, conversation=conversation)
 
     cs["turns"] = cs.get("turns", 0) + 1
     conversation.case_state = cs

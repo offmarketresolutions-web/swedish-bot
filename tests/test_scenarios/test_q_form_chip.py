@@ -120,3 +120,38 @@ def test_widget_fallback_open_form_text_reply(seeded, mock_gemini):
     res = orch.process_turn(conv, "open_form")
     assert "https://x/hp" in res["message"]
     assert res["chips"] == []
+
+
+# ── merge wire-up: chip URLs carry the signed prefill token ─────────────────
+
+def test_attached_chip_url_carries_prefill_token(seeded):
+    """When the conversation has a Session, the emitted form-chip URL must include
+    the signed ?nl_case= prefill token (chat.prefill.build_form_url)."""
+    from chat.models import Conversation
+    from chat.prefill import read_prefill_token
+
+    FormButton.objects.create(category_slug="quote_request", label="Offert",
+                              url="https://nordlandvvs.se/offert", is_active=True)
+    conv = Conversation.objects.create()
+    sess = Session.objects.create(conversation=conv)
+    cs = _cs(category="heat_pump")
+    result = {"message": "tack", "chips": []}
+    orch._attach_form_chip(cs, result, conversation=conv)
+    chip = next(c for c in result["chips"] if c["value"] == "open_form")
+    assert "nl_case=" in chip["url"]
+    token = chip["url"].split("nl_case=")[1]
+    assert read_prefill_token(token) == sess.pk
+
+
+def test_attached_chip_plain_url_without_session(seeded):
+    """No Session yet → chip still emits with the plain URL (prefill just inert)."""
+    from chat.models import Conversation
+
+    FormButton.objects.create(category_slug="quote_request", label="Offert",
+                              url="https://nordlandvvs.se/offert", is_active=True)
+    conv = Conversation.objects.create()
+    cs = _cs(category="heat_pump")
+    result = {"message": "tack", "chips": []}
+    orch._attach_form_chip(cs, result, conversation=conv)
+    chip = next(c for c in result["chips"] if c["value"] == "open_form")
+    assert chip["url"] == "https://nordlandvvs.se/offert"
