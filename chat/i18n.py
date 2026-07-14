@@ -68,6 +68,17 @@ T = {
         "chip_no": "No",
         "welcome_back": "Welcome back — good to hear from you again; I can see we've helped you before.",
         "phone_connector": "on",
+        # S5 service-area gate
+        "installer_ask": "Just to check — has Nordland VVS, Bylunds VVS or Nordborr i Sundsvall "
+                         "installed your equipment?",
+        "installer_which": "Which of them installed it? (just type the name)",
+        "outside_area_decline": "Thanks for reaching out. Unfortunately the address falls outside "
+                                "Nordland VVS's service area{area_sfx}, so I can't book a technician "
+                                "visit there.",
+        "coverage_confirm": "You're near the edge of our area, so a technician will confirm coverage "
+                            "before the visit.",
+        # S6 widget fallback for an old cached widget that sends "open_form" as text
+        "form_link": "You can open the booking form here: {url}",
     },
     "sv": {
         "greeting": "Hej! Jag är Nordland VVS assistent. Jag kan hjälpa till med värmepumpar, "
@@ -129,6 +140,17 @@ T = {
         "chip_no": "Nej",
         "welcome_back": "Välkommen tillbaka — kul att höra från dig igen; jag ser att vi har hjälpt dig tidigare.",
         "phone_connector": "på",
+        # S5 service-area gate
+        "installer_ask": "Bara för att kolla — har Nordland VVS, Bylunds VVS eller Nordborr i "
+                         "Sundsvall installerat er anläggning?",
+        "installer_which": "Vilket av dem installerade den? (skriv bara namnet)",
+        "outside_area_decline": "Tack för att du hörde av dig. Tyvärr ligger adressen utanför "
+                                "Nordland VVS arbetsområde{area_sfx}, så jag kan inte boka ett "
+                                "teknikerbesök där.",
+        "coverage_confirm": "Ni ligger nära kanten av vårt område, så en tekniker bekräftar "
+                            "täckningen innan besöket.",
+        # S6 widget fallback for an old cached widget that sends "open_form" as text
+        "form_link": "Du kan öppna bokningsformuläret här: {url}",
     },
 }
 
