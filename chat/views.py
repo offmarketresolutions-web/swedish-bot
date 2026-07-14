@@ -140,16 +140,25 @@ def prefill(request, token: str):
     except Session.DoesNotExist:
         return _prefill_cors(JsonResponse({"error": "invalid_or_expired"}, status=404))
 
+    # The customer's own words live in Conversation.case_state["slots"] (mined live
+    # during the chat) — Session has no "problem" column, so that's the only source
+    # for the real problem text / alarm wording (plan S6/D2 follow-up).
+    slots = (session.conversation.case_state or {}).get("slots", {}) if session.conversation_id else {}
+
     technical = {
         "category": session.category.name if session.category else None,
         "subtype": session.problem_category.label if session.problem_category else None,
         "brand": session.manufacturer or None,
         "model": session.model or None,
         "error_code": session.error_code or None,
-        "alarm_text": None,  # not captured as a distinct Session field today
-        "problem": session.problem_category.label if session.problem_category else None,
+        "alarm_text": slots.get("alarm_text") or None,
+        "problem": slots.get("problem") or None,
         "postal_code": session.postal_code or None,
         "onset": session.onset or None,
+        "service_area": {
+            "name": session.service_area_name or None,
+            "status": session.service_area_status or None,
+        } if session.service_area_status else None,
     }
     payload = {"technical": technical, "meta": {"generated_at": datetime.now(timezone.utc).isoformat()}}
 
@@ -159,6 +168,7 @@ def prefill(request, token: str):
             "name": customer.name or None,
             "phone": customer.phone or None,
             "email": customer.email or None,
+            "address": customer.address or None,
         }
 
     return _prefill_cors(JsonResponse(payload))

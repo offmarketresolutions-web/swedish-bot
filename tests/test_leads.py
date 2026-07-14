@@ -35,6 +35,20 @@ def test_db_sink_always_succeeds_email_skipped_by_default(seeded, mock_gemini):
     assert ServiceRequest.objects.count() == 1
 
 
+def test_payload_includes_previous_installer_when_known(seeded, mock_gemini):
+    sess = _session_with_customer()
+    sess.installer = "bylunds"
+    sess.save(update_fields=["installer"])
+    sr, _ = leads.create_and_dispatch(sess, "low_confidence")
+    assert sr.payload_json["installer"] == "bylunds"
+
+
+def test_payload_installer_blank_when_unknown(seeded, mock_gemini):
+    sess = _session_with_customer()
+    sr, _ = leads.create_and_dispatch(sess, "low_confidence")
+    assert sr.payload_json["installer"] == ""
+
+
 @override_settings(LEAD_EMAIL_TO="ops@nordlandvvs.se",
                    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 def test_email_sink_sends_when_configured(seeded, mock_gemini):

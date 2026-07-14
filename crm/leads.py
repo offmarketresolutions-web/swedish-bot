@@ -44,6 +44,7 @@ def _payload(session) -> dict:
             "email": f(c.email) if c else "", "address": f(c.address) if c else "",
             "postal_code": f(c.postal_code, 20) if c else "",
         } if c else {},
+        "installer": f(session.installer, 32),
         "summary": session.ai_summary,
         "troubleshooting_performed": session.troubleshooting_performed,
         # S5: service-area status rides the lead so the technician sees inside/border/unknown

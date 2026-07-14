@@ -20,7 +20,11 @@ signed token endpoint, and a ~40-line JS snippet that fills the real form.
    <script src="https://<your-django-host>/static/prefill/nordland-prefill.js?v=1" defer></script>
    ```
    Bump the `?v=` number whenever you update the snippet, so browsers don't serve
-   a stale cached copy.
+   a stale cached copy. Same rule for the live-site chat widget embed
+   (`nordland-widget.js`): the demo templates carry `?v=3` as of the address /
+   service-area FIELD_MAP update — bump the real-site `<script>` tag to match
+   whenever the widget bundle changes, so cached clients pick up the new url-chip
+   anchor rendering and prefill fields.
 
 2. **Update `FIELD_MAP` — the only edit you'll ever need.** Open
    `static/prefill/nordland-prefill.js` and change the CSS selectors on the left

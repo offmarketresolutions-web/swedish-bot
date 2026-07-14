@@ -14,12 +14,14 @@
     '[data-field="name"]': "contact.name",
     '[data-field="phone"]': "contact.phone",
     '[data-field="email"]': "contact.email",
+    '[data-field="address"]': "contact.address",
     '[data-field="category"]': "technical.category",
     '[data-field="brand"]': "technical.brand",
     '[data-field="model"]': "technical.model",
     '[data-field="error_code"]': "technical.error_code",
     '[data-field="problem"]': "technical.problem",
     '[data-field="postal_code"]': "technical.postal_code",
+    '[data-field="service_area"]': "technical.service_area.name",
   };
 
   function getParam(name) {

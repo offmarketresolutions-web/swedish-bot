@@ -78,12 +78,40 @@ def test_prefill_endpoint_omits_contact_without_consent():
 
 def test_prefill_endpoint_includes_contact_with_consent():
     customer = Customer.objects.create(name="Anna", phone="0701234567", email="a@x.se",
-                                        consent_to_contact=True)
+                                        address="Storgatan 1", consent_to_contact=True)
     session = _make_session(customer=customer)
     token = make_prefill_token(session)
     resp = _client_get(f"/api/prefill/{token}")
     body = resp.json()
-    assert body["contact"] == {"name": "Anna", "phone": "0701234567", "email": "a@x.se"}
+    assert body["contact"] == {"name": "Anna", "phone": "0701234567", "email": "a@x.se",
+                                "address": "Storgatan 1"}
+
+
+def test_prefill_endpoint_derives_problem_and_alarm_from_case_state():
+    conv = Conversation.objects.create(
+        language="sv", case_state={"slots": {"problem": "Ingen värme sedan igår", "alarm_text": "E12 blinkar"}})
+    session = Session.objects.create(conversation=conv)
+    token = make_prefill_token(session)
+    resp = _client_get(f"/api/prefill/{token}")
+    body = resp.json()
+    assert body["technical"]["problem"] == "Ingen värme sedan igår"
+    assert body["technical"]["alarm_text"] == "E12 blinkar"
+
+
+def test_prefill_endpoint_includes_service_area_when_known():
+    session = _make_session(service_area_status="inside", service_area_name="Umeå")
+    token = make_prefill_token(session)
+    resp = _client_get(f"/api/prefill/{token}")
+    body = resp.json()
+    assert body["technical"]["service_area"] == {"name": "Umeå", "status": "inside"}
+
+
+def test_prefill_endpoint_omits_service_area_when_unknown():
+    session = _make_session()
+    token = make_prefill_token(session)
+    resp = _client_get(f"/api/prefill/{token}")
+    body = resp.json()
+    assert body["technical"]["service_area"] is None
 
 
 def test_prefill_endpoint_404s_on_invalid_token():
