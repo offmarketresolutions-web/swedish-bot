@@ -29,10 +29,10 @@ from core.enums import (
     STATE_UNSUPPORTED,
 )
 from core.services import gemini
-from kb.identification import identify_machine
 
 CONFIDENCE_GATE = 0.70  # solve a documented in-docs answer; hard safety is the keyword/LLM veto + in_docs cap
 REPLY_BUDGET = 5
+GENERAL_REPLY_BUDGET = 3  # general (no-manual) specialist: fewer safe turns before handoff
 _FENCE = re.compile(r"^```(?:json)?|```$", re.MULTILINE)
 _NEG = re.compile(r"\b(not|don'?t|do not|never|inte|nej|no)\b", re.IGNORECASE)
 _AFFIRM = re.compile(r"\b(yes|ja|sure|ok|okay|send it|please send|go ahead|do it|skicka|absolutely)\b",
@@ -189,7 +189,10 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
                 return out
             user_text = ""  # consumed; fall through to routing
         elif st == STATE_ROUTING:
-            _route(conversation, cs, events, locale)
+            out = _route(conversation, cs, user_text, events, locale)
+            if out is not None:
+                return out  # paused for model disambiguation / search
+            user_text = ""  # consumed
         elif st == STATE_SPECIALIST:
             out = _specialist_step(conversation, cs, user_text, events, locale)
             if out is not None:
@@ -266,27 +269,185 @@ def _intake_step(cs, user_text, locale) -> dict | None:
     return {"message": t(locale, "q_" + nxt), "chips": intake.chips_for(nxt, cs, locale)}
 
 
-def _route(conversation, cs, events, locale):
-    from kb.models import Category, ProblemCategory, Vendor
+SERVICED_FAMILIES = {"heat_pump", "water_pump_well", "water_filtration"}
+
+
+def _vendor_for(brand):
+    """Resolve a stated brand to a Vendor row (by name or slug), or None."""
+    from kb.models import Vendor
+
+    if not brand or brand in ("unknown", "other"):
+        return None
+    return (Vendor.objects.filter(name__iexact=brand).first()
+            or Vendor.objects.filter(slug=str(brand).lower()).first())
+
+
+def _serviced_category(cs) -> bool:
+    """True when the case sits in a serviced family (heat_pump / water_pump_well /
+    water_filtration) — directly, via a category leaf's parent, or via the stated subtype.
+    These get the general specialist even with no exact machine; everything else is truly
+    unsupported."""
+    from kb.models import Category
+
+    for slug in (cs["slots"].get("category"), cs["slots"].get("subtype")):
+        if not slug:
+            continue
+        if slug in SERVICED_FAMILIES:
+            return True
+        c = Category.objects.filter(slug=slug).select_related("parent").first()
+        if c and (c.slug in SERVICED_FAMILIES or (c.parent and c.parent.slug in SERVICED_FAMILIES)):
+            return True
+    return False
+
+
+def _bind_confirmed(cs, machine) -> None:
+    """Bind a CONFIRMED catalog machine — the only path that sets machine_id + persists it
+    to the Session. slots.model stays the raw customer text (never overwritten)."""
+    cs["machine_id"] = machine.id
+    cs["model_confirmed"] = True
+    cs["match_confidence"] = 1.0
+    cs["await_model_confirm"] = False
+    cs["model_search_mode"] = False
+    cs["pending_candidate_ids"] = []
+
+
+def _model_disambig_prompt(cands, locale, *, none_chip=False) -> dict:
+    """The "Menar du X eller Y?" question + candidate chips (+ Annan modell / Jag vet inte,
+    or Ingen av dessa in the search-suggestion variant). Binds ONLY on an explicit tap."""
+    names = [m.model_name for m, _ in cands]
+    options = (" or " if locale != "sv" else " eller ").join(names)
+    chips = [{"value": n, "label": n} for n in names]
+    if none_chip:
+        chips.append({"value": "none_of_these", "label": t(locale, "chip_none_of_these")})
+    else:
+        chips.append({"value": "other_model", "label": t(locale, "chip_other_model")})
+        chips.append({"value": "unknown", "label": t(locale, "chip_dontknow")})
+    return {"message": t(locale, "model_disambig", options=options), "chips": chips}
+
+
+def _resolve_machine(cs, locale) -> dict | None:
+    """No-auto-bind (plan S3). Exact-normalized match -> bind + model_confirmed. Ambiguous
+    candidates -> pause with disambiguation chips (await_model_confirm). No candidates / no
+    model text -> return None so routing falls through to general/unsupported. Never binds a
+    machine the customer didn't confirm (R006)."""
+    from kb.identification import candidate_matches, exact_machine
 
     s = cs["slots"]
-    brand = s.get("brand")
-    vendor = None
-    if brand and brand != "unknown":  # vendor-scope identification once the brand is known
-        vendor = (Vendor.objects.filter(name__iexact=brand).first()
-                  or Vendor.objects.filter(slug=str(brand).lower()).first())
-    # R006: identify ONLY on real model/nameplate text. Brand alone is too weak a query --
-    # pg_trgm can score ANY machine of that vendor above threshold and silently bind a
-    # machine the customer never confirmed (e.g. "I don't know the model, it's an IVT"
-    # fuzzy-matching "IVT 490"). No model/OCR text -> no identification, falls through to
-    # STATE_UNSUPPORTED (generic category guidance + escalate) instead of fabricating one.
+    vendor = _vendor_for(s.get("brand"))
     ident_bits = [x for x in (s.get("model"), s.get("ocr_text")) if x and x != "unknown"]
-    if ident_bits:
-        query = sanitize.cap(" ".join(([brand] if vendor else []) + ident_bits), 120)
-        machine, score = identify_machine(query, vendor=vendor)
-    else:
-        machine, score = None, 0.0
-    cs["match_confidence"] = score
+    if not ident_bits:
+        cs["match_confidence"] = 0.0
+        return None  # brand alone is too weak — never fabricate a model (R006)
+    query = sanitize.cap(" ".join(([s.get("brand")] if vendor else []) + ident_bits), 120)
+
+    machine = exact_machine(query, s.get("model") or "", vendor=vendor)
+    if machine:
+        _bind_confirmed(cs, machine)
+        return None
+
+    cands = candidate_matches(query, vendor=vendor, limit=4)
+    if cands:
+        cs["await_model_confirm"] = True
+        cs["pending_candidate_ids"] = [m.id for m, _ in cands]
+        cs["match_confidence"] = round(cands[0][1], 3)
+        return _model_disambig_prompt(cands, locale)
+
+    cs["match_confidence"] = 0.0
+    return None
+
+
+def _consume_model_reply(cs, user_text, locale) -> dict | None:
+    """Deterministic consumption of a reply to the disambiguation chips (mirrors
+    await_brand_reconfirm). A candidate name/chip (or single-candidate + yes) binds;
+    'Annan modell' -> free-text search; 'Jag vet inte' / 'Ingen av dessa' -> no bind
+    (returns None -> route continues as general/unsupported)."""
+    from kb.identification import _norm
+    from kb.models import Machine
+
+    cs["await_model_confirm"] = False
+    ids = cs.get("pending_candidate_ids") or []
+    cs["pending_candidate_ids"] = []
+    raw = (user_text or "").strip()
+    low = raw.lower()
+    cands = list(Machine.objects.filter(id__in=ids))
+
+    for m in cands:
+        if low == m.model_name.lower() or (raw and _norm(raw) == _norm(m.model_name)):
+            _bind_confirmed(cs, m)
+            return None
+    if len(cands) == 1 and _is_yes(low):
+        _bind_confirmed(cs, cands[0])
+        return None
+    if low == "other_model" or _norm(raw) == _norm(t(locale, "chip_other_model")):
+        cs["model_search_mode"] = True
+        return {"message": t(locale, "model_search_prompt"), "chips": []}
+    # unknown / none-of-these / anything else -> give up binding, keep raw model text.
+    cs["model_gave_up"] = True
+    return None
+
+
+def _consume_model_search(cs, user_text, locale) -> dict | None:
+    """In model_search_mode, a free-text model reply yields suggest_models chips (+ Ingen
+    av dessa). An exact catalog hit binds immediately; otherwise we present suggestions and
+    bind ONLY on an explicit tap (via await_model_confirm)."""
+    from kb.identification import _norm, exact_machine, suggest_models
+
+    raw = (user_text or "").strip()
+    low = raw.lower()
+    if not raw or low == "none_of_these" or _norm(raw) == _norm(t(locale, "chip_none_of_these")):
+        cs["model_search_mode"] = False
+        cs["model_gave_up"] = True
+        return None
+
+    s = cs["slots"]
+    vendor = _vendor_for(s.get("brand"))
+    # keep the customer's typed model text as the raw model slot
+    cleaned = sanitize.clean_model(raw)
+    if cleaned and (not s.get("model") or s.get("model") == "unknown"):
+        s["model"] = cleaned
+
+    m = exact_machine(raw, raw, vendor=vendor)
+    if m:
+        cs["model_search_mode"] = False
+        _bind_confirmed(cs, m)
+        return None
+
+    from chat.intake import _family_ids
+    cat_ids = _family_ids(s.get("subtype")) or _family_ids(s.get("category"))
+    sugg = suggest_models(raw, vendor=vendor, category_ids=cat_ids, limit=5)
+    if sugg:
+        cs["model_search_mode"] = False
+        cs["await_model_confirm"] = True
+        cs["pending_candidate_ids"] = [x.id for x, _ in sugg]
+        return _model_disambig_prompt(sugg, locale, none_chip=True)
+
+    # nothing plausible in the catalog — keep the raw text, hand to general/unsupported.
+    cs["model_search_mode"] = False
+    cs["model_gave_up"] = True
+    return None
+
+
+def _route(conversation, cs, user_text, events, locale):
+    from kb.models import Category, Machine, ProblemCategory
+
+    # 1. Consume any pending model disambiguation / search reply first (deterministic, no LLM).
+    if cs.get("await_model_confirm"):
+        out = _consume_model_reply(cs, user_text, locale)
+        if out is not None:
+            return out
+    elif cs.get("model_search_mode"):
+        out = _consume_model_search(cs, user_text, locale)
+        if out is not None:
+            return out
+
+    s = cs["slots"]
+    # 2. No-auto-bind resolution — unless already confirmed or the customer gave up on it.
+    if not cs.get("model_confirmed") and not cs.get("model_gave_up"):
+        out = _resolve_machine(cs, locale)
+        if out is not None:
+            return out
+
+    machine = Machine.objects.filter(id=cs["machine_id"]).first() if cs.get("machine_id") else None
 
     data = _call_router(conversation, cs, machine, locale)
     cs["severity"] = data.get("severity") or "normal"
@@ -302,23 +463,29 @@ def _route(conversation, cs, events, locale):
     if action in ("route_maintenance", "urgent_contact"):
         if action == "urgent_contact":
             cs["severity"] = "urgent"
-        cs["machine_id"] = machine.id if machine else None
         cs["escalation_reason"] = "routing_rule"
         cs["report"]["service_recommended"] = True
         cs["state"] = STATE_ESCALATE
         events.append({"type": "routing_rule", "action": action})
         flush_to_session(conversation, cs, machine=machine, problem_category=pc)
-        return
+        return None
 
     events.append({"type": "tool_result", "name": "identify",
-                   "result": {"machine": str(machine) if machine else None, "score": round(score, 3)}})
+                   "result": {"machine": str(machine) if machine else None,
+                              "score": round(cs.get("match_confidence", 0.0), 3)}})
 
-    if machine:
-        cs["machine_id"] = machine.id
+    # 3. Three-way route (plan S3): confirmed machine -> manual specialist; serviced category
+    # with no machine -> general specialist; otherwise truly unsupported (final fallback).
+    if machine and cs.get("model_confirmed"):
+        cs["specialist_mode"] = "manual"
+        cs["state"] = STATE_SPECIALIST
+    elif _serviced_category(cs):
+        cs["specialist_mode"] = "general"
         cs["state"] = STATE_SPECIALIST
     else:
         cs["state"] = STATE_UNSUPPORTED
     flush_to_session(conversation, cs, machine=machine, problem_category=pc)
+    return None
 
 
 def _history_parts(conversation, *, max_msgs=14, max_imgs=4):
@@ -507,7 +674,15 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
             return {"message": t(locale, "brand_reconfirm", brand=new_brand),
                     "chips": _yesno_chips(locale)}
 
-    machine = Machine.objects.get(id=cs["machine_id"])
+    # Three-way specialist (plan S3): manual mode has a confirmed machine + its manual;
+    # general mode has a serviced category but NO machine/manual — approved general knowledge
+    # only, a distinct role, and a tighter budget.
+    mode = cs.get("specialist_mode", "manual")
+    general = mode == "general"
+    role = "intelligent_specialist" if general else "specialist"
+    machine = Machine.objects.filter(id=cs["machine_id"]).first() if cs.get("machine_id") else None
+    if not general and machine is None:  # defensive: manual mode must have a machine
+        general, role = True, "intelligent_specialist"
     # If the customer stated an alarm/fault code inside their problem text but it never
     # landed in the error_code slot, pull it out now — the specialist needs the exact
     # code to give a grounded answer instead of re-asking for info already provided.
@@ -521,21 +696,33 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     # attempt, so it neither consumes the budget nor can be force-escalated by it.
     if not clarify:
         cs["specialist_turns"] = cs.get("specialist_turns", 0) + 1
-    forced = (not clarify) and cs["specialist_turns"] >= REPLY_BUDGET
-    brand_notes, faq = context.collect_knowledge(machine, locale, query=cs["slots"].get("problem", ""))
-    cached, inline = context.machine_pdf_context(machine, locale)
-
-    system = prompts.render(
-        "specialist", locale=locale, brand=machine.vendor.name, model=machine.model_name,
-        category=machine.category.slug, brand_notes=brand_notes, faq=faq,
-        problem=cs["slots"].get("problem", ""), symptoms="", error_code=cs["slots"].get("error_code") or "",
-        serial=cs["slots"].get("serial") or "", forced_wrapup=str(forced).lower(),
-        previous_checks=_previous_checks_block(cs),
-    )
+    budget = GENERAL_REPLY_BUDGET if general else REPLY_BUDGET
+    forced = (not clarify) and cs["specialist_turns"] >= budget
+    general_text = context.collect_general_knowledge(cs, locale, machine=machine)
+    if general:
+        cached, inline = None, []
+        system = prompts.render(
+            "intelligent_specialist", locale=locale, brand=cs["slots"].get("brand") or "",
+            model=cs["slots"].get("model") or "", category=cs["slots"].get("category") or "",
+            general_knowledge=general_text, problem=cs["slots"].get("problem", ""),
+            error_code=cs["slots"].get("error_code") or "", forced_wrapup=str(forced).lower(),
+            previous_checks=_previous_checks_block(cs),
+        )
+    else:
+        brand_notes, faq = context.collect_knowledge(machine, locale, query=cs["slots"].get("problem", ""))
+        cached, inline = context.machine_pdf_context(machine, locale)
+        system = prompts.render(
+            "specialist", locale=locale, brand=machine.vendor.name, model=machine.model_name,
+            category=machine.category.slug, brand_notes=brand_notes, faq=faq,
+            general_knowledge=general_text,
+            problem=cs["slots"].get("problem", ""), symptoms="", error_code=cs["slots"].get("error_code") or "",
+            serial=cs["slots"].get("serial") or "", forced_wrapup=str(forced).lower(),
+            previous_checks=_previous_checks_block(cs),
+        )
     turn = ("Customer problem: " + sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem")
             + f"\nError code: {sanitize.clean_error_code(cs['slots'].get('error_code') or '') or 'none'}.")
     hist, imgs = _history_parts(conversation)  # carry prior messages + photos to the specialist
-    cfg = prompts.config_for("specialist")
+    cfg = prompts.config_for(role)
     # Thinking-on-complex (P-C): low identification confidence / error code / urgent.
     complex_case = (cs.get("match_confidence", 0) < 0.7
                     or bool(cs["slots"].get("error_code")) or cs.get("severity") == "urgent")
@@ -560,7 +747,10 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     # ~0.45-0.87, so a 0.6 cap force-escalated half the catalog even with the right PDF
     # loaded). Above this floor we trust the specialist's own in_docs check — if the
     # loaded manual doesn't fit the unit it sets in_docs=false and we cap+escalate anyway.
-    if cs.get("match_confidence", 0) < 0.4:
+    # The match-confidence floor is a MANUAL-mode heuristic (a poor trigram machine match).
+    # General mode has no machine to match, so it doesn't apply — there we trust the
+    # specialist's own in_docs/confidence (its prompt sets in_docs=false for model-specifics).
+    if not general and cs.get("match_confidence", 0) < 0.4:
         conf = min(conf, 0.5)
     if data.get("in_docs") is False:
         conf = min(conf, 0.6)
@@ -601,7 +791,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     cs["awaiting_confirm"] = True
     msg = (answer + "\n\n" + t(locale, "confirm_fix")) if answer else t(locale, "confirm_fix")
     return {"message": msg, "chips": _yesno_chips(locale), "decision": "solve",
-            "model": prompts.model_for("specialist")}
+            "model": prompts.model_for(role)}
 
 
 def _unsupported_step(conversation, cs, events, locale) -> dict:

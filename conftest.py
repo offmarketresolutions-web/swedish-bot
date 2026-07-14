@@ -28,6 +28,8 @@ def _classify(system: str) -> str:
         return "safety"
     if "routing classifier" in s:
         return "router"
+    if "general troubleshooting specialist for Nordland VVS" in s:
+        return "intelligent_specialist"
     if "senior Nordland VVS service technician" in s:
         return "specialist"
     if "service coordinator handling equipment we do NOT" in s:
@@ -70,6 +72,15 @@ class FakeGemini:
         if role == "intelligent_intake":
             return {"answer_to_customer": "I'll get a Nordland technician to help.",
                     "decision": "escalate", "severity": "normal", "report": {}}
+        if role == "intelligent_specialist":
+            # general-mode specialist: same contract as specialist. Default escalates
+            # (no fabricated model-specifics); troubleshooting tests override this role.
+            return {"answer_to_customer": "I'll get a Nordland technician to help with your unit.",
+                    "confidence": 0.0, "decision": "escalate", "in_docs": False,
+                    "extracted_facts": {"onset": None, "alarm_text": None, "model_text": None,
+                                        "error_code": None, "readings": [], "installer": None,
+                                        "operating_context": None, "check_results": []},
+                    "report": {}}
         return "OK"
 
     def generate(self, contents, *, model, system_instruction=None, **kw):

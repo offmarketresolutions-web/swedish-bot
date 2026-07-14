@@ -27,6 +27,7 @@ AGENT_ROLE_CHOICES = [
     ("router", "Router agent"),
     ("specialist", "Specialist agent"),
     ("intelligent_intake", "Intelligent intake specialist (unsupported)"),
+    ("intelligent_specialist", "Intelligent specialist (serviced category, no manual)"),
     ("summarizer", "Session summarizer"),
     ("safety", "Safety classifier (guardrail backstop)"),
     ("qa", "QA / assessment agent (v2)"),

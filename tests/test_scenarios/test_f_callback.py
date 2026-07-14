@@ -12,8 +12,9 @@ pytestmark = pytest.mark.django_db
 
 
 def _to_unsupported_escalation(conv, mock_gemini):
-    """Cheapest path into ESCALATE: an unsupported brand (reuses C1's setup)."""
-    mock_gemini.responses["intelligent_intake"] = {
+    """Cheapest path into ESCALATE: a non-catalog brand in a serviced family -> general
+    specialist -> escalate (reuses C1's setup)."""
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "I'll get a Nordland technician to help.",
     }

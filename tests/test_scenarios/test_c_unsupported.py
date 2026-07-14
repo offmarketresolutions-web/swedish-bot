@@ -1,6 +1,12 @@
-"""Category C -- info-gather-only / out-of-scope brand (test plan §Category C, C1-C5).
-Non-serviced brand/equipment -> UNSUPPORTED_INTAKE -> gather context -> refer.
-escalation_reason == "unsupported". ServiceRequest created. No specialist "solve".
+"""Category C -- serviced-category-but-no-catalog-machine, and truly-out-of-scope
+(test plan §Category C, C1-C6).
+
+S3 routing change: "supported=false" (no exact catalog match) != "not serviced". A NON-
+catalog brand in a SERVICED family (NIBE/Thermia/Daikin heat pump) now goes to the GENERAL
+specialist (safe, category-level troubleshooting from approved general knowledge, never a
+fabricated model-specific fix), then escalates -> lead. Only a TRULY unknown/out-of-scope
+category (C6) still takes the UNSUPPORTED_INTAKE always-escalate path. In every case: no
+invented remedy, brand preserved, ServiceRequest created, never a specialist "solve".
 """
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -11,10 +17,14 @@ from tests.support.convo import DIY_FORBIDDEN, finish_escalation, run_convo
 
 pytestmark = pytest.mark.django_db
 
+# The general specialist escalates via the ordinary specialist gates, so the reason is one
+# of these (never "unsupported", which is now reserved for truly out-of-scope categories).
+_GENERAL_REASONS = ("low_confidence", "decision", "budget")
 
-# C1 -- unsupported brand: NIBE
-def test_c1_unsupported_brand_nibe(seeded, mock_gemini):
-    mock_gemini.responses["intelligent_intake"] = {
+
+# C1 -- non-catalog brand NIBE in a serviced family -> general specialist -> lead
+def test_c1_non_catalog_brand_nibe_general(seeded, mock_gemini):
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "I'll get a Nordland technician to help with your NIBE unit.",
     }
@@ -23,9 +33,9 @@ def test_c1_unsupported_brand_nibe(seeded, mock_gemini):
         "heat_pump",
         "no",  # postcode asked early (S2) -- declined
         "error 163 on the display",
-        "other",
-        # no Machine row for NIBE -> ROUTING sends it through _unsupported_step, which
-        # always transitions straight to ESCALATE in the same turn (no manual = no solve).
+        "NIBE",  # stated as free text -> preserved verbatim (not squashed to "other")
+        # no Machine row for NIBE, but heat_pump is serviced -> GENERAL specialist, which
+        # must never state what error 163 MEANS for this model (no manual) -> escalate.
         ("NIBE F1226", {
             "state": "ESCALATE",
             "decision": "escalate",
@@ -33,17 +43,19 @@ def test_c1_unsupported_brand_nibe(seeded, mock_gemini):
         }),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    assert conv.case_state["escalation_reason"] in _GENERAL_REASONS
+    assert conv.case_state["machine_id"] is None  # no-auto-bind
     finish_escalation(conv, name="Gunilla", phone="070-100 20 30")
     sess = Session.objects.get(conversation=conv)
     assert sess.machine is None
+    assert sess.manufacturer == "NIBE"  # brand preserved verbatim
     sr = ServiceRequest.objects.get(session=sess)
-    assert sr.escalation_reason == "unsupported"
+    assert sr.escalation_reason in _GENERAL_REASONS
 
 
-# C2 -- unsupported brand: Thermia
-def test_c2_unsupported_brand_thermia(seeded, mock_gemini):
-    mock_gemini.responses["intelligent_intake"] = {
+# C2 -- non-catalog brand Thermia -> general specialist -> lead
+def test_c2_non_catalog_brand_thermia_general(seeded, mock_gemini):
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "We don't have a Thermia manual loaded, but a Nordland technician can still help.",
     }
@@ -52,13 +64,38 @@ def test_c2_unsupported_brand_thermia(seeded, mock_gemini):
         "heat_pump",
         "no",  # postcode asked early (S2) -- declined
         "making a grinding noise",
-        "other",
+        "Thermia",
         ("Thermia Diplomat", {"state": "ESCALATE", "decision": "escalate"}),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    assert conv.case_state["escalation_reason"] in _GENERAL_REASONS
     finish_escalation(conv, name="Roland", phone="070-101 20 30")
-    assert ServiceRequest.objects.filter(session__conversation=conv).exists()
+    sess = Session.objects.get(conversation=conv)
+    assert sess.manufacturer == "Thermia"
+    assert ServiceRequest.objects.filter(session=sess).exists()
+
+
+# C6 -- truly out-of-scope category (unknown) -> still UNSUPPORTED_INTAKE always-escalate
+def test_c6_truly_unknown_category_stays_unsupported(seeded, mock_gemini):
+    mock_gemini.responses["intelligent_intake"] = {
+        "decision": "escalate", "severity": "normal",
+        "answer_to_customer": "That's outside what I can place — I'll get a Nordland coordinator to help.",
+    }
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "unknown")           # category
+    orch.process_turn(conv, "no")                # postcode declined
+    orch.process_turn(conv, "the thing in the garage is broken, no idea what it is")
+    orch.process_turn(conv, "other")             # brand
+    res = orch.process_turn(conv, "unknown")     # model -> routes
+    conv.refresh_from_db()
+    # unknown category is NOT a serviced family -> unsupported path
+    for _ in range(3):
+        if conv.case_state["state"] in ("ESCALATE", "RESOLVED"):
+            break
+        res = orch.process_turn(conv, "")
+        conv.refresh_from_db()
+    assert conv.case_state["state"] == "ESCALATE"
+    assert conv.case_state["escalation_reason"] == "unsupported"
 
 
 # C3 -- out-of-scope: commercial/industrial system
@@ -130,11 +167,12 @@ def test_r006_says_dont_know_model_does_not_bind_or_fabricate_machine(seeded, mo
     assert conv.case_state["match_confidence"] == 0.0
     assert "490" not in res["message"] and "402" not in res["message"]
 
-# C5 -- unclear brand -> photo request -> identification -> referral (unsupported)
-def test_c5_photo_identifies_unsupported_daikin(seeded, mock_gemini):
+# C5 -- unclear brand -> photo request -> OCR identifies a non-catalog brand (Daikin) in a
+# serviced family -> general specialist -> referral (brand preserved, no fabricated fix)
+def test_c5_photo_identifies_daikin_general(seeded, mock_gemini):
     mock_gemini.responses["vision"] = {"manufacturer": "Daikin", "model": "EDLA08",
                                        "serial": "", "error_code": ""}
-    mock_gemini.responses["intelligent_intake"] = {
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "That's a Daikin EDLA08 -- we don't have a manual for that brand, but a technician can help.",
     }
@@ -156,7 +194,8 @@ def test_c5_photo_identifies_unsupported_daikin(seeded, mock_gemini):
         orch.process_turn(conv, "")
         conv.refresh_from_db()
     assert conv.case_state["state"] == "ESCALATE"
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    assert conv.case_state["escalation_reason"] in _GENERAL_REASONS
+    assert conv.case_state["machine_id"] is None  # no Daikin catalog machine -> no bind
     finish_escalation(conv, name="Hanna", phone="070-104 20 30")
     sess = Session.objects.get(conversation=conv)
     assert sess.manufacturer == "Daikin"

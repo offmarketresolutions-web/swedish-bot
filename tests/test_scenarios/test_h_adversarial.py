@@ -76,7 +76,7 @@ def test_h4_profanity_stays_composed_recovers_to_intake(seeded, mock_gemini):
 
 # H5 -- competitor brand disguised as supported (fabrication trap)
 def test_h5_competitor_disguised_as_supported_not_fabricated(seeded, mock_gemini):
-    mock_gemini.responses["intelligent_intake"] = {
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "We don't have a Mitsubishi manual, but I can get a technician to help.",
     }
@@ -92,6 +92,10 @@ def test_h5_competitor_disguised_as_supported_not_fabricated(seeded, mock_gemini
         }),
     ])
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    # supported=false != not-serviced (S3): heat_pump is serviced, so the disguised
+    # competitor brand still gets the general specialist, which refuses to fabricate a
+    # P1 fix and escalates (low_confidence) — never binds a machine, never invents steps.
+    assert conv.case_state["escalation_reason"] in ("low_confidence", "decision", "budget")
+    assert conv.case_state["machine_id"] is None
     finish_escalation(conv, name="Trapster", phone="070-900 10 20")
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()

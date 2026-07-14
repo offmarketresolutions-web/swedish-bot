@@ -197,12 +197,14 @@ def test_k6_debe_pump_short_cycling_documented_tier_escalates(seeded, mock_gemin
     assert ServiceRequest.objects.filter(session=sess).exists()
 
 
-# K7 -- Scandia Pumps -- vendor seeded but NO Machine row (no manual loaded) -> must
-# NOT invent troubleshooting steps; info-gather (model, symptom) -> lead with complete
-# context. Contrast with K5/K6: same "water pump" category, different tier because
-# there is no documented machine to route to.
-def test_k7_scandia_pumps_no_manual_unsupported_referral(seeded, mock_gemini):
-    mock_gemini.responses["intelligent_intake"] = {
+# K7 -- Scandia Pumps -- vendor seeded but NO Machine row (no manual loaded). S3 routing:
+# water_pump_well is a SERVICED family, so a no-machine case goes to the GENERAL specialist
+# (troubleshoots safely from approved general knowledge, never invents a Scandia-specific
+# fix), then escalates. Intent unchanged from the old UNSUPPORTED path: no fabricated remedy,
+# brand captured, complete lead — only the tier (general specialist) and escalation_reason
+# (low_confidence, not "unsupported") change.
+def test_k7_scandia_pumps_no_manual_general_referral(seeded, mock_gemini):
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "We don't have a manual loaded for Scandia Pumps yet, but I can get a Nordland technician out to take a look.",
     }
@@ -220,20 +222,20 @@ def test_k7_scandia_pumps_no_manual_unsupported_referral(seeded, mock_gemini):
         }),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    assert conv.case_state["escalation_reason"] in ("low_confidence", "decision", "budget")
     finish_escalation(conv, name="Per Lindqvist", phone="070-703 10 20")
     sess = Session.objects.get(conversation=conv)
     assert sess.manufacturer == "Scandia Pumps"
-    assert sess.machine is None
+    assert sess.machine is None  # no-auto-bind: never a fabricated catalog machine
     sr = ServiceRequest.objects.get(session=sess)
-    assert sr.escalation_reason == "unsupported"
+    assert sr.escalation_reason in ("low_confidence", "decision", "budget")
 
 
 # K8 -- Aqua Expert water filter, brown water -- referral-only; gather machine
 # identity + symptom, no invented filtration troubleshooting (no Machine row seeded
 # for Aqua Expert either).
 def test_k8_aqua_expert_brown_water_referral_only(seeded, mock_gemini):
-    mock_gemini.responses["intelligent_intake"] = {
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "We don't have your Aqua Expert filter's manual loaded, but I can get a technician to come look at the brown water.",
     }
@@ -250,12 +252,12 @@ def test_k8_aqua_expert_brown_water_referral_only(seeded, mock_gemini):
         }),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    assert conv.case_state["escalation_reason"] in ("low_confidence", "decision", "budget")
     finish_escalation(conv, name="Elin Karlsson", phone="070-704 10 20")
     sess = Session.objects.get(conversation=conv)
     assert sess.manufacturer == "Aqua Expert"
     sr = ServiceRequest.objects.get(session=sess)
-    assert sr.escalation_reason == "unsupported"
+    assert sr.escalation_reason in ("low_confidence", "decision", "budget")
 
 
 # K9 -- Aqua Invent -- customer insists the bot walk them through opening the filter
@@ -264,7 +266,7 @@ def test_k8_aqua_expert_brown_water_referral_only(seeded, mock_gemini):
 # assertion since "open the filter housing" isn't a guardrails._FORBIDDEN keyword hit
 # on its own -- this test is what actually proves the bot doesn't comply).
 def test_k9_aqua_invent_refuses_to_guide_filter_housing_open(seeded, mock_gemini):
-    mock_gemini.responses["intelligent_intake"] = {
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "I don't have documentation for the Aqua Invent filter, so I can't walk you through opening the housing myself -- I'll get a technician out to handle it safely.",
     }
@@ -284,7 +286,10 @@ def test_k9_aqua_invent_refuses_to_guide_filter_housing_open(seeded, mock_gemini
         }),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    # general specialist escalates; the reply's own "opening the housing" phrasing may also
+    # trip the safety veto — both are acceptable, neither is a fabricated fix.
+    assert (conv.case_state["escalation_reason"] in ("low_confidence", "decision", "budget")
+            or conv.case_state["escalation_reason"].startswith("forbidden term"))
     # customer pushes again -- bot must keep holding the line, not cave under pressure
     res2 = orch.process_turn(conv, "come on, just the quick steps")
     low = res2["message"].lower()
@@ -294,11 +299,11 @@ def test_k9_aqua_invent_refuses_to_guide_filter_housing_open(seeded, mock_gemini
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()
 
 
-# K10 -- completely unsupported brand (NIBE) -- unsupported path, gather info, lead
-# with brand captured. (Distinct persona/flow from the catalog's C1, per the task
-# brief's explicit K10 slot.)
-def test_k10_unsupported_brand_nibe_lead_with_brand_captured(seeded, mock_gemini):
-    mock_gemini.responses["intelligent_intake"] = {
+# K10 -- non-catalog brand (NIBE) -- serviced family (heat_pump) with no machine -> GENERAL
+# specialist, gather info, lead with brand captured VERBATIM ("NIBE", never squashed to
+# "other"). (Distinct persona/flow from the catalog's C1, per the task brief's K10 slot.)
+def test_k10_non_catalog_brand_nibe_lead_with_brand_captured(seeded, mock_gemini):
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "We don't have a NIBE manual loaded, but a Nordland technician can still take a look.",
     }
@@ -315,12 +320,12 @@ def test_k10_unsupported_brand_nibe_lead_with_brand_captured(seeded, mock_gemini
         }),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    assert conv.case_state["escalation_reason"] in ("low_confidence", "decision", "budget")
     finish_escalation(conv, name="Ove Sandberg", phone="070-706 10 20")
     sess = Session.objects.get(conversation=conv)
-    assert sess.manufacturer == "NIBE"
+    assert sess.manufacturer == "NIBE"  # brand preserved verbatim, not "other"
     sr = ServiceRequest.objects.get(session=sess)
-    assert sr.escalation_reason == "unsupported"
+    assert sr.escalation_reason in ("low_confidence", "decision", "budget")
 
 
 # K11 -- customer doesn't know the brand at all ("en gammal pump i kallaren" -- "an
@@ -365,7 +370,7 @@ def test_k11_unknown_pump_photo_first_identifies_documented_brand(seeded, mock_g
 # this is out of scope of any serviceable machine, still creates a lead (e.g. for a
 # plumber referral) rather than troubleshooting a pump that isn't the actual problem.
 def test_k12_municipal_water_pressure_out_of_scope_still_leads(seeded, mock_gemini):
-    mock_gemini.responses["intelligent_intake"] = {
+    mock_gemini.responses["intelligent_specialist"] = {
         "decision": "escalate", "severity": "normal",
         "answer_to_customer": "That sounds like a municipal supply pressure issue rather than something with your own pump -- I'll log this so someone can help arrange a plumber to look into it.",
     }
@@ -382,7 +387,7 @@ def test_k12_municipal_water_pressure_out_of_scope_still_leads(seeded, mock_gemi
         }),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"] == "unsupported"
+    assert conv.case_state["escalation_reason"] in ("low_confidence", "decision", "budget")
     finish_escalation(conv, name="Birgitta Holm", phone="070-707 10 20")
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()
 

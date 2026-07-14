@@ -23,6 +23,12 @@ T = {
                              "read the exact model off it. Or type 'skip' and we'll do our best.",
         "brand_reconfirm": "Got it — should I switch to {brand} instead? I'll pull up the right "
                            "manual for it. (Yes to switch, or no to keep the original.)",
+        "model_disambig": "Do you mean {options}? Tap the exact model so I load the right "
+                          "manual — or pick another option below.",
+        "model_search_prompt": "No problem — type the model exactly as it's written on the "
+                               "rating/nameplate, or send a photo of the plate.",
+        "chip_other_model": "Another model",
+        "chip_none_of_these": "None of these",
         "confirm_fix": "Did that fix it?",
         "confirm_resolved": "Great — glad that sorted it! If anything else comes up, just let "
                             "me know.",
@@ -78,6 +84,12 @@ T = {
                              "modell. Eller skriv 'skip' så gör vi vårt bästa.",
         "brand_reconfirm": "Okej — ska jag byta till {brand} istället? Då tar jag fram rätt manual. "
                            "(Ja för att byta, eller nej för att behålla den ursprungliga.)",
+        "model_disambig": "Menar du {options}? Tryck på exakt modell så tar jag fram rätt "
+                          "manual — eller välj ett annat alternativ nedan.",
+        "model_search_prompt": "Inga problem — skriv modellen exakt som den står på typskylten, "
+                               "eller skicka ett foto av skylten.",
+        "chip_other_model": "Annan modell",
+        "chip_none_of_these": "Ingen av dessa",
         "confirm_fix": "Löste det problemet?",
         "confirm_resolved": "Vad bra — kul att det löste sig! Hör av dig om något mer dyker upp.",
         "pre_escalate_diag": "Innan jag skickar detta vidare till en tekniker från Nordland VVS — "
