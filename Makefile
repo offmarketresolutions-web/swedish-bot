@@ -1,4 +1,4 @@
-.PHONY: install dev check migrate makemigrations run test test-live test-e2e lint spike seed demo css up down logs
+.PHONY: install dev check migrate makemigrations run test test-live test-e2e lint spike seed demo css up down logs deploy-migrate smoke
 
 install:
 	uv sync
@@ -52,3 +52,14 @@ up:
 
 down:
 	docker compose down
+
+# Run after every deploy (git pull + docker build): migrate, seed/import chain, selfcheck.
+deploy-migrate:
+	uv run python manage.py migrate
+	uv run python manage.py post_deploy
+	uv run python manage.py selfcheck
+
+# Post-deploy smoke test: selfcheck + hit the 3 load-bearing routes against a running server.
+smoke:
+	uv run python manage.py selfcheck
+	uv run python tools/smoke.py

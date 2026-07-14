@@ -125,3 +125,116 @@ docker compose -f docker-compose.prod.yaml exec web python manage.py summarize_i
 docker compose -f docker-compose.prod.yaml exec web python manage.py resend_leads     #  every 10-15 min
 docker compose -f docker-compose.prod.yaml exec web python manage.py purge_pii        #  daily (GDPR)
 ```
+
+---
+
+## V2 — upgrading an existing VPS deploy
+
+The class of failure this section exists to prevent: code gets pulled and the
+container rebuilt, but the post-code steps (migrate, re-seed, re-check) don't
+happen, and the bot serves a half-migrated or half-seeded DB for hours before
+anyone notices (the 2026-07-12 live-eval outage — DB ran a day broken because
+`migrate` + seed weren't re-run after a merge).
+
+### Upgrade steps (every deploy after the first)
+
+```bash
+cd ~/swedish-bot
+git pull
+docker compose -f docker-compose.prod.yaml up -d --build
+docker compose -f docker-compose.prod.yaml exec web python manage.py migrate
+docker compose -f docker-compose.prod.yaml exec web python manage.py post_deploy
+docker compose -f docker-compose.prod.yaml exec web python manage.py selfcheck
+```
+
+`post_deploy` chains `seed_kb` (no-clobber — never overwrites a dashboard-edited
+prompt/chip), `import_general_knowledge` (only if you pass `--faq <path>`),
+`seed_service_areas`, `import_postcodes` (only if `PostcodeArea` is empty, or pass
+`--force-postcodes`), then `selfcheck`. It's idempotent — safe to run on every
+deploy, code change or not. `selfcheck` alone exits 1 (and prints a PASS/FAIL/WARN
+table) if anything a live deploy needs is actually missing — migrations pending,
+an `AgentPrompt` row missing/blank for any of the 11 `AGENT_ROLE_CHOICES`, no
+active vendor/machine, no `PostcodeArea` rows, or the static widget file missing.
+`GeoSettings`/`ServiceArea` and `FormButton` gaps print as **WARN**, not FAIL —
+those are owner go-live items (see checklist below), not code defects.
+
+Equivalent one-liner from a dev machine with `uv`/local Postgres (not the VPS):
+`make deploy-migrate`. `make smoke` runs `selfcheck` plus `tools/smoke.py`
+(hits `/`, `/demo/homepage`, `POST /api/chat/session` against `SMOKE_BASE_URL`,
+default `http://localhost:8000`) to confirm the running server actually serves.
+
+### Env-var inventory (everything added since v1, from `config/settings.py`)
+
+| Var | Default | Notes |
+|---|---|---|
+| `PREFILL_ALLOWED_ORIGIN` | `https://www.nordlandvvs.se` | Origin allowed to cross-origin-fetch `/api/prefill/<token>` (the real WordPress form). |
+| `RATE_LIMIT_PREFILL` | `30` | Prefill lookups / IP / window. |
+| `RATE_LIMIT_SESSION` | `20` | Chat sessions / IP / window. |
+| `RATE_LIMIT_MESSAGE` | `40` | Messages / session / window. |
+| `RATE_LIMIT_WINDOW` | `300` | Seconds, shared by the two limits above. |
+| `MAX_TOTAL_TURNS` | `25` | Hard per-conversation turn ceiling. |
+| `MAX_IMAGES_PER_CONVERSATION` | `8` | Image-upload ceiling per conversation. |
+| `SEMANTIC_SEARCH_ENABLED` | `1` | Embedding-backed FAQ/guide retrieval augment. On by default; disabled automatically under pytest. |
+| `WIDGET_ALLOWED_ORIGINS` | `http://localhost:8000` | CORS allow-list for embedding the widget / hitting the chat API. **Add the widget's real embed origin(s)** here (comma-separated) — already includes `https://www.nordlandvvs.se,https://nordland.3dpresence.com` in the §3 `.env` example. |
+| `VOICE_ENABLED` | `1` | Phone/WhatsApp channel toggle. **Fail-closed**: if `1` in production and `VAPI_WEBHOOK_SECRET` or `WA_APP_SECRET` is unset, the app refuses to boot (`ImproperlyConfigured`). Set `0` to run without the voice channel. |
+| `VAPI_PRIVATE_KEY` / `VAPI_WEBHOOK_SECRET` / `VAPI_PHONE_NUMBER_ID` / `VAPI_ASSISTANT_ID` / `VAPI_ASSISTANT_MODEL` / `VAPI_VOICE_ID` | `""` | Vapi voice-channel credentials. DB-editable from the dashboard credentials catalog (live-applied over these `.env` defaults) once provisioned. |
+| `VAPI_SIGNATURE_HEADER` / `VAPI_SECRET_HEADER` | `X-Vapi-Signature` / `X-Vapi-Secret` | Vapi webhook auth header names — only change if Vapi changes theirs. |
+| `WA_PHONE_NUMBER_ID` / `WA_ACCESS_TOKEN` / `WA_APP_SECRET` / `WA_VERIFY_TOKEN` / `WA_PHOTO_TEMPLATE_NAME` | `""` | WhatsApp Cloud API credentials. Same fail-closed rule as Vapi (`WA_APP_SECRET` required if `VOICE_ENABLED=1`). |
+| `WA_GRAPH_VERSION` | `v21.0` | WhatsApp Graph API version pin. |
+| `N8N_WEBHOOK_URL` | `""` | n8n Drive-mirror webhook (outbound file links). |
+| `VOICE_WEBHOOK_DEV_BYPASS` | `0` | Local-dev-only voice webhook signature bypass — honored only when `DJANGO_DEBUG=1`; ignored in prod regardless of value. |
+| `PUBLIC_BASE_URL` | `""` | Absolute base URL for building outbound file links (n8n Drive mirror). Set to `https://nordland.3dpresence.com` in prod. |
+
+(v1 vars — `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`,
+`PHONE_HASH_PEPPER`, `POSTGRES_*`, `CSRF_TRUSTED_ORIGINS`, `GOOGLE_CLOUD_*`,
+`ALLOW_NON_EU_RESIDENCY`, `LEAD_EMAIL_*`, `HTTPS_ENABLED` — already covered above
+in §3, unchanged.)
+
+### Prompt-sync operating rule
+
+`AgentPrompt`/`QuickReplyChip` rows are dashboard-editable and seeding never
+overwrites them (`seed_kb --force` is the only way to reset to code defaults).
+That means the VPS and local dev DBs *will* drift from each other as the owner
+tunes prompts live. The operating rule, full mechanics in
+[`docs/plans/2026-07-14-prompt-sync.md`](docs/plans/2026-07-14-prompt-sync.md):
+
+- **Owner tunes a prompt on the VPS dashboard** → `export_agent_config` on the VPS
+  → copy the JSON down → `import_agent_config` locally, so local dev matches prod.
+- **You change a prompt in code/seed locally** → same export/import round-trip in
+  reverse before it ships, so the deploy doesn't silently clobber a live-tuned
+  prompt with a stale code default.
+- Never assume `seed_kb` (or `post_deploy`) on a redeploy resets prompts — it
+  can't, by design.
+
+### Widget embed cache-bust
+
+`static/widget/nordland-widget.js` is served through WhiteNoise's manifest
+storage (`CompressedManifestStaticFilesStorage`) — but the WordPress `<script src>`
+tag in §6 points at the **unhashed** path directly, so a new deploy that changes
+the widget's behavior won't automatically bust the browser/CDN cache on
+`nordlandvvs.se`. After shipping a widget change, either bump a manual query
+string on the WordPress embed (`nordland-widget.js?v=2`) or purge any CDN/edge
+cache in front of `nordland.3dpresence.com`.
+
+### Owner go-live checklist
+
+These are `selfcheck` **WARN** items — the code works without them, but the bot
+isn't fully "live" for a real customer until an owner has:
+
+1. **Approved the FAQ backlog** — `import_general_knowledge` lands every row
+   `is_approved=False`. Review and approve the ~102 imported entries in
+   `/dashboard/knowledge/` before relying on them in production answers.
+2. **Enabled `GeoSettings` and reviewed the service-area polygons** —
+   `seed_service_areas` loads the initial polygons but leaves `GeoSettings.enabled`
+   at its default `False`. Review the polygons at `/dashboard/settings/service-area/`,
+   then flip it on.
+3. **Filled in the 4 `FormButton` URLs** (heat pump / water pump / water
+   filtration / quote-request) at `/dashboard/settings/forms/` — the bot never
+   invents a URL, so an unset button is simply not offered to customers.
+4. **Installed the prefill snippet with its `FIELD_MAP`** on the real
+   `nordlandvvs.se` WordPress contact form (see `templates/widget_demo.html` /
+   `/api/prefill/<token>` for the field-mapping contract) so a bot handoff
+   actually pre-fills the form instead of dropping the customer at a blank one.
+5. **Provisioned Vapi** (phone channel) once real credentials exist — set
+   `VAPI_*` in `.env` (or the dashboard credentials catalog) and confirm
+   `VOICE_ENABLED=1` boots clean (no `ImproperlyConfigured` on startup).
