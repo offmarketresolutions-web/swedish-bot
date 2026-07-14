@@ -62,26 +62,46 @@ def collect_knowledge(machine, locale: str = "en", *, query: str = "") -> tuple[
 
 def collect_general_knowledge(cs, locale: str = "en", *, machine=None) -> str:
     """Approved, category-level general knowledge for THIS case — the 'retrieval before
-    manual' layer (plan D2). Filtered to the category family + the stated leaf sub-type +
-    onset (+ the machine's manufacturer when known), approved-only. Ranked semantically
-    when enabled, else by a deterministic keyword-overlap fallback so retrieval never
-    silently vanishes. Includes each entry's safe_customer_checks + service_trigger."""
-    from chat.intake import _family_ids
+    manual' layer (plan D2). Scoped per kb.corpus's role -> corpus registry (S10): the
+    agent role is derived independently for retrieval purposes (kb.corpus.role_for_case,
+    mirroring chat.orchestrator's own role resolution) so every specialist ranks against
+    only the corpus its role is declared suitable for. Filtered further by the stated leaf
+    sub-type + onset (+ the machine's manufacturer when known), approved-only. Ranked
+    semantically when enabled (persisted vectors preferred, kb.corpus/build_embeddings),
+    else by a deterministic keyword-overlap fallback so retrieval never silently vanishes.
+    Each injected snippet carries a stable [K<pk>] citation tag so the specialist can cite
+    which entry backed a claim."""
     from chat.sanitize import cap, wrap_untrusted
-    from kb import semantic
+    from kb import corpus, semantic
+
+    role = corpus.role_for_case(cs, machine)
+    scope = corpus.get_corpus_for_role(role)
+    if not scope.included:
+        return ""  # e.g. intelligent_intake — no matched machine/category to scope to
+
+    if role == "specialist" and machine is not None:
+        # Manual mode: scope dynamically to the bound machine's own category, not a
+        # fixed family (BrandNote/MachineNote already cover the vendor separately).
+        cat_ids = corpus.family_ids(machine.category.slug) if machine.category_id else None
+        if not cat_ids and machine.category_id:
+            cat_ids = [machine.category_id]
+    elif scope.category_family:
+        cat_ids = corpus.family_ids(scope.category_family)
+    else:
+        cat_ids = None  # intelligent_specialist: rank across all approved knowledge
 
     slots = cs.get("slots", {})
-    cat_ids = _family_ids(slots.get("category"))
     manufacturer = machine.vendor if (machine and machine.vendor_id) else None
     entries = semantic.rank_general_knowledge(
         slots.get("problem") or "", category_ids=cat_ids, subtype=slots.get("subtype"),
-        onset=slots.get("onset"), manufacturer=manufacturer, locale=locale, top_k=3)
+        onset=slots.get("onset"), manufacturer=manufacturer, locale=locale, top_k=3,
+        scope=role)
     parts: list[str] = []
     for fa, _score in entries:
         txt = fa.text(locale)
         if not txt:
             continue
-        block = f"Q: {txt.question}\nA: {txt.answer}"
+        block = f"[K{fa.pk}] Q: {txt.question}\nA: {txt.answer}"
         if fa.safe_customer_checks:
             block += f"\nSafe customer checks: {fa.safe_customer_checks}"
         if fa.service_trigger:

@@ -51,6 +51,7 @@ class FakeGemini:
     def __init__(self):
         self.responses: dict[str, object] = {}  # role -> dict/str override
         self.calls: list[dict] = []
+        self.embed_calls: list[dict] = []  # {"texts": ..., "task_type": ...} per embed() call
 
     def _default(self, role: str, contents) -> object:
         if role == "safety":
@@ -115,6 +116,7 @@ class FakeGemini:
     def embed(self, texts, *, model=None, task_type="RETRIEVAL_DOCUMENT",
               output_dimensionality=None, api_key=None):
         import hashlib
+        self.embed_calls.append({"texts": texts, "task_type": task_type})
         dim = output_dimensionality or 768
         one = isinstance(texts, str)
         items = [texts] if one else list(texts)

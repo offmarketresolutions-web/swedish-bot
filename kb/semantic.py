@@ -50,6 +50,10 @@ def _cos(a, b) -> float:
     return sum(x * y for x, y in zip(a, b)) / (na * nb)
 
 
+def _hash(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def _corpus_vectors(prefix: str, items: list[tuple]):
     """items: list of (id, text) -> dict {id: vector}, cached + content-hashed so it
     self-invalidates whenever the corpus text (or the embedding model/dim) changes."""
@@ -119,11 +123,18 @@ def _onset_match(entry_onset: str, want: str) -> bool:
 
 
 def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset=None,
-                           manufacturer=None, locale: str = "en", top_k: int = 3):
+                           manufacturer=None, locale: str = "en", top_k: int = 3,
+                           scope: str | None = None):
     """Return up to top_k (FAQEntry, score) approved general-knowledge entries relevant to
     the case, filtered by category family + applicable_subtypes + onset (+ manufacturer,
     incl. brand-agnostic entries). Semantic cosine when enabled; else a deterministic
-    keyword-overlap fallback so retrieval never silently vanishes when embeddings are off."""
+    keyword-overlap fallback so retrieval never silently vanishes when embeddings are off.
+
+    `scope` (an agent role, per kb.corpus.ROLE_CORPUS) prefers PERSISTED vectors
+    (kb.Embedding, written by `manage.py build_embeddings`) over the volatile
+    Django-cache ones — falls back to on-the-fly embedding per-row for anything not
+    yet persisted (new/edited rows before the next build_embeddings run), so
+    retrieval never blocks on the batch job being current."""
     from django.db.models import Q
 
     from kb.models import FAQEntry
@@ -134,7 +145,7 @@ def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset
     if manufacturer is not None:
         qs = qs.filter(Q(manufacturer=manufacturer) | Q(manufacturer__isnull=True))
 
-    rows: list[tuple] = []  # (FAQEntry, blob)
+    rows: list[tuple] = []  # (FAQEntry, blob, lang)
     for fa in qs.select_related("manufacturer"):
         subs = fa.applicable_subtypes or []
         if subtype and subs and subtype not in subs:
@@ -144,8 +155,10 @@ def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset
         txt = fa.text(locale)
         if not txt:
             continue
-        blob = f"{txt.question} {txt.answer} {' '.join(str(k) for k in (fa.keywords or []))}"
-        rows.append((fa, blob))
+        # .strip() matches kb.corpus.embeddable_rows' blob exactly, so the content_hash
+        # used to validate a persisted vector agrees between the two call sites.
+        blob = f"{txt.question} {txt.answer} {' '.join(str(k) for k in (fa.keywords or []))}".strip()
+        rows.append((fa, blob, txt.lang))
     if not rows:
         return []
 
@@ -155,17 +168,48 @@ def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset
         qtok = set(_tok(q))
         if not qtok:
             return []
-        scored = sorted(((len(qtok & set(_tok(blob))), fa) for fa, blob in rows),
+        scored = sorted(((len(qtok & set(_tok(blob))), fa) for fa, blob, _lang in rows),
                         key=lambda x: x[0], reverse=True)
         return [(fa, float(n)) for n, fa in scored[:top_k] if n > 0]
 
     try:
         qv = gemini.embed(q, task_type="RETRIEVAL_QUERY")
-        vecs = _corpus_vectors("sem:genknow", [(f"f{fa.pk}", blob) for fa, blob in rows])
     except Exception:  # noqa: BLE001
         logger.warning("rank_general_knowledge failed", exc_info=True)
         return []
-    fa_by_id = {f"f{fa.pk}": fa for fa, _ in rows}
+
+    vecs: dict[str, list[float]] = {}
+    missing = [(fa, blob) for fa, blob, _lang in rows]
+    if scope:
+        try:
+            from kb.models import Embedding
+            persisted = {
+                (e.object_id, e.lang): e
+                for e in Embedding.objects.filter(
+                    scope=scope, source_model="FAQEntry",
+                    object_id__in=[fa.pk for fa, _, _ in rows])
+            }
+        except Exception:  # noqa: BLE001 — persisted lookup is an optimization, never a hard dependency
+            persisted = {}
+        missing = []
+        for fa, blob, lang in rows:
+            e = persisted.get((fa.pk, lang))
+            if e is not None and e.content_hash == _hash(blob):
+                vecs[f"f{fa.pk}"] = e.vector
+            else:
+                missing.append((fa, blob))
+
+    if missing:
+        try:
+            vecs.update(_corpus_vectors(
+                "sem:genknow" if not scope else f"sem:genknow:{scope}",
+                [(f"f{fa.pk}", blob) for fa, blob in missing]))
+        except Exception:  # noqa: BLE001
+            logger.warning("rank_general_knowledge on-the-fly embed failed", exc_info=True)
+            if not vecs:
+                return []
+
+    fa_by_id = {f"f{fa.pk}": fa for fa, _, _ in rows}
     scored = sorted(((_cos(qv, v), gid) for gid, v in vecs.items()), reverse=True)
     return [(fa_by_id[gid], s) for s, gid in scored[:top_k] if gid in fa_by_id]
 
