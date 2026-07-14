@@ -1,0 +1,23 @@
+{% load i18n %}
+<div id="service-area-test-result" class="mt-3 text-sm" data-testid="service-area-test-result">
+{% if postcode %}
+  {% if result %}
+    <p>
+      <strong>{{ postcode }}</strong>
+      {% if result.city %} — {{ result.city }}{% endif %}:
+      <span data-testid="service-area-status">
+        {% if result.status == 'inside_area' %}✅ {% trans "Inside service area" %}
+        {% elif result.status == 'border_review' %}🟡 {% trans "Border — technician confirms" %}
+        {% elif result.status == 'outside_area' %}❌ {% trans "Outside service area" %}
+        {% elif result.status == 'unknown_postcode' %}❓ {% trans "Unknown postcode" %}
+        {% else %}⚪ {% trans "Not configured" %}
+        {% endif %}
+      </span>
+      {% if result.area_name %}({{ result.area_name }}{% if result.distance_km is not None %}, {{ result.distance_km }} km{% endif %}){% endif %}
+    </p>
+    {% if result.feature_disabled %}
+      <p class="text-xs text-nl-base/50">{% trans "(feature disabled — this is a preview only, nothing changes for customers yet)" %}</p>
+    {% endif %}
+  {% endif %}
+{% endif %}
+</div>

@@ -1,0 +1,91 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+
+{% block breadcrumb %}<span class="text-nl-base/80">{% trans "Service area" %}</span>{% endblock %}
+
+{% block content %}
+{% include 'dashboard/_page_header.html' with title=_('Service area') subtitle=_('Postcode-based coverage check — dormant until enabled with at least one active area.') %}
+{% include 'dashboard/_settings_tabs.html' %}
+
+<section class="nl-card p-4 max-w-2xl mb-6" data-testid="settings-geo">
+  <h2 class="font-semibold mb-1">{% trans "Settings" %}</h2>
+  <p class="text-sm text-nl-base/60 mb-4">{% trans "Default off. Gates the lead/quote form only — troubleshooting continues for everyone regardless of area." %}</p>
+  <form method="post" action="{% url 'dash-service-area' %}" class="space-y-3 text-sm">
+    {% csrf_token %}
+    <label class="flex items-center gap-2">
+      <input type="checkbox" name="enabled" {% if cfg.enabled %}checked{% endif %} data-testid="geo-enabled">
+      {% trans "Enable service-area check" %}
+    </label>
+    <label class="block">{% trans "Previous-installer names (comma-separated)" %}
+      <input type="text" name="previous_installer_names" value="{{ installer_names_csv }}"
+             class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5" data-testid="geo-installers">
+      <span class="text-xs text-nl-base/50">{% trans "A customer naming one of these upgrades an outside/border result to inside." %}</span>
+    </label>
+    <label class="block">{% trans "Fallback contact URL (shown on outside-area decline)" %}
+      <input type="url" name="fallback_contact_url" value="{{ cfg.fallback_contact_url }}"
+             class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5">
+    </label>
+    <button class="btn btn-primary">{% trans "Save" %}</button>
+  </form>
+</section>
+
+<section class="nl-card p-4 max-w-2xl mb-6" data-testid="geo-dataset-status">
+  <h2 class="font-semibold mb-1">{% trans "Postcode dataset" %}</h2>
+  <p class="text-sm text-nl-base/70">
+    {% blocktrans count count=postcode_count %}{{ count }} postcode loaded{% plural %}{{ count }} postcodes loaded{% endblocktrans %}
+    {% if not postcode_count %}
+      — <code>python manage.py import_postcodes SE.zip</code> {% trans "to load the offline GeoNames table (download from download.geonames.org/export/zip/SE.zip)." %}
+    {% endif %}
+  </p>
+</section>
+
+<section class="nl-card p-4 max-w-2xl mb-6" data-testid="geo-test-box">
+  <h2 class="font-semibold mb-1">{% trans "Test a postcode" %}</h2>
+  <form class="flex items-end gap-2 text-sm"
+        hx-get="{% url 'dash-service-area-test' %}" hx-target="#service-area-test-result" hx-swap="outerHTML">
+    <label class="block">{% trans "Postcode" %}
+      <input type="text" name="postcode" placeholder="852 30" data-testid="geo-test-postcode"
+             class="mt-1 rounded-md border border-nl-border px-2 py-1.5">
+    </label>
+    <button class="btn btn-secondary">{% trans "Check" %}</button>
+  </form>
+  {% include 'dashboard/_service_area_test.html' with postcode='' result=None %}
+</section>
+
+<section class="nl-card p-4 mb-6" data-testid="service-area-preview">
+  <h2 class="font-semibold mb-1">{% trans "Preview (read-only)" %}</h2>
+  <p class="text-xs text-nl-base/50 mb-3">{% trans "Equirectangular projection — for a shape sanity-check only, not to scale for navigation." %}</p>
+  {{ preview_svg|safe }}
+</section>
+
+<section class="nl-card p-4" data-testid="service-areas">
+  <h2 class="font-semibold mb-3">{% trans "Service areas" %}</h2>
+  {% include 'dashboard/_service_area_list.html' %}
+  <form class="mt-4 pt-4 border-t border-nl-border space-y-2 text-sm"
+        hx-post="{% url 'dash-service-area-add' %}"
+        hx-target="#service-area-list" hx-swap="outerHTML"
+        hx-on::after-request="if(event.detail.successful) this.reset()">
+    {% csrf_token %}
+    <div class="flex gap-2">
+      <input type="text" name="name" required placeholder="{% trans 'Name (e.g. Main corridor)' %}"
+             class="flex-1 rounded-md border border-nl-border px-2 py-1.5">
+      <select name="kind" class="rounded-md border border-nl-border px-2 py-1.5">
+        <option value="inside">{% trans "Inside" %}</option>
+        <option value="extension">{% trans "Extension" %}</option>
+      </select>
+      <input type="number" step="0.1" name="border_km" value="10" placeholder="{% trans 'Border km' %}"
+             class="w-28 rounded-md border border-nl-border px-2 py-1.5">
+      <label class="flex items-center gap-1 whitespace-nowrap">
+        <input type="checkbox" name="is_active" checked> {% trans "Active" %}
+      </label>
+    </div>
+    <select name="categories" multiple class="w-full rounded-md border border-nl-border px-2 py-1.5" size="3">
+      {% for c in all_categories %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}
+    </select>
+    <span class="text-xs text-nl-base/50">{% trans "No categories selected = applies to all." %}</span>
+    <textarea name="polygon" rows="5" required placeholder='{"type":"Polygon","coordinates":[[[17.3,62.4],...]]}'
+              class="w-full rounded-md border border-nl-border px-2 py-1.5 font-mono text-xs"></textarea>
+    <span class="text-xs text-nl-base/50">{% trans "GeoJSON Polygon/MultiPolygon/Feature — [lng, lat] order." %}</span>
+    <button class="btn btn-primary">{% trans "Add service area" %}</button>
+  </form>
+</section>
+{% endblock %}

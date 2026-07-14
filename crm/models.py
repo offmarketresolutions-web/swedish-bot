@@ -192,6 +192,63 @@ class Session(models.Model):
         return f"Session<{self.pk}> {self.manufacturer} {self.model}".strip()
 
 
+class PostcodeArea(models.Model):
+    """Offline GeoNames SE postal-code table (plan S5/D2) — zero-runtime-network
+    geocoding. Loaded via `manage.py import_postcodes SE.zip`."""
+
+    code = models.CharField(max_length=5, unique=True, db_index=True)
+    lat = models.FloatField()
+    lng = models.FloatField()
+    city = models.CharField(max_length=120, blank=True)
+    municipality = models.CharField(max_length=120, blank=True)
+    county = models.CharField(max_length=120, blank=True)
+
+    def __str__(self):
+        return f"{self.code} {self.city}".strip()
+
+
+class ServiceArea(models.Model):
+    """Editable service-area polygon (plan S5/D2). kind=inside is real coverage;
+    kind=extension is served but treated as border_review (technician confirms)."""
+
+    KIND_CHOICES = [("inside", "Inside"), ("extension", "Extension")]
+
+    name = models.CharField(max_length=120)
+    kind = models.CharField(max_length=16, choices=KIND_CHOICES, default="inside")
+    categories = models.ManyToManyField("kb.Category", blank=True, related_name="service_areas")
+    polygon = models.JSONField(help_text="Validated GeoJSON Polygon/MultiPolygon geometry (crm.geo.clean_polygon).")
+    border_km = models.FloatField(default=10.0)
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.kind})"
+
+
+def _default_previous_installers() -> list[str]:
+    return ["Nordland VVS", "Bylunds VVS", "Nordborr i Sundsvall"]
+
+
+class GeoSettings(models.Model):
+    """Singleton service-area config (plan S5/D2). Default OFF — dormant until an
+    operator enables it with at least one active ServiceArea."""
+
+    enabled = models.BooleanField(default=False)
+    previous_installer_names = models.JSONField(default=_default_previous_installers)
+    fallback_contact_url = models.CharField(max_length=200, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "geo settings"
+
+    @classmethod
+    def load(cls) -> "GeoSettings":
+        return cls.objects.first() or cls.objects.create()
+
+    def __str__(self):
+        return f"GeoSettings<{'on' if self.enabled else 'off'}>"
+
+
 class ServiceRequest(models.Model):
     """Unified structured lead created on escalation approval (plan §7/§9)."""
 
