@@ -153,7 +153,8 @@ def test_postcode_normalized_and_skipped_at_contact(seeded, mock_gemini):
     orch.process_turn(conv, "leaks and shows F2")   # diag → name
     orch.process_turn(conv, "Jane")                 # name → phone
     orch.process_turn(conv, "070-1234567")          # phone → email
-    approval = orch.process_turn(conv, "skip")      # email → (postal skipped) → approval
+    orch.process_turn(conv, "skip")                 # email → (postal skipped) → address
+    approval = orch.process_turn(conv, "Storgatan 5")  # address → approval
     assert {c["value"] for c in approval["chips"]} == {"yes_send", "not_yet"}
     orch.process_turn(conv, "yes_send")
     sess = Session.objects.get(conversation=conv)

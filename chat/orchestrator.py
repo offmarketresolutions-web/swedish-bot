@@ -1092,6 +1092,7 @@ def _sync_customer(session, cs):
     c.phone = ct.get("phone") or c.phone
     c.email = ct.get("email") or c.email
     c.postal_code = ct.get("postal_code") or c.postal_code
+    c.address = ct.get("address") or c.address
     c.consent_to_contact = bool(ct.get("consent"))
     c.save()
     session.customer = c
@@ -1180,6 +1181,9 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             # returning when the name matches too; skip the welcome-back copy on a name conflict.
             if existing and _name_matches(cs["contact"].get("name"), existing.name):
                 cs["returning"] = True
+                # Returning customer with an address on file → don't re-ask it at handoff.
+                if existing.address and cs["contact"].get("address") is None:
+                    cs["contact"]["address"] = existing.address
 
     nxt = _next_contact_slot(cs)
     if nxt:
@@ -1201,7 +1205,11 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
     cs["contact_slot"] = None
     cs["awaiting_approval"] = True
     cs["contact"]["consent"] = True
-    return {"message": t(locale, "approval"), "chips": _escalation_chips(locale), "decision": "escalate"}
+    msg = t(locale, "approval")
+    addr = cs["contact"].get("address")
+    if addr:
+        msg += " " + t(locale, "approval_address", address=addr)
+    return {"message": msg, "chips": _escalation_chips(locale), "decision": "escalate"}
 
 
 def _terminal_step(cs, locale) -> dict:

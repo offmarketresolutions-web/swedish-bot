@@ -46,7 +46,8 @@ def test_returning_customer_recognized_minimal_disclosure(seeded, mock_gemini):
     orch.process_turn(conv, "Jan")
     orch.process_turn(conv, "070-1234567")        # same phone → recognized
     orch.process_turn(conv, "skip")
-    orch.process_turn(conv, "98101")
+    orch.process_turn(conv, "98101")               # postal → address
+    orch.process_turn(conv, "skip")                # address → approval
     done = orch.process_turn(conv, "yes_send")
     assert "Welcome back" in done["message"]       # minimal acknowledgement
     assert "IVT 490" not in done["message"]        # no prior-machine details leaked
@@ -55,7 +56,7 @@ def test_returning_customer_recognized_minimal_disclosure(seeded, mock_gemini):
 def test_new_customer_not_recognized(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     _to_escalation(conv, mock_gemini)
-    for m in ("Jan", "070-9999999", "skip", "98101"):
+    for m in ("Jan", "070-9999999", "skip", "98101", "skip"):  # + address skip
         orch.process_turn(conv, m)
     done = orch.process_turn(conv, "yes_send")
     assert "Welcome back" not in done["message"]

@@ -55,7 +55,8 @@ def test_full_swedish_escalation_flow(mock_gemini):
     orch.process_turn(conv, "Jan Svensson")
     orch.process_turn(conv, "070-1112233")
     orch.process_turn(conv, "skip")
-    approval = orch.process_turn(conv, "98101")
+    orch.process_turn(conv, "98101")                   # postal → address
+    approval = orch.process_turn(conv, "Storgatan 5")  # address → approval
     assert any(c["label"] == "Ja, skicka till Nordland" for c in approval["chips"])
     done = orch.process_turn(conv, "ja")               # Swedish "yes"
     assert "Tack" in done["message"]

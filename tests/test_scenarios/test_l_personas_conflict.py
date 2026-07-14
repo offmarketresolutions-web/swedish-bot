@@ -292,7 +292,8 @@ def test_l9_refuses_all_contact_info_graceful_no_crash(seeded, mock_gemini):
     orch.process_turn(conv, "no")   # name declined -> phone
     orch.process_turn(conv, "no")   # phone declined -> email
     orch.process_turn(conv, "no")   # email declined -> postal
-    orch.process_turn(conv, "no")   # postal declined -> "need a phone" gate reopened
+    orch.process_turn(conv, "no")   # postal declined -> address
+    orch.process_turn(conv, "no")   # address declined -> "need a phone" gate reopened
     final = orch.process_turn(conv, "no")  # still declines -> graceful close, no crash
     assert final["message"]
     assert ServiceRequest.objects.count() == 0
@@ -323,7 +324,8 @@ def test_l10_fake_phone_reasked_once_then_best_effort(seeded, mock_gemini):
     conv.refresh_from_db()
     assert conv.case_state["contact"]["phone"] == "123"  # kept verbatim for staff, best-effort
     orch.process_turn(conv, "skip")   # email skip -> postal
-    orch.process_turn(conv, "skip")   # postal skip -> approval
+    orch.process_turn(conv, "skip")   # postal skip -> address
+    orch.process_turn(conv, "skip")   # address skip -> approval
     done = orch.process_turn(conv, "yes_send")
     assert "Nordland" in done["message"]
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()
@@ -412,8 +414,9 @@ def test_l14_specific_technician_and_time_preference_recorded_not_promised(seede
         conv, "I want Erik specifically, he's fixed it before, and Saturday at 8pm works best for me")
     orch.process_turn(conv, "Tech Fan Tina")
     orch.process_turn(conv, "070-100 80 90")
-    orch.process_turn(conv, "skip")
-    orch.process_turn(conv, "skip")
+    orch.process_turn(conv, "skip")   # email -> postal
+    orch.process_turn(conv, "skip")   # postal -> address
+    orch.process_turn(conv, "skip")   # address -> approval
     done = orch.process_turn(conv, "yes_send")
     low = done["message"].lower()
     assert "booked" not in low

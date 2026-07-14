@@ -34,7 +34,8 @@ def test_f1_full_contact_capture_clean(seeded, mock_gemini):
     orch.process_turn(conv, "Lena Nystrom")              # name -> phone
     orch.process_turn(conv, "070-123 45 67")             # phone -> email (E.164 normalize)
     orch.process_turn(conv, "lena@example.se")           # email -> postal
-    approval = orch.process_turn(conv, "114 35 Stockholm")   # postal -> approval
+    orch.process_turn(conv, "114 35 Stockholm")          # postal -> address
+    approval = orch.process_turn(conv, "Kungsgatan 1")   # address -> approval
     assert {c["value"] for c in approval["chips"]} == {"yes_send", "not_yet"}
     done = orch.process_turn(conv, "yes")                # affirmative word (not just the chip)
     assert "Nordland" in done["message"] and "Lena" in done["message"]
@@ -62,7 +63,8 @@ def test_f2a_refuses_phone_gives_email(seeded, mock_gemini):
     res = orch.process_turn(conv, "no")             # decline phone -> email
     assert "email" in res["message"].lower() or "e-post" in res["message"].lower()
     orch.process_turn(conv, "kim@example.se")        # email -> postal
-    approval = orch.process_turn(conv, "skip")       # postal skipped -> approval
+    orch.process_turn(conv, "skip")                  # postal skipped -> address
+    approval = orch.process_turn(conv, "skip")       # address skipped -> approval
     done = orch.process_turn(conv, "yes_send")
     assert "Nordland" in done["message"]
 
@@ -80,7 +82,8 @@ def test_f2b_refuses_all_contact_no_lead(seeded, mock_gemini):
     orch.process_turn(conv, "no")   # name declined -> phone
     orch.process_turn(conv, "no")   # phone declined -> email
     orch.process_turn(conv, "no")   # email declined -> postal
-    orch.process_turn(conv, "no")   # postal declined -> "need a phone" gate
+    orch.process_turn(conv, "no")   # postal declined -> address
+    orch.process_turn(conv, "no")   # address declined -> "need a phone" gate
     final = orch.process_turn(conv, "no")  # still declines -> graceful close
     assert "website" in final["message"].lower()
     assert ServiceRequest.objects.count() == 0
@@ -96,8 +99,9 @@ def test_f3_preferred_callback_time_captured_not_promised(seeded, mock_gemini):
     orch.process_turn(conv, "can they call me tomorrow after 5pm? no error code to report")
     orch.process_turn(conv, "Bjorn")
     orch.process_turn(conv, "070-200 30 40")
-    orch.process_turn(conv, "skip")
-    approval = orch.process_turn(conv, "skip")
+    orch.process_turn(conv, "skip")               # email -> postal
+    orch.process_turn(conv, "skip")               # postal -> address
+    approval = orch.process_turn(conv, "skip")    # address -> approval
     done = orch.process_turn(conv, "yes_send")
     assert "booked" not in done["message"].lower()
     assert "confirmed for" not in done["message"].lower()
@@ -122,7 +126,8 @@ def test_f4_returning_customer_recognized_and_greeted(seeded, mock_gemini):
     conv.refresh_from_db()
     assert conv.case_state["returning"] is True
     orch.process_turn(conv, "skip")           # email skip -> postal
-    orch.process_turn(conv, "skip")           # postal skip -> approval
+    orch.process_turn(conv, "skip")           # postal skip -> address
+    orch.process_turn(conv, "skip")           # address skip -> approval
     done = orch.process_turn(conv, "yes_send")
     assert "welcome back" in done["message"].lower() or "välkommen" in done["message"].lower()
 
@@ -140,8 +145,9 @@ def test_f4_returning_customer_links_to_existing_not_duplicated(seeded, mock_gem
     orch.process_turn(conv, "skip")
     orch.process_turn(conv, "Asa")
     orch.process_turn(conv, "070-999 88 77")
-    orch.process_turn(conv, "skip")
-    orch.process_turn(conv, "skip")
+    orch.process_turn(conv, "skip")              # email -> postal
+    orch.process_turn(conv, "skip")              # postal -> address
+    orch.process_turn(conv, "skip")              # address -> approval
     orch.process_turn(conv, "yes_send")
 
     sess = Session.objects.get(conversation=conv)

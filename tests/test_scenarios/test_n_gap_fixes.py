@@ -157,6 +157,7 @@ def test_gap5_name_conflict_skips_welcome_back(seeded, mock_gemini):
     assert conv.case_state.get("returning") is not True
     orch.process_turn(conv, "skip")            # email
     orch.process_turn(conv, "skip")            # postal
+    orch.process_turn(conv, "skip")            # address
     done = orch.process_turn(conv, "yes_send")
     low = done["message"].lower()
     assert "welcome back" not in low and "välkommen" not in low

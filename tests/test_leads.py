@@ -86,13 +86,18 @@ def test_escalation_collects_contact_and_creates_lead(seeded, mock_gemini):
     orch.process_turn(conv, "Jane Tester")              # name → phone
     orch.process_turn(conv, "070-1234567")              # phone → email
     orch.process_turn(conv, "skip")                     # email skipped → postal
-    approval = orch.process_turn(conv, "98101 Kiruna")  # postal → approval
+    orch.process_turn(conv, "98101 Kiruna")             # postal → address
+    approval = orch.process_turn(conv, "Storgatan 5")   # address → approval
     assert {c["value"] for c in approval["chips"]} == {"yes_send", "not_yet"}
+    assert "Storgatan 5" in approval["message"]         # address echoed in the approval summary
     done = orch.process_turn(conv, "yes_send")          # → dispatch
     assert "Nordland" in done["message"]
 
     sess = Session.objects.get(conversation=conv)
     assert sess.customer.name == "Jane Tester"
+    assert sess.customer.address == "Storgatan 5"       # installation address persisted
+    sr0 = ServiceRequest.objects.get(session=sess)
+    assert sr0.payload_json["customer"]["address"] == "Storgatan 5"  # rides the lead payload
     assert sess.customer.phone == "+46701234567"   # normalized to E.164 at capture
     assert sess.customer.consent_to_contact is True
     assert sess.booking_requested is True
@@ -115,7 +120,8 @@ def test_declining_all_contact_does_not_record_junk_or_dispatch(seeded, mock_gem
     orch.process_turn(conv, "no")          # name declined → phone
     orch.process_turn(conv, "no")          # phone declined → email
     orch.process_turn(conv, "no")          # email declined → postal
-    orch.process_turn(conv, "no")          # postal declined → "need a phone" gate
+    orch.process_turn(conv, "no")          # postal declined → address
+    orch.process_turn(conv, "no")          # address declined → "need a phone" gate
     final = orch.process_turn(conv, "no")  # still declines → graceful close
     assert "website" in final["message"].lower()
     # graceful close: no unreachable lead dispatched, and no junk customer recorded

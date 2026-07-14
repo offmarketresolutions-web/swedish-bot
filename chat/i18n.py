@@ -42,7 +42,10 @@ T = {
         "contact_name": "What's your name?",
         "contact_phone": "What's the best phone number to reach you?",
         "contact_email": "And your email? (type 'skip' if you'd rather not share it.)",
-        "contact_postal_code": "Finally, what's your postal code or address so we can route a technician?",
+        "contact_postal_code": "What's your postal code so we can route a technician?",
+        "contact_address": "Finally, what's the installation address the equipment is at? "
+                           "(street and number — type 'skip' if you'd rather not.)",
+        "approval_address": "I'll note the installation address as {address}.",
         "escalate_leadin": "I'd like to get a Nordland VVS technician to help with this. Can I take "
                            "a few details so they can follow up — what's your name?",
         "approval": "I have everything I need. Shall I send this to Nordland VVS so a technician "
@@ -113,8 +116,10 @@ T = {
         "contact_name": "Vad heter du?",
         "contact_phone": "Vilket telefonnummer når vi dig bäst på?",
         "contact_email": "Och din e-post? (skriv 'skip' om du hellre avstår.)",
-        "contact_postal_code": "Slutligen, vilket postnummer eller adress har du så vi kan "
-                               "skicka en tekniker?",
+        "contact_postal_code": "Vilket postnummer har du så vi kan skicka en tekniker?",
+        "contact_address": "Vilken adress är anläggningen installerad på? (gata och nummer "
+                           "— skriv 'skip' om du hellre avstår.)",
+        "approval_address": "Jag noterar installationsadressen som {address}.",
         "escalate_leadin": "Jag vill gärna att en tekniker från Nordland VVS hjälper dig med "
                            "detta. Får jag ta några uppgifter så de kan höra av sig — vad heter du?",
         "approval": "Jag har allt jag behöver. Ska jag skicka detta till Nordland VVS så att en "

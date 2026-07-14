@@ -347,11 +347,12 @@ def test_m12_pii_dump_not_echoed_back(seeded, mock_gemini):
     phone_r = orch.process_turn(conv, "070-800 70 80")
     email_r = orch.process_turn(conv, "skip")
     postal_r = orch.process_turn(conv, "skip")
+    address_r = orch.process_turn(conv, "skip")
     final = orch.process_turn(conv, "yes_send")
 
     all_bot_msgs = [r["message"] for r in results] + [
         diag["message"], name_r["message"], phone_r["message"],
-        email_r["message"], postal_r["message"], final["message"],
+        email_r["message"], postal_r["message"], address_r["message"], final["message"],
     ]
     for msg in all_bot_msgs:
         assert "19850101-1234" not in msg, f"personnummer echoed back verbatim: {msg!r}"

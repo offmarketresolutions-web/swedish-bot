@@ -84,7 +84,7 @@ def run_convo(conv, script, *, all_prohibited=None):
 
 
 def finish_escalation(conv, *, diag_reply="skip", name="Test User", phone="070-123 45 67",
-                       email="skip", postal="98101 Kiruna", approve=True):
+                       email="skip", postal="98101 Kiruna", address="Storgatan 5", approve=True):
     """Drive the standard escalation sub-flow once `conv` has entered
     STATE_ESCALATE (the pre_escalate_diag prompt must already be the last bot
     message). Mirrors tests/test_leads.py::test_escalation_collects_contact_and_creates_lead.
@@ -93,6 +93,7 @@ def finish_escalation(conv, *, diag_reply="skip", name="Test User", phone="070-1
     orch.process_turn(conv, name)         # name -> phone
     orch.process_turn(conv, phone)        # phone -> email
     orch.process_turn(conv, email)        # email -> postal
-    approval = orch.process_turn(conv, postal)   # postal -> approval prompt
+    orch.process_turn(conv, postal)       # postal -> address
+    approval = orch.process_turn(conv, address)   # address -> approval prompt
     final = orch.process_turn(conv, "yes_send" if approve else "not_yet")
     return approval, final

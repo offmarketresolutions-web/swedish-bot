@@ -61,7 +61,8 @@ def test_inside_area_escalates_and_rides_lead(geo_configured, mock_gemini):
     orch.process_turn(conv, "skip")            # diag → name
     orch.process_turn(conv, "Ove")
     orch.process_turn(conv, "070-700 10 20")
-    orch.process_turn(conv, "skip")            # email → approval (postal auto-filled)
+    orch.process_turn(conv, "skip")            # email → address (postal auto-filled)
+    orch.process_turn(conv, "skip")            # address → approval
     orch.process_turn(conv, "yes_send")        # dispatch
     sr = ServiceRequest.objects.get(session__conversation=conv)
     assert sr.payload_json["service_area"]["status"] == "inside_area"
@@ -124,6 +125,7 @@ def test_dormant_geo_behaves_as_before(seeded, mock_gemini):
     orch.process_turn(conv, "skip")
     orch.process_turn(conv, "Ove")
     orch.process_turn(conv, "070-700 10 20")
-    orch.process_turn(conv, "skip")            # email → approval (postal 11122 auto-filled)
+    orch.process_turn(conv, "skip")            # email → address (postal 11122 auto-filled)
+    orch.process_turn(conv, "skip")            # address → approval
     orch.process_turn(conv, "yes_send")
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()

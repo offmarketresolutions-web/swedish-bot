@@ -16,7 +16,9 @@ OPTIONAL_SLOTS = ["error_code", "serial"]
 # JSON-only unless a Session column exists (plan D1). slots.model stays RAW customer
 # text — never overwritten by a catalog machine name (enforced in every merge site).
 EXTRA_SLOTS = ["subtype", "alarm_text", "onset", "operating_context", "installer", "warranty"]
-CONTACT_SLOTS = ["name", "phone", "email", "postal_code"]
+# address (the installation street address) is asked LAST, right before the send-approval
+# step, and is skippable exactly like email (decline → blank, never blocks the lead).
+CONTACT_SLOTS = ["name", "phone", "email", "postal_code", "address"]
 
 
 def new_case_state() -> dict:

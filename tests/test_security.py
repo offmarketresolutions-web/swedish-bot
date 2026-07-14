@@ -70,7 +70,7 @@ def _to_escalation(conv, mock_gemini, conf=0.4):
 
 
 def _fill_contact(conv):
-    for m in ("Jan", "070-1234567", "skip", "98101"):
+    for m in ("Jan", "070-1234567", "skip", "98101", "skip"):  # email skip, postal, address skip
         orch.process_turn(conv, m)  # → approval gate
 
 

@@ -351,7 +351,8 @@ def test_j11_returning_customer_same_machine_new_error_linked(seeded, mock_gemin
     conv.refresh_from_db()
     assert conv.case_state["returning"] is True
     orch.process_turn(conv, "skip")                      # email -> postal
-    orch.process_turn(conv, "skip")                       # postal -> approval
+    orch.process_turn(conv, "skip")                      # postal -> address
+    orch.process_turn(conv, "skip")                      # address -> approval
     done = orch.process_turn(conv, "yes_send")
     assert "welcome back" in done["message"].lower() or "välkommen" in done["message"].lower()
 

@@ -104,7 +104,8 @@ def test_emission_on_post_lead_thanks_and_tracking(seeded, mock_gemini):
     orch.process_turn(conv, "Ove")
     orch.process_turn(conv, "070-700 10 20")
     orch.process_turn(conv, "skip")            # email
-    orch.process_turn(conv, "85234")           # postal → approval
+    orch.process_turn(conv, "85234")           # postal → address
+    orch.process_turn(conv, "skip")            # address → approval
     final = orch.process_turn(conv, "yes_send")   # dispatch → thanks + form chip
     assert any(c.get("value") == "open_form" for c in final["chips"])
     sess = Session.objects.get(conversation=conv)
