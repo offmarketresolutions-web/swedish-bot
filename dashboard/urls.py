@@ -21,6 +21,8 @@ urlpatterns = [
     # Machine documentation pop-up (PDF overlay) + integration settings
     path("kb/machine/<int:pk>/docs", views.machine_docs, name="dash-machine-docs"),
     path("settings/", views.integration_settings, name="dash-settings"),
+    # Website & forms (plan S6)
+    path("settings/forms/", views.form_button_settings, name="dash-forms"),
     # Service area (plan S5)
     path("settings/service-area/", views.service_area_settings, name="dash-service-area"),
     path("settings/service-area/add", views.service_area_add, name="dash-service-area-add"),

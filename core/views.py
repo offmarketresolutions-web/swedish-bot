@@ -21,6 +21,14 @@ def homepage_demo(request):
     return render(request, "homepage_demo.html")
 
 
+def demo_form(request):
+    """Replica of the real Bricks-style multi-step service request form (plan
+    S6/D2 owner decision #2). Reads ?nl_case=<token> and prefills via
+    static/prefill/nordland-prefill.js — the same snippet the owner installs on
+    the real WordPress form later (see docs/plans/2026-07-13-prefill-install.md)."""
+    return render(request, "demo_form.html")
+
+
 def playground(request):
     """Live test console (chat + capability inspector). Local/demo only — hidden in
     production so the FSM internals aren't exposed."""

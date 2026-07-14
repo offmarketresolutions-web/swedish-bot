@@ -1,0 +1,183 @@
+{% load static %}<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nordland VVS — Begär offert / boka service</title>
+  <style>
+    :root{--nl:#1a74bf;--nl-d:#0f4570;--ink:#1b2b3d;--muted:#3b536b;--line:#e3ecf5}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+         color:var(--ink);background:#f6f9fc;line-height:1.5}
+    a{color:var(--nl-d)}
+    .wrap{max-width:640px;margin:0 auto;padding:40px 20px}
+    .demo-badge{background:var(--nl-d);color:#fff;text-align:center;font-size:13px;
+                padding:6px 12px;letter-spacing:.02em}
+    .back{display:inline-block;margin-bottom:18px;font-size:14px;text-decoration:none;color:var(--muted)}
+    .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:32px;
+          box-shadow:0 6px 20px rgba(15,43,66,.05)}
+    h1{font-size:24px;margin:0 0 6px;font-weight:800}
+    p.sub{color:var(--muted);margin:0 0 24px;font-size:15px}
+
+    .steps{display:flex;gap:8px;margin-bottom:28px}
+    .step-dot{flex:1;height:4px;border-radius:2px;background:var(--line)}
+    .step-dot.done,.step-dot.active{background:var(--nl)}
+
+    .step{display:none}
+    .step.active{display:block}
+
+    label.field{display:block;margin-bottom:16px;font-size:14px;font-weight:600;color:var(--ink)}
+    label.field input,label.field select,label.field textarea{
+      display:block;width:100%;margin-top:6px;padding:10px 12px;font-size:15px;font-weight:400;
+      border:1px solid var(--line);border-radius:8px;font-family:inherit;color:var(--ink)}
+    label.field textarea{min-height:90px;resize:vertical}
+    label.check{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--muted);
+                font-weight:400;margin-bottom:20px}
+    label.check input{margin-top:3px}
+
+    .actions{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
+    .btn{border:0;border-radius:999px;font-weight:700;font-size:15px;padding:11px 22px;
+         cursor:pointer;transition:background .12s ease,transform .12s ease}
+    .btn-primary{background:var(--nl);color:#fff}
+    .btn-primary:hover{background:var(--nl-d)}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+    .btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+
+    .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+           background:var(--nl-d);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;
+           opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+           box-shadow:0 12px 28px rgba(15,43,66,.25);z-index:50}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    .prefill-banner{background:#eef6fd;border:1px solid var(--line);border-radius:10px;
+                     padding:10px 14px;font-size:13.5px;color:var(--nl-d);margin-bottom:20px;display:none}
+    .prefill-banner.show{display:block}
+  </style>
+</head>
+<body>
+  <div class="demo-badge">Demo — replika av formuläret på nordlandvvs.se · skickas ingenstans</div>
+  <div class="wrap">
+    <a class="back" href="{% url 'homepage-demo' %}">← Tillbaka till startsidan</a>
+    <div class="card">
+      <h1>Begär offert / boka service</h1>
+      <p class="sub">Fyll i dina uppgifter så återkommer vi så snart vi kan.</p>
+
+      <div class="prefill-banner" id="prefillBanner" data-testid="prefill-banner">
+        Vi har fyllt i det du redan berättat för chatten åt dig — kontrollera gärna innan du skickar.
+      </div>
+
+      <div class="steps" data-testid="form-steps">
+        <span class="step-dot active" data-step-dot="1"></span>
+        <span class="step-dot" data-step-dot="2"></span>
+        <span class="step-dot" data-step-dot="3"></span>
+      </div>
+
+      <form id="serviceForm" data-testid="service-form" novalidate>
+        <!-- Step 1: basuppgifter -->
+        <section class="step active" data-step="1">
+          <label class="field">Namn
+            <input type="text" name="name" data-field="name" autocomplete="name">
+          </label>
+          <label class="field">Telefon
+            <input type="tel" name="phone" data-field="phone" autocomplete="tel">
+          </label>
+          <label class="field">E-post
+            <input type="email" name="email" data-field="email" autocomplete="email">
+          </label>
+          <div class="actions">
+            <span></span>
+            <button type="button" class="btn btn-primary" data-next>Nästa</button>
+          </div>
+        </section>
+
+        <!-- Step 2: ärende -->
+        <section class="step" data-step="2">
+          <label class="field">Ärende
+            <select name="category" data-field="category">
+              <option value="">Välj...</option>
+              <option value="heat_pump">Värmepump</option>
+              <option value="water_pump_well">Vattenbrunn</option>
+              <option value="water_filtration">Vattenfilter</option>
+              <option value="water_pump">Vattenpump</option>
+              <option value="quote_request">Offert</option>
+            </select>
+          </label>
+          <label class="field">Fabrikat
+            <input type="text" name="brand" data-field="brand">
+          </label>
+          <label class="field">Modell
+            <input type="text" name="model" data-field="model">
+          </label>
+          <label class="field">Felkod
+            <input type="text" name="error_code" data-field="error_code">
+          </label>
+          <label class="field">Problembeskrivning
+            <textarea name="problem" data-field="problem"></textarea>
+          </label>
+          <label class="field">Postnummer
+            <input type="text" name="postal_code" data-field="postal_code" maxlength="6">
+          </label>
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" data-prev>Tillbaka</button>
+            <button type="button" class="btn btn-primary" data-next>Nästa</button>
+          </div>
+        </section>
+
+        <!-- Step 3: GDPR + skicka -->
+        <section class="step" data-step="3">
+          <label class="check">
+            <input type="checkbox" name="gdpr" required>
+            Jag godkänner att Nordland VVS behandlar mina uppgifter enligt integritetspolicyn
+            för att kunna återkomma om mitt ärende.
+          </label>
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" data-prev>Tillbaka</button>
+            <button type="submit" class="btn btn-primary" data-testid="form-submit">Skicka</button>
+          </div>
+        </section>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" data-testid="form-toast"></div>
+
+  <script>
+    (function () {
+      var steps = Array.prototype.slice.call(document.querySelectorAll(".step"));
+      var dots = Array.prototype.slice.call(document.querySelectorAll("[data-step-dot]"));
+      var current = 1;
+
+      function show(n) {
+        current = n;
+        steps.forEach(function (s) {
+          s.classList.toggle("active", Number(s.getAttribute("data-step")) === n);
+        });
+        dots.forEach(function (d) {
+          var i = Number(d.getAttribute("data-step-dot"));
+          d.classList.toggle("active", i === n);
+          d.classList.toggle("done", i < n);
+        });
+      }
+
+      document.querySelectorAll("[data-next]").forEach(function (btn) {
+        btn.addEventListener("click", function () { show(Math.min(current + 1, steps.length)); });
+      });
+      document.querySelectorAll("[data-prev]").forEach(function (btn) {
+        btn.addEventListener("click", function () { show(Math.max(current - 1, 1)); });
+      });
+
+      var toast = document.getElementById("toast");
+      document.getElementById("serviceForm").addEventListener("submit", function (e) {
+        e.preventDefault(); // demo only — never actually submitted
+        toast.textContent = "Demo: skulle skickas ✓";
+        toast.classList.add("show");
+        setTimeout(function () { toast.classList.remove("show"); }, 3000);
+      });
+    })();
+  </script>
+
+  <!-- Prefill snippet: fills the form above from ?nl_case=<token> if present.
+       See docs/plans/2026-07-13-prefill-install.md for the real-site install steps. -->
+  <script src="{% static 'prefill/nordland-prefill.js' %}?v=1" defer></script>
+</body>
+</html>

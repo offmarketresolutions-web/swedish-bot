@@ -321,6 +321,34 @@ def integration_settings(request):
     return render(request, "dashboard/settings.html", {"cfg": cfg})
 
 
+# ── Website & forms (plan S6/D2): FormButton rows + prefill snippet hint ───────
+
+@staff_member_required
+def form_button_settings(request):
+    """4 fixed category rows (label/url/active), create-if-missing on GET. The bot
+    only ever emits a chip URL from an active row here — it never invents one."""
+    from crm.models import FormButton
+
+    existing = {fb.category_slug: fb for fb in FormButton.objects.all()}
+    for slug, label in FormButton.CATEGORY:
+        if slug not in existing:
+            FormButton.objects.create(category_slug=slug, label=label, url="")
+
+    if request.method == "POST":
+        for slug, _label in FormButton.CATEGORY:
+            fb = FormButton.objects.get(category_slug=slug)
+            fb.label = (request.POST.get(f"label_{slug}") or fb.label).strip()[:80]
+            fb.url = (request.POST.get(f"url_{slug}") or "").strip()[:200]
+            fb.is_active = request.POST.get(f"active_{slug}") == "on"
+            fb.save()
+        resp = redirect("dash-forms")
+        resp["HX-Trigger"] = _toast("success", "Website & forms settings saved.")
+        return resp
+
+    buttons = FormButton.objects.order_by("category_slug")
+    return render(request, "dashboard/forms_settings.html", {"buttons": buttons})
+
+
 # ── Service area (plan S5/D2): GeoSettings + ServiceArea CRUD + postcode test box ──
 
 def _service_area_ctx() -> dict:

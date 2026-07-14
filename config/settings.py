@@ -31,6 +31,11 @@ ALLOWED_HOSTS = _env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 # Origins permitted to embed the widget / hit the chat API (CORS, plan §10).
 WIDGET_ALLOWED_ORIGINS = _env_list("WIDGET_ALLOWED_ORIGINS", "http://localhost:8000")
 
+# Origin allowed to fetch /api/prefill/<token> cross-origin (plan S6/D2 — the real
+# WordPress form on nordlandvvs.se). Default is the production site; local demo pages
+# hit the endpoint same-origin so this setting doesn't need to include localhost.
+PREFILL_ALLOWED_ORIGIN = os.environ.get("PREFILL_ALLOWED_ORIGIN", "https://www.nordlandvvs.se")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -138,6 +143,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 RATE_LIMIT_SESSION = int(os.environ.get("RATE_LIMIT_SESSION", "20"))   # sessions / IP / window
 RATE_LIMIT_MESSAGE = int(os.environ.get("RATE_LIMIT_MESSAGE", "40"))   # messages / session / window
 RATE_LIMIT_WINDOW = int(os.environ.get("RATE_LIMIT_WINDOW", "300"))
+RATE_LIMIT_PREFILL = int(os.environ.get("RATE_LIMIT_PREFILL", "30"))   # prefill lookups / IP / window
 MAX_TOTAL_TURNS = int(os.environ.get("MAX_TOTAL_TURNS", "25"))         # hard per-conversation ceiling
 MAX_IMAGES_PER_CONVERSATION = int(os.environ.get("MAX_IMAGES_PER_CONVERSATION", "8"))
 

@@ -4,18 +4,21 @@ image re-encode + quota."""
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from chat.models import Conversation
 from chat.orchestrator import open_conversation, process_turn
+from chat.prefill import read_prefill_token
 from chat.uploads import sanitize_image
+from crm.models import Session
 
 
 def _body(request) -> dict:
@@ -108,3 +111,54 @@ def post_message(request, public_id):
     resp["Cache-Control"] = "no-cache"
     resp["X-Accel-Buffering"] = "no"
     return resp
+
+
+def _prefill_cors(resp):
+    resp["Access-Control-Allow-Origin"] = settings.PREFILL_ALLOWED_ORIGIN
+    resp["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    resp["Vary"] = "Origin"
+    return resp
+
+
+@csrf_exempt
+def prefill(request, token: str):
+    """GET /api/prefill/<token> — read-only snapshot of a session's known facts for
+    the owner's real website form to prefill (plan S6/D2). Never invents data: every
+    field is either what the bot already captured or omitted."""
+    if request.method == "OPTIONS":
+        return _prefill_cors(HttpResponse(status=204))
+    if request.method != "GET":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+    if not _rate_ok(f"prefill:{_client_ip(request)}", settings.RATE_LIMIT_PREFILL):
+        return _prefill_cors(JsonResponse({"error": "rate_limited"}, status=429))
+
+    sid = read_prefill_token(token)
+    if sid is None:
+        return _prefill_cors(JsonResponse({"error": "invalid_or_expired"}, status=404))
+    try:
+        session = Session.objects.select_related("customer", "category", "problem_category").get(pk=sid)
+    except Session.DoesNotExist:
+        return _prefill_cors(JsonResponse({"error": "invalid_or_expired"}, status=404))
+
+    technical = {
+        "category": session.category.name if session.category else None,
+        "subtype": session.problem_category.label if session.problem_category else None,
+        "brand": session.manufacturer or None,
+        "model": session.model or None,
+        "error_code": session.error_code or None,
+        "alarm_text": None,  # not captured as a distinct Session field today
+        "problem": session.problem_category.label if session.problem_category else None,
+        "postal_code": session.postal_code or None,
+        "onset": session.onset or None,
+    }
+    payload = {"technical": technical, "meta": {"generated_at": datetime.now(timezone.utc).isoformat()}}
+
+    customer = session.customer
+    if customer is not None and customer.consent_to_contact:
+        payload["contact"] = {
+            "name": customer.name or None,
+            "phone": customer.phone or None,
+            "email": customer.email or None,
+        }
+
+    return _prefill_cors(JsonResponse(payload))

@@ -14,6 +14,13 @@ class WidgetCorsMiddleware:
 
     def __call__(self, request):
         origin = request.headers.get("Origin", "")
+        # /api/prefill/<token> (plan S6/D2) has its own allowed origin, separate from
+        # the chat widget's — the real WordPress form site may differ from where the
+        # widget itself is embedded. Its view sets its own CORS headers for GET/OPTIONS
+        # (see chat.views.prefill), so this middleware skips it entirely here.
+        if request.path.startswith("/api/prefill/"):
+            return self.get_response(request)
+
         allowed = origin in settings.WIDGET_ALLOWED_ORIGINS
 
         if request.method == "OPTIONS" and request.path.startswith("/api/"):
