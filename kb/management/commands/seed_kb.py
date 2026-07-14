@@ -9,6 +9,13 @@ from core.constants import MODELS
 from kb import models as m
 from kb.seed_prompts import LANGUAGE_DIRECTIVE, all_prompts
 
+# consult_brand (V2 conversation-core): the general-mode specialists (no manual loaded)
+# are the only roles with orchestrator-side consult behavior (chat/orchestrator.py).
+_CONSULT_BRAND_ROLES = {
+    "intelligent_specialist", "heat_pump_specialist",
+    "water_pump_specialist", "water_filtration_specialist",
+}
+
 CATEGORIES = [
     ("Heat pump", "heat_pump", None, 0),
     ("Water-to-water", "water_to_water", "heat_pump", 0),
@@ -130,9 +137,16 @@ class Command(BaseCommand):
             defaults = {"body": body, "language_directive": LANGUAGE_DIRECTIVE,
                         "model_id": MODELS[model_role], "is_active": True}
             if force:
-                m.AgentPrompt.objects.update_or_create(role=role, defaults=defaults)
+                agent, _ = m.AgentPrompt.objects.update_or_create(role=role, defaults=defaults)
             else:
-                m.AgentPrompt.objects.get_or_create(role=role, defaults=defaults)
+                agent, _ = m.AgentPrompt.objects.get_or_create(role=role, defaults=defaults)
+            # consult_brand (V2): wire the tool onto every general-mode specialist role
+            # (no manual loaded) so kb.tooling.enabled_tools_for_role can see it. Additive
+            # only — never removes a tool a staff member enabled/disabled by hand.
+            if role in _CONSULT_BRAND_ROLES:
+                tool = m.Tool.objects.filter(slug="consult_brand").first()
+                if tool and not agent.tools.filter(slug="consult_brand").exists():
+                    agent.tools.add(tool)
 
         self.stdout.write(self.style.SUCCESS(
             f"Seeded: {m.Category.objects.count()} categories, {m.Vendor.objects.count()} vendors, "

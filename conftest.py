@@ -26,6 +26,8 @@ def _classify(system: str) -> str:
         return "extractor"
     if "safety backstop" in s:
         return "safety"
+    if "Digest ONLY the material below" in s:  # chat.consult.consult_brand's own system prompt
+        return "consult_brand"
     if "routing classifier" in s:
         return "router"
     if "heat-pump troubleshooting specialist for Nordland VVS" in s:
@@ -76,6 +78,9 @@ class FakeGemini:
                                         "error_code": None, "readings": [], "installer": None,
                                         "operating_context": None, "check_results": []},
                     "report": {}}
+        if role == "consult_brand":
+            # chat.consult.consult_brand returns freeform bullet text, not JSON.
+            return "- mock brand digest [B1]"
         if role == "intelligent_intake":
             return {"answer_to_customer": "I'll get a Nordland technician to help.",
                     "decision": "escalate", "severity": "normal", "report": {}}
@@ -86,6 +91,7 @@ class FakeGemini:
             # model-specifics); troubleshooting tests override the specific role.
             return {"answer_to_customer": "I'll get a Nordland technician to help with your unit.",
                     "confidence": 0.0, "decision": "escalate", "in_docs": False,
+                    "consult_brand": None,
                     "extracted_facts": {"onset": None, "alarm_text": None, "model_text": None,
                                         "error_code": None, "readings": [], "installer": None,
                                         "operating_context": None, "check_results": []},
