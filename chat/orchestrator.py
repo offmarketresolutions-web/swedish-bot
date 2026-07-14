@@ -10,8 +10,9 @@ import unicodedata
 
 from django.conf import settings
 
-from chat import context, guardrails, intake, prompts, sanitize
+from chat import consult, context, guardrails, intake, prompts, sanitize
 from chat.casestate import (
+    REQUIRED_SLOTS,
     flush_to_session,
     is_routable,
     new_case_state,
@@ -29,10 +30,42 @@ from core.enums import (
     STATE_UNSUPPORTED,
 )
 from core.services import gemini
+from kb import tooling
 
 CONFIDENCE_GATE = 0.70  # solve a documented in-docs answer; hard safety is the keyword/LLM veto + in_docs cap
 REPLY_BUDGET = 5
 GENERAL_REPLY_BUDGET = 3  # general (no-manual) specialist: fewer safe turns before handoff
+
+# Question budget (plan: "minimize questions, ~5 max"). Counts every DISTINCT intake/
+# disambiguation question put to the customer — intake slot asks (keyed per slot, so a
+# reask or a photo-turn re-render of the SAME question is free), the postcode-early ask,
+# the photo nudge, model disambiguation/search prompts, and a brand reconfirm ask.
+# Explicitly NOT counted: specialist troubleshooting checks, escalation contact
+# collection, and the post-solve "did that fix it?" confirm question — those aren't
+# intake questions, they're the value-delivery part of the conversation.
+QUESTION_BUDGET = 5
+
+
+def _charge_question(cs, key: str) -> None:
+    """Record one distinct question. Idempotent per key: re-asking the same question
+    (a reask, a photo-turn re-render, a post-rebind re-ask of an already-asked slot)
+    never re-charges the budget."""
+    keys = cs.setdefault("question_keys", [])
+    if key not in keys:
+        keys.append(key)
+    cs["questions_asked"] = len(keys)
+
+
+def _may_ask(cs, key: str, *, extra: int = 0) -> bool:
+    """Can this question still be put to the customer? Always yes when the same key
+    was already charged (repeats are free). extra=1 is the documented "extremely
+    necessary" allowance — safety-relevant clarification and the machine-disambiguation
+    question when a manual match is one answer away may exceed the budget by one;
+    everything else uses extra=0."""
+    keys = cs.get("question_keys", [])
+    return key in keys or len(keys) < QUESTION_BUDGET + extra
+
+
 _FENCE = re.compile(r"^```(?:json)?|```$", re.MULTILINE)
 _NEG = re.compile(r"\b(not|don'?t|do not|never|inte|nej|no)\b", re.IGNORECASE)
 _AFFIRM = re.compile(r"\b(yes|ja|sure|ok|okay|send it|please send|go ahead|do it|skicka|absolutely)\b",
@@ -302,10 +335,14 @@ def _intake_step(cs, user_text, locale) -> dict | None:
                 cs["reask"] = 0
             else:
                 cs["reask"] = cs.get("reask", 0) + 1
-                if cs["reask"] >= 2:
+                # Budget exhaustion forces the same fallback as the 2nd failed reask:
+                # accept unknown and move on rather than spend a 6th+ question on it.
+                # (a reask keys on the same slot as the original ask, so it's free.)
+                if cs["reask"] >= 2 or not _may_ask(cs, "slot:" + current):
                     cs["slots"][current] = "unknown"
                     cs["reask"] = 0
                 else:
+                    _charge_question(cs, "slot:" + current)
                     return {"message": t(locale, "reask") + t(locale, "q_" + current),
                             "chips": intake.chips_for(current, cs, locale)}
     # S5: once the early postcode is known, resolve the service-area status (dormant → no-op).
@@ -315,10 +352,12 @@ def _intake_step(cs, user_text, locale) -> dict | None:
     # before falling back to a weak brand-only match.
     s = cs["slots"]
     if (s.get("model") == "unknown" and not s.get("nameplate_photo")
-            and not cs.get("photo_nudged") and not is_routable(cs)):
+            and not cs.get("photo_nudged") and not is_routable(cs)
+            and _may_ask(cs, "photo_nudge")):
         cs["photo_nudged"] = True
         cs["current_slot"] = "model"
         s["model"] = None  # reopen so a typed model or photo can fill it
+        _charge_question(cs, "photo_nudge")
         return {"message": t(locale, "model_photo_nudge"), "chips": []}
     if is_routable(cs):
         # Postcode-early holds for RICH openers too (S7 fix, e2e scenario a): a
@@ -326,17 +365,32 @@ def _intake_step(cs, user_text, locale) -> dict | None:
         # true and skipped the early postnummer ask entirely. Ask it ONCE before
         # routing; the normal 2-reask→unknown machinery keeps it non-blocking,
         # and an already-stated ("85234") or declined ("unknown") postcode skips.
+        # At budget, skip the ask outright rather than spend a question on it.
         if not s.get("postal_code"):
-            cs["current_slot"] = "postal_code"
-            return {"message": t(locale, "q_postal_code"),
-                    "chips": intake.chips_for("postal_code", cs, locale)}
+            if not _may_ask(cs, "slot:postal_code"):
+                s["postal_code"] = "unknown"
+            else:
+                cs["current_slot"] = "postal_code"
+                _charge_question(cs, "slot:postal_code")
+                return {"message": t(locale, "q_postal_code"),
+                        "chips": intake.chips_for("postal_code", cs, locale)}
         cs["state"] = STATE_ROUTING
         return None
     nxt = next_required_slot(cs)
     if nxt is None:
         cs["state"] = STATE_ROUTING
         return None
+    # Budget exhausted: stop asking — fill every still-empty required slot "unknown" and
+    # route with what we have (category+problem still suffice for general mode; an
+    # unknown category still falls through to the UNSUPPORTED path as today).
+    if not _may_ask(cs, "slot:" + nxt):
+        for slot in REQUIRED_SLOTS:
+            if not cs["slots"].get(slot):
+                cs["slots"][slot] = "unknown"
+        cs["state"] = STATE_ROUTING
+        return None
     cs["current_slot"] = nxt
+    _charge_question(cs, "slot:" + nxt)
     return {"message": t(locale, "q_" + nxt), "chips": intake.chips_for(nxt, cs, locale)}
 
 
@@ -458,10 +512,14 @@ def _resolve_machine(cs, locale) -> dict | None:
         return None
 
     cands = candidate_matches(query, vendor=vendor, limit=4)
-    if cands:
+    # Machine disambiguation gets the "extremely necessary" +1 allowance (plan: a manual
+    # match one answer away is worth exceeding the question budget for). Still fails
+    # closed past that: give up on binding rather than ask a 7th+ question.
+    if cands and _may_ask(cs, "model_disambig", extra=1):
         cs["await_model_confirm"] = True
         cs["pending_candidate_ids"] = [m.id for m, _ in cands]
         cs["match_confidence"] = round(cands[0][1], 3)
+        _charge_question(cs, "model_disambig")
         return _model_disambig_prompt(cands, locale)
 
     cs["match_confidence"] = 0.0
@@ -491,7 +549,13 @@ def _consume_model_reply(cs, user_text, locale) -> dict | None:
         _bind_confirmed(cs, cands[0])
         return None
     if low == "other_model" or _norm(raw) == _norm(t(locale, "chip_other_model")):
+        # Part of the machine-disambiguation exception (a manual match may be one
+        # answer away) — rides the same +1 allowance as the disambiguation chips.
+        if not _may_ask(cs, "model_search", extra=1):
+            cs["model_gave_up"] = True
+            return None
         cs["model_search_mode"] = True
+        _charge_question(cs, "model_search")
         return {"message": t(locale, "model_search_prompt"), "chips": []}
     # unknown / none-of-these / anything else -> give up binding, keep raw model text.
     cs["model_gave_up"] = True
@@ -527,10 +591,11 @@ def _consume_model_search(cs, user_text, locale) -> dict | None:
     from chat.intake import _family_ids
     cat_ids = _family_ids(s.get("subtype")) or _family_ids(s.get("category"))
     sugg = suggest_models(raw, vendor=vendor, category_ids=cat_ids, limit=5)
-    if sugg:
+    if sugg and _may_ask(cs, "model_disambig", extra=1):
         cs["model_search_mode"] = False
         cs["await_model_confirm"] = True
         cs["pending_candidate_ids"] = [x.id for x, _ in sugg]
+        _charge_question(cs, "model_disambig")
         return _model_disambig_prompt(sugg, locale, none_chip=True)
 
     # nothing plausible in the catalog — keep the raw text, hand to general/unsupported.
@@ -741,6 +806,34 @@ def _record_checks_given(cs, data) -> None:
             known.add(s)
 
 
+def _maybe_consult_brand(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale) -> dict:
+    """Brand-consult tool (V2): a general-mode specialist (no manual loaded) asked
+    consult_brand={"question": ...} in its JSON. Enabled ONLY when kb.tooling says the
+    tool is enabled for this role AND its Tool row is_active; capped at 1 consult per
+    turn (this function runs at most once per _specialist_step call) and 3 per
+    conversation. Digest is stored (latest 2) and folded into a SAME-turn re-render —
+    this does NOT consume the customer-visible reply budget (specialist_turns already
+    incremented once, before either gemini call)."""
+    req = data.get("consult_brand")
+    if not isinstance(req, dict):
+        return data
+    if not tooling.tool_enabled(role, "consult_brand"):
+        return data
+    if cs.get("consult_total", 0) >= 3:
+        return data
+    question = str(req.get("question") or "").strip()
+    if not question:
+        return data
+    digest = consult.consult_brand(cs["slots"].get("brand") or "", cs["slots"].get("model"), question, locale)
+    notes = (cs.get("consult_notes") or []) + [digest]
+    cs["consult_notes"] = notes[-2:]
+    cs["consult_total"] = cs.get("consult_total", 0) + 1
+    render_kwargs["consult_notes"] = "\n".join(cs["consult_notes"])
+    system = prompts.render(role, **render_kwargs)
+    resp = gemini.generate(_contents(turn, hist, imgs), system_instruction=system, **gen)
+    return _parse_json(resp.text)
+
+
 def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=False) -> dict | None:
     from kb.models import Machine
 
@@ -780,9 +873,12 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         # declined → keep the original identity; fall through to normal troubleshooting.
     elif not clarify:
         new_brand = _detect_brand_contradiction(cs, user_text)
-        if new_brand:
+        # Identity correctness is safety-relevant (a wrong brand means a wrong manual),
+        # so the reconfirm rides the documented "extremely necessary" +1 allowance.
+        if new_brand and _may_ask(cs, "brand_reconfirm", extra=1):
             cs["pending_brand"] = new_brand
             cs["await_brand_reconfirm"] = True
+            _charge_question(cs, "brand_reconfirm")
             return {"message": t(locale, "brand_reconfirm", brand=new_brand),
                     "chips": _yesno_chips(locale)}
 
@@ -815,15 +911,19 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         budget = min(budget, 3)
     forced = (not clarify) and cs["specialist_turns"] >= budget
     general_text = context.collect_general_knowledge(cs, locale, machine=machine)
+    common_issues = (prompts.get_agent(role).common_issues or "") if prompts.get_agent(role) else ""
     if general:
         cached, inline = None, []
-        system = prompts.render(
-            role, locale=locale, brand=cs["slots"].get("brand") or "",
+        render_kwargs = dict(
+            locale=locale, brand=cs["slots"].get("brand") or "",
             model=cs["slots"].get("model") or "", category=cs["slots"].get("category") or "",
             general_knowledge=general_text, problem=cs["slots"].get("problem", ""),
             error_code=cs["slots"].get("error_code") or "", forced_wrapup=str(forced).lower(),
             previous_checks=_previous_checks_block(cs), onset=cs["slots"].get("onset") or "",
+            common_issues=common_issues, tools=tooling.render_tools_block(role),
+            consult_notes="\n".join(cs.get("consult_notes") or []),
         )
+        system = prompts.render(role, **render_kwargs)
     else:
         brand_notes, faq = context.collect_knowledge(machine, locale, query=cs["slots"].get("problem", ""))
         cached, inline = context.machine_pdf_context(machine, locale)
@@ -834,6 +934,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
             problem=cs["slots"].get("problem", ""), symptoms="", error_code=cs["slots"].get("error_code") or "",
             serial=cs["slots"].get("serial") or "", forced_wrapup=str(forced).lower(),
             previous_checks=_previous_checks_block(cs), onset=cs["slots"].get("onset") or "",
+            common_issues=common_issues,
         )
     turn = ("Customer problem: " + sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem")
             + f"\nError code: {sanitize.clean_error_code(cs['slots'].get('error_code') or '') or 'none'}.")
@@ -854,6 +955,8 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     else:
         resp = gemini.generate(_contents(turn, hist, imgs, inline), system_instruction=system, **gen)
     data = _parse_json(resp.text)
+    if general:
+        data = _maybe_consult_brand(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale)
 
     answer = data.get("answer_to_customer", "") or ""
     # S9: validate model output schema; anything off -> fail-closed to escalate.
