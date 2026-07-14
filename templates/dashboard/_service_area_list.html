@@ -1,0 +1,38 @@
+{% load i18n %}
+<div id="service-area-list">
+{% if areas %}
+  <ul class="divide-y divide-nl-border/60" data-testid="service-area-list">
+    {% for a in areas %}
+      <li class="py-2 flex items-start justify-between gap-3 {% if not a.is_active %}opacity-40{% endif %}"
+          data-testid="service-area-row-{{ a.pk }}">
+        <div class="text-sm">
+          <span class="font-medium">{{ a.name }}</span>
+          <span class="text-nl-base/50">— {{ a.get_kind_display }} · {{ a.border_km }} km border</span>
+          {% if a.categories.all %}
+            <div class="text-xs text-nl-base/50 mt-0.5">
+              {% for c in a.categories.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </div>
+          {% else %}
+            <div class="text-xs text-nl-base/50 mt-0.5">{% trans "All categories" %}</div>
+          {% endif %}
+        </div>
+        <span class="flex items-center gap-1 shrink-0">
+          <a class="btn btn-secondary px-2 py-0.5 text-xs" href="{% url 'dash-service-area-export' a.pk %}">
+            {% trans "Export" %}</a>
+          <button class="btn btn-secondary px-2 py-0.5 text-xs"
+                  hx-post="{% url 'dash-service-area-toggle' a.pk %}"
+                  hx-target="#service-area-list" hx-swap="outerHTML">
+            {% if a.is_active %}{% trans "On" %}{% else %}{% trans "Off" %}{% endif %}
+          </button>
+          <button class="btn btn-danger px-2 py-0.5 text-xs"
+                  hx-post="{% url 'dash-service-area-delete' a.pk %}"
+                  hx-target="#service-area-list" hx-swap="outerHTML"
+                  hx-confirm="{% trans 'Remove this service area?' %}">✕</button>
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-xs text-nl-base/50 py-2">{% trans "No service areas defined yet." %}</p>
+{% endif %}
+</div>

@@ -321,6 +321,143 @@ def integration_settings(request):
     return render(request, "dashboard/settings.html", {"cfg": cfg})
 
 
+# ── Service area (plan S5/D2): GeoSettings + ServiceArea CRUD + postcode test box ──
+
+def _service_area_ctx() -> dict:
+    from crm.models import GeoSettings, PostcodeArea, ServiceArea
+    from kb.models import Category
+    return {
+        "cfg": GeoSettings.load(),
+        "areas": ServiceArea.objects.order_by("-is_active", "name").prefetch_related("categories"),
+        "postcode_count": PostcodeArea.objects.count(),
+        "all_categories": Category.objects.order_by("name"),
+    }
+
+
+@staff_member_required
+def service_area_settings(request):
+    """GeoSettings form (enabled/installers/fallback URL). Default OFF — nothing
+    changes behavior for anyone until an operator enables it AND adds >=1 active area."""
+    from crm.models import GeoSettings
+    cfg = GeoSettings.load()
+    if request.method == "POST":
+        cfg.enabled = request.POST.get("enabled") == "on"
+        names = [n.strip() for n in (request.POST.get("previous_installer_names") or "").split(",") if n.strip()]
+        cfg.previous_installer_names = names
+        cfg.fallback_contact_url = (request.POST.get("fallback_contact_url") or "").strip()[:200]
+        cfg.save()
+        resp = redirect("dash-service-area")
+        resp["HX-Trigger"] = _toast("success", "Service area settings saved.")
+        return resp
+    from crm import geo
+    ctx = _service_area_ctx()
+    ctx["installer_names_csv"] = ", ".join(ctx["cfg"].previous_installer_names or [])
+    ctx["preview_svg"] = geo.render_preview_svg()
+    return render(request, "dashboard/service_area.html", ctx)
+
+
+@staff_member_required
+@require_POST
+def service_area_add(request):
+    """Create a ServiceArea. The GeoJSON textarea is validated fail-closed via
+    crm.geo.clean_polygon — bad input never reaches the DB, and a lat/lng-swap-looking
+    polygon (outside the rough Sweden bbox) is flagged but not rejected."""
+    from crm import geo
+    from kb.models import Category
+    from crm.models import ServiceArea
+
+    name = (request.POST.get("name") or "").strip()[:120]
+    kind = request.POST.get("kind") if request.POST.get("kind") in ("inside", "extension") else "inside"
+    error = "" if name else "Name is required."
+    bbox_warning = False
+
+    if not error:
+        try:
+            border_km = float(request.POST.get("border_km") or 10)
+        except ValueError:
+            border_km = 10.0
+        raw_geojson = request.POST.get("polygon") or ""
+        try:
+            data = json.loads(raw_geojson)
+        except json.JSONDecodeError:
+            error = "Invalid JSON."
+        else:
+            geometry, bbox_warning, geo_error = geo.clean_polygon(data)
+            if geo_error:
+                error = f"GeoJSON error: {geo_error}"
+            else:
+                area = ServiceArea.objects.create(
+                    name=name, kind=kind, polygon=geometry, border_km=border_km,
+                    is_active=request.POST.get("is_active", "on") == "on")
+                cat_ids = [c for c in request.POST.getlist("categories") if c.isdigit()]
+                area.categories.set(cat_ids)
+
+    resp = render(request, "dashboard/_service_area_list.html", _service_area_ctx())
+    if error:
+        resp["HX-Trigger"] = _toast("error", error)
+    else:
+        msg = "Service area added — live now ✓"
+        if bbox_warning:
+            msg += " (warning: no vertex falls inside Sweden — check for a lat/lng swap)"
+        resp["HX-Trigger"] = _toast("success" if not bbox_warning else "warning", msg)
+    return resp
+
+
+@staff_member_required
+@require_POST
+def service_area_delete(request, pk: int):
+    from crm.models import ServiceArea
+    get_object_or_404(ServiceArea, pk=pk).delete()
+    resp = render(request, "dashboard/_service_area_list.html", _service_area_ctx())
+    resp["HX-Trigger"] = _toast("info", "Service area removed — live now ✓")
+    return resp
+
+
+@staff_member_required
+@require_POST
+def service_area_toggle(request, pk: int):
+    from crm.models import ServiceArea
+    area = get_object_or_404(ServiceArea, pk=pk)
+    area.is_active = not area.is_active
+    area.save(update_fields=["is_active", "updated_at"])
+    resp = render(request, "dashboard/_service_area_list.html", _service_area_ctx())
+    resp["HX-Trigger"] = _toast("success", "Updated — live now ✓")
+    return resp
+
+
+@staff_member_required
+def service_area_export(request, pk: int):
+    """Download the stored polygon as a standalone GeoJSON Feature."""
+    from django.http import JsonResponse
+    from crm.models import ServiceArea
+    area = get_object_or_404(ServiceArea, pk=pk)
+    feature = {"type": "Feature",
+               "properties": {"name": area.name, "kind": area.kind, "border_km": area.border_km},
+               "geometry": area.polygon}
+    resp = JsonResponse(feature, content_type="application/geo+json")
+    resp["Content-Disposition"] = f'attachment; filename="{area.name or "area"}.geojson"'
+    return resp
+
+
+@staff_member_required
+def service_area_test(request):
+    """Postcode test box (HTMX GET). Runs the real check even when GeoSettings is
+    disabled, so staff can validate polygons before flipping the feature on — the
+    partial makes that explicit with a '(feature disabled)' note."""
+    from crm import geo
+    from crm.models import GeoSettings
+
+    postcode = (request.GET.get("postcode") or "").strip().replace(" ", "")
+    category_slug = (request.GET.get("category") or "").strip() or None
+    result = None
+    if postcode:
+        cfg = GeoSettings.load()
+        result = geo.check_service_area(postcode, category_slug, ignore_enabled=True)
+        if not cfg.enabled:
+            result["feature_disabled"] = True
+    return render(request, "dashboard/_service_area_test.html", {"postcode": postcode, "result": result})
+
+
 # ── Agent Config (V2 P-D UI): edit AgentPrompt rows with HTMX inline save ──────
 
 def _agent_card_ctx(prompt, *, saved=False, error=""):

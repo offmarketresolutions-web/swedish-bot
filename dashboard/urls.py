@@ -21,6 +21,13 @@ urlpatterns = [
     # Machine documentation pop-up (PDF overlay) + integration settings
     path("kb/machine/<int:pk>/docs", views.machine_docs, name="dash-machine-docs"),
     path("settings/", views.integration_settings, name="dash-settings"),
+    # Service area (plan S5)
+    path("settings/service-area/", views.service_area_settings, name="dash-service-area"),
+    path("settings/service-area/add", views.service_area_add, name="dash-service-area-add"),
+    path("settings/service-area/<int:pk>/delete", views.service_area_delete, name="dash-service-area-delete"),
+    path("settings/service-area/<int:pk>/toggle", views.service_area_toggle, name="dash-service-area-toggle"),
+    path("settings/service-area/<int:pk>/export", views.service_area_export, name="dash-service-area-export"),
+    path("settings/service-area/test", views.service_area_test, name="dash-service-area-test"),
     # Agent Config (HTMX inline save)
     path("agents/", views.agent_config, name="dash-agents"),
     path("guardrails/", views.guardrails_page, name="dash-guardrails"),
