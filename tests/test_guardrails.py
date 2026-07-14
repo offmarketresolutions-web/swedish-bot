@@ -52,6 +52,78 @@ def test_keyword_allows_safe_envelope():
         assert not unsafe, f"should be safe: {t!r}"
 
 
+# ── S4 water-domain safety pairs (instruction blocked, mention survives) — en + sv ──
+
+# Each pair: an INSTRUCTION to do the professional task (must veto) and a mention/observation
+# of the same regulated thing (must survive to the LLM layer → keyword_unsafe False).
+WATER_INSTRUCTION_EN = [
+    "Adjust the pressure switch up to 3 bar",
+    "Pull up the well pump and check the impeller",
+    "Open the hydrofor and inspect the bladder",
+    "Set the precharge to 1.5 bar on the pressure tank",
+    "Replace the filter media in the softener",
+    "Adjust the dosing pump to add more chemical",
+    "Bypass the dry-run protection so it keeps running",
+    "Enter the installer menu and change the limit",
+]
+WATER_INSTRUCTION_SV = [
+    "Justera pressostaten till 3 bar",
+    "Dra upp brunnspumpen och kolla pumphjulet",
+    "Öppna hydroforen och titta på blåsan",
+    "Ställ in förtrycket på tryckkärlet",
+    "Byt filtermassan i avhärdaren",
+    "Justera doseringen så det doseras mer",
+    "Koppla förbi torrkörningsskyddet",
+    "Gå in i installatörsmenyn och ändra gränsen",
+]
+WATER_MENTION_SAFE = [
+    "That's the pressostat — it's technician-only work, I'll book a tech.",
+    "The förtryck on the pressure tank is something a technician sets.",
+    "Refill the salt in the softener's brine tank when it runs low.",
+    "Fyll på salt i saltbehållaren när den börjar ta slut.",
+    "You can read the pressure gauge / manometer and tell me the number.",
+    "Check the regeneration status on the softener's display.",
+    "The hydrofor is a technician-only part — I'll book a technician.",
+]
+
+
+def test_water_domain_instructions_vetoed_en():
+    for t in WATER_INSTRUCTION_EN:
+        unsafe, hit = guardrails.keyword_unsafe(t)
+        assert unsafe, f"should be unsafe (en): {t!r}"
+        assert hit
+
+
+def test_water_domain_instructions_vetoed_sv():
+    for t in WATER_INSTRUCTION_SV:
+        unsafe, hit = guardrails.keyword_unsafe(t)
+        assert unsafe, f"should be unsafe (sv): {t!r}"
+        assert hit
+
+
+def test_water_domain_mentions_survive_both_locales():
+    for t in WATER_MENTION_SAFE:
+        unsafe, _ = guardrails.keyword_unsafe(t)
+        assert not unsafe, f"safe mention should survive: {t!r}"
+
+
+def test_safety_prompt_covers_water_domain(seeded):
+    body = prompts.render("safety")
+    assert "pressostat" in body and "hydrofor" in body
+    assert "torrkörningsskydd" in body
+    assert "installatörsmeny" in body or "serviceläge" in body
+    # ALSO-SAFE water-treatment owner tasks
+    assert "fyll på salt" in body.lower()
+    assert "regeneration status" in body
+
+
+def test_fyll_pa_salt_cannot_veto():
+    # "fyll på salt" is owner maintenance — it must NOT trip the deterministic veto, in any casing.
+    for t in ["fyll på salt", "Fyll på salt i tanken", "Du kan fylla på salt själv"]:
+        unsafe, _ = guardrails.keyword_unsafe(t)
+        assert not unsafe, f"salt refill must never veto: {t!r}"
+
+
 def test_is_unsafe_consults_llm_when_no_keyword(seeded, mock_gemini):
     mock_gemini.responses["safety"] = {"unsafe": True, "reason": "implies pro work"}
     unsafe, reason = guardrails.is_unsafe("do the thing with the unit")

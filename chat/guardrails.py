@@ -48,7 +48,36 @@ _FORBIDDEN_INSTRUCTION = re.compile(
     r"koppla förbi|inaktivera säkerhet\w*|"
     r"(öppna|demonter\w*|ta isär|skruva (upp|loss|isär)) (den |en |ett |din |er )?"
     r"(enhet\w*|maskin\w*|värmepump\w*|aggregat\w*|kompressor\w*)|"
-    r"töm(ma|mer)? (ner |ur )?(system\w*|köldmedi\w*|anläggning\w*)|tappa ur system\w*)\b",
+    r"töm(ma|mer)? (ner |ur )?(system\w*|köldmedi\w*|anläggning\w*)|tappa ur system\w*|"
+    # ── S4 water pump / well / filtration professional tasks (instruction-class, en+sv) ──
+    # Pressure switch / pressostat adjustment.
+    r"adjust\w* (the )?(pressure switch|pressostat)|"
+    r"(justera\w*|st[äa]ll\w* om|[äa]ndra\w*) (på )?(pressostat\w*|tryckvakt\w*)|"
+    # Pulling / lifting a well pump.
+    r"(pull\w*|lift\w*|rais\w*|draw\w*|hoist\w*|haul\w*|winch\w*) (up |out )?(the |your |a )?"
+    r"(well ?pump|borehole pump|deep-?well pump|submersible pump)|"
+    r"(dra|lyft|hiss\w*|ta) upp (den |er |din )?(brunnspump\w*|dränkbar\w* pump\w*)|"
+    # Opening pump controllers / hydrofor / pressure tanks.
+    r"(open\w*|remov\w*|dismantl\w*|disassembl\w*|take apart) (the |your |a )?"
+    r"(pump controller|hydrofor\w*|pressure tank|pressure vessel)|"
+    r"(öppna\w*|demonter\w*|ta isär) (den |er |ett )?(hydrofor\w*|tryckkärl\w*|trycktank\w*|pumpstyrning\w*)|"
+    # Setting / adjusting tank precharge (förtryck).
+    r"(set|adjust\w*|chang\w*|charg\w*|top ?up|increas\w*|reduc\w*) (the )?pre-?charge|"
+    r"(st[äa]ll\w* in|justera\w*|[äa]ndra\w*|fyll\w* på) (förtryck\w*)|"
+    # Replacing / refilling filter media (filtermassa).
+    r"(replac\w*|chang\w*|refill\w*|renew\w*|top ?up|swap\w*) (the )?filter (media|medium|sand|mass)|"
+    r"(byt\w*|fyll\w* på|ers[äa]tt\w*) (ut )?filtermass\w*|"
+    # Adjusting the chemical dosing pump.
+    r"(adjust\w*|set|chang\w*|increas\w*|reduc\w*|tun\w*) (the )?dos(e|ing|ing pump)|"
+    r"(justera\w*|[äa]ndra\w*|st[äa]ll\w* in) (på )?(doseringen|dosering\w*|doseringspump\w*)|"
+    # Bypassing dry-run / motor protection.
+    r"(bypass\w*|disabl\w*|overrid\w*|jump\w* out|defeat\w*) (the )?(dry-?run|torrkörning\w*|motor|overload) "
+    r"(protection|cut-?out|skydd)|"
+    r"(koppla förbi|inaktivera\w*|förbikoppl\w*) (torrkörningsskydd\w*|motorskydd\w*)|"
+    # Entering an installer / service menu.
+    r"(enter\w*|go into|access\w*|unlock\w*) (the )?(installer|service|engineer) (menu|mode)|"
+    r"(g[åa]\w* in i|öppna\w*|l[åa]s\w* upp|aktivera\w*) (installat[öo]rsmeny\w*|serviceläge\w*|servicemeny\w*)|"
+    r"installat[öo]rsmeny\w*|serviceläge\b)\b",
     re.IGNORECASE,
 )
 
@@ -60,6 +89,9 @@ _FORBIDDEN_INSTRUCTION = re.compile(
 # still veto unconditionally.
 _FORBIDDEN_NOUN = re.compile(
     r"\b(refrigerant|pre-?charge|expansion vessel|relief valve|safety valve|pressure switch|"
+    # S4 water-domain regulated nouns — mention-safe, veto only with a manipulation cue nearby.
+    r"pressostat|tryckvakt|förtryck|hydrofor|tryckkärl|filtermassa|filter media|doseringspump|"
+    r"brunnspump\w*|torrkörningsskydd|dry-?run protection|"
     r"köldmedi\w*|kylkrets\w*|expansionskärl\w*|säkerhetsventil\w*)\b",
     re.IGNORECASE,
 )

@@ -46,6 +46,12 @@ def _payload(session) -> dict:
         } if c else {},
         "summary": session.ai_summary,
         "troubleshooting_performed": session.troubleshooting_performed,
+        # S5: service-area status rides the lead so the technician sees inside/border/unknown
+        # coverage at a glance (only present once a check actually ran).
+        "service_area": {
+            "status": f(session.service_area_status, 16),
+            "name": f(session.service_area_name, 120),
+        } if session.service_area_status else None,
     }
 
 

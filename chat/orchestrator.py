@@ -61,6 +61,39 @@ _CONFIRM_YES = re.compile(
     r"försvann|borta|bättre nu|tack)\b", re.IGNORECASE)
 
 
+# S6 — explicit customer request for the website form/quote (deterministic keyword check).
+_FORM_ASK = re.compile(
+    r"\b(boka service|book(a)?( a| en)? service|book(a)?( a| en)? (visit|tid|besök)|"
+    r"offert|beg[äa]r(a)? offert|request a quote|get a quote|quote|prisförslag)\b",
+    re.IGNORECASE)
+
+
+def _wants_form(text: str) -> bool:
+    return bool(_FORM_ASK.search(text or ""))
+
+
+def _attach_form_chip(cs, result) -> None:
+    """Append the FormButton chip to a reply's chips (idempotent) and mark it SHOWN on the
+    case report so the flush persists Session.form_shown/url/category. No-op when there's no
+    active button or the service-area gate suppressed it (outside_area)."""
+    from crm.form_buttons import form_button_for
+
+    btn = form_button_for(cs)
+    if btn is None:
+        return
+    chips = result.get("chips") or []
+    # TODO(merge): token added at merge via chat.prefill.build_form_url(btn.url, session)
+    # (S6 sibling scope — absent in this worktree; emit the plain URL for now).
+    if not any((c or {}).get("value") == "open_form" for c in chips):
+        chips.append({"value": "open_form", "label": btn.label, "url": btn.url})
+    result["chips"] = chips
+    rep = cs["report"]
+    rep["form_status"] = "shown"
+    rep["form_type"] = btn.category_slug
+    rep["form_category"] = btn.category_slug
+    rep["form_url"] = btn.url
+
+
 def _confirm_verdict(text: str) -> str:
     """Classify a reply to 'Did that fix it?' as 'yes' | 'no' | 'question'."""
     txt = (text or "").strip()
@@ -135,7 +168,23 @@ def process_turn(conversation: Conversation, user_text: str = "", image=None) ->
     if image:
         _run_vision(conversation, cs, events, locale)
 
+    # Widget fallback (plan S6): an OLD cached widget can't render a url-chip, so it sends the
+    # chip VALUE "open_form" back as plain text. Reply with the form URL as text (no state change).
+    if (user_text or "").strip().lower() == "open_form":
+        from crm.form_buttons import form_button_for
+        btn = form_button_for(cs)
+        msg = t(locale, "form_link", url=btn.url) if btn else t(locale, "handoff")
+        Message.objects.create(conversation=conversation, role="assistant", content=msg)
+        conversation.case_state = cs
+        conversation.save(update_fields=["case_state", "updated_at"])
+        return {"message": msg, "chips": [], "state": cs.get("state", STATE_RESOLVED), "events": events}
+
     result = _advance(conversation, cs, user_text, events, locale)
+    # Central form-chip emission (plan S6): handlers set cs["_emit_form"] at the trigger points
+    # (post-lead thanks, service recommendation, explicit "book service/quote" ask). Attaching
+    # here — before the flush below — means Session.form_shown/url/category ride the same save.
+    if cs.pop("_emit_form", False):
+        _attach_form_chip(cs, result)
 
     cs["turns"] = cs.get("turns", 0) + 1
     conversation.case_state = cs
@@ -249,6 +298,9 @@ def _intake_step(cs, user_text, locale) -> dict | None:
                 else:
                     return {"message": t(locale, "reask") + t(locale, "q_" + current),
                             "chips": intake.chips_for(current, cs, locale)}
+    # S5: once the early postcode is known, resolve the service-area status (dormant → no-op).
+    # Never gates troubleshooting — only recorded now; enforced at lead/form time.
+    _refresh_service_area(cs)
     # A3: if the model is unknown and there's no nameplate photo yet, ask for a photo ONCE
     # before falling back to a weak brand-only match.
     s = cs["slots"]
@@ -270,6 +322,22 @@ def _intake_step(cs, user_text, locale) -> dict | None:
 
 
 SERVICED_FAMILIES = {"heat_pump", "water_pump_well", "water_filtration"}
+
+
+def _refresh_service_area(cs) -> None:
+    """Resolve the service-area status when the early postcode is known (plan S5). Feature
+    dormant (GeoSettings off / no areas) → no-op, so pre-S5 behavior is unchanged. Records
+    status + area name on the case; NEVER gates troubleshooting (that's lead/form time only)."""
+    pc = cs["slots"].get("postal_code")
+    if not pc or pc == "unknown":
+        return
+    from crm.geo import check_service_area
+
+    result = check_service_area(pc, cs["slots"].get("category"))
+    if result["status"] == "not_configured":
+        return
+    cs["service_area"] = result["status"]
+    cs["report"]["service_area_name"] = result.get("area_name") or ""
 
 
 def _vendor_for(brand):
@@ -697,6 +765,10 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     if not clarify:
         cs["specialist_turns"] = cs.get("specialist_turns", 0) + 1
     budget = GENERAL_REPLY_BUDGET if general else REPLY_BUDGET
+    # Onset rule (plan S4): a SUDDEN fault gets fewer safe troubleshooting turns before handoff
+    # (look-only, then service) — both modes. General mode is already 3, so min() keeps it.
+    if cs["slots"].get("onset") == "sudden":
+        budget = min(budget, 3)
     forced = (not clarify) and cs["specialist_turns"] >= budget
     general_text = context.collect_general_knowledge(cs, locale, machine=machine)
     if general:
@@ -706,7 +778,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
             model=cs["slots"].get("model") or "", category=cs["slots"].get("category") or "",
             general_knowledge=general_text, problem=cs["slots"].get("problem", ""),
             error_code=cs["slots"].get("error_code") or "", forced_wrapup=str(forced).lower(),
-            previous_checks=_previous_checks_block(cs),
+            previous_checks=_previous_checks_block(cs), onset=cs["slots"].get("onset") or "",
         )
     else:
         brand_notes, faq = context.collect_knowledge(machine, locale, query=cs["slots"].get("problem", ""))
@@ -717,7 +789,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
             general_knowledge=general_text,
             problem=cs["slots"].get("problem", ""), symptoms="", error_code=cs["slots"].get("error_code") or "",
             serial=cs["slots"].get("serial") or "", forced_wrapup=str(forced).lower(),
-            previous_checks=_previous_checks_block(cs),
+            previous_checks=_previous_checks_block(cs), onset=cs["slots"].get("onset") or "",
         )
     turn = ("Customer problem: " + sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem")
             + f"\nError code: {sanitize.clean_error_code(cs['slots'].get('error_code') or '') or 'none'}.")
@@ -780,6 +852,8 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         cs["escalation_reason"] = (reason if unsafe else "") or (
             "low_confidence" if conf < CONFIDENCE_GATE else ("budget" if forced else "decision"))
         events.append({"type": "escalate", "reason": cs["escalation_reason"]})
+        # Explicit "book service / quote" ask → offer the form chip even mid-escalation (plan S6).
+        cs["_emit_form"] = _wants_form(user_text)
         prefix = (answer + "\n\n") if (answer and not unsafe) else ""
         return _begin_escalation(cs, locale, prefix)
 
@@ -789,6 +863,8 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         cs["report"]["resolved"] = data.get("report", {}).get("resolved", True)
     cs["state"] = STATE_SPECIALIST
     cs["awaiting_confirm"] = True
+    # A service/quote/booking case, or an explicit ask, gets the website form chip (plan S6).
+    cs["_emit_form"] = _wants_form(user_text) or cs.get("severity") == "service"
     msg = (answer + "\n\n" + t(locale, "confirm_fix")) if answer else t(locale, "confirm_fix")
     return {"message": msg, "chips": _yesno_chips(locale), "decision": "solve",
             "model": prompts.model_for(role)}
@@ -821,15 +897,104 @@ def _unsupported_step(conversation, cs, events, locale) -> dict:
 # ── escalation: lazy contact collection → approval → lead dispatch (Phase 6) ──
 
 def _begin_escalation(cs, locale, prefix: str = "") -> dict:
+    # S5 service-area gate (runs ONCE, at lead time only): outside the area with no qualifying
+    # previous installer → polite decline, no lead, no form. Inside/border/unknown → proceed.
+    gate = _service_area_gate(cs, locale, prefix)
+    if gate is not None:
+        return gate
+    # border_review / unknown_postcode → proceed but tell them a technician confirms coverage.
+    note = (" " + t(locale, "coverage_confirm")) if cs.pop("service_area_note", False) else ""
     # Before collecting contact, gather a richer problem description + an error-code photo
     # (once per case) so the technician receives a complete lead.
     if not cs.get("diag_done"):
         cs["diag_done"] = True
         cs["await_diag"] = True
         cs["contact_slot"] = None
-        return {"message": prefix + t(locale, "pre_escalate_diag"), "chips": [], "decision": "escalate"}
+        return {"message": prefix + t(locale, "pre_escalate_diag") + note, "chips": [], "decision": "escalate"}
     cs["contact_slot"] = "name"
-    return {"message": prefix + t(locale, "escalate_leadin"), "chips": [], "decision": "escalate"}
+    return {"message": prefix + t(locale, "escalate_leadin") + note, "chips": [], "decision": "escalate"}
+
+
+def _service_area_gate(cs, locale, prefix: str = "") -> dict | None:
+    """Single choke point for the outside-area policy (plan S5/D2). Returns a dict to STOP
+    (ask the installer question, or decline) or None to PROCEED with the escalation. Runs at
+    most once per case; dormant feature (not_configured) or no/unknown postcode → proceed."""
+    if cs.get("service_area_checked"):
+        return None
+    pc = cs["slots"].get("postal_code")
+    if not pc or pc == "unknown":
+        cs["service_area_checked"] = True
+        return None
+    from crm.geo import check_service_area, check_with_override
+
+    result = check_service_area(pc, cs["slots"].get("category"))
+    if result["status"] == "not_configured":
+        cs["service_area_checked"] = True
+        return None
+    result = check_with_override(result, cs["slots"].get("installer") or "")
+    cs["service_area"] = result["status"]
+    cs["report"]["service_area_name"] = result.get("area_name") or ""
+    if result["status"] == "outside_area":
+        installer = (cs["slots"].get("installer") or "").strip().lower()
+        if not installer or installer in ("unknown", "other"):
+            cs["awaiting_installer"] = True  # ask ONCE whether a listed installer did the job
+            return {"message": prefix + t(locale, "installer_ask"),
+                    "chips": _yesno_chips(locale), "decision": "escalate"}
+        return _outside_decline(cs, locale, prefix)
+    cs["service_area_checked"] = True
+    if result["status"] in ("border_review", "unknown_postcode"):
+        cs["service_area_note"] = True
+    return None
+
+
+def _outside_decline(cs, locale, prefix: str = "") -> dict:
+    """Outside the service area with no qualifying installer: polite decline, NO lead, NO form
+    chip (the emission helper is gated on service_area=="outside_area"), state → RESOLVED. The
+    status still rides the flush so the decline is logged."""
+    from crm.models import GeoSettings
+
+    cs["awaiting_installer"] = False
+    cs["awaiting_installer_name"] = False
+    cs["service_area"] = "outside_area"
+    cs["service_area_checked"] = True
+    cs["state"] = STATE_RESOLVED
+    cs["report"]["service_recommended"] = False
+    area = cs["report"].get("service_area_name") or ""
+    area_sfx = (" (" + area + ")") if area else ""
+    msg = t(locale, "outside_area_decline", area_sfx=area_sfx)
+    url = (GeoSettings.load().fallback_contact_url or "").strip()
+    if url:
+        msg += " " + url
+    return {"message": prefix + msg, "chips": []}
+
+
+def _consume_installer_reply(cs, user_text, locale) -> dict:
+    """Reply to the once-only installer question. Yes → ask which installer; No → decline."""
+    cs["awaiting_installer"] = False
+    if _is_yes(user_text):
+        cs["awaiting_installer_name"] = True
+        return {"message": t(locale, "installer_which"), "chips": [], "decision": "escalate"}
+    return _outside_decline(cs, locale)
+
+
+def _consume_installer_name(cs, user_text, locale) -> dict:
+    """Capture the named installer, re-run the override. Match → proceed with escalation;
+    still outside → decline."""
+    from crm.geo import check_service_area, check_with_override
+
+    cs["awaiting_installer_name"] = False
+    name = sanitize.clean_lead_field(user_text or "", 80)
+    if name:
+        cs["slots"]["installer"] = name
+    result = check_with_override(
+        check_service_area(cs["slots"].get("postal_code"), cs["slots"].get("category")),
+        cs["slots"].get("installer") or "")
+    cs["service_area"] = result["status"]
+    cs["report"]["service_area_name"] = result.get("area_name") or ""
+    if result["status"] == "inside_area":
+        cs["service_area_checked"] = True
+        return _begin_escalation(cs, locale)
+    return _outside_decline(cs, locale)
 
 
 def _next_contact_slot(cs) -> str | None:
@@ -894,6 +1059,12 @@ def _sync_customer(session, cs):
 
 
 def _escalate_step(conversation, cs, user_text, locale) -> dict:
+    # S5 service-area gate replies (before anything else): the once-only installer question
+    # and its follow-up name capture.
+    if cs.get("awaiting_installer"):
+        return _consume_installer_reply(cs, user_text, locale)
+    if cs.get("awaiting_installer_name"):
+        return _consume_installer_name(cs, user_text, locale)
     # Step 0 — gather problem detail + error-code photo before any contact collection.
     # The customer's reply enriches the problem; an attached photo is OCR'd by _run_vision
     # (in process_turn) into the error_code slot. Fires once; covers every escalation path
@@ -925,6 +1096,7 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             session.save(update_fields=["booking_requested", "status"])
             leads.create_and_dispatch(session, cs.get("escalation_reason", ""))
             cs["state"] = STATE_RESOLVED
+            cs["_emit_form"] = True  # post-lead thanks → offer the website booking form (plan S6)
             name = cs["contact"].get("name") or ""
             phone = cs["contact"].get("phone") or ""
             name_sfx = (" " + name) if name else ""
