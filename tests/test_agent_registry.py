@@ -161,4 +161,7 @@ def test_seeded_tools_exist():
                      "form_chip", "request_photo", "consult_brand"):
         assert expected in slugs, expected
     consult = Tool.objects.get(slug="consult_brand")
-    assert consult.is_active is False
+    # Live since migration 0018 — the handler (chat.consult.consult_brand) now exists
+    # and the orchestrator wires it for general-mode specialists.
+    assert consult.is_active is True
+    assert consult.handler_ref == "chat.consult.consult_brand"
