@@ -38,8 +38,9 @@ def geo_configured(seeded):
 
 
 def _drive_to_escalation(conv, mock, postcode):
-    """Intake with a real postcode → general specialist → escalate (default mock)."""
-    mock.responses["intelligent_specialist"] = {
+    """Intake with a real postcode → general specialist → escalate (default mock).
+    NIBE heat pump → the heat_pump_specialist general role (feature 1 split)."""
+    mock.responses["heat_pump_specialist"] = {
         "answer_to_customer": "I'll get a Nordland technician to look at your heat pump.",
         "confidence": 0.0, "decision": "escalate", "in_docs": False, "report": {}}
     orch.process_turn(conv, "heat_pump")

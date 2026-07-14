@@ -369,22 +369,47 @@ def _vendor_for(brand):
             or Vendor.objects.filter(slug=str(brand).lower()).first())
 
 
-def _serviced_category(cs) -> bool:
-    """True when the case sits in a serviced family (heat_pump / water_pump_well /
-    water_filtration) — directly, via a category leaf's parent, or via the stated subtype.
-    These get the general specialist even with no exact machine; everything else is truly
-    unsupported."""
+# Per-category general specialists (plan: split the single intelligent_specialist by family).
+# A case in a serviced family with NO confirmed machine routes to the family-specific general
+# agent; anything unmapped falls back to the original intelligent_specialist.
+_GENERAL_ROLE_BY_FAMILY = {
+    "heat_pump": "heat_pump_specialist",
+    "water_pump_well": "water_pump_specialist",
+    "water_filtration": "water_filtration_specialist",
+}
+
+
+def _category_family(cs) -> str | None:
+    """The serviced family (heat_pump / water_pump_well / water_filtration) the case sits in —
+    directly, via a category leaf's parent, or via the stated subtype — else None. Leaf
+    sub-types (air_to_air, water_to_water, exhaust_air…) roll up to their parent family."""
     from kb.models import Category
 
     for slug in (cs["slots"].get("category"), cs["slots"].get("subtype")):
         if not slug:
             continue
         if slug in SERVICED_FAMILIES:
-            return True
+            return slug
         c = Category.objects.filter(slug=slug).select_related("parent").first()
-        if c and (c.slug in SERVICED_FAMILIES or (c.parent and c.parent.slug in SERVICED_FAMILIES)):
-            return True
-    return False
+        if c:
+            if c.slug in SERVICED_FAMILIES:
+                return c.slug
+            if c.parent and c.parent.slug in SERVICED_FAMILIES:
+                return c.parent.slug
+    return None
+
+
+def _serviced_category(cs) -> bool:
+    """True when the case sits in a serviced family. These get a general specialist even with
+    no exact machine; everything else is truly unsupported."""
+    return _category_family(cs) is not None
+
+
+def _general_role(cs) -> str:
+    """Which general-specialist role to run for a no-machine serviced case: the family-specific
+    agent (heat_pump/water_pump/water_filtration), or the intelligent_specialist fallback for
+    an unmapped/unknown family."""
+    return _GENERAL_ROLE_BY_FAMILY.get(_category_family(cs), "intelligent_specialist")
 
 
 def _bind_confirmed(cs, machine) -> None:
@@ -766,10 +791,10 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     # only, a distinct role, and a tighter budget.
     mode = cs.get("specialist_mode", "manual")
     general = mode == "general"
-    role = "intelligent_specialist" if general else "specialist"
+    role = _general_role(cs) if general else "specialist"
     machine = Machine.objects.filter(id=cs["machine_id"]).first() if cs.get("machine_id") else None
     if not general and machine is None:  # defensive: manual mode must have a machine
-        general, role = True, "intelligent_specialist"
+        general, role = True, _general_role(cs)
     # If the customer stated an alarm/fault code inside their problem text but it never
     # landed in the error_code slot, pull it out now — the specialist needs the exact
     # code to give a grounded answer instead of re-asking for info already provided.
@@ -793,7 +818,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     if general:
         cached, inline = None, []
         system = prompts.render(
-            "intelligent_specialist", locale=locale, brand=cs["slots"].get("brand") or "",
+            role, locale=locale, brand=cs["slots"].get("brand") or "",
             model=cs["slots"].get("model") or "", category=cs["slots"].get("category") or "",
             general_knowledge=general_text, problem=cs["slots"].get("problem", ""),
             error_code=cs["slots"].get("error_code") or "", forced_wrapup=str(forced).lower(),

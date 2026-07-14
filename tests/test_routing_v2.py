@@ -175,7 +175,8 @@ def test_unlisted_brand_kept_verbatim_in_bulk(seeded, mock_gemini):
 def test_general_mode_budget_is_three(seeded, mock_gemini):
     # a serviced-category, no-machine case that keeps "solving" burns the 3-turn general
     # budget then force-escalates (reason "budget") — proving GENERAL_REPLY_BUDGET=3 < 5.
-    mock_gemini.responses["intelligent_specialist"] = {
+    # NIBE heat pump → the heat_pump_specialist general role (feature 1 split).
+    mock_gemini.responses["heat_pump_specialist"] = {
         "answer_to_customer": "Check that the display reads a normal temperature.",
         "confidence": 0.9, "in_docs": True, "decision": "solve", "severity": "normal",
         "safe_steps_given": ["Read the display"], "report": {},

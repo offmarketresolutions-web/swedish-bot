@@ -88,7 +88,7 @@ def test_chip_label_fallback():
 def test_seed_kb_is_idempotent_and_seeds_prompts():
     call_command("seed_kb")
     call_command("seed_kb")  # second run must not duplicate
-    assert m.AgentPrompt.objects.count() == 7  # + intelligent_specialist (S3)
+    assert m.AgentPrompt.objects.count() == 10  # + intelligent_specialist (S3) + 3 general specialists
     assert m.AgentPrompt.objects.get(role="specialist").model_id == MODELS["flash"]
     assert m.Machine.objects.filter(model_name="IVT 490").count() == 1
     # identification works on seeded data

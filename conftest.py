@@ -28,6 +28,12 @@ def _classify(system: str) -> str:
         return "safety"
     if "routing classifier" in s:
         return "router"
+    if "heat-pump troubleshooting specialist for Nordland VVS" in s:
+        return "heat_pump_specialist"
+    if "water-pump and well troubleshooting specialist for Nordland VVS" in s:
+        return "water_pump_specialist"
+    if "water-filtration troubleshooting specialist for Nordland VVS" in s:
+        return "water_filtration_specialist"
     if "general troubleshooting specialist for Nordland VVS" in s:
         return "intelligent_specialist"
     if "senior Nordland VVS service technician" in s:
@@ -72,9 +78,11 @@ class FakeGemini:
         if role == "intelligent_intake":
             return {"answer_to_customer": "I'll get a Nordland technician to help.",
                     "decision": "escalate", "severity": "normal", "report": {}}
-        if role == "intelligent_specialist":
-            # general-mode specialist: same contract as specialist. Default escalates
-            # (no fabricated model-specifics); troubleshooting tests override this role.
+        if role in ("intelligent_specialist", "heat_pump_specialist", "water_pump_specialist",
+                    "water_filtration_specialist"):
+            # general-mode specialists (the single intelligent_specialist split by category
+            # family): same contract as specialist. Default escalates (no fabricated
+            # model-specifics); troubleshooting tests override the specific role.
             return {"answer_to_customer": "I'll get a Nordland technician to help with your unit.",
                     "confidence": 0.0, "decision": "escalate", "in_docs": False,
                     "extracted_facts": {"onset": None, "alarm_text": None, "model_text": None,
