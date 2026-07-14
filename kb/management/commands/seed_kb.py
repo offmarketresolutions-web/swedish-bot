@@ -58,9 +58,18 @@ SV_LABELS = {
 
 
 class Command(BaseCommand):
-    help = "Seed the knowledge base (idempotent)."
+    help = ("Seed the knowledge base (idempotent). Prompts and chips are first-boot "
+            "defaults only: an existing row is left untouched (owner edits in the "
+            "dashboard survive re-seeds/redeploys). Pass --force to reset them back "
+            "to the code defaults.")
+
+    def add_arguments(self, parser):
+        parser.add_argument("--force", action="store_true",
+                             help="Overwrite existing AgentPrompt/QuickReplyChip rows "
+                                  "with the code defaults (discards owner edits).")
 
     def handle(self, *args, **opts):
+        force = opts["force"]
         cats = {}
         for name, slug, parent_slug, order in CATEGORIES:
             cats[slug], _ = m.Category.objects.update_or_create(
@@ -83,10 +92,18 @@ class Command(BaseCommand):
                     category=cats[cat_slug], slug=slug, defaults={"label": label})
 
         def _chip(step, value, label, order, category=None):
-            chip, _ = m.QuickReplyChip.objects.update_or_create(
-                intake_step=step, value=value, category=category, defaults={"order": order})
-            m.QuickReplyChipText.objects.update_or_create(chip=chip, lang="en", defaults={"label": label})
-            if value in SV_LABELS:
+            # get_or_create (not update_or_create): chips are first-boot defaults —
+            # an owner may have re-ordered/relabeled one in the dashboard, and a
+            # re-seed (e.g. on redeploy) must not silently discard that.
+            if force:
+                chip, _ = m.QuickReplyChip.objects.update_or_create(
+                    intake_step=step, value=value, category=category, defaults={"order": order})
+            else:
+                chip, _ = m.QuickReplyChip.objects.get_or_create(
+                    intake_step=step, value=value, category=category, defaults={"order": order})
+            if force or not chip.texts.filter(lang="en").exists():
+                m.QuickReplyChipText.objects.update_or_create(chip=chip, lang="en", defaults={"label": label})
+            if value in SV_LABELS and (force or not chip.texts.filter(lang="sv").exists()):
                 m.QuickReplyChipText.objects.update_or_create(
                     chip=chip, lang="sv", defaults={"label": SV_LABELS[value]})
 
@@ -106,10 +123,16 @@ class Command(BaseCommand):
                                 "extract-air filter is clean. Do not open any panels."})
 
         for role, (body, model_role) in all_prompts().items():
-            m.AgentPrompt.objects.update_or_create(
-                role=role,
-                defaults={"body": body, "language_directive": LANGUAGE_DIRECTIVE,
-                          "model_id": MODELS[model_role], "is_active": True})
+            # get_or_create (not update_or_create): AgentPrompt.body/model_id/etc are
+            # owner-editable in the dashboard. Seeding must only create missing rows
+            # on first boot, never overwrite a live-edited prompt on redeploy —
+            # that was the version-drift bug. --force resets to code defaults.
+            defaults = {"body": body, "language_directive": LANGUAGE_DIRECTIVE,
+                        "model_id": MODELS[model_role], "is_active": True}
+            if force:
+                m.AgentPrompt.objects.update_or_create(role=role, defaults=defaults)
+            else:
+                m.AgentPrompt.objects.get_or_create(role=role, defaults=defaults)
 
         self.stdout.write(self.style.SUCCESS(
             f"Seeded: {m.Category.objects.count()} categories, {m.Vendor.objects.count()} vendors, "
