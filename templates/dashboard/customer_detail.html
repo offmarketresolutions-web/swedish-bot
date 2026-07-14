@@ -7,8 +7,15 @@
 {% endblock %}
 
 {% block content %}
-{% blocktrans with phone=customer.phone email=customer.email postal=customer.postal_code city=customer.city asvar sub %}{{ phone }} · {{ email }} · {{ postal }} {{ city }}{% endblocktrans %}
+{% blocktrans with phone=customer.phone email=customer.email postal=customer.postal_code city=customer.city address=customer.address asvar sub %}{{ phone }} · {{ email }} · {{ address }} · {{ postal }} {{ city }}{% endblocktrans %}
 {% include 'dashboard/_page_header.html' with title=customer.name|default:_('(no name)') subtitle=sub %}
+
+{% if customer.profile_summary %}
+<section class="mb-6 nl-card p-4 border-l-4 border-nl-primary" data-testid="customer-problem-summary">
+  <h2 class="font-semibold mb-1 text-sm text-nl-base/60">{% trans "Senaste ärende" %}</h2>
+  <p class="text-nl-base">{{ customer.profile_summary }}</p>
+</section>
+{% endif %}
 
 {# ── Analytics ──────────────────────────────────────────────────────── #}
 <section class="mb-6" aria-labelledby="customer-analytics-h" data-testid="customer-analytics">
@@ -41,18 +48,26 @@
   {% if customer.profile_summary %}<div class="mt-3 pt-3 border-t border-nl-border text-sm text-nl-base/70"><span class="font-medium text-nl-base">{% trans "AI summary:" %}</span> {{ customer.profile_summary }}</div>{% endif %}
 </section>
 
-<div class="nl-card p-4 mb-6">
-  <h2 class="font-semibold mb-3">{% trans "Conversations" %}</h2>
+<div class="nl-card p-4 mb-6" data-testid="customer-conversations">
+  <h2 class="font-semibold mb-3">{% trans "Senaste ärenden" %}</h2>
   {% for s in sessions %}
-    <div class="border-b border-nl-border last:border-0 py-2">
+    <div class="border-b border-nl-border last:border-0 py-2" x-data="{ expand: false }">
       <div class="flex justify-between items-center gap-2">
         <a class="text-nl-primary hover:text-nl-primaryd font-medium" href="{% url 'dash-session' s.pk %}">#{{ s.pk }} · {% if s.machine %}{{ s.machine.vendor.name }} {{ s.machine.model_name }}{% else %}{{ s.manufacturer }} {{ s.model|default:_('(unidentified)') }}{% endif %}</a>
         <div class="flex items-center gap-2 shrink-0">
-          <span class="text-nl-base/60 text-xs">{{ s.severity }} · {{ s.status }} · {{ s.created_at|date:"Y-m-d" }}</span>
+          <span class="text-nl-base/60 text-xs">{{ s.severity }} · {{ s.status }} · {{ s.created_at|date:"Y-m-d" }}{% if s.escalation_reason %} · {{ s.escalation_reason }}{% endif %}</span>
           {% include 'dashboard/_chat_modal.html' with session=s %}
         </div>
       </div>
-      {% if s.ai_summary %}<p class="text-xs text-nl-base/60 mt-1">{{ s.ai_summary|truncatewords:40 }}</p>{% endif %}
+      {% if s.ai_summary %}
+        <p class="text-xs text-nl-base/60 mt-1" data-testid="session-ai-summary">
+          <span x-show="!expand">{{ s.ai_summary|truncatewords:40 }}</span>
+          <span x-show="expand" x-cloak>{{ s.ai_summary }}</span>
+          {% if s.ai_summary|wordcount > 40 %}
+            <button type="button" class="text-nl-primary hover:underline ml-1" @click="expand = !expand" x-text="expand ? '{% trans 'less' %}' : '{% trans 'more' %}'"></button>
+          {% endif %}
+        </p>
+      {% endif %}
     </div>
   {% empty %}
     {% include 'dashboard/_empty_state.html' with icon='chat' heading=_('No conversations') guidance=_('This customer has no support conversations yet.') %}

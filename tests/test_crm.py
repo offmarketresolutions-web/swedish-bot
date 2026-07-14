@@ -48,7 +48,10 @@ def test_enrich_assigns_machine_brand_type_and_summary(seeded):
     assert cust.primary_brand_id == m.vendor_id
     assert cust.primary_category_id == m.category_id
     assert m.model_name in cust.equipment_summary
-    assert cust.profile_summary == "No heat; checked filter."
+    # profile_summary is now a deterministic concise problem descriptor (senaste
+    # ärende), not a raw copy of session.ai_summary — see crm.profile.build_problem_descriptor.
+    assert m.model_name in cust.profile_summary
+    assert "E2" in cust.profile_summary
 
 
 def test_enrich_best_effort_brand_when_unsupported(seeded):
@@ -147,4 +150,6 @@ def test_customer_new_from_session_assigns_fks(staff, client, seeded):
     assert r.status_code in (302, 200)
     cust = Customer.objects.get(name="New Cust")
     assert cust.primary_machine_id == m.id and cust.primary_brand_id == m.vendor_id
-    assert cust.profile_summary == "From convo"
+    # profile_summary is a deterministic concise problem descriptor (senaste ärende),
+    # not a raw copy of session.ai_summary — see crm.profile.build_problem_descriptor.
+    assert m.model_name in cust.profile_summary

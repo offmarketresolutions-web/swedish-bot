@@ -136,4 +136,9 @@ def flush_to_session(conversation, cs: dict, *, machine=None, problem_category=N
         if rep.get(f) is not None:
             setattr(session, f, rep[f])
     session.save()
+    # Transient (non-column) hint for crm.profile.build_problem_descriptor — the raw
+    # slots.problem text has no Session field of its own (deterministic string assembly
+    # only needs it at enrichment time, which always runs on this same in-memory
+    # instance within the same escalation turn; no migration needed for this).
+    session._problem_text = s.get("problem") or ""
     return session
