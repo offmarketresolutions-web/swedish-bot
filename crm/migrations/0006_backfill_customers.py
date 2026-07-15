@@ -16,7 +16,11 @@ def forwards(apps, schema_editor):
     if not Session.objects.exists():
         return
     from crm.backfill import backfill_customers
-    backfill_customers()
+    backfill_customers(
+        session_model=Session,
+        customer_model=apps.get_model("crm", "Customer"),
+        enrich=False,
+    )
 
 
 def backwards(apps, schema_editor):

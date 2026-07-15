@@ -21,12 +21,21 @@ def _contact_from_case_state(case_state: dict) -> dict:
     }
 
 
-def backfill_customers() -> int:
+def backfill_customers(*, session_model=None, customer_model=None, enrich=True) -> int:
     """Create/link Customers for Sessions that captured contact info but have no
-    customer. Returns the number of Sessions newly linked. Idempotent."""
-    from crm.models import Customer, phone_hash
-    from crm.profile import enrich_customer_from_session
-    from crm.models import Session
+    customer. Returns the number of Sessions newly linked. Idempotent.
+
+    ``session_model`` and ``customer_model`` let data migrations use historical
+    models instead of importing fields from the current models too early.
+    """
+    from crm.models import Customer as LiveCustomer, Session as LiveSession, phone_hash
+
+    Session = session_model or LiveSession
+    Customer = customer_model or LiveCustomer
+    enrich_customer = None
+    if enrich:
+        from crm.profile import enrich_customer_from_session
+        enrich_customer = enrich_customer_from_session
 
     linked = 0
     qs = Session.objects.select_related("conversation", "machine", "category").filter(customer__isnull=True)
@@ -46,9 +55,11 @@ def backfill_customers() -> int:
             customer = Customer.objects.create(
                 name=contact["name"], phone=contact["phone"],
                 email=contact["email"], postal_code=contact["postal_code"],
+                phone_hash=ph,
             )
-        sess.customer = customer
+        sess.customer_id = customer.pk
         sess.save(update_fields=["customer"])
-        enrich_customer_from_session(customer, sess)
+        if enrich_customer:
+            enrich_customer(customer, sess)
         linked += 1
     return linked
