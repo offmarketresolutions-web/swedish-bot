@@ -307,12 +307,32 @@ def _intake_step(cs, user_text, locale) -> dict | None:
         # empty slots so an earlier confirmed answer is never clobbered. slots.model stays
         # raw customer text.
         just_bulked = False
+        off_domain_now = False
         if intake.looks_rich(user_text):
             extracted = intake.bulk_extract(user_text, cs, locale)
+            off_domain_now = bool(extracted.pop("off_domain", False))
             for k, v in extracted.items():
                 if v and not cs["slots"].get(k):
                     cs["slots"][k] = v
             just_bulked = bool(extracted)  # did THIS bulk call actually pull any fact?
+        # Feature 1 -- off-domain graceful close: count CONSECUTIVE off-domain turns (any
+        # on-target/on-topic rich reply resets the streak). A vague/garbled reply never sets
+        # off_domain_now (bulk_extract isn't even called for a non-rich message), so the
+        # existing 2-reask -> unknown machinery below is untouched. An already-fired
+        # safety/abuse rule this turn always wins over an off-domain close.
+        if off_domain_now and not cs.get("escalation_reason"):
+            cs["off_domain_streak"] = cs.get("off_domain_streak", 0) + 1
+        else:
+            cs["off_domain_streak"] = 0
+        if cs["off_domain_streak"] >= 2:
+            cs["state"] = STATE_RESOLVED
+            cs["decision"] = "off_domain_close"
+            return {"message": t(locale, "off_domain_close"), "chips": [],
+                    "decision": "off_domain_close"}
+        if off_domain_now:
+            # First off-domain turn: don't spend the per-slot extractor call on a message
+            # that plainly isn't answering it -- just re-render the current question.
+            return {"message": t(locale, "q_" + current), "chips": intake.chips_for(current, cs, locale)}
         if cs["slots"].get(current):  # bulk (or a prior turn) already filled the current slot
             cs["reask"] = 0
         else:
@@ -806,25 +826,32 @@ def _record_checks_given(cs, data) -> None:
             known.add(s)
 
 
-def _maybe_consult_brand(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale) -> dict:
-    """Brand-consult tool (V2): a general-mode specialist (no manual loaded) asked
-    consult_brand={"question": ...} in its JSON. Enabled ONLY when kb.tooling says the
-    tool is enabled for this role AND its Tool row is_active; capped at 1 consult per
-    turn (this function runs at most once per _specialist_step call) and 3 per
-    conversation. Digest is stored (latest 2) and folded into a SAME-turn re-render —
-    this does NOT consume the customer-visible reply budget (specialist_turns already
-    incremented once, before either gemini call)."""
-    req = data.get("consult_brand")
-    if not isinstance(req, dict):
+def _maybe_consult(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale) -> dict:
+    """Consult tools (V2): a general-mode specialist (no manual loaded) asked
+    consult_brand={"question": ...} (brand notes) or consult_web={"question": ...}
+    (official manufacturer web sources) in its JSON. Each is enabled ONLY when
+    kb.tooling says the tool is enabled for this role AND its Tool row is_active.
+    The cap is SHARED across both tools: 1 consult per turn (this function runs at
+    most once per _specialist_step call, and returns after the first one it runs)
+    and 3 per conversation. Digests share one window (latest 2) and fold into a
+    SAME-turn re-render — this does NOT consume the customer-visible reply budget
+    (specialist_turns already incremented once, before either gemini call)."""
+    for slug, fn in (("consult_brand", consult.consult_brand),
+                     ("consult_web", consult.consult_web)):
+        req = data.get(slug)
+        if not isinstance(req, dict):
+            continue
+        if not tooling.tool_enabled(role, slug):
+            continue
+        if cs.get("consult_total", 0) >= 3:
+            return data
+        question = str(req.get("question") or "").strip()
+        if not question:
+            continue
+        digest = fn(cs["slots"].get("brand") or "", cs["slots"].get("model"), question, locale)
+        break
+    else:
         return data
-    if not tooling.tool_enabled(role, "consult_brand"):
-        return data
-    if cs.get("consult_total", 0) >= 3:
-        return data
-    question = str(req.get("question") or "").strip()
-    if not question:
-        return data
-    digest = consult.consult_brand(cs["slots"].get("brand") or "", cs["slots"].get("model"), question, locale)
     notes = (cs.get("consult_notes") or []) + [digest]
     cs["consult_notes"] = notes[-2:]
     cs["consult_total"] = cs.get("consult_total", 0) + 1
@@ -956,7 +983,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         resp = gemini.generate(_contents(turn, hist, imgs, inline), system_instruction=system, **gen)
     data = _parse_json(resp.text)
     if general:
-        data = _maybe_consult_brand(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale)
+        data = _maybe_consult(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale)
 
     answer = data.get("answer_to_customer", "") or ""
     # S9: validate model output schema; anything off -> fail-closed to escalate.
@@ -986,6 +1013,13 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     _record_checks_given(cs, data)
 
     unsafe, reason = guardrails.is_unsafe(answer, locale=locale)
+    # Feature 2 -- reassure-and-close: a documented reassurance ("normal, no visit needed")
+    # is a legitimate solve even when the specialist mistakenly returns decision="escalate"
+    # (it gave no repair STEPS, just an answer). Eligible only when grounded (in_docs),
+    # confident (>= CONFIDENCE_GATE) and never when the safety veto already fired this turn.
+    no_action_needed = bool(data.get("no_action_needed"))
+    if no_action_needed and not unsafe and data.get("in_docs") and conf >= CONFIDENCE_GATE:
+        cs["decision"] = "solve"
     # During a clarify pass we skip the low-confidence/in_docs cap and the budget gate (a
     # clarifying question about the remedy is in-docs-compatible) — but the safety veto and
     # the specialist's own explicit escalate decision always still win.

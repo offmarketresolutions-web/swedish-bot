@@ -26,8 +26,11 @@ def _classify(system: str) -> str:
         return "extractor"
     if "safety backstop" in s:
         return "safety"
-    if "Digest ONLY the material below" in s:  # chat.consult.consult_brand's own system prompt
-        return "consult_brand"
+    if "Digest ONLY the material below" in s:  # chat.consult's own digest system prompts
+        # consult_web's digest carries the extra "official manufacturer sources" marker.
+        return "consult_web" if "official manufacturer sources" in s else "consult_brand"
+    if "web research assistant" in s:  # chat.consult.consult_web's grounded search call
+        return "consult_web_search"
     if "routing classifier" in s:
         return "router"
     if "heat-pump troubleshooting specialist for Nordland VVS" in s:
@@ -52,6 +55,9 @@ def _classify(system: str) -> str:
 class FakeGemini:
     def __init__(self):
         self.responses: dict[str, object] = {}  # role -> dict/str override
+        # role -> object returned as GeminiResponse.raw (grounding metadata for
+        # chat.consult.consult_web; see tests/test_consult.py::_fake_grounding).
+        self.raws: dict[str, object] = {}
         self.calls: list[dict] = []
         self.embed_calls: list[dict] = []  # {"texts": ..., "task_type": ...} per embed() call
 
@@ -70,7 +76,8 @@ class FakeGemini:
             # tests that exercise multi-fact mining override mock_gemini.responses["bulk"].
             return {"category": None, "subtype": None, "brand": None, "model": None,
                     "error_code": None, "alarm_text": None, "onset": None, "postal_code": None,
-                    "installer": None, "operating_context": None, "readings": [], "problem": None}
+                    "installer": None, "operating_context": None, "readings": [], "problem": None,
+                    "off_domain": False}
         if role == "specialist":
             return {"answer_to_customer": "Let me check.", "confidence": 0.0,
                     "decision": "escalate", "in_docs": False,
@@ -81,6 +88,10 @@ class FakeGemini:
         if role == "consult_brand":
             # chat.consult.consult_brand returns freeform bullet text, not JSON.
             return "- mock brand digest [B1]"
+        if role == "consult_web_search":
+            return "mock grounded search text"
+        if role == "consult_web":
+            return "- mock web digest [W1 nibe.eu]"
         if role == "intelligent_intake":
             return {"answer_to_customer": "I'll get a Nordland technician to help.",
                     "decision": "escalate", "severity": "normal", "report": {}}
@@ -91,7 +102,7 @@ class FakeGemini:
             # model-specifics); troubleshooting tests override the specific role.
             return {"answer_to_customer": "I'll get a Nordland technician to help with your unit.",
                     "confidence": 0.0, "decision": "escalate", "in_docs": False,
-                    "consult_brand": None,
+                    "consult_brand": None, "consult_web": None,
                     "extracted_facts": {"onset": None, "alarm_text": None, "model_text": None,
                                         "error_code": None, "readings": [], "installer": None,
                                         "operating_context": None, "check_results": []},
@@ -110,7 +121,7 @@ class FakeGemini:
         return gemini_mod.GeminiResponse(
             text=text, model=model, prompt_tokens=cached + 200,
             completion_tokens=max(len(text) // 4, 1), cached_tokens=cached,
-            cost_usd=0.0, auth_mode="mock")
+            cost_usd=0.0, auth_mode="mock", raw=self.raws.get(role))
 
     def generate_stream(self, contents, *, model, **kw):
         class _Chunk:

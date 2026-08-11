@@ -82,6 +82,12 @@ T = {
                             "before the visit.",
         # S6 widget fallback for an old cached widget that sends "open_form" as text
         "form_link": "You can open the booking form here: {url}",
+        # Feature 1 -- off-domain graceful close
+        "off_domain_close": "It sounds like this isn't about heat pumps, water pumps/wells or "
+                            "water filtration, so I'm not able to help with it here. I can help "
+                            "with troubleshooting, service and quotes for heat pumps, water "
+                            "pumps/wells and water filtration systems — happy to start over if "
+                            "that changes. Take care!",
     },
     "sv": {
         "greeting": "Hej! Jag är Nordland VVS assistent. Jag kan hjälpa till med värmepumpar, "
@@ -156,6 +162,12 @@ T = {
                             "täckningen innan besöket.",
         # S6 widget fallback for an old cached widget that sends "open_form" as text
         "form_link": "Du kan öppna bokningsformuläret här: {url}",
+        # Feature 1 -- off-domain graceful close
+        "off_domain_close": "Det här verkar inte handla om värmepumpar, vattenpumpar/brunnar "
+                            "eller vattenfilter, så jag kan tyvärr inte hjälpa till med det här. "
+                            "Jag kan hjälpa till med felsökning, service och offerter för "
+                            "värmepumpar, vattenpumpar/brunnar och vattenfiltersystem — säg "
+                            "gärna till om det ändrar sig. Ha det bra!",
     },
 }
 

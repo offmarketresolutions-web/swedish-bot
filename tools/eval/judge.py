@@ -320,7 +320,15 @@ def main():
                 continue
             try:
                 r = json.loads(line)
-                already[r["id"]] = r
+                # Cache poisoning guard: a record judged under --no-llm has llm=={}.
+                # Reusing it verbatim on a later LLM-enabled run silently freezes the
+                # rubric at "never scored" forever (this happened: 127/127 postfix
+                # records carried llm=={}). Only reuse the cache when it already has
+                # LLM scores, when the record was an infra error (never LLM-judged),
+                # or when this run is itself --no-llm.
+                j = (r.get("judge") or {})
+                if args.no_llm or j.get("llm") or r.get("error"):
+                    already[r["id"]] = r
             except Exception:  # noqa: BLE001
                 continue
 

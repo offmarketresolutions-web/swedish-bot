@@ -75,8 +75,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--set", dest="eval_set", type=str, default="core",
                     help="eval_set to converge: 'core' (default) | 'v2' | 'all'")
+    ap.add_argument("--ids-file", type=str, default=None,
+                    help="file with comma-separated spec ids; converge exactly these")
     args = ap.parse_args()
-    TARGET = _target_for_set(args.eval_set)
+    ids = None
+    if args.ids_file:
+        ids = [i.strip() for i in Path(args.ids_file).read_text(encoding="utf-8").split(",") if i.strip()]
+        args.eval_set = "all"  # id list crosses sets; runner filters by --ids
+    TARGET = len(ids) if ids else _target_for_set(args.eval_set)
     print(f"[drive] eval_set={args.eval_set} TARGET={TARGET} RESULTS={RESULTS.name}", flush=True)
 
     for i, (workers, wall) in enumerate(PASS_PLAN, 1):
@@ -90,8 +96,10 @@ def main():
         env["EVAL_CONV_WALL_S"] = str(wall)
         env["EVAL_CONV_HARD_S"] = str(wall + 150)
         # Runner skips ids already present (the good ones) and attempts the rest once.
-        proc = subprocess.run([PY, str(RUNNER), "--workers", str(workers), "--set", args.eval_set],
-                              cwd=str(REPO_ROOT), env=env)
+        cmd = [PY, str(RUNNER), "--workers", str(workers), "--set", args.eval_set]
+        if ids:
+            cmd += ["--ids", ",".join(ids)]
+        proc = subprocess.run(cmd, cwd=str(REPO_ROOT), env=env)
         print(f"[drive] pass {i} runner exited rc={proc.returncode} at "
               f"{time.strftime('%H:%M:%S')}", flush=True)
 
@@ -107,7 +115,8 @@ def main():
         import django
         django.setup()
         from tools.eval import personas
-        missing = [s.id for s in personas.SPECS if s.id not in done_ids]
+        missing = [s.id for s in personas.SPECS
+                   if s.id not in done_ids and (not ids or s.id in ids)]
         print(f"[drive] still-missing ids: {missing}", flush=True)
 
 

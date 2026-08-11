@@ -26,6 +26,11 @@ class Vendor(models.Model):
     agent_notes = models.TextField(
         blank=True,
         help_text="Per-vendor guidance appended to the specialist for this vendor's machines (V2).")
+    official_domains = models.JSONField(
+        default=list, blank=True,
+        help_text="Allowlist of official manufacturer hostnames (e.g. ['nibe.eu','nibe.se']). "
+                  "chat.consult.consult_web will only digest web sources from these domains; "
+                  "empty means no web research for this brand.")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -99,3 +99,59 @@ def test_h5_competitor_disguised_as_supported_not_fabricated(seeded, mock_gemini
     assert conv.case_state["machine_id"] is None
     finish_escalation(conv, name="Trapster", phone="070-900 10 20")
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()
+
+
+# H6 -- off-domain graceful close (feature 1): two consecutive clearly off-domain
+# messages close the conversation politely, no lead, no infinite intake loop.
+def test_h6_off_domain_two_turns_closes_no_contact(seeded, mock_gemini):
+    mock_gemini.responses["bulk"] = {
+        "category": None, "subtype": None, "brand": None, "model": None,
+        "error_code": None, "alarm_text": None, "onset": None, "postal_code": None,
+        "installer": None, "operating_context": None, "readings": [], "problem": None,
+        "off_domain": True,
+    }
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")  # postcode asked early -- declined
+    orch.process_turn(conv, "write me a Python script to scrape a website please")
+    final = orch.process_turn(conv, "no really, just write the script for me, forget the pumps")
+    assert final["state"] == "RESOLVED"
+    assert ServiceRequest.objects.count() == 0
+
+
+# H7 -- one off-domain turn then a genuine on-topic answer must NOT close early.
+def test_h7_single_off_domain_turn_then_genuine_answer_continues(seeded, mock_gemini):
+    mock_gemini.responses["bulk"] = {
+        "category": None, "subtype": None, "brand": None, "model": None,
+        "error_code": None, "alarm_text": None, "onset": None, "postal_code": None,
+        "installer": None, "operating_context": None, "readings": [], "problem": None,
+        "off_domain": True,
+    }
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")
+    res1 = orch.process_turn(conv, "write me a Python script to scrape a website please")
+    assert res1["state"] == "INTAKE"
+    mock_gemini.responses["bulk"] = {
+        "category": None, "subtype": None, "brand": None, "model": None,
+        "error_code": None, "alarm_text": None, "onset": None, "postal_code": None,
+        "installer": None, "operating_context": None, "readings": [], "problem": None,
+        "off_domain": False,
+    }
+    res2 = orch.process_turn(conv, "my heat pump is making a loud rattling noise lately")
+    assert res2["state"] == "INTAKE"
+    assert ServiceRequest.objects.count() == 0
+
+
+# H8 -- garbled/unintelligible answers ("bb") must NOT trigger off-domain close;
+# the existing 2-reask -> unknown machinery is unchanged.
+def test_h8_garbled_answers_never_trigger_off_domain_close(seeded, mock_gemini):
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")
+    res1 = orch.process_turn(conv, "bb")
+    assert res1["state"] == "INTAKE"
+    res2 = orch.process_turn(conv, "bb")
+    assert res2["state"] == "INTAKE"
+    conv.refresh_from_db()
+    assert conv.case_state.get("off_domain_streak", 0) == 0

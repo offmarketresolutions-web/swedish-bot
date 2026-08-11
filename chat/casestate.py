@@ -26,6 +26,7 @@ def new_case_state() -> dict:
         "state": STATE_INTAKE,
         "current_slot": None,
         "reask": 0,
+        "off_domain_streak": 0,
         "slots": {k: None for k in REQUIRED_SLOTS + OPTIONAL_SLOTS + EXTRA_SLOTS}
         | {"nameplate_photo": False, "ocr_text": None, "readings": []},
         "contact": {k: None for k in CONTACT_SLOTS} | {"consent": None},

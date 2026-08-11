@@ -12,6 +12,8 @@ Covers:
 - Prompt wires: common_issues injection, citation-echo contract text, exploratory
   INTAKE section, {tools} block.
 """
+from types import SimpleNamespace
+
 import pytest
 from django.core.management import call_command
 
@@ -324,3 +326,219 @@ def test_consult_notes_placeholder_injected(seeded):
     out = _render_general(consult_notes="- digest fact [B7]")
     assert "- digest fact [B7]" in out
     assert "{consult_notes}" not in out
+
+
+# ── consult_web unit (official-manufacturer web research) ──────────────
+
+_NO_SOURCES = "NOT-IN-SOURCES: no official manufacturer source found"
+_REDIRECT = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/x"
+
+
+def _chunk(domain, title="t", uri=_REDIRECT):
+    return SimpleNamespace(web=SimpleNamespace(domain=domain, title=title, uri=uri))
+
+
+def _fake_grounding(*chunks):
+    """Minimal stand-in for resp.raw: candidates[0].grounding_metadata.grounding_chunks."""
+    meta = SimpleNamespace(grounding_chunks=list(chunks))
+    return SimpleNamespace(candidates=[SimpleNamespace(grounding_metadata=meta)])
+
+
+def _nibe_with_domains(domains=("nibe.eu", "nibe.se")):
+    v, _ = Vendor.objects.get_or_create(name="NIBE", defaults={"slug": "nibe"})
+    v.official_domains = list(domains)
+    v.save(update_fields=["official_domains"])
+    return v
+
+
+def _roles(mock_gemini):
+    return [c["role"] for c in mock_gemini.calls]
+
+
+def test_web_unknown_brand_zero_llm_calls(seeded, mock_gemini):
+    assert consult.consult_web("NoSuchBrand", None, "what is it?") == _NO_SOURCES
+    assert not [r for r in _roles(mock_gemini) if r.startswith("consult_web")]
+
+
+def test_web_empty_allowlist_zero_llm_calls(seeded, mock_gemini):
+    _nibe_with_domains([])
+    assert consult.consult_web("NIBE", None, "what is it?") == _NO_SOURCES
+    assert not [r for r in _roles(mock_gemini) if r.startswith("consult_web")]
+
+
+def test_web_all_chunks_non_whitelisted_no_digest(seeded, mock_gemini):
+    _nibe_with_domains()
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(
+        _chunk("byggahus.se"), _chunk("youtube.com"))
+    assert consult.consult_web("NIBE", "F1255", "spec?") == _NO_SOURCES
+    assert _roles(mock_gemini).count("consult_web_search") == 1   # grounded call happened
+    assert _roles(mock_gemini).count("consult_web") == 0          # but no digest call
+
+
+def test_web_lookalike_domain_rejected(seeded, mock_gemini):
+    _nibe_with_domains()
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(_chunk("nibe.eu.evil.com"))
+    assert consult.consult_web("NIBE", "F1255", "spec?") == _NO_SOURCES
+    assert _roles(mock_gemini).count("consult_web") == 0
+
+
+def test_web_chunk_without_domain_or_host_rejected(seeded, mock_gemini):
+    _nibe_with_domains()
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(_chunk(None, uri=_REDIRECT))
+    assert consult.consult_web("NIBE", "F1255", "spec?") == _NO_SOURCES
+
+
+def test_web_mixed_chunks_only_whitelisted_in_material(seeded, mock_gemini):
+    _nibe_with_domains()
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(
+        _chunk("byggahus.se", title="FORUM-THREAD"),
+        _chunk("www.NIBE.eu", title="F1255 product page"),
+        _chunk("docs.nibe.se", title="F1255 spec sheet"),
+        _chunk("youtube.com", title="VIDEO-HOWTO"),
+    )
+    captured = {}
+    from core.services import gemini as gm
+    real = gm.generate
+
+    def capture(contents, **kw):
+        sysline = kw.get("system_instruction") or ""
+        if "Digest ONLY the material below" in sysline:
+            captured["system"] = sysline
+        return real(contents, **kw)
+    gm.generate = capture
+    try:
+        out = consult.consult_web("NIBE", "F1255", "What is the max flow temperature?")
+    finally:
+        gm.generate = real
+    assert out == "- mock web digest [W1 nibe.eu]"          # conftest consult_web default
+    s = captured["system"]
+    assert "<<UNTRUSTED" in s and "END_UNTRUSTED" in s      # spotlighted as DATA
+    assert "official manufacturer sources" in s            # role marker / guardrail text
+    assert "repair" in s                                   # never-a-repair-procedure clause
+    assert "[W1 nibe.eu]" in s and "[W2 docs.nibe.se]" in s  # www. stripped, subdomain kept
+    assert "FORUM-THREAD" not in s and "VIDEO-HOWTO" not in s
+    assert "byggahus.se" not in s and "youtube.com" not in s
+    # Laundering guard: mixed sources ⇒ the search summary (prose over ALL sources,
+    # including the forum/video hits) must NOT reach the digest material.
+    assert "SEARCH SUMMARY" not in s
+
+
+def test_web_all_whitelisted_chunks_keep_search_summary(seeded, mock_gemini):
+    _nibe_with_domains()
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(
+        _chunk("nibe.eu", title="F1255 product page"),
+        _chunk("docs.nibe.se", title="F1255 spec sheet"),
+    )
+    captured = {}
+    from core.services import gemini as gm
+    real = gm.generate
+
+    def capture(contents, **kw):
+        sysline = kw.get("system_instruction") or ""
+        if "Digest ONLY the material below" in sysline:
+            captured["system"] = sysline
+        return real(contents, **kw)
+    gm.generate = capture
+    try:
+        consult.consult_web("NIBE", "F1255", "What is the max flow temperature?")
+    finally:
+        gm.generate = real
+    # Every chunk official ⇒ the summary is clean and stays in the material.
+    assert "SEARCH SUMMARY" in captured["system"]
+
+
+def test_web_grounded_call_exception_falls_back(seeded, mock_gemini, monkeypatch):
+    _nibe_with_domains()
+    from core.services import gemini as gm
+
+    def boom(*a, **k):
+        raise RuntimeError("provider down")
+    monkeypatch.setattr(gm, "generate", boom)
+    assert consult.consult_web("NIBE", "F1255", "spec?") == _NO_SOURCES
+
+
+def test_web_grounded_call_uses_search_tool_and_no_json_mime(seeded, mock_gemini):
+    _nibe_with_domains()
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(_chunk("nibe.eu"))
+    consult.consult_web("NIBE", "F1255", "spec?")
+    call = [c for c in mock_gemini.calls if c["role"] == "consult_web_search"][0]
+    assert call["kw"].get("tools")                       # grounding tool passed through
+    assert not call["kw"].get("response_mime_type")      # Vertex rejects search + JSON
+    assert "site:nibe.eu" in call["contents"]            # allowlist site: hints in the query
+
+
+# ── consult_web wiring (registry, seed, orchestrator, prompts) ─────────
+
+def _general_asks_web(question="What is the max flow temperature?", **extra):
+    d = dict(GENERAL_OK)
+    d.update(extra)
+    d["consult_web"] = {"question": question}
+    return d
+
+
+def test_seed_enables_consult_web_on_general_roles(seeded):
+    for role in ("intelligent_specialist", "heat_pump_specialist",
+                 "water_pump_specialist", "water_filtration_specialist"):
+        assert tooling.tool_enabled(role, "consult_web"), role
+    assert not tooling.tool_enabled("specialist", "consult_web")
+
+
+def test_seed_sets_official_domains(seeded):
+    assert Vendor.objects.get(slug="nibe").official_domains == ["nibe.eu", "nibe.se"]
+    for slug in ("ctc", "thermia", "callidus", "grundfos"):
+        assert Vendor.objects.get(slug=slug).official_domains, slug
+
+
+def test_consult_web_tool_row_registered(seeded):
+    tool = Tool.objects.get(slug="consult_web")
+    assert tool.is_active is True
+    assert tool.handler_ref == "chat.consult.consult_web"
+
+
+def test_web_consult_ignored_when_tool_row_inactive(seeded, mock_gemini):
+    Tool.objects.filter(slug="consult_web").update(is_active=False)
+    _nibe_with_domains()
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(_chunk("nibe.eu"))
+    mock_gemini.responses["heat_pump_specialist"] = _general_asks_web()
+    conv, _ = orch.open_conversation()
+    _drive_to_general(conv)
+    assert not [r for r in _roles(mock_gemini) if r.startswith("consult_web")]
+    conv.refresh_from_db()
+    assert conv.case_state.get("consult_total", 0) == 0
+
+
+def test_web_consult_flow_digest_injected(seeded, mock_gemini):
+    _nibe_with_domains()
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(_chunk("nibe.eu"))
+    mock_gemini.responses["heat_pump_specialist"] = _general_asks_web()
+    conv, _ = orch.open_conversation()
+    _drive_to_general(conv)
+    conv.refresh_from_db()
+    cs = conv.case_state
+    assert cs["consult_notes"] == ["- mock web digest [W1 nibe.eu]"]
+    assert cs["consult_total"] == 1
+
+
+def test_consult_cap_shared_between_brand_and_web(seeded, mock_gemini):
+    v = _nibe_with_domains()
+    BrandNote.objects.create(vendor=v, body="NIBE quirk.")
+    mock_gemini.raws["consult_web_search"] = _fake_grounding(_chunk("nibe.eu"))
+    # asks BOTH every turn: only one consult may run per turn, 3 per conversation total
+    mock_gemini.responses["heat_pump_specialist"] = _general_asks_web(
+        consult_brand={"question": "brand quirks?"})
+    conv, _ = orch.open_conversation()
+    _drive_to_general(conv)
+    for _ in range(4):
+        orch.process_turn(conv, "no still noisy")
+    conv.refresh_from_db()
+    roles = _roles(mock_gemini)
+    assert conv.case_state["consult_total"] == 3
+    assert roles.count("consult_brand") + roles.count("consult_web") == 3
+
+
+def test_consult_web_in_general_prompts_only(seeded):
+    from kb.seed_prompts import _GENERAL_TAIL, INTELLIGENT_SPECIALIST, SPECIALIST
+    for body in (_GENERAL_TAIL, INTELLIGENT_SPECIALIST):
+        assert '"consult_web"' in body
+        assert "in_docs" in body
+    assert "consult_web" not in SPECIALIST  # manual mode has the manual — no web research

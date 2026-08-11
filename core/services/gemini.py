@@ -174,6 +174,7 @@ def generate(
     response_mime_type: str | None = None,
     thinking_budget: int | None = 0,
     api_key: str | None = None,
+    tools: list | None = None,
 ) -> GeminiResponse:
     """Single-turn generation. `contents` may be a string or a list of parts
     (text + uploaded files for the full-PDF-in-context path).
@@ -192,6 +193,11 @@ def generate(
         cfg["response_mime_type"] = response_mime_type
     if thinking_budget is not None:
         cfg["thinking_config"] = {"thinking_budget": thinking_budget}
+    if tools:
+        # Grounded calls (google_search) MUST NOT also request a JSON mime type —
+        # Vertex rejects google_search + response_mime_type on the 2.5 models.
+        cfg.pop("response_mime_type", None)
+        cfg["tools"] = tools
 
     resp = client.models.generate_content(model=model, contents=contents, config=cfg)
     text = (getattr(resp, "text", None) or "").strip()
@@ -208,6 +214,14 @@ def generate(
         auth_mode=mode,
         raw=resp,
     )
+
+
+def search_tool() -> list:
+    """The Google-Search grounding tool, for `generate(..., tools=search_tool())`.
+    Imported lazily so the SDK type import never runs at module import time."""
+    from google.genai import types
+
+    return [types.Tool(google_search=types.GoogleSearch())]
 
 
 def generate_stream(contents, *, model: str, system_instruction=None, cached_content=None,

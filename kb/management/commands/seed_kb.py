@@ -15,6 +15,8 @@ _CONSULT_BRAND_ROLES = {
     "intelligent_specialist", "heat_pump_specialist",
     "water_pump_specialist", "water_filtration_specialist",
 }
+# consult_web (official-manufacturer web research) rides the same roles.
+_CONSULT_WEB_ROLES = set(_CONSULT_BRAND_ROLES)
 
 CATEGORIES = [
     ("Heat pump", "heat_pump", None, 0),
@@ -27,6 +29,17 @@ CATEGORIES = [
 ]
 
 VENDORS = ["IVT", "Bosch", "Grundfos", "Debe", "Scandia Pumps", "Aqua Expert", "Aqua Invent"]
+
+# consult_web allowlists: the ONLY hostnames chat.consult.consult_web will digest for
+# these brands. Vendor rows are created if missing (NIBE/CTC/Thermia/Callidus are common
+# in the field but were not starter vendors). Additive: never clobbers a staff edit.
+OFFICIAL_DOMAINS = {
+    "NIBE": ["nibe.eu", "nibe.se"],
+    "CTC": ["ctc.se", "ctc-heating.com"],
+    "Thermia": ["thermia.com", "thermia.se"],
+    "Grundfos": ["grundfos.com", "product-selection.grundfos.com"],
+    "Callidus": ["callidus.se"],
+}
 
 MACHINES = [
     ("IVT", "exhaust_air", "IVT 490", ["ivt490", "490"]),
@@ -86,6 +99,12 @@ class Command(BaseCommand):
         for name in VENDORS:
             vendors[name], _ = m.Vendor.objects.update_or_create(
                 slug=name.lower().replace(" ", "-"), defaults={"name": name})
+        for name, domains in OFFICIAL_DOMAINS.items():
+            v, _ = m.Vendor.objects.get_or_create(
+                slug=name.lower().replace(" ", "-"), defaults={"name": name})
+            if force or not v.official_domains:
+                v.official_domains = domains
+                v.save(update_fields=["official_domains"])
 
         for vname, cat_slug, model_name, aliases in MACHINES:
             m.Machine.objects.update_or_create(
@@ -146,6 +165,10 @@ class Command(BaseCommand):
             if role in _CONSULT_BRAND_ROLES:
                 tool = m.Tool.objects.filter(slug="consult_brand").first()
                 if tool and not agent.tools.filter(slug="consult_brand").exists():
+                    agent.tools.add(tool)
+            if role in _CONSULT_WEB_ROLES:
+                tool = m.Tool.objects.filter(slug="consult_web").first()
+                if tool and not agent.tools.filter(slug="consult_web").exists():
                     agent.tools.add(tool)
 
         self.stdout.write(self.style.SUCCESS(

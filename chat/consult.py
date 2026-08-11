@@ -11,6 +11,8 @@ cover the question.
 """
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 from chat.sanitize import cap, wrap_untrusted
 from core.constants import MODELS
 from core.services import gemini
@@ -78,3 +80,106 @@ def consult_brand(brand: str, model_text: str | None, question: str, locale: str
         return (resp.text or "").strip() or _NO_NOTES
     except Exception:  # noqa: BLE001 — a consult failure must never break the turn
         return _NO_NOTES
+
+
+# ── consult_web: official-manufacturer web research ────────────────────
+# Mirrors consult_brand, but the material comes from a Google-Search-grounded flash
+# call instead of the DB. Two hard gates: (1) the brand must have an explicit
+# Vendor.official_domains allowlist — unknown brand or empty list means zero LLM
+# calls; (2) every grounding chunk is filtered against that allowlist in Python
+# before anything reaches the digest, so a lookalike host (nibe.eu.evil.com) or a
+# forum (byggahus.se) can never become material.
+
+_NO_SOURCES = "NOT-IN-SOURCES: no official manufacturer source found"
+
+_SEARCH_SYSTEM = (
+    "You are a web research assistant. Search the OFFICIAL manufacturer website for the "
+    "product below and report what the official product/specification/manual pages say "
+    "about the question. Prefer the manufacturer's own domains. Be factual and terse."
+)
+
+_WEB_SYSTEM = (
+    "You are the web research specialist. Digest ONLY the material below — official "
+    "manufacturer sources — to answer the consulting agent's question. Keep the answer to "
+    "180 tokens or fewer, as terse bullet facts, and cite the source tag "
+    "([W<n> <domain>]) on every fact you use. Official product/specification pages may be "
+    "cited for IDENTIFICATION, SPECIFICATIONS and CONTROL/SETTING descriptions ONLY. NEVER "
+    "state a repair or service procedure sourced from the web — if the question asks for "
+    "one, answer 'NOT-IN-SOURCES' for that part. If the material doesn't cover the "
+    "question, say 'NOT-IN-SOURCES' plainly — never invent a fact.\n\n"
+)
+
+
+def _norm_host(host: str | None) -> str:
+    h = (host or "").strip().lower().rstrip(".")
+    return h[4:] if h.startswith("www.") else h
+
+
+def _allowlist(brand: str) -> list[str]:
+    vendor = _vendor_for(brand)
+    if vendor is None:
+        return []
+    doms = getattr(vendor, "official_domains", None) or []
+    return [d for d in (_norm_host(str(x)) for x in doms) if d]
+
+
+def _host_allowed(host: str, allow: list[str]) -> bool:
+    return any(host == a or host.endswith("." + a) for a in allow)
+
+
+def _web_chunks(resp) -> list[tuple[str, str, str]]:
+    """(domain, title, uri) per grounding chunk. Vertex hands back redirect URIs
+    (vertexaisearch.cloud.google.com/...), so web.domain is the trustworthy field;
+    urlparse(uri).hostname is only a fallback. Chunks with neither are dropped."""
+    raw = getattr(resp, "raw", None)
+    cands = getattr(raw, "candidates", None) or []
+    if not cands:
+        return []
+    meta = getattr(cands[0], "grounding_metadata", None)
+    out: list[tuple[str, str, str]] = []
+    for ch in (getattr(meta, "grounding_chunks", None) or []):
+        web = getattr(ch, "web", None)
+        if web is None:
+            continue
+        uri = getattr(web, "uri", "") or ""
+        host = _norm_host(getattr(web, "domain", None)) or _norm_host(urlparse(uri).hostname)
+        if not host:
+            continue
+        out.append((host, str(getattr(web, "title", "") or ""), str(uri)))
+    return out
+
+
+def consult_web(brand: str, model_text: str | None, question: str, locale: str = "en") -> str:
+    """Research `question` against `brand`'s OFFICIAL manufacturer domains and return a
+    token-concise digest. Deterministic NOT-IN-SOURCES (zero LLM calls) when the brand has
+    no allowlist; NOT-IN-SOURCES (no digest call) when no source survives the filter."""
+    allow = _allowlist(brand)
+    if not allow:
+        return _NO_SOURCES
+    try:
+        hints = " OR ".join(f"site:{d}" for d in allow)
+        query = (f"{brand} {model_text or ''} {cap(question or '', 300)} ({hints})").strip()
+        resp = gemini.generate(
+            query, model=MODELS["flash"], system_instruction=_SEARCH_SYSTEM,
+            max_output_tokens=600, temperature=0.2, tools=gemini.search_tool(),
+        )
+        chunks = _web_chunks(resp)
+        kept = [c for c in chunks if _host_allowed(c[0], allow)]
+        if not kept:
+            return _NO_SOURCES
+        parts = [f"[W{i} {host}] {title} {uri}".strip()
+                 for i, (host, title, uri) in enumerate(kept, start=1)]
+        # Laundering guard: the search summary is the model's prose over ALL its
+        # sources, not just the whitelisted chunks — include it only when every
+        # chunk passed the allowlist, else a single official hit would smuggle
+        # forum-derived claims into the digest material.
+        if len(kept) == len(chunks):
+            parts.append("SEARCH SUMMARY: " + (resp.text or ""))
+        system = _WEB_SYSTEM + wrap_untrusted(cap("\n".join(parts), _MATERIAL_CAP), "web_sources")
+        digest = gemini.generate(
+            f"Question: {cap(question or '', 300)}", model=MODELS["flash_lite"],
+            system_instruction=system, max_output_tokens=250, temperature=0.2,
+        )
+        return (digest.text or "").strip() or _NO_SOURCES
+    except Exception:  # noqa: BLE001 — a consult failure must never break the turn
+        return _NO_SOURCES
