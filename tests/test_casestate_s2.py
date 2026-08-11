@@ -237,3 +237,50 @@ def test_flush_writes_new_session_columns():
     assert session.escalation_reason == "low_confidence"
     assert session.service_area_status == "border"
     assert session.form_shown is True
+
+
+def test_two_checks_reported_with_different_outcomes_are_not_collapsed(seeded, mock_gemini):
+    """Regression (audit 2026-08-11): _apply_extracted_facts kept only the LAST result in
+    check_results and stamped it onto EVERY pending check, discarding step_hint. A customer
+    who says one check helped and another they refused had both recorded as refused, so the
+    technician's lead misreported what was actually tried."""
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Please check the inlet valve, and also the breaker.",
+        "confidence": 0.9, "decision": "solve", "in_docs": True, "report": {},
+        "safe_steps_given": ["Check the inlet isolation valve is open",
+                             "Check the breaker is not tripped"]}
+    conv, _ = orch.open_conversation()
+    _drive_to_specialist(conv)
+    assert [c["result"] for c in _cs(conv)["report"]["checks"]] == ["pending", "pending"]
+
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Thanks.", "confidence": 0.9, "decision": "solve",
+        "in_docs": True, "report": {},
+        "extracted_facts": {"check_results": [
+            {"step_hint": "inlet valve", "result": "helped"},
+            {"step_hint": "breaker", "result": "refused"}]}}
+    orch.process_turn(conv, "opening the valve helped; I won't touch the breaker")
+
+    steps = {c["step"]: c["result"] for c in _cs(conv)["report"]["checks"]}
+    assert steps["Check the inlet isolation valve is open"] == "helped"
+    assert steps["Check the breaker is not tripped"] == "refused"
+
+
+def test_single_result_still_resolves_every_pending_check(seeded, mock_gemini):
+    """Guard the existing intent: one blanket 'none of that helped' with no step_hint must
+    still close out all pending checks, so the fix above doesn't strand them as pending."""
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Try the valve and the breaker.",
+        "confidence": 0.9, "decision": "solve", "in_docs": True, "report": {},
+        "safe_steps_given": ["Check the inlet isolation valve is open",
+                             "Check the breaker is not tripped"]}
+    conv, _ = orch.open_conversation()
+    _drive_to_specialist(conv)
+
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Understood.", "confidence": 0.9, "decision": "solve",
+        "in_docs": True, "report": {},
+        "extracted_facts": {"check_results": [{"result": "no_help"}]}}
+    orch.process_turn(conv, "none of that helped")
+
+    assert {c["result"] for c in _cs(conv)["report"]["checks"]} == {"no_help"}

@@ -206,6 +206,18 @@ tunes prompts live. The operating rule, full mechanics in
 - Never assume `seed_kb` (or `post_deploy`) on a redeploy resets prompts — it
   can't, by design.
 
+**You do NOT need `--force` to enable a new feature.** That was a real trap: a
+feature whose JSON contract key was added in code (`no_action_needed`,
+`consult_web`, …) would have stayed permanently inert against an owner-edited
+prompt that never emits it — silently, with the whole test suite green, because
+tests always run against a freshly seeded prompt. `chat/prompts.py::render()` now
+appends any missing contract line itself (`contract_addendum`), so backend and
+agent output stay aligned no matter how the body was edited. Run
+`manage.py agent_config_diff` after a deploy to *see* the drift, but never reach
+for `seed_kb --force` on the VPS just to pick up a new contract key — that would
+throw away the owner's live tuning to fix a problem the code already handles.
+`--force` remains only for a deliberate "reset this prompt to the code default".
+
 ### Widget embed cache-bust
 
 `static/widget/nordland-widget.js` is served through WhiteNoise's manifest

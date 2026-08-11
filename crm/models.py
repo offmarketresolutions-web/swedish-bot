@@ -113,6 +113,29 @@ class CustomerFile(models.Model):
         return f"File<cust={self.customer_id} {self.folder}/{self.kind}>"
 
 
+class UnrevokedExternalCopy(models.Model):
+    """A record of a customer file that was purged locally by purge_pii but whose
+    mirror on Google Drive (crm/file_sink.py) could NOT be revoked — the n8n
+    Drive-mirror workflow (tools/n8n/drive_mirror.workflow.json) only creates
+    copies, it has no delete/revoke contract. Deliberately holds no customer PII
+    (the customer row is gone by the time this is written) — just enough for staff
+    to go delete the file in Drive by hand. Surfaced in the purge_pii summary and
+    kept here persistently so it isn't lost once the dry-run/console output scrolls
+    away."""
+
+    drive_url = models.URLField()
+    file_kind = models.CharField(max_length=16, blank=True)
+    purged_at = models.DateTimeField(auto_now_add=True)
+    resolved = models.BooleanField(
+        default=False, help_text="Staff has manually deleted the Drive copy.")
+
+    class Meta:
+        ordering = ["-purged_at"]
+
+    def __str__(self):
+        return f"UnrevokedExternalCopy<{self.drive_url}>"
+
+
 class IntegrationSettings(models.Model):
     """Singleton dashboard-editable config for the outbound n8n Google Drive mirror.
     Default OFF — nothing fires until an operator sets a URL and flips the toggle."""

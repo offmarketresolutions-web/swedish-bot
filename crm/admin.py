@@ -277,6 +277,16 @@ class LeadDeliveryAdmin(admin.ModelAdmin):
 # --------------------------------------------------------------------------- #
 # CustomerFile
 # --------------------------------------------------------------------------- #
+@admin.register(models.UnrevokedExternalCopy)
+class UnrevokedExternalCopyAdmin(admin.ModelAdmin):
+    """GDPR follow-up queue: Drive mirrors purge_pii could not revoke. Staff deletes
+    the Drive file by hand, then ticks resolved."""
+
+    list_display = ("id", "drive_url", "file_kind", "purged_at", "resolved")
+    list_filter = ("resolved", "file_kind")
+    ordering = ("-purged_at",)
+
+
 @admin.register(models.CustomerFile)
 class CustomerFileAdmin(admin.ModelAdmin):
     save_on_top = True

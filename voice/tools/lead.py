@@ -20,6 +20,7 @@ def _voice_idempotency_key(call_id: str, reason: str, model: str, error_code: st
 
 
 def _resolve_customer(args: dict, ctx: dict):
+    from chat.orchestrator import _name_matches
     from crm.models import Customer
 
     ph = ctx.get("phone_hash") or _phone_hash(ctx.get("caller_phone") or args.get("phone") or "")
@@ -28,6 +29,12 @@ def _resolve_customer(args: dict, ctx: dict):
     cust = None
     if ph:
         cust = Customer.objects.filter(phone_hash=ph).order_by("-created_at").first()
+        # GUARD (mirrors chat/orchestrator.py::_sync_customer, commit 931c7ff): matching by
+        # phone_hash alone let a shared/reassigned/mistyped number attach this call — and
+        # any lead/session history — to a different real person's CRM profile. Require the
+        # same lenient name agreement; on mismatch, treat as a new customer instead.
+        if cust is not None and not _name_matches(name, cust.name):
+            cust = None
     if cust is None:
         cust = Customer(name=name, phone=phone,
                         email=sanitize.clean_email(str(args.get("email") or "")),

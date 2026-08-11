@@ -48,7 +48,16 @@ def collect_knowledge(machine, locale: str = "en", *, query: str = "") -> tuple[
             if t:
                 faq_text += f"Q: {t.question}\nA: {t.answer}\n"
         # best-practice / generic guides for these categories (V2 P-D), capped.
-        for g in GenericGuide.objects.filter(category_id__in=cat_ids, lang__in=[locale, "en"]).exclude(kind="faq"):
+        # Prefer the requested locale but fall back to ANY language the guide has a row
+        # in, rather than dropping Swedish-only content for English conversations
+        # (mirrors FAQEntry.text()/pick_text's en-fallback, generalized to any lang).
+        by_key: dict[tuple, GenericGuide] = {}
+        for g in GenericGuide.objects.filter(category_id__in=cat_ids).exclude(kind="faq"):
+            gkey = (g.category_id, g.key)
+            existing = by_key.get(gkey)
+            if existing is None or (existing.lang != locale and g.lang == locale):
+                by_key[gkey] = g
+        for g in by_key.values():
             faq_text += f"[{g.kind}] {g.body}\n"
         # Semantic retrieval (V2): the most relevant guidance for THIS problem, across
         # categories. Fail-safe + flag-gated inside rank_guides.

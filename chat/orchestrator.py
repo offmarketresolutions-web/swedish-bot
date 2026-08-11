@@ -805,20 +805,47 @@ def _apply_extracted_facts(cs, data) -> None:
             slots["model"] = cleaned
     # Resolve every currently-pending check with the reported outcome + mirror into
     # troubleshooting_performed (plan S2 §5).
-    crs = ef.get("check_results") or []
-    result = None
-    if isinstance(crs, list):
-        for cr in crs:
-            if isinstance(cr, dict) and cr.get("result") in ("helped", "no_help", "refused"):
-                result = cr["result"]
-    if result:
+    crs = [cr for cr in (ef.get("check_results") or [])
+           if isinstance(cr, dict) and cr.get("result") in ("helped", "no_help", "refused")]
+    if crs:
         tp = cs["report"].setdefault("troubleshooting_performed", [])
-        for chk in cs["report"].get("checks", []):
-            if chk.get("result") == "pending":
-                chk["result"] = result
-                mirror = f"{chk.get('step','')} → {_CHECK_TAGS[result]}"
-                if mirror not in tp:
-                    tp.append(mirror)
+        pending = [c for c in cs["report"].get("checks", []) if c.get("result") == "pending"]
+
+        def _resolve(chk, res):
+            chk["result"] = res
+            mirror = f"{chk.get('step','')} → {_CHECK_TAGS[res]}"
+            if mirror not in tp:
+                tp.append(mirror)
+
+        # Match each reported result to the check it names via step_hint. Previously the
+        # LAST result was stamped onto EVERY pending check and step_hint was discarded, so
+        # "the valve helped but I won't touch the breaker" recorded both as refused and the
+        # technician's lead misreported what was actually tried.
+        unmatched = []
+        for cr in crs:
+            hint = str(cr.get("step_hint") or "").strip().lower()
+            words = {w for w in re.findall(r"[a-zà-ÿ]{4,}", hint)}
+            match = None
+            if words:
+                for chk in pending:
+                    step = (chk.get("step") or "").lower()
+                    if hint in step or (words & set(re.findall(r"[a-zà-ÿ]{4,}", step))):
+                        match = chk
+                        break
+            if match is not None:
+                pending.remove(match)
+                _resolve(match, cr["result"])
+            else:
+                unmatched.append(cr["result"])
+        # A blanket report with no usable hint ("none of that helped") still closes out
+        # every remaining pending check — one outcome for all of them, as before.
+        if unmatched and pending:
+            if len(set(unmatched)) == 1:
+                for chk in list(pending):
+                    _resolve(chk, unmatched[0])
+            else:
+                for chk, res in zip(list(pending), unmatched):
+                    _resolve(chk, res)
 
 
 def _record_checks_given(cs, data) -> None:

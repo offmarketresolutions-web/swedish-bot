@@ -5,8 +5,10 @@ import pytest
 from django.core.management import call_command
 from django.utils import timezone
 
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 from chat.models import Conversation
-from crm.models import Customer, ServiceRequest, Session
+from crm.models import Customer, CustomerFile, ServiceRequest, Session, UnrevokedExternalCopy
 
 pytestmark = pytest.mark.django_db
 
@@ -69,3 +71,42 @@ def test_purge_cascades_service_request_when_conversation_also_old():
     assert not Customer.objects.filter(pk=cust.pk).exists()
     assert not Conversation.objects.filter(pk=conv.pk).exists()
     assert not ServiceRequest.objects.filter(idempotency_key="k3").exists()
+
+
+def test_purge_records_unrevoked_drive_mirror_and_says_so(settings, tmp_path, capsys):
+    """A customer photo mirrored to Google Drive (drive_url set) must not be reported
+    as gone — purge_pii has no way to revoke the external copy, so it must record the
+    URL persistently and say so plainly in its summary."""
+    settings.MEDIA_ROOT = str(tmp_path)
+    cust = _old_customer(name="Eva")
+    cf = CustomerFile.objects.create(
+        customer=cust, file=SimpleUploadedFile("nameplate.jpg", b"bytes"), kind="photo",
+        drive_url="https://drive.google.com/file/d/abc123/view")
+
+    call_command("purge_pii", days=365, yes=True)
+
+    assert not Customer.objects.filter(pk=cust.pk).exists()
+    assert not CustomerFile.objects.filter(pk=cf.pk).exists()
+
+    remaining = UnrevokedExternalCopy.objects.filter(drive_url=cf.drive_url)
+    assert remaining.exists()
+    assert remaining.first().file_kind == "photo"
+
+    out = capsys.readouterr().out
+    assert "external" in out.lower()
+    assert "1" in out
+
+
+def test_purge_dry_run_reports_unrevoked_count_without_recording(settings, tmp_path, capsys):
+    settings.MEDIA_ROOT = str(tmp_path)
+    cust = _old_customer(name="Nils")
+    CustomerFile.objects.create(
+        customer=cust, file=SimpleUploadedFile("receipt.jpg", b"bytes"), kind="photo",
+        drive_url="https://drive.google.com/file/d/xyz/view")
+
+    call_command("purge_pii", days=365)  # no --yes
+
+    assert Customer.objects.filter(pk=cust.pk).exists()
+    assert UnrevokedExternalCopy.objects.count() == 0
+    out = capsys.readouterr().out
+    assert "external" in out.lower()

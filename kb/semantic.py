@@ -162,9 +162,10 @@ def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset
     if not rows:
         return []
 
-    q = (query or "").strip()
-    if not enabled() or not q:
-        # Deterministic keyword-overlap fallback (offline path).
+    def _keyword_fallback():
+        # Deterministic keyword-overlap fallback (offline path) — also used when the
+        # embedding call throws mid-turn (e.g. Vertex 429 RESOURCE_EXHAUSTED bursts),
+        # so a quota blip degrades retrieval quality instead of emptying the corpus.
         qtok = set(_tok(q))
         if not qtok:
             return []
@@ -172,11 +173,15 @@ def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset
                         key=lambda x: x[0], reverse=True)
         return [(fa, float(n)) for n, fa in scored[:top_k] if n > 0]
 
+    q = (query or "").strip()
+    if not enabled() or not q:
+        return _keyword_fallback()
+
     try:
         qv = gemini.embed(q, task_type="RETRIEVAL_QUERY")
     except Exception:  # noqa: BLE001
-        logger.warning("rank_general_knowledge failed", exc_info=True)
-        return []
+        logger.warning("rank_general_knowledge embed failed; keyword fallback", exc_info=True)
+        return _keyword_fallback()
 
     vecs: dict[str, list[float]] = {}
     missing = [(fa, blob) for fa, blob, _lang in rows]
@@ -205,9 +210,10 @@ def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset
                 "sem:genknow" if not scope else f"sem:genknow:{scope}",
                 [(f"f{fa.pk}", blob) for fa, blob in missing]))
         except Exception:  # noqa: BLE001
-            logger.warning("rank_general_knowledge on-the-fly embed failed", exc_info=True)
+            logger.warning("rank_general_knowledge on-the-fly embed failed; keyword fallback",
+                          exc_info=True)
             if not vecs:
-                return []
+                return _keyword_fallback()
 
     fa_by_id = {f"f{fa.pk}": fa for fa, _, _ in rows}
     scored = sorted(((_cos(qv, v), gid) for gid, v in vecs.items()), reverse=True)

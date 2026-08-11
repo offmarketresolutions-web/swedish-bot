@@ -240,6 +240,31 @@ def test_create_lead_idempotent(mock_gemini):
 
 
 @pytest.mark.django_db
+def test_create_lead_name_mismatch_does_not_merge(mock_gemini):
+    """GUARD: matching an existing Customer by phone_hash alone (no name check) let a
+    shared/reassigned/mistyped number attach a stranger's call to someone else's CRM
+    profile — same class of bug fixed in chat/orchestrator.py::_sync_customer (931c7ff).
+    A name mismatch must start a fresh Customer row instead of reusing the existing one."""
+    from crm.models import Customer, ServiceRequest
+
+    ctx = {"call_id": "mismatch-call", "caller_phone": "+46701112233",
+           "phone_hash": "", "control_url": ""}
+    existing = Customer.objects.create(name="Björn Andersson", phone="+46701112233")
+
+    args = {"name": "Anna Karlsson", "problem": "no heat", "brand": "IVT",
+            "model": "Geo 412C", "error_code": "E9", "reason": "phone_escalation"}
+    out = dispatch("create_lead", args, ctx)
+
+    assert out["created"] is True
+    sr = ServiceRequest.objects.get(pk=out["lead_id"])
+    assert sr.session.customer_id != existing.pk
+    assert sr.session.customer.name == "Anna Karlsson"
+    # the original record must be untouched
+    existing.refresh_from_db()
+    assert existing.name == "Björn Andersson"
+
+
+@pytest.mark.django_db
 def test_unknown_tool_contract():
     assert dispatch("nope", {}, {})["error"] == "unknown_tool"
 

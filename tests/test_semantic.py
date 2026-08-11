@@ -69,6 +69,33 @@ def test_rank_guides_returns_scored_list(seeded, settings, mock_gemini):
     assert all(isinstance(t, str) and isinstance(s, float) for t, s in out)
 
 
+def test_rank_general_knowledge_falls_back_on_embed_error(seeded, settings, monkeypatch):
+    """GUARD: Vertex quota returns 429 RESOURCE_EXHAUSTED in bursts (observed live). When
+    semantic search is enabled but the embedding call throws mid-turn, retrieval must not
+    silently go empty — it must fall back to the SAME deterministic keyword ranking used
+    when semantic search is disabled, not degrade to an empty corpus."""
+    from core.services import gemini as gemini_mod
+
+    settings.SEMANTIC_SEARCH_ENABLED = True
+    fa = FAQEntry.objects.filter(is_approved=True).first()
+    assert fa is not None
+    txt = fa.text("en")
+    query_word = (txt.question if txt else "").split()[0]
+
+    def _boom(*a, **kw):
+        raise RuntimeError("429 RESOURCE_EXHAUSTED")
+
+    monkeypatch.setattr(gemini_mod, "embed", _boom)
+
+    settings.SEMANTIC_SEARCH_ENABLED = False
+    expected = semantic.rank_general_knowledge(query_word, top_k=3)
+    settings.SEMANTIC_SEARCH_ENABLED = True
+    out = semantic.rank_general_knowledge(query_word, top_k=3)
+
+    assert out == expected
+    assert out != []
+
+
 def test_collect_knowledge_appends_semantic_guides(seeded, settings, mock_gemini):
     settings.SEMANTIC_SEARCH_ENABLED = True
     from chat.context import collect_knowledge

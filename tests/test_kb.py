@@ -85,6 +85,32 @@ def test_chip_label_fallback():
     assert chip2.label("en") == "IVT"  # no text row → value
 
 
+def test_swedish_only_guide_is_visible_to_english_conversation():
+    """A GenericGuide written only in sv must still reach an en-locale specialist
+    (business writes Swedish content; English customers must not silently lose it)."""
+    from chat.context import collect_knowledge
+
+    machine = _machine("IVT", "heat_pump", "IVT 606")
+    m.GenericGuide.objects.create(
+        category=machine.category, key="sv-only", kind="guide", lang="sv",
+        body="Endast på svenska instruktion")
+    _notes, faq_text = collect_knowledge(machine, "en")
+    assert "Endast på svenska instruktion" in faq_text
+
+
+def test_requested_locale_wins_over_fallback_when_both_exist():
+    from chat.context import collect_knowledge
+
+    machine = _machine("IVT", "heat_pump", "IVT 607")
+    m.GenericGuide.objects.create(
+        category=machine.category, key="bilingual", kind="guide", lang="en", body="English body")
+    m.GenericGuide.objects.create(
+        category=machine.category, key="bilingual", kind="guide", lang="sv", body="Svensk text")
+    _notes, faq_text = collect_knowledge(machine, "sv")
+    assert "Svensk text" in faq_text
+    assert "English body" not in faq_text
+
+
 def test_seed_kb_is_idempotent_and_seeds_prompts():
     call_command("seed_kb")
     call_command("seed_kb")  # second run must not duplicate
