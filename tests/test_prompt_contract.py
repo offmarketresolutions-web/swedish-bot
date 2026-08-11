@@ -75,3 +75,43 @@ def test_addendum_survives_placeholder_formatting(seeded):
     assert "no water" in out
     assert '"question"' in out          # brace-escaped example survived format_map
     assert "{{" not in out
+
+
+# ── Tier-B meta-guard (docs/TEST_STRATEGY.md) ─────────────────────────────────
+# The 2026-08-11 bug class: the backend reads data.get(key) from an agent's JSON while
+# the prompt for that role never declares the key, so the feature is permanently inert
+# and every test still passes. Enumerate the contract per role here; any future key read
+# by the orchestrator must be added to this map AND reach the rendered prompt.
+CONTRACT_KEYS_BY_ROLE = {
+    "specialist": ("answer_to_customer", "confidence", "decision", "in_docs",
+                   "no_action_needed"),
+    "intelligent_specialist": ("answer_to_customer", "confidence", "decision", "in_docs",
+                               "no_action_needed", "consult_web"),
+    "heat_pump_specialist": ("answer_to_customer", "confidence", "decision", "in_docs",
+                             "no_action_needed", "consult_web"),
+    "water_pump_specialist": ("answer_to_customer", "confidence", "decision", "in_docs",
+                              "no_action_needed", "consult_web"),
+    "water_filtration_specialist": ("answer_to_customer", "confidence", "decision", "in_docs",
+                                    "no_action_needed", "consult_web"),
+}
+
+
+@pytest.mark.parametrize("role", sorted(CONTRACT_KEYS_BY_ROLE))
+def test_every_contract_key_the_backend_reads_is_declared_to_the_role(role, seeded):
+    rendered = prompts.render(role)
+    for key in CONTRACT_KEYS_BY_ROLE[role]:
+        assert key in rendered, (
+            f"{role} is never told to emit {key!r}, but the backend reads it — "
+            "the feature behind it is silently inert")
+
+
+@pytest.mark.parametrize("role", sorted(CONTRACT_KEYS_BY_ROLE))
+def test_contract_survives_a_prompt_the_owner_rewrote(role, seeded):
+    """Production shape: seed_kb never overwrites an owner-edited body, so the guard above
+    must hold even when the stored prompt predates the key entirely."""
+    AgentPrompt.objects.filter(role=role).update(
+        body="Owner's own rewritten prompt. Answer the customer and return JSON.")
+    rendered = prompts.render(role)
+    for key in CONTRACT_KEYS_BY_ROLE[role]:
+        if key in ("no_action_needed", "consult_web"):   # the code-owned addendum's job
+            assert key in rendered, f"{role} lost {key!r} to an owner rewrite"
