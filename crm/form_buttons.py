@@ -47,7 +47,7 @@ def form_chip_for(cs: dict) -> dict | None:
     """Build the widget chip for the active FormButton, or None. Shape:
     {"value": "open_form", "label": <button label>, "url": <button url>}."""
     btn = form_button_for(cs)
-    if btn is None:
+    if btn is None or not btn.url:
         return None
     # TODO(merge): token added at merge via chat.prefill.build_form_url(btn.url, session)
     # (S6 sibling scope — absent in this worktree; emit the plain URL for now).

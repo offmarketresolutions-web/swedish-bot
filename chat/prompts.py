@@ -8,6 +8,19 @@ from __future__ import annotations
 from core.constants import MODELS
 from kb.models import AgentPrompt
 
+# Safety backstop: if the AgentPrompt row for a role is missing or was deactivated
+# (both admin-reachable states), `render()` must never hand the model a blank/near-
+# blank system instruction -- that means an LLM call with no persona and no rules.
+# This is deliberately generic and conservative (no domain claims, no promises),
+# used only until the owner restores/creates a real row.
+_FALLBACK_BODY = (
+    "You are Nordland VVS's customer service assistant, currently running with no "
+    "configured agent prompt for this role. Do NOT diagnose, troubleshoot, or give "
+    "technical/safety advice. Do NOT invent facts. Briefly apologise, say a human "
+    "technician needs to help with this, and ask the customer to leave contact "
+    "details so staff can follow up."
+)
+
 # Seed fallbacks if the DB row is missing (e.g. before seed_kb).
 _FALLBACK_MODEL = {
     "intake": MODELS["flash_lite"], "router": MODELS["flash_lite"],
@@ -104,7 +117,7 @@ def render(role: str, *, locale: str = "en", **vars) -> str:
     with {placeholders} filled, then any staff-set guardrails. Missing placeholders are
     left blank, never crash."""
     agent = get_agent(role)
-    body = agent.body if agent else ""
+    body = (agent.body if agent else "") or _FALLBACK_BODY
     directive = agent.language_directive if agent else ""
     template = body + contract_addendum(role, body) + (directive or "")
     safe = _SafeDict(locale=locale, **{k: ("" if v is None else v) for k, v in vars.items()})

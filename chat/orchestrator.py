@@ -717,16 +717,25 @@ def _contents(*items):
 
 
 def _call_router(conversation, cs, machine, locale) -> dict:
-    from kb.models import Machine
+    from kb.models import Category, Machine, ProblemCategory
 
     catalog = ", ".join(str(m) for m in Machine.objects.filter(is_supported=True)[:50])
+    # The router prompt branches on {problem_categories}: given the enum it picks a seeded
+    # slug, given "" it invents one — and _apply_router's exact-slug lookup then discards
+    # almost everything invented, leaving Session.problem_category unset (dead analytics
+    # "by_problem" breakdown, dead RoutingRule.match_problem_category). Fill it from the
+    # seeded rows so the lookup is deterministic; done here rather than in the prompt body
+    # so it survives an owner-edited prompt.
+    _cat = Category.objects.filter(slug=cs["slots"].get("category")).first()
+    _pc_slugs = (", ".join(ProblemCategory.objects.filter(category=_cat)
+                           .values_list("slug", flat=True)) if _cat else "")
     system = prompts.render(
         "router", locale=locale,
         equipment=sanitize.wrap_untrusted(json.dumps(cs["slots"]), "facts"),
         problem=sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem"),
         ocr_text=sanitize.wrap_untrusted(cs["slots"].get("ocr_text") or "", "ocr"),
         match=str(machine) if machine else "none", catalog_summary=catalog,
-        problem_categories="", category=cs["slots"].get("category", ""),
+        problem_categories=_pc_slugs, category=cs["slots"].get("category", ""),
     )
     hist, imgs = _history_parts(conversation)
     try:
@@ -1223,8 +1232,17 @@ def _sync_customer(session, cs):
     if c is None:
         # P-F: a returning caller must land on their existing profile (matched by
         # peppered phone hash), not a duplicate row — the File Hub keys folders by pk.
+        # GUARD (audit 2026-08-11): matching on the phone hash ALONE let a shared,
+        # reassigned or mistyped number merge a DIFFERENT real person onto an existing
+        # customer — the writes below then overwrote that customer's name/email/address
+        # with the current caller's. Require the same lenient name agreement already used
+        # for the "welcome back" copy; when it fails, start a fresh row instead of
+        # corrupting someone else's record.
         h = phone_hash(ct.get("phone") or "")
-        c = (Customer.objects.filter(phone_hash=h).first() if h else None) or Customer()
+        existing = Customer.objects.filter(phone_hash=h).first() if h else None
+        if existing and not _name_matches(ct.get("name"), existing.name):
+            existing = None
+        c = existing or Customer()
     c.name = ct.get("name") or c.name
     c.phone = ct.get("phone") or c.phone
     c.email = ct.get("email") or c.email

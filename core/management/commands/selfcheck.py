@@ -50,10 +50,16 @@ class Command(BaseCommand):
         prompts = {p.role: p for p in AgentPrompt.objects.filter(role__in=roles)}
         missing = [r for r in roles if r not in prompts]
         blank = [r for r, p in prompts.items() if not p.body.strip()]
-        check("AgentPrompt rows (all roles, non-empty body)",
-              not missing and not blank,
+        # An inactive row means chat.prompts.get_agent(role) returns None for a role
+        # that "looks" configured here -- render() then falls back to the generic
+        # safety-backstop body, silently losing the role's real persona/rules. That
+        # must FAIL the deploy check, not slip through as if the row were fine.
+        inactive = [r for r, p in prompts.items() if not p.is_active]
+        check("AgentPrompt rows (all roles, non-empty body, active)",
+              not missing and not blank and not inactive,
               (f"missing: {', '.join(missing)}. " if missing else "")
-              + (f"blank body: {', '.join(blank)}." if blank else "")
+              + (f"blank body: {', '.join(blank)}. " if blank else "")
+              + (f"inactive: {', '.join(inactive)}." if inactive else "")
               or f"{len(prompts)}/{len(roles)} roles present")
 
         # 3. At least one active Vendor/Machine.
@@ -79,10 +85,19 @@ class Command(BaseCommand):
 
         # 6. FormButton rows present/active — WARN, owner go-live item.
         from crm.models import FormButton
-        n_buttons = FormButton.objects.filter(is_active=True).count()
+        active = FormButton.objects.filter(is_active=True)
+        n_buttons = active.count()
         n_expected = len(FormButton.CATEGORY)
-        check("FormButton rows present/active", n_buttons >= n_expected,
-              f"{n_buttons}/{n_expected} active (owner fills real URLs in dashboard)",
+        # A row with a blank url is NOT usable: form_chip_for() returns None rather than
+        # serve a customer a dead link, so the button silently never renders. Counting
+        # rows alone reported PASS while the feature was entirely off — report the
+        # url-filled count instead, so "green" means the chip can actually appear.
+        n_urls = sum(1 for b in active if (b.url or "").strip())
+        check("FormButton rows present/active (url filled)",
+              n_buttons >= n_expected and n_urls >= n_expected,
+              f"{n_buttons}/{n_expected} active, {n_urls}/{n_expected} with a url"
+              + ("" if n_urls >= n_expected
+                 else " — blank-url buttons never render a chip; owner fills these in the dashboard"),
               warn_only=True)
 
         # 7. PostcodeArea count.

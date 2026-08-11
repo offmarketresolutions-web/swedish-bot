@@ -21,6 +21,14 @@ EXTRA_SLOTS = ["subtype", "alarm_text", "onset", "operating_context", "installer
 CONTACT_SLOTS = ["name", "phone", "email", "postal_code", "address"]
 
 
+def _fit(value, limit: int) -> str:
+    """Clamp an agent-supplied value to its Session column width. The prompts declare
+    enums (onset, installer, severity) and short codes, but a model that answers in
+    prose reaches these columns via extracted_facts / the router with no enum check —
+    an unclamped write is a DataError that kills the whole turn."""
+    return str(value or "").strip()[:limit]
+
+
 def new_case_state() -> dict:
     return {
         "state": STATE_INTAKE,
@@ -95,29 +103,29 @@ def flush_to_session(conversation, cs: dict, *, machine=None, problem_category=N
     # (Session.model still keeps the raw customer text below).
     if machine is not None and cs.get("model_confirmed"):
         session.machine = machine
-    session.manufacturer = s.get("brand") or session.manufacturer
-    session.model = s.get("model") or session.model
-    session.serial = s.get("serial") or session.serial
-    session.error_code = s.get("error_code") or session.error_code
+    session.manufacturer = _fit(s.get("brand"), 120) or session.manufacturer
+    session.model = _fit(s.get("model"), 160) or session.model
+    session.serial = _fit(s.get("serial"), 120) or session.serial
+    session.error_code = _fit(s.get("error_code"), 64) or session.error_code
     if problem_category is not None:
         session.problem_category = problem_category
         session.category = problem_category.category
     if cs.get("severity"):
-        session.severity = cs["severity"]
+        session.severity = _fit(cs["severity"], 16)
     if cs.get("confidence"):
         session.confidence_score = cs["confidence"]
     if cs.get("decision"):
-        session.decision = cs["decision"]
+        session.decision = _fit(cs["decision"], 16)
     session.state = cs.get("state", "")
     # New typed columns (plan S2 migration). postal_code/onset/installer come from the
     # early-mined slots; escalation_reason closes a known reporting gap; service-area +
     # form fields are populated by later sprints but the flush plumbing lands now.
     if s.get("postal_code") and s.get("postal_code") != "unknown":
-        session.postal_code = s["postal_code"]
+        session.postal_code = _fit(s["postal_code"], 16)
     if s.get("onset"):
-        session.onset = s["onset"]
+        session.onset = _fit(s["onset"], 16)
     if s.get("installer"):
-        session.installer = s["installer"]
+        session.installer = _fit(s["installer"], 32)
     if cs.get("escalation_reason"):
         session.escalation_reason = cs["escalation_reason"][:64]
     if cs.get("service_area") and cs["service_area"] != "unknown":

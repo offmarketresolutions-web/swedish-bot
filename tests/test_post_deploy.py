@@ -83,6 +83,23 @@ def test_selfcheck_warns_not_fails_on_unconfigured_formbutton_and_geosettings():
     assert "WARN" in output
 
 
+def test_selfcheck_fails_when_agentprompt_role_inactive():
+    """A role with a non-blank body but is_active=False passes prompts.get_agent's
+    filter into oblivion (returns None), so chat.prompts.render() falls back to an
+    unguided system instruction. selfcheck must FAIL this, not silently PASS it."""
+    _seed_full()
+
+    from kb.models import AgentPrompt
+    prompt = AgentPrompt.objects.filter(role="specialist").first()
+    prompt.is_active = False
+    prompt.save()
+
+    code, output = _run_selfcheck()
+
+    assert code == 1
+    assert "FAIL" in output
+
+
 def test_post_deploy_idempotent_no_dupes():
     call_command("post_deploy", skip_selfcheck=True)
 
@@ -106,3 +123,40 @@ def test_post_deploy_idempotent_no_dupes():
     }
 
     assert counts_1 == counts_2
+
+
+def _make_form_buttons(*, url: str):
+    """Create the 4 category rows the dashboard auto-creates on first settings load.
+    seed_kb does NOT create them, so a test that merely .update()s would silently
+    touch zero rows and assert against an empty table instead of the real state."""
+    from crm.models import FormButton
+    for slug, label in FormButton.CATEGORY:
+        FormButton.objects.update_or_create(
+            category_slug=slug, defaults={"label": label, "url": url, "is_active": True})
+    assert FormButton.objects.filter(is_active=True).count() == len(FormButton.CATEGORY)
+
+
+def test_selfcheck_reports_blank_form_button_urls_as_not_ready():
+    """A FormButton row with a blank url never renders a chip (form_chip_for returns
+    None rather than serve a dead link), so counting ACTIVE ROWS alone reported a
+    green 4/4 while the feature was entirely off. The line must report the url-filled
+    count, so 'ready' means a customer can actually get the form."""
+    _seed_full()
+    _make_form_buttons(url="")
+
+    code, output = _run_selfcheck()
+
+    line = next(ln for ln in output.splitlines() if "FormButton" in ln)
+    assert "WARN" in line, line
+    assert "0/4 with a url" in line, line
+    assert code == 0, "a blank url is an owner go-live item, never a hard deploy failure"
+
+
+def test_selfcheck_form_buttons_ready_when_urls_filled():
+    _seed_full()
+    _make_form_buttons(url="https://nordlandvvs.se/service")
+
+    _, output = _run_selfcheck()
+
+    line = next(ln for ln in output.splitlines() if "FormButton" in ln)
+    assert "PASS" in line, line

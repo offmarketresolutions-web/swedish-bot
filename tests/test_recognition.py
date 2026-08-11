@@ -75,3 +75,32 @@ def test_purge_pii_dry_run_then_delete():
     call_command("purge_pii", "--days", "365", "--yes")
     assert not Customer.objects.filter(pk=c.pk).exists()
     assert not Conversation.objects.filter(pk=conv.pk).exists()
+
+
+def test_different_caller_on_a_shared_phone_never_overwrites_the_customer_on_file(
+        seeded, mock_gemini):
+    """Regression (audit 2026-08-11): _sync_customer matched an existing Customer by
+    phone_hash ALONE — no name check, unlike the greeting-copy gate a few lines below —
+    then overwrote that customer's name/email/address with whatever the current caller
+    typed. A shared, reassigned or mistyped number silently corrupted a real person's CRM
+    record. The merge is now gated by the same lenient _name_matches() check."""
+    anna = Customer.objects.create(name="Anna Andersson", phone="070-1234567",
+                                    email="anna@example.com", address="Annavagen 1",
+                                    postal_code="85234", consent_to_contact=True)
+    conv, _ = orch.open_conversation()
+    _to_escalation(conv, mock_gemini)
+    orch.process_turn(conv, "Bob Bobsson")     # different name, different real person
+    orch.process_turn(conv, "070-1234567")     # SAME phone (reassigned/typo/shared)
+    orch.process_turn(conv, "bob@example.com")
+    orch.process_turn(conv, "12345")
+    orch.process_turn(conv, "skip")
+    orch.process_turn(conv, "yes_send")
+
+    anna.refresh_from_db()
+    assert anna.name == "Anna Andersson", f"Anna's record was overwritten with: {anna.name}"
+    assert anna.email == "anna@example.com", f"Anna's email overwritten with: {anna.email}"
+    assert anna.address == "Annavagen 1", f"Anna's address overwritten with: {anna.address}"
+    # ...and Bob still gets his own record, so guarding the merge never costs a lead.
+    bob = Customer.objects.exclude(pk=anna.pk).filter(name="Bob Bobsson").first()
+    assert bob is not None, "the new caller must land on a fresh Customer row"
+    assert bob.email == "bob@example.com"
