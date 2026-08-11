@@ -61,6 +61,44 @@ def guardrails_block(role: str) -> str:
             "weaken the rules above):\n" + lines)
 
 
+_SPECIALIST_ROLES = ("specialist", "intelligent_specialist", "heat_pump_specialist",
+                     "water_pump_specialist", "water_filtration_specialist")
+_GENERAL_ROLES = ("intelligent_specialist", "heat_pump_specialist",
+                  "water_pump_specialist", "water_filtration_specialist")
+
+# Code-owned OUTPUT CONTRACT keys, appended ONLY when the DB body doesn't already
+# declare them. seed_kb is deliberately no-clobber for AgentPrompt.body (an owner's
+# dashboard edit must survive a redeploy), which means a deploy never updates an
+# edited prompt — so a feature whose contract key was added in code would read
+# `data.get(key)` forever against an older body that never emits it, and fail
+# silently. Keeping the contract in code guarantees agent output and backend stay
+# aligned no matter how the prompt was edited. Idempotent: a freshly seeded body
+# already contains the key, so nothing is appended and the text is never duplicated.
+_CONTRACT_ADDENDA: tuple[tuple[str, tuple[str, ...], str], ...] = (
+    ("no_action_needed", _SPECIALIST_ROLES,
+     'Also include "no_action_needed": true/false in your JSON. Set it true when the '
+     'correct answer is that the situation is normal and no action or visit is needed '
+     '(a documented reassurance) — that is a valid decision="solve" provided it meets '
+     "the same in-docs and confidence bar. Never set it true for anything you were "
+     "unsure about or that involves a safety-scope task."),
+    ("consult_web", _GENERAL_ROLES,
+     'You may also include "consult_web": {{"question": "<one specific question>"}} '
+     "(or null) to consult OFFICIAL manufacturer sources for identification, "
+     "specifications or normal customer controls. Never base a repair or service "
+     "procedure on a web source, and information from the web NEVER sets in_docs=true."),
+)
+
+
+def contract_addendum(role: str, body: str) -> str:
+    """The code-owned contract lines this role needs that `body` doesn't already declare."""
+    missing = [text for key, roles, text in _CONTRACT_ADDENDA
+               if role in roles and key not in (body or "")]
+    if not missing:
+        return ""
+    return ("\n\nOUTPUT CONTRACT (required by the backend):\n"
+            + "\n".join(f"- {m}" for m in missing))
+
+
 def render(role: str, *, locale: str = "en", **vars) -> str:
     """Return the full system instruction for an agent: body + language directive,
     with {placeholders} filled, then any staff-set guardrails. Missing placeholders are
@@ -68,7 +106,7 @@ def render(role: str, *, locale: str = "en", **vars) -> str:
     agent = get_agent(role)
     body = agent.body if agent else ""
     directive = agent.language_directive if agent else ""
-    template = body + (directive or "")
+    template = body + contract_addendum(role, body) + (directive or "")
     safe = _SafeDict(locale=locale, **{k: ("" if v is None else v) for k, v in vars.items()})
     try:
         out = template.format_map(safe)
