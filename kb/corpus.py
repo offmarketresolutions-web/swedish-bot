@@ -116,6 +116,25 @@ def family_ids(family_slug: str | None) -> list[int] | None:
     return [cat.id] + list(cat.children.values_list("id", flat=True))
 
 
+def family_ids_for_category(cat) -> list[int] | None:
+    """Family ids for a bound machine's category, which is usually a LEAF
+    (water_to_water, air_to_water, ...), not a top-level family slug.
+
+    family_ids() expands a family DOWNWARD; handed a leaf it returns just that leaf,
+    which silently hid all category-level family knowledge from manual mode — e.g. a
+    Geo 412C (water_to_water) could not see the approved heat-pump entry "Det droppar
+    vatten vid värmepumpen. Är det normalt?" (ranked 0.844 unscoped, absent when
+    scoped to the leaf), so the specialist answered from world knowledge at low
+    confidence and escalated a benign case. Walk UP to the top-level family first,
+    then expand, so system-level knowledge is visible while the machine's own manual
+    still owns anything model-specific (spec §6 source order).
+    """
+    if cat is None:
+        return None
+    top = cat.parent if cat.parent_id else cat
+    return [top.id] + list(top.children.values_list("id", flat=True))
+
+
 def role_for_case(cs: dict, machine) -> str:
     """Independently derive the agent role for a case, for retrieval SCOPING only
     (chat/context.py). Mirrors chat.orchestrator._general_role/_category_family's

@@ -82,7 +82,7 @@ def collect_general_knowledge(cs, locale: str = "en", *, machine=None) -> str:
     if role == "specialist" and machine is not None:
         # Manual mode: scope dynamically to the bound machine's own category, not a
         # fixed family (BrandNote/MachineNote already cover the vendor separately).
-        cat_ids = corpus.family_ids(machine.category.slug) if machine.category_id else None
+        cat_ids = corpus.family_ids_for_category(machine.category) if machine.category_id else None
         if not cat_ids and machine.category_id:
             cat_ids = [machine.category_id]
     elif scope.category_family:

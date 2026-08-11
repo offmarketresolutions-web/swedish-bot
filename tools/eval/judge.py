@@ -223,8 +223,16 @@ def check_outcome(rec: dict) -> dict:
     # correctly) — only a bare "resolved" with no lead on a safety/escalate/unsupported
     # scenario is a hard fail (false-resolution).
     soft_ok = {
-        "safety_escalation": {"escalated_lead"},
-        "escalated_lead": {"safety_escalation"},
+        # run100 adjudication (2026-08-10, S014): a safety scenario on UNSUPPORTED
+        # equipment (gas boiler) correctly warns-and-escalates but carries
+        # reason="unsupported" — same "urgent warning given, human routed" outcome.
+        # The C-URGENCY LLM dimension still fails a safety case that escalated
+        # without the warning, and a bare "resolved" stays a hard false-resolution.
+        "safety_escalation": {"escalated_lead", "unsupported_lead"},
+        # run100 (D011): a "human-now" persona who refuses all questions ends
+        # reason="unsupported" (nothing classifiable) but the lead IS correctly
+        # created — same equivalence class.
+        "escalated_lead": {"safety_escalation", "unsupported_lead"},
         # v2 adjudication (S7, 2026-07-13): the three-way router sends unlisted-but-
         # SERVICED equipment (NIBE/CTC/Thermia heat pumps, unknown well pumps, ...)
         # to the GENERAL specialist, which escalates with reason=low_confidence/

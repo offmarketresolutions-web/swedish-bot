@@ -207,6 +207,35 @@ def test_collect_general_knowledge_manual_mode_scopes_to_machine_category(seeded
     assert "WATER_MARKER" not in text
 
 
+def test_collect_general_knowledge_manual_mode_sees_family_level_knowledge(
+        seeded, settings, mock_gemini):
+    """Regression (run100 R018): manual mode scoped to the machine's LEAF category
+    (water_to_water), so approved FAMILY-level heat-pump knowledge was invisible and
+    the specialist answered a benign 'is this normal?' from world knowledge at low
+    confidence, then escalated. Family-level entries must be in scope; other families
+    must still be excluded."""
+    settings.SEMANTIC_SEARCH_ENABLED = True
+    from chat.context import collect_general_knowledge
+    m = Machine.objects.get(model_name="IVT 490")           # leaf category, heat_pump family
+    assert m.category.parent_id, "fixture must be a leaf category for this regression"
+    cat_family = m.category.parent                          # heat_pump (top level)
+    cat_water = Category.objects.get(slug="water_filtration")
+    FAQEntry.objects.all().delete()
+    fa_family = FAQEntry.objects.create(category=cat_family, key="familymarker", is_approved=True)
+    FAQEntryText.objects.create(faq=fa_family, lang="en", question="Is dripping normal?",
+                                answer="FAMILY_MARKER condensation is normal")
+    fa_water = FAQEntry.objects.create(category=cat_water, key="otherfamilymarker",
+                                       is_approved=True)
+    FAQEntryText.objects.create(faq=fa_water, lang="en", question="Is dripping normal?",
+                                answer="WATER_MARKER condensation is normal")
+    call_command("build_embeddings")
+
+    cs = {"slots": {"problem": "FAMILY_MARKER condensation is normal"}}
+    text = collect_general_knowledge(cs, "en", machine=m)
+    assert "FAMILY_MARKER" in text      # family-level knowledge now reaches manual mode
+    assert "WATER_MARKER" not in text   # a different family stays out of scope
+
+
 # ── live smoke ────────────────────────────────────────────────────────────
 @pytest.mark.live
 def test_live_embed_and_query_one_row(seeded):
