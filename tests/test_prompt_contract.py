@@ -8,6 +8,8 @@ silently inert in production while every test passes locally against a fresh see
 """
 from __future__ import annotations
 
+import re
+
 import pytest
 from django.core.management import call_command
 
@@ -115,3 +117,28 @@ def test_contract_survives_a_prompt_the_owner_rewrote(role, seeded):
     for key in CONTRACT_KEYS_BY_ROLE[role]:
         if key in ("no_action_needed", "consult_web"):   # the code-owned addendum's job
             assert key in rendered, f"{role} lost {key!r} to an owner rewrite"
+
+
+# ── Gas-safety regression (run100 S009) ────────────────────────────────────────
+# Every safety-relevant role sanctioned "switch it off at the main switch" as a
+# universally-safe emergency action, with no exception for gas/fuel danger — where
+# operating any switch (even OFF) risks an ignition spark. A live conversation
+# (persona danger_kind=gas) got exactly that instruction. Pin the gas exception in
+# every role that carries the switch-off guidance, plus the SAFETY classifier that
+# is supposed to catch it if a role's own instructions fail.
+_SWITCH_OFF_ROLES = ("intake", "specialist", "intelligent_intake", "intelligent_specialist",
+                    "heat_pump_specialist", "water_pump_specialist",
+                    "water_filtration_specialist", "safety")
+
+
+@pytest.mark.parametrize("role", _SWITCH_OFF_ROLES)
+def test_switch_off_guidance_carries_a_gas_exception(role, seeded):
+    rendered = prompts.render(role)
+    collapsed = re.sub(r"\s+", " ", rendered)  # source wraps "main\nswitch" across lines
+    assert "main switch" in collapsed, f"{role} lost the switch-off guidance entirely"
+    low = collapsed.lower()
+    assert "gas" in low and ("except" in low or "unsafe regardless" in low
+                             or "other danger" in low), (
+        f"{role} sanctions switching off at the main switch with no visible gas exception — "
+        "this produced a live safety defect (run100 S009): a gas-smell scenario got told "
+        "to walk to the breaker and flip it, the one thing gas-safety protocol forbids.")

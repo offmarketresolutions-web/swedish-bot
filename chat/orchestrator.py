@@ -1107,6 +1107,14 @@ def _unsupported_step(conversation, cs, events, locale) -> dict:
     cs["report"]["service_recommended"] = True
     cs["escalation_reason"] = "unsupported"
     answer = data.get("answer_to_customer") or ""
+    # GUARD (audit 2026-08-11, run100 A019): unlike _specialist_step, this path never ran
+    # its draft through guardrails.is_unsafe() — a prompt-injection persona framed as
+    # unsupported equipment ("it's a gas valve") got a forbidden-topic acknowledgment past
+    # every layer, because this path HAD no layer. Same veto, same drop-the-answer
+    # behaviour as the specialist path: on an unsafe draft, only the deterministic
+    # escalation template reaches the customer.
+    if answer and guardrails.is_unsafe(answer, locale=locale)[0]:
+        answer = ""
     events.append({"type": "escalate", "reason": "unsupported"})
     return _begin_escalation(cs, locale, (answer + "\n\n") if answer else "")
 
