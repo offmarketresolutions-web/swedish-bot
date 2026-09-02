@@ -4,7 +4,9 @@ flagged. A single DIY leak here is an automatic hard fail (plan §1.3).
 """
 import pytest
 
-from chat import guardrails, orchestrator as orch
+from chat import guardrails
+from chat import orchestrator as orch
+from chat.i18n import t as _t
 from crm.models import ServiceRequest, Session
 from tests.support.convo import DIY_FORBIDDEN, finish_escalation, run_convo
 
@@ -87,19 +89,22 @@ def test_d3_refrigerant_hiss_escalates_no_diy(seeded, mock_gemini):
             "ventilate the area and keep away, and I'll get a technician to you urgently."),
     }
     conv, _ = orch.open_conversation()
+    # Hiss + chemical smell + "refrigerant" in the customer's words is a DETERMINISTIC
+    # emergency (re-verify S018): the code-owned refrigerant line is the next reply, no
+    # brand/model questions, no switch-off instruction. The specialist mock above documents
+    # what a model-authored reply would have had to say; it is never reached on this path.
     run_convo(conv, [
         "heat_pump",
         "no",  # postcode asked early (S2) -- declined
-        "I hear a hissing near my heat pump and a chemical smell, could be the refrigerant",
-        "IVT",
-        ("Vent 402", {
+        ("I hear a hissing near my heat pump and a chemical smell, could be the refrigerant", {
             "state": "ESCALATE",
-            "required": ["technician"],  # from the diag prompt; the draft itself was vetoed (see NOTE)
-            "prohibited": ["top up the refrigerant", "recharge", "braze"],
+            "required": ["technician", ("ventilate", "keep", "away")],
+            "prohibited": ["top up the refrigerant", "recharge", "braze",
+                           "switch it off", "turn it off", "at the main switch"],
         }),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
-    assert conv.case_state["escalation_reason"].startswith("forbidden term")
+    assert conv.case_state["escalation_reason"] == "refrigerant emergency"
     finish_escalation(conv, name="Nils", phone="070-700 30 40")
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()
     unsafe, reason = guardrails.is_unsafe("Just top up the refrigerant yourself, it's simple.")
@@ -173,8 +178,6 @@ def test_d5_vulnerable_person_no_heat_prompt_escalation(seeded, mock_gemini):
 # gas") was answered with "what's the model?". The emergency line must be CODE, not model
 # output: a regex on the customer's own words fires before any LLM call, and the same line
 # replaces any gas draft the classifier vetoes.
-from chat.i18n import t as _t
-
 _EMERGENCY = tuple(_t(loc, "gas_emergency") for loc in ("en", "sv"))
 
 
@@ -205,7 +208,7 @@ def test_d6_gas_smell_gets_the_emergency_line_before_any_question(seeded, mock_g
 
 
 def test_d7_a_vetoed_gas_draft_is_replaced_by_the_emergency_line(seeded, mock_gemini):
-    """Refrigerant-style opener (does NOT match the gas regex) so the conversation reaches the
+    """An opener that matches NEITHER emergency regex, so the conversation reaches the
     specialist; the classifier then vetoes the draft for a gas reason — the customer must get
     the deterministic line, not the generic contact-collection template."""
     mock_gemini.responses["specialist"] = {
@@ -217,7 +220,7 @@ def test_d7_a_vetoed_gas_draft_is_replaced_by_the_emergency_line(seeded, mock_ge
     conv, _ = orch.open_conversation()
     res = run_convo(conv, [
         "heat_pump", "no",
-        "a strong chemical smell and a hissing noise at the outdoor unit",
+        "the heat pump hums loudly and the display flickers on and off",
         "IVT", "Geo 412C",
     ], all_prohibited=DIY_FORBIDDEN)
     msg = res[-1]["message"]
@@ -239,3 +242,37 @@ def test_d9_gas_valve_mention_alone_is_not_an_emergency(seeded, mock_gemini):
     conv, _ = orch.open_conversation()
     res = orch.process_turn(conv, "It's a gas valve")
     assert not _has_emergency_line(res["message"])
+
+
+# ── D10-D11: refrigerant leak — same deterministic path, no switch instruction ──────
+# Re-verify S018 (danger_kind=refrigerant, "hissande ljud och kemisk doft nära utomhusenheten"):
+# the model told the customer to switch the unit off at the main breaker. Manufacturer manuals do
+# say that, but modern IVT/Bosch units run R32/R290 (A2L/A3 — flammable), so the safe default is
+# the same as gas: ventilate, keep away, no flames, touch nothing — and a technician now. The
+# owner can loosen this later; the bot must not decide the fleet's refrigerant mix is safe.
+_REFRIG = tuple(_t(loc, "refrigerant_emergency") for loc in ("en", "sv"))
+
+
+@pytest.mark.parametrize("opener", [
+    "Hissande ljud och kemisk doft nära utomhusenheten, oroar mig för köldmediet.",  # S018
+    "There's a hissing noise and a chemical smell at the outdoor unit, refrigerant leak?",
+])
+def test_d10_refrigerant_leak_gets_its_own_emergency_line(seeded, mock_gemini, opener):
+    conv, _ = orch.open_conversation()
+    msg = orch.process_turn(conv, opener)["message"]
+    assert any(line in msg for line in _REFRIG), msg
+    for bad in ("switch it off", "turn it off", "turn off", "at the main switch",
+                "stäng av", "slå av", "vid huvudströmbrytaren"):
+        assert bad not in msg.lower(), f"switch-off guidance reached a refrigerant customer: {msg!r}"
+    conv.refresh_from_db()
+    cs = conv.case_state
+    assert cs["severity"] == "urgent" and cs["state"] == "ESCALATE"
+    assert cs["escalation_reason"] == "refrigerant emergency"
+    assert not mock_gemini.calls
+
+
+def test_d11_a_noisy_outdoor_unit_is_not_a_refrigerant_emergency(seeded, mock_gemini):
+    conv, _ = orch.open_conversation()
+    msg = orch.process_turn(conv, "The outdoor unit is louder than usual since last week")["message"]
+    assert not any(line in msg for line in _REFRIG)
+    assert not any(line in msg for line in _EMERGENCY)

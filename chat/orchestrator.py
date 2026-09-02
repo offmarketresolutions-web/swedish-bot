@@ -46,18 +46,34 @@ _GAS_EMERGENCY_RE = re.compile(
     r"|gaslukt|gasläck",
     re.I | re.S,
 )
+# Refrigerant leak (re-verify S018): hiss/smell/leak wording + refrigerant, or a chemical
+# smell at the outdoor unit. Manufacturer manuals say "switch the unit off" — but modern
+# IVT/Bosch units run R32/R290 (A2L/A3, flammable), so the safe default is the gas shape:
+# ventilate, keep away, no flames, touch nothing, technician now. No switch instruction.
+_REFRIGERANT_EMERGENCY_RE = re.compile(
+    r"\b(köldmedi\w*|kylmedi\w*|refrigerant|freon)\b.{0,60}\b(lukt|doft|läck|leak|smell|hiss|väs|pys)"
+    r"|\b(lukt|doft|läck|leak|smell|hiss\w*|väs\w*|pys\w*)\b.{0,60}\b(köldmedi\w*|kylmedi\w*|refrigerant|freon)\b"
+    r"|\bkemisk (lukt|doft)\b.{0,60}\b(utomhusenhet\w*|utedel\w*|värmepump\w*)"
+    r"|\bchemical (smell|odou?r)\b.{0,60}\b(outdoor unit|heat ?pump)",
+    re.I | re.S,
+)
+# (regex, i18n key, escalation reason) — first match wins; gas is the graver of the two.
+_EMERGENCY_TRIGGERS = (
+    (_GAS_EMERGENCY_RE, "gas_emergency", "gas emergency"),
+    (_REFRIGERANT_EMERGENCY_RE, "refrigerant_emergency", "refrigerant emergency"),
+)
 
 
-def _gas_emergency(cs, events, locale) -> dict:
-    cs["gas_emergency"] = True
+def _deterministic_emergency(cs, events, locale, key: str, reason: str) -> dict:
+    cs["gas_emergency"] = True  # flag name kept: "a code-owned emergency line has been sent"
     cs["severity"] = "urgent"
     cs["state"] = STATE_ESCALATE
     cs["decision"] = "escalate"
     cs["report"]["service_recommended"] = True
-    cs["escalation_reason"] = "gas emergency"
-    cs["diag_done"] = True  # never ask a gas customer to go photograph the display
-    events.append({"type": "escalate", "reason": "gas emergency"})
-    return _begin_escalation(cs, locale, t(locale, "gas_emergency") + "\n\n")
+    cs["escalation_reason"] = reason
+    cs["diag_done"] = True  # never ask an emergency customer to go photograph the display
+    events.append({"type": "escalate", "reason": reason})
+    return _begin_escalation(cs, locale, t(locale, key) + "\n\n")
 REPLY_BUDGET = 5
 GENERAL_REPLY_BUDGET = 3  # general (no-manual) specialist: fewer safe turns before handoff
 
@@ -301,9 +317,10 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
     # Gas/fuel smell or leak in the customer's words → deterministic emergency, before any
     # model call, in every pre-escalation state.
     if (user_text and not cs.get("gas_emergency")
-            and cs["state"] in (STATE_INTAKE, STATE_ROUTING, STATE_SPECIALIST)
-            and _GAS_EMERGENCY_RE.search(user_text)):
-        return _gas_emergency(cs, events, locale)
+            and cs["state"] in (STATE_INTAKE, STATE_ROUTING, STATE_SPECIALIST)):
+        for rx, key, reason in _EMERGENCY_TRIGGERS:
+            if rx.search(user_text):
+                return _deterministic_emergency(cs, events, locale, key, reason)
     for _ in range(5):
         st = cs["state"]
         if st == STATE_INTAKE:
