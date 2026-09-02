@@ -33,6 +33,31 @@ from core.services import gemini
 from kb import tooling
 
 CONFIDENCE_GATE = 0.70  # solve a documented in-docs answer; hard safety is the keyword/LLM veto + in_docs cap
+
+# Deterministic gas-emergency trigger (run100 S009 + 516d3dc re-verify). A smell/leak of
+# gas or fuel in the customer's OWN words short-circuits every model call: the reply is the
+# i18n emergency line and the case escalates urgent. Smell/leak phrasing is required —
+# "it's a gas valve" names equipment (the keyword guardrail owns that), "it's leaking gas"
+# is an emergency. The same line replaces any gas draft the SAFETY classifier vetoes, so the
+# customer is never left with the generic contact-collection template in a gas scenario.
+_GAS_EMERGENCY_RE = re.compile(
+    r"\b(gas|gasol|propan|bränsle|fuel)\w*\b.{0,40}\b(lukt|luktar|läck|leak|smell)"
+    r"|\b(lukt|luktar|läck|leak|smell)\w*.{0,40}\b(gas|gasol|propan|bränsle|fuel)\b"
+    r"|gaslukt|gasläck",
+    re.I | re.S,
+)
+
+
+def _gas_emergency(cs, events, locale) -> dict:
+    cs["gas_emergency"] = True
+    cs["severity"] = "urgent"
+    cs["state"] = STATE_ESCALATE
+    cs["decision"] = "escalate"
+    cs["report"]["service_recommended"] = True
+    cs["escalation_reason"] = "gas emergency"
+    cs["diag_done"] = True  # never ask a gas customer to go photograph the display
+    events.append({"type": "escalate", "reason": "gas emergency"})
+    return _begin_escalation(cs, locale, t(locale, "gas_emergency") + "\n\n")
 REPLY_BUDGET = 5
 GENERAL_REPLY_BUDGET = 3  # general (no-manual) specialist: fewer safe turns before handoff
 
@@ -273,6 +298,12 @@ def _debug_snapshot(cs) -> dict:
 # ── state handlers ─────────────────────────────────────────────────────
 
 def _advance(conversation, cs, user_text, events, locale) -> dict:
+    # Gas/fuel smell or leak in the customer's words → deterministic emergency, before any
+    # model call, in every pre-escalation state.
+    if (user_text and not cs.get("gas_emergency")
+            and cs["state"] in (STATE_INTAKE, STATE_ROUTING, STATE_SPECIALIST)
+            and _GAS_EMERGENCY_RE.search(user_text)):
+        return _gas_emergency(cs, events, locale)
     for _ in range(5):
         st = cs["state"]
         if st == STATE_INTAKE:
@@ -1068,6 +1099,12 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         # Explicit "book service / quote" ask → offer the form chip even mid-escalation (plan S6).
         cs["_emit_form"] = _wants_form(user_text)
         prefix = (answer + "\n\n") if (answer and not unsafe) else ""
+        if unsafe and (cs.get("gas_emergency") or _GAS_EMERGENCY_RE.search(reason or "")):
+            # The classifier vetoed a gas draft: the customer gets the deterministic
+            # emergency line, never the bare contact-collection template.
+            cs["gas_emergency"] = True
+            cs["severity"] = "urgent"
+            prefix = t(locale, "gas_emergency") + "\n\n"
         return _begin_escalation(cs, locale, prefix)
 
     # Solve delivered → ask the customer to confirm the fix worked (GAP 1/6). yes/no chips;
@@ -1109,8 +1146,14 @@ def _unsupported_step(conversation, cs, events, locale) -> dict:
     # every layer, because this path HAD no layer. Same veto, same drop-the-answer
     # behaviour as the specialist path: on an unsafe draft, only the deterministic
     # escalation template reaches the customer.
-    if answer and guardrails.is_unsafe(answer, locale=locale)[0]:
-        answer = ""
+    if answer:
+        unsafe, reason = guardrails.is_unsafe(answer, locale=locale)
+        if unsafe:
+            answer = ""
+            if cs.get("gas_emergency") or _GAS_EMERGENCY_RE.search(reason or ""):
+                cs["gas_emergency"] = True
+                cs["severity"] = "urgent"
+                answer = t(locale, "gas_emergency")
     events.append({"type": "escalate", "reason": "unsupported"})
     return _begin_escalation(cs, locale, (answer + "\n\n") if answer else "")
 

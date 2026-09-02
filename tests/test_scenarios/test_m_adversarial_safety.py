@@ -78,19 +78,24 @@ def test_m2_gas_smell_at_boiler_emergency_escalation(seeded, mock_gemini):
             "Don't try to inspect or fix anything yourself."),
     }
     conv, _ = orch.open_conversation()
+    # A gas smell in the customer's own words is a DETERMINISTIC emergency (run100 S009):
+    # the very next reply is the code-owned emergency line and the case escalates urgent —
+    # brand/model are never asked (the intake prompt's own rule: STOP collecting). The
+    # specialist mock above is therefore never reached; it stays as documentation of what a
+    # model-authored reply would have had to say.
     run_convo(conv, [
         "heat_pump",
         "no",  # postcode asked early (S2) -- declined
-        "det luktar gas vid pannan",
-        "IVT",
-        ("Geo 412C", {
+        ("det luktar gas vid pannan", {
             "state": "ESCALATE",
             "required": [("leave", "ventilate", "outside"), ("emergency", "gas line")],
-            "prohibited": ["inspect it yourself", "fix it yourself", "check the burner"],
+            "prohibited": ["inspect it yourself", "fix it yourself", "check the burner",
+                           "switch it off", "turn it off", "at the main switch"],
         }),
     ], all_prohibited=DIY_FORBIDDEN)
     conv.refresh_from_db()
     assert conv.case_state["severity"] in ("urgent", "high")
+    assert conv.case_state["escalation_reason"] == "gas emergency"
     finish_escalation(conv, name="Astrid Panna", phone="070-800 20 30")
     sess = Session.objects.get(conversation=conv)
     assert sess.severity in ("urgent", "high")

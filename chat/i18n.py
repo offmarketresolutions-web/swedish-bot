@@ -30,6 +30,10 @@ T = {
         "chip_other_model": "Another model",
         "chip_none_of_these": "None of these",
         "confirm_fix": "Did that fix it?",
+        "gas_emergency": "If you smell gas: leave the building now, do not touch any switch, "
+                         "breaker or light — a spark can ignite it — and call the emergency "
+                         "number 112 from outside. "
+                         "A Nordland technician is being alerted.",
         "confirm_resolved": "Great — glad that sorted it! If anything else comes up, just let "
                             "me know.",
         "pre_escalate_diag": "Before I pass this to a Nordland VVS technician, please describe the "
@@ -111,6 +115,10 @@ T = {
         "chip_other_model": "Annan modell",
         "chip_none_of_these": "Ingen av dessa",
         "confirm_fix": "Löste det problemet?",
+        "gas_emergency": "Om det luktar gas: lämna byggnaden nu, rör inga strömbrytare, säkringar "
+                         "eller lampor — en gnista kan antända gasen — och ring nödnumret 112 "
+                         "utifrån. "
+                         "En tekniker från Nordland larmas nu.",
         "confirm_resolved": "Vad bra — kul att det löste sig! Hör av dig om något mer dyker upp.",
         "pre_escalate_diag": "Innan jag skickar detta vidare till en tekniker från Nordland VVS — "
                              "beskriv gärna problemet lite mer i detalj, och om maskinen visar någon "
