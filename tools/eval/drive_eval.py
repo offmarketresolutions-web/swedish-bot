@@ -43,6 +43,15 @@ PASS_PLAN = [
     (2, 1400), (1, 1400), (1, 1400), (1, 1400), (1, 1400), (1, 1400),
 ]
 
+# Measured 2026-08-11: with the quota in its current state, 3 workers drove a single
+# probe call straight to 429 RESOURCE_EXHAUSTED and 16/20 conversations died on the
+# 240s per-call ceiling while retrying. Serial passes finish MORE conversations per
+# unit of quota than parallel ones, because no quota is spent on calls that later
+# time out. EVAL_PASS_WORKERS pins every pass to N workers.
+_pin = os.environ.get("EVAL_PASS_WORKERS")
+if _pin:
+    PASS_PLAN = [(int(_pin), wall) for _, wall in PASS_PLAN]
+
 def _target_for_set(eval_set: str) -> int:
     """Count specs in the requested eval_set (personas.py has no django dependency)."""
     from tools.eval import personas

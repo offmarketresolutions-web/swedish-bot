@@ -14,7 +14,11 @@ cd "$(dirname "$0")/../.."
 PY=./.venv/Scripts/python.exe
 RESULTS=docs/evals/2026-07-12-live-eval/results-run100.jsonl
 TARGET=100
-SLEEP_EXHAUSTED=900   # 15 min between probes while the quota is dry
+# The quota oscillates on a short (per-minute-ish) window rather than staying dry for
+# hours: back-to-back probes minutes apart returned OK then 429. Sleep short enough to
+# catch an open window; the driver's own retry/backoff rides out brief 429s once a pass
+# has started.
+SLEEP_EXHAUSTED=${SLEEP_EXHAUSTED:-180}
 
 probe() {
   POSTGRES_DB=eval_nordland "$PY" - <<'PY' 2>/dev/null
