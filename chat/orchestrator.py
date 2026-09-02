@@ -840,12 +840,8 @@ def _apply_extracted_facts(cs, data) -> None:
         # A blanket report with no usable hint ("none of that helped") still closes out
         # every remaining pending check — one outcome for all of them, as before.
         if unmatched and pending:
-            if len(set(unmatched)) == 1:
-                for chk in list(pending):
-                    _resolve(chk, unmatched[0])
-            else:
-                for chk, res in zip(list(pending), unmatched):
-                    _resolve(chk, res)
+            for chk in list(pending):
+                _resolve(chk, unmatched[0])
 
 
 def _record_checks_given(cs, data) -> None:

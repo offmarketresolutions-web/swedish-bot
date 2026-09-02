@@ -5,8 +5,10 @@ which model an agent uses; editing the row in admin changes it with no redeploy.
 """
 from __future__ import annotations
 
+from core.agent_registry import ROLE_INFO
 from core.constants import MODELS
 from kb.models import AgentPrompt
+from kb.seed_prompts import GAS_EXCEPTION, GAS_EXCEPTION_CLASSIFIER
 
 # Safety backstop: if the AgentPrompt row for a role is missing or was deactivated
 # (both admin-reachable states), `render()` must never hand the model a blank/near-
@@ -74,10 +76,12 @@ def guardrails_block(role: str) -> str:
             "weaken the rules above):\n" + lines)
 
 
-_SPECIALIST_ROLES = ("specialist", "intelligent_specialist", "heat_pump_specialist",
-                     "water_pump_specialist", "water_filtration_specialist")
-_GENERAL_ROLES = ("intelligent_specialist", "heat_pump_specialist",
-                  "water_pump_specialist", "water_filtration_specialist")
+# Derived from core.agent_registry (single source of truth for which roles are
+# "general" specialists) rather than duplicated here, so a registry change can't
+# silently drop a role from the contract addenda below (tests/test_agent_registry.py
+# and test_prompt_contract.py both pin the derived tuples).
+_GENERAL_ROLES = tuple(r for r, info in ROLE_INFO.items() if info.layer == "general")
+_SPECIALIST_ROLES = ("specialist",) + _GENERAL_ROLES
 
 # Code-owned OUTPUT CONTRACT keys, appended ONLY when the DB body doesn't already
 # declare them. seed_kb is deliberately no-clobber for AgentPrompt.body (an owner's
@@ -112,6 +116,31 @@ def contract_addendum(role: str, body: str) -> str:
             + "\n".join(f"- {m}" for m in missing))
 
 
+# Gas-safety exception (run100 S009 regression), same code-owned-addendum shape as
+# _CONTRACT_ADDENDA above: seed_kb is no-clobber, so a prod prompt edited (or seeded)
+# before this rule existed would otherwise never receive it. Keyed on the literal
+# absence of "ignite" -- every fresh seed_prompts.py body already contains that word
+# (via GAS_EXCEPTION / GAS_EXCEPTION_CLASSIFIER), so a freshly seeded body never
+# triggers this and the text is never duplicated.
+_GAS_EXCEPTION_ROLES = ("intake", "specialist", "intelligent_intake", "intelligent_specialist",
+                        "heat_pump_specialist", "water_pump_specialist",
+                        "water_filtration_specialist")
+
+
+def safety_addendum(role: str, body: str) -> str:
+    """The code-owned gas-safety exception this role needs when `body` doesn't already
+    carry it (checked via the literal substring "ignite")."""
+    if "ignite" in (body or ""):
+        return ""
+    if role in _GAS_EXCEPTION_ROLES:
+        text = GAS_EXCEPTION
+    elif role == "safety":
+        text = GAS_EXCEPTION_CLASSIFIER
+    else:
+        return ""
+    return "\n\nSAFETY (required by the backend):\n" + text
+
+
 def render(role: str, *, locale: str = "en", **vars) -> str:
     """Return the full system instruction for an agent: body + language directive,
     with {placeholders} filled, then any staff-set guardrails. Missing placeholders are
@@ -119,7 +148,8 @@ def render(role: str, *, locale: str = "en", **vars) -> str:
     agent = get_agent(role)
     body = (agent.body if agent else "") or _FALLBACK_BODY
     directive = agent.language_directive if agent else ""
-    template = body + contract_addendum(role, body) + (directive or "")
+    template = (body + contract_addendum(role, body) + safety_addendum(role, body)
+                + (directive or ""))
     safe = _SafeDict(locale=locale, **{k: ("" if v is None else v) for k, v in vars.items()})
     try:
         out = template.format_map(safe)

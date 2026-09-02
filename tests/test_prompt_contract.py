@@ -142,3 +142,28 @@ def test_switch_off_guidance_carries_a_gas_exception(role, seeded):
         f"{role} sanctions switching off at the main switch with no visible gas exception — "
         "this produced a live safety defect (run100 S009): a gas-smell scenario got told "
         "to walk to the breaker and flip it, the one thing gas-safety protocol forbids.")
+
+
+# ── Gas rule is code-owned, not just seeded (the fix for the S009 regression) ──
+# The gas exception used to live ONLY in the editable prompt body, and seed_kb is
+# no-clobber — so an owner who had already edited a prod prompt (or a body that
+# predates the rule) would never receive it. Pin that chat.prompts re-injects the
+# rule itself (keyed on the literal absence of the word "ignite") exactly like the
+# no_action_needed / consult_web contract addenda already do.
+
+@pytest.mark.parametrize("role", _SWITCH_OFF_ROLES)
+def test_owner_rewrite_with_switch_off_still_gets_gas_exception(role, seeded):
+    _set_body(role, "Owner's rewritten prompt. If there is danger, tell them to switch it "
+                    "off at the main switch, then escalate. Return JSON.")
+    rendered = prompts.render(role)
+    collapsed = re.sub(r"\s+", " ", rendered).lower()
+    assert "ignite" in collapsed, f"{role} owner rewrite never got the gas exception appended"
+    assert "gas" in collapsed
+
+
+@pytest.mark.parametrize("role", _SWITCH_OFF_ROLES)
+def test_freshly_seeded_prompts_need_no_safety_addendum(role, seeded):
+    """The repo defaults already carry the gas exception (and therefore 'ignite') — the
+    SAFETY addendum is a safety net for stale/owner-edited bodies, not a second source
+    of truth that could drift from seed_prompts.py, and must never duplicate the text."""
+    assert "SAFETY (required by the backend)" not in prompts.render(role)

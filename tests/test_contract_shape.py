@@ -11,8 +11,10 @@ a DataError and kills the whole escalation turn.
 """
 import pytest
 
+from chat import casestate
 from chat.casestate import flush_to_session, new_case_state
 from chat.models import Conversation
+from crm.models import Session
 
 pytestmark = pytest.mark.django_db
 
@@ -47,3 +49,18 @@ def test_flush_survives_off_contract_error_code_and_severity():
     assert len(session.severity) <= 16
     assert len(session.decision) <= 16
     session.refresh_from_db()
+
+
+def test_fit_limits_are_sourced_from_the_session_model_not_hardcoded():
+    """chat.casestate._LIMITS must be read from Session._meta, not a second
+    hand-maintained table that could drift from an actual column's max_length."""
+    limits = casestate._limits()
+    for name in ("manufacturer", "model", "serial", "error_code", "severity",
+                 "decision", "postal_code", "onset", "installer"):
+        assert limits[name] == Session._meta.get_field(name).max_length, name
+
+
+def test_fit_raises_keyerror_on_unknown_column_name():
+    """A typo'd column name must fail loudly, not silently skip the clamp."""
+    with pytest.raises(KeyError):
+        casestate._fit("no_such_column", "value")

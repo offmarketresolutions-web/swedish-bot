@@ -33,6 +33,22 @@ def test_role_info_matches_layers():
             assert ROLE_INFO[role].layer == layer.key
 
 
+def test_chat_prompts_derives_general_and_specialist_roles_from_registry():
+    """chat.prompts._GENERAL_ROLES/_SPECIALIST_ROLES must be DERIVED from ROLE_INFO's
+    layer, not a hand-maintained duplicate — otherwise a registry change (a new general
+    role, or one moved off the "general" layer) silently drops out of the contract
+    addenda (no_action_needed / consult_web / the gas-safety exception) with no test
+    failure anywhere near core/agent_registry.py."""
+    from chat import prompts
+
+    expected_general = {"heat_pump_specialist", "water_pump_specialist",
+                        "water_filtration_specialist", "intelligent_specialist"}
+    assert set(prompts._GENERAL_ROLES) == expected_general
+    assert set(prompts._SPECIALIST_ROLES) == expected_general | {"specialist"}
+    # And they really are derived, not just coincidentally equal.
+    assert set(prompts._GENERAL_ROLES) == {r for r, i in ROLE_INFO.items() if i.layer == "general"}
+
+
 def test_general_layer_has_multiple_roles():
     general = next(l for l in LAYERS if l.key == "general")
     assert len(general.roles) > 1
