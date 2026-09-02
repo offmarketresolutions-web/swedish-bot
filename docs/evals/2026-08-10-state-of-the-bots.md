@@ -210,3 +210,57 @@ load.** That measurement doesn't exist.
 5. Approve the 93-entry FAQ corpus, then re-measure general mode.
 6. Measure single-user latency outside the eval driver, against the 2–5s v1 budget.
 7. Decide on `us-central1` vs `europe-north1` before real customer PII accumulates.
+
+---
+
+# Status update — 2026-09-02 (end of the production-readiness campaign)
+
+**Code:** `main` @ `9c06f5b`, 694 passed / 1 skipped, `selfcheck` 6 pass · 2 warn · 0 fail,
+lint clean on every file touched. Fifteen commits since the audit above; every product change
+landed test-first with the RED output recorded in the commit.
+
+## Live evidence (all single-version datasets, all judged with real rubric scores)
+
+| Run | Records | Version | False-resolution | DIY leak | Notes |
+|---|---|---|---|---|---|
+| run100 | 100/100 | `7aa4a9e` | 0 | 1 (A019) | first run with a working LLM judge; surfaced A019 + S009 |
+| safety re-verify | 11/11 | `516d3dc` | 0 | **0** | A019 fixed live; gas switch-drafts now vetoed |
+| gas re-run | 5/5 | `2d480c3` | 0 | **0** | C-URGENCY 0→1 on all five; emergency line is the first reply |
+
+Category outcome-match on run100: safety 10/10, escalate 31/31, difficult 8/8, unsupported 2/2,
+adversarial 3/10, edge 2/6, resolvable 5/33. The last three are dominated by harness-simulator
+ambiguity (mixed-intent personas, sim that declines valid fixes) plus genuine "manual says call a
+technician" cases — documented in REPORT-run100.md, not new regressions.
+
+## Bugs found by live conversations (none were visible to the 634-test suite before this)
+
+1. `_unsupported_step` sent the model's answer to the customer with no guardrail at all (A019).
+2. Every safety prompt sanctioned "switch it off at the main switch" with no gas exception, and
+   the SAFETY classifier's own prompt listed it as a safe example (S009).
+3. After (2), a vetoed gas draft fell back to the generic contact template — no evacuate/112
+   line. Now a deterministic emergency path: regex on the customer's own words, fired before any
+   model call; the same line replaces any vetoed gas draft.
+
+Plus the earlier audit round: cross-customer PII overwrite (chat + voice), enum→DataError losing
+the lead, unguided LLM call on an inactive prompt, dead form chip behind a green selfcheck,
+router never receiving its enum, check-results collapse, silent retrieval blackout on 429,
+Swedish-only guides dropped for English locale, unrevoked Drive copies after purge, and the two
+structural ones — manual-mode retrieval scoped to the leaf category, and prompt-body-only fixes
+that owner-edited prod prompts would never receive (now code-owned addenda).
+
+## Decisions only the owner can make
+
+- **Deploy.** Ready per DEPLOY.md's release section; needs SSH to the VPS and a go-ahead.
+- **Refrigerant leaks (S018).** The bot still says "switch off at the main breaker" for a
+  hissing + chemical smell. Standard manufacturer advice — but if the serviced fleet runs R32/R290,
+  extend the gas rule to refrigerant. One-line change once decided.
+- **Retention cutoff.** `purge_pii` cuts on first-contact date, not last activity.
+- **Data residency.** Vertex runs in `us-central1` on the non-EU escape hatch.
+- **FAQ corpus.** Prod has 1/93 entries approved; general mode retrieves from an empty corpus.
+- **Workstation clock** is ~58 min fast (`w32tm /resync`); the auth shim compensates today.
+
+## Known, not fixed (design work, not patches)
+
+- X002: an explicit brand correction never overwrites an already-filled slot.
+- consult_web could be one grounded call instead of two; INTELLIGENT_SPECIALIST duplicates
+  `_GENERAL_TAIL`.
