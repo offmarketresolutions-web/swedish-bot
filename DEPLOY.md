@@ -250,3 +250,34 @@ isn't fully "live" for a real customer until an owner has:
 5. **Provisioned Vapi** (phone channel) once real credentials exist — set
    `VAPI_*` in `.env` (or the dashboard credentials catalog) and confirm
    `VOICE_ENABLED=1` boots clean (no `ImproperlyConfigured` on startup).
+
+### Upgrade to the 2026-08 release (a32d332 … HEAD) — read before `git pull`
+
+Everything below is the same six-command upgrade as above; these are the three things
+that are DIFFERENT about this release and will bite if skipped.
+
+1. **New migrations** — kb 0019/0020 (`Vendor.official_domains`, `consult_web` tool row)
+   and crm 0010 (`UnrevokedExternalCopy`). `migrate` applies them; `selfcheck` fails if any
+   are pending.
+
+2. **Owner-edited prompts are safe — but check the diff first.** `seed_kb` inside
+   `post_deploy` is no-clobber, so dashboard-edited `AgentPrompt` rows are NOT overwritten.
+   The features that depend on new prompt content (`no_action_needed`, `consult_web`, the
+   gas/fuel switch-off exception) are delivered by a code-owned addendum in
+   `chat/prompts.py::render()` whenever a body lacks them — they do not need `--force`.
+   Still run, before and after:
+   ```bash
+   docker compose -f docker-compose.prod.yaml exec web python manage.py agent_config_diff
+   ```
+   Rows it lists as differing are owner edits and stay as they are. If you WANT the new
+   repo defaults everywhere (and accept losing dashboard edits), and only then:
+   `python manage.py seed_kb --force`.
+
+3. **`selfcheck` is stricter now.** It FAILS on an inactive `AgentPrompt` row (an inactive
+   role used to pass and then ran the model with no rules) and WARNS when a `FormButton`
+   row has a blank URL (a blank-url button never renders a chip; the old check reported a
+   green 4/4 while no form could be reached). Expect `WARN` for FormButton until the real
+   form URLs are entered in the dashboard — that is an owner go-live item, not a failure.
+
+Post-deploy proof, in this order: `selfcheck` exit 0 → `make smoke` (or `tools/smoke.py`
+against the public URL) → `GET /healthz` shows `gemini.ready: true`.
