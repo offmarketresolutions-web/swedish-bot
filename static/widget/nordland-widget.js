@@ -543,7 +543,6 @@
     clearUnread();
     if (!started) {
       started = true;
-      loadI18n();
       if (!sessionId) openSession();
     }
     scrollDown();
@@ -597,7 +596,6 @@
       lastWho = null;
       s.convo.forEach(function (m) { addMsg(m.text, m.who, false); });
       renderChips(s.chips || []);
-      if (started) loadI18n();
       if (s.open) { panel.classList.add("nl-show"); openPanel(); }
       else if (s.unread) {  // restore the unread badge without re-incrementing
         unread = s.unread;
@@ -607,6 +605,11 @@
       }
     }
   })();
+
+  // Localize the chrome up front. The launcher's aria-label and the nudge bubble are
+  // the only widget text a visitor sees before clicking, and loading the catalogue on
+  // first open left both in the built-in English on the Swedish site.
+  loadI18n();
 
   // ---- auto-open (a dedicated chat page sets data-open="1") ------------
   if (AUTO_OPEN && !isOpen()) openPanel();

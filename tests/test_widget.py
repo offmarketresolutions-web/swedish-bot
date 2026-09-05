@@ -135,3 +135,16 @@ def test_widget_degrades_when_abortcontroller_is_missing():
         "AbortController is constructed unguarded — on a fetch-capable browser without it, "
         "every message send throws and the widget is dead"
     )
+
+
+def test_widget_localizes_its_chrome_before_the_chat_is_opened():
+    """The only widget text a visitor sees BEFORE clicking is the launcher's aria-label
+    and the nudge bubble. loadI18n() used to run only on first open, so on the Swedish
+    site both rendered the built-in English defaults ("Open chat" / "Chat with us") —
+    the invitation to click was in the wrong language. It must run at init."""
+    js = (WIDGET / "nordland-widget.js").read_text(encoding="utf-8")
+    # A call at the IIFE's own statement level (2-space indent, no enclosing `if`) is
+    # what makes it unconditional. Every other call site sits behind `started` or a
+    # language switch, i.e. behind the visitor having already interacted.
+    unguarded = any(ln == "  loadI18n();" for ln in js.splitlines())
+    assert unguarded, "loadI18n() only runs behind an interaction guard"

@@ -9,12 +9,13 @@ so assertions are on deterministic chips/state + UI, never on LLM prose.
 """
 from __future__ import annotations
 
+import os
 import pathlib
 import sys
 
 from playwright.sync_api import sync_playwright
 
-BASE = "http://127.0.0.1:8080"
+BASE = os.environ.get("E2E_BASE", "http://127.0.0.1:8080")
 ART = pathlib.Path(__file__).resolve().parent / "e2e_artifacts"
 ART.mkdir(exist_ok=True)
 BRAND_BLUE = "rgb(26, 116, 191)"  # #1a74bf
@@ -29,6 +30,23 @@ def check(name, cond, detail=""):
 
 def shot(page, name):
     page.screenshot(path=str(ART / f"{name}.png"), full_page=False)
+
+
+def widget_closed_state(page):
+    """The launcher label and the nudge bubble are the only widget text a visitor sees
+    BEFORE clicking. widget_flow() opens the chat immediately (that page sets
+    data-open="1"), so nothing covered the closed state — which is how both shipped in
+    the built-in English on the Swedish site. /demo/homepage is the page shaped like the
+    real embed: data-lang="sv", no auto-open."""
+    page.goto(f"{BASE}/demo/homepage", wait_until="load")
+    page.wait_for_function(
+        "() => document.querySelector('.nl-launcher')"
+        "?.getAttribute('aria-label') === 'Öppna chatt'", timeout=15000)
+    aria = page.get_attribute('[data-testid=widget-bubble]', "aria-label")
+    check("launcher is localized before the chat is opened", aria == "Öppna chatt", aria)
+    nudge = (page.text_content('.nl-nudge') or "").strip()
+    check("nudge is localized before the chat is opened", nudge == "Chatta med oss", nudge)
+    shot(page, "00_widget_closed_sv")
 
 
 def widget_flow(page):
@@ -258,7 +276,7 @@ def main():
         ctx = browser.new_context(viewport={"width": 1280, "height": 900})
         page = ctx.new_page()
         page.on("pageerror", lambda e: errors.append(str(e)))
-        for fn in (widget_flow, login, dashboard_overview, agent_config, kb_manager,
+        for fn in (widget_closed_state, widget_flow, login, dashboard_overview, agent_config, kb_manager,
                    kb_create_and_faq, pdf_preview, analytics_page, flow_builder, mobile_sidebar):
             try:
                 fn(page)
