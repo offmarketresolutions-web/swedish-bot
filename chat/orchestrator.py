@@ -1419,6 +1419,22 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             if cur == "phone":  # gave up validating → keep what they typed for staff
                 val = sanitize.clean_lead_field(raw, 32)
         cs["contact"][cur] = val
+        if cur == "postal_code" and val:
+            # Live geo run (S003): a postcode first given HERE — the emergency path skips
+            # the early ask, and any customer may decline it — never reached slots, so the
+            # Session flushed with no postcode and the lead carried no area status. Mirror
+            # it and record the PRELIMINARY status for the office to triage. No decline this
+            # late: name/phone are already given, and an emergency lead is never blocked on
+            # geography — the gate ran (empty) at escalation start, by design.
+            if not cs["slots"].get("postal_code") or cs["slots"]["postal_code"] == "unknown":
+                cs["slots"]["postal_code"] = val
+            if cs.get("service_area") in (None, "", "unknown"):
+                from crm.geo import check_service_area, check_with_override
+                res = check_with_override(check_service_area(val, cs["slots"].get("category")),
+                                          cs["slots"].get("installer") or "")
+                if res["status"] != "not_configured":
+                    cs["service_area"] = res["status"]
+                    cs["report"]["service_area_name"] = res.get("area_name") or ""
         if cur == "phone" and val:  # P-F: recognize a returning customer (minimal disclosure)
             from crm.models import Customer, phone_hash
             h = phone_hash(val)

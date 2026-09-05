@@ -264,3 +264,23 @@ that owner-edited prod prompts would never receive (now code-owned addenda).
 - X002: an explicit brand correction never overwrites an already-filled slot.
 - consult_web could be one grounded call instead of two; INTELLIGENT_SPECIALIST duplicates
   `_GENERAL_TAIL`.
+
+## Addendum — §12 service-area gate, exercised live for the first time (2026-09-02)
+
+Gate switched ON in the eval DB (18,870 GeoNames postcodes loaded), 8 personas at `b7b6beb`,
+0 infra errors. Every §12 path fired:
+
+| Path | Persona | Postcode | Result |
+|---|---|---|---|
+| outside, no listed installer → **decline, no lead** | R004 | 111 52 Stockholm (58.6 km out) | `outside_area`, sr=0 ✓ |
+| outside → installer question → listed installer → **accepted** | V037, V039, E005, E011 | Stockholm / Sollentuna | `inside_area`, installer=Nordland VVS, lead ✓ |
+| postcode not in the table → **proceed + "technician confirms coverage"** | V038, V040 | 161 51/52 Bromma | `unknown_postcode`, lead ✓ |
+| emergency path (postcode only given at contact stage) | S003 | 111 52 | lead created — but Session had **no postcode and no status** → fixed same day (late postcode now mirrored + preliminary status recorded; no decline that late, never for an emergency) |
+
+Two things for the owner from this run: (1) the GeoNames export lacks some real postcodes
+(5 of the 29 the simulator used, all Stockholm); "unknown → proceed with note" is the spec'd
+preliminary behaviour, but a fuller source (PostNord) would tighten it. (2) The installer
+override is honour-based by design — the simulator answered "Nordland" every time it was
+asked, so in this run it was trivially satisfied; a real customer answers for themselves.
+Southern boundary probe: Norrtälje 11.9 km out, Upplands Väsby 37.8, Sollentuna 48 — the
+seeded polygon ends at Uppsala as specified.

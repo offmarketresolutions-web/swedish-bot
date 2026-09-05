@@ -1,0 +1,733 @@
+[drive] eval_set=all TARGET=8 RESULTS=results-geo.jsonl
+[drive] pass 1: 0/8 good; launching runner --workers 1 wall_cap=1300s at 00:47:43
+C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\django\db\backends\utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+  warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+Gemini auth: system clock off by -3478s from real UTC — signing JWTs from monotonic-anchored real UTC instead.
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+DB: eval_nordland | total specs selected: 8 | already done: 0 | to run: 8
+[OK]   S003 (safety) state=RESOLVED turns=7 avg_lat=0.4370135920388358
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-2:embedContent "HTTP/1.1 404 Not Found"
+Embedding model 'gemini-embedding-2' unavailable (404); falling back.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 1/8 finished this run (00:48:44)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+[hb] alive — 1/8 finished this run (00:49:44)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[OK]   V038 (resolvable) state=RESOLVED turns=9 avg_lat=11.091703626844618
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Timeout (0:03:00)!
+Thread 0x00004fb8 (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\guardrails.py", line 137 in classify_unsafe
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\guardrails.py", line 157 in is_unsafe
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 1095 in _specialist_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 337 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 266 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 302 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x00005b28 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 195 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 214 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 302 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000eb08 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 377 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000b160 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 386 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000fd08 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 449 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 473 in <module>
+[hb] alive — 2/8 finished this run (00:50:44)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[OK]   V039 (resolvable) state=RESOLVED turns=13 avg_lat=5.771138521341177
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 3/8 finished this run (00:51:44)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[OK]   R004 (resolvable) state=RESOLVED turns=4 avg_lat=4.837699711322784
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 4/8 finished this run (00:52:44)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[OK]   V040 (resolvable) state=RESOLVED turns=10 avg_lat=6.161902666091919
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+Timeout (0:03:00)!
+Thread 0x0000e980 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1140 in read
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\ssl.py", line 1285 in recv
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_backends\sync.py", line 128 in read
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 217 in _receive_event
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 177 in _receive_response_headers
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\http11.py", line 106 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection.py", line 103 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py", line 236 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_transports\default.py", line 250 in handle_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 1014 in _send_single_request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 979 in _send_handling_redirects
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 942 in _send_handling_auth
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\httpx\_client.py", line 914 in send
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1387 in _request_once
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\tenacity\__init__.py", line 473 in __call__
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1411 in _request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\_api_client.py", line 1618 in request
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 4916 in _generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\.venv\Lib\site-packages\google\genai\models.py", line 6488 in generate_content
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\core\services\gemini.py", line 202 in generate
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 126 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\intake.py", line 186 in bulk_extract
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 360 in _intake_step
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 327 in _advance
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\chat\orchestrator.py", line 266 in process_turn
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 302 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000fc14 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 195 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 214 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 302 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000eb08 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 377 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000b160 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 386 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000fd08HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+ (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 449 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 473 in <module>
+[hb] alive — 5/8 finished this run (00:53:44)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[hb] alive — 5/8 finished this run (00:54:44)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[OK]   V037 (resolvable) state=RESOLVED turns=10 avg_lat=5.44698965549469
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+[hb] alive — 6/8 finished this run (00:55:44)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[OK]   E005 (escalate) state=RESOLVED turns=10 avg_lat=1.8467044115066529
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-embedding-001:predict "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Timeout (0:03:00)!
+Thread 0x00000d4c (most recent call first):
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 132 in wrapper
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\customer_sim.py", line 128 in next_reply
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 320 in <lambda>
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000d604 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 195 in _call_with_timeout
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 214 in _retry
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 320 in run_one
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000eb08 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 451 in result
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 377 in run_one_guarded
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 93 in _worker
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000b160 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 363 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 386 in _heartbeat
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 994 in run
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1043 in _bootstrap_inner
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 1014 in _bootstrap
+
+Thread 0x0000fd08 (most recent call first):
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 359 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\threading.py", line 659 in wait
+  File "C:\Users\vladi\AppData\Roaming\uv\python\cpython-3.13.9-windows-x86_64-none\Lib\concurrent\futures\_base.py", line 243 in as_completed
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 449 in main
+  File "C:\Users\vladi\OneDrive\Desktop\swedish-bot\tools\eval\runner.py", line 473 in <module>
+[hb] alive — 7/8 finished this run (00:56:44)
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 429 Too Many Requests"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+Gemini: Vertex mode (project=project-4a4ebfd5-7151-4e89-9e4 location=us-central1)
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://us-central1-aiplatform.googleapis.com/v1beta1/projects/project-4a4ebfd5-7151-4e89-9e4/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+[OK]   E011 (escalate) state=RESOLVED turns=12 avg_lat=1.9761557579040527
+
+Done. ok=8 failed=0 total_this_run=8
+[drive] pass 1 runner exited rc=0 at 00:57:09
+[drive] all 8/8 specs have success records — done.
+[drive] FINAL: 8/8 success records (8 rows before prune). Missing: 0

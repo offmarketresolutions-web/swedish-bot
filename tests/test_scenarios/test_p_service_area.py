@@ -10,9 +10,7 @@ Gate runs at LEAD time only (never blocks troubleshooting):
 import pytest
 
 from chat import orchestrator as orch
-from crm.models import (FormButton, GeoSettings, PostcodeArea, ServiceArea,
-                        ServiceRequest)
-from kb.models import Category
+from crm.models import FormButton, GeoSettings, PostcodeArea, ServiceArea, ServiceRequest
 
 pytestmark = pytest.mark.django_db
 
@@ -129,3 +127,34 @@ def test_dormant_geo_behaves_as_before(seeded, mock_gemini):
     orch.process_turn(conv, "skip")            # address → approval
     orch.process_turn(conv, "yes_send")
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()
+
+
+def test_late_postcode_given_at_contact_stage_still_reaches_the_lead(geo_configured, mock_gemini):
+    """Live geo run (S003, 2026-09-02): the emergency path — and any customer who declines the
+    early postcode ask — only gives the postcode at CONTACT stage. The gate reads
+    slots.postal_code, so it saw nothing, and the lead went out with NO postcode and NO area
+    status for a Stockholm address. The late postcode must be mirrored into the slots (so it
+    flushes to the Session) and the preliminary area status computed for the office to triage.
+    No decline this late: the customer has already given name and phone, and an emergency
+    lead must never be blocked on geography."""
+    mock_gemini.responses["heat_pump_specialist"] = {
+        "answer_to_customer": "I'll get a Nordland technician to look at your heat pump.",
+        "confidence": 0.0, "decision": "escalate", "in_docs": False, "report": {}}
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")                      # early postcode ask declined
+    orch.process_turn(conv, "my heat pump is not heating properly")
+    orch.process_turn(conv, "NIBE")
+    orch.process_turn(conv, "unknown")                 # → general specialist → escalate
+    orch.process_turn(conv, "no error code")           # diag step
+    orch.process_turn(conv, "Kim Test")                # name
+    orch.process_turn(conv, "070-123 45 67")           # phone
+    orch.process_turn(conv, "skip")                    # email
+    orch.process_turn(conv, "11122")                   # postcode, late — far outside
+    orch.process_turn(conv, "skip")                    # address
+    orch.process_turn(conv, "yes_send")
+    conv.refresh_from_db()
+    sess = conv.session
+    assert sess.postal_code == "11122"
+    assert sess.service_area_status == "outside_area"
+    assert ServiceRequest.objects.filter(session=sess).exists()   # still a lead — office triages
