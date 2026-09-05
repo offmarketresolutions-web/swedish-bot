@@ -284,3 +284,9 @@ override is honour-based by design — the simulator answered "Nordland" every t
 asked, so in this run it was trivially satisfied; a real customer answers for themselves.
 Southern boundary probe: Norrtälje 11.9 km out, Upplands Väsby 37.8, Sollentuna 48 — the
 seeded polygon ends at Uppsala as specified.
+
+### §12 admin capability check (2026-09-04)
+Dashboard service-area tab: GeoJSON paste-import, per-area export, delete, activate/deactivate,
+category assignment, and a postcode test box — all present. **Not present: drawing a polygon on a
+map** (spec: "preferably"). Polygons are edited as GeoJSON (any GIS tool → paste). Owner-optional;
+a Leaflet-draw UI is real scope, not a defect.

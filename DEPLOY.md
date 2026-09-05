@@ -281,3 +281,34 @@ that are DIFFERENT about this release and will bite if skipped.
 
 Post-deploy proof, in this order: `selfcheck` exit 0 → `make smoke` (or `tools/smoke.py`
 against the public URL) → `GET /healthz` shows `gemini.ready: true`.
+
+### Website form integration (spec §13) — what the live site runs, and the wiring
+
+Checked 2026-09-04 against the public site: **nordlandvvs.se is WordPress running
+Fluent Forms.** One multi-step form (`fluentform_3`) serves both `/offert/` and
+`/kontakta-oss/`; `/kundservice/` has no form. Field names as rendered today:
+
+| Bot fact | Fluent Forms field (`name=`) |
+|---|---|
+| customer name | `names[first_name]` |
+| phone / email | `phone` / `email` |
+| installation address / postcode / city | `address_line_1` / `input_zip` / `input_city` |
+| problem description + safe checks tried | `description` (textarea) |
+| ärende (service / offert) | `dropdown` ("Välj ett ärende") — option values need reading from the live form |
+| photos | `file-upload` — **cannot be prefilled** (browsers block programmatic file inputs); the lead already carries them, the technician sees them in the dashboard |
+
+**Recommendation: keep the signed-token prefill already built (`/api/prefill/<token>`,
+`PREFILL_ALLOWED_ORIGIN=https://www.nordlandvvs.se`, 30-min expiry, no PII in the URL) and add
+one small script to the WordPress page.** The chip the bot shows links to
+`/offert/?nl_case=<token>`; the script reads `nl_case`, fetches the prefill JSON cross-origin,
+and fills the fields above by `name`. No plugin change, no REST/webhook, nothing sensitive in
+the URL — the token resolves server-side and only for the allowed origin. Fluent Forms' own
+"populate from GET parameter" would put the customer's name/phone in the URL, which §13 rules
+out; a webhook/REST push into Fluent Forms Pro would create a duplicate submission before the
+customer has confirmed anything, which §13's "showing the button ≠ submitted" rules out.
+
+Owner to-do to switch it on: (1) paste the snippet (Fluent Forms → Settings → Custom
+JS/CSS, or the theme footer) — `chat/prefill.py` docstring has the reference version;
+(2) set the four `FormButton` URLs in the dashboard to the real `/offert/` / `/kontakta-oss/`
+pages (blank URLs never render a chip — `selfcheck` warns until they're filled);
+(3) confirm the `dropdown` option values so the ärende can be preselected.

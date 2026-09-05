@@ -427,3 +427,51 @@ def test_l14_specific_technician_and_time_preference_recorded_not_promised(seede
     assert "erik" in problem_text
     assert "saturday" in problem_text
     assert ServiceRequest.objects.filter(session__conversation=conv).exists()
+
+
+# L8d -- run100 X002: an explicit brand correction must never be DROPPED. The L8 reconfirm
+# rides the question budget (+1); once that is spent, _detect_brand_contradiction fired and
+# the correction was silently discarded -- the lead went out as IVT after the customer said
+# "it's not an IVT anyway, I'm pretty sure it's a Bosch" twice. Identity is safety-relevant
+# (wrong brand => wrong manual), so budget-exhausted => apply the correction directly.
+def test_l8d_brand_correction_applied_when_question_budget_is_spent(seeded, mock_gemini):
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Check the outdoor unit for the E21.RLP pressure fault.",
+        "confidence": 0.85, "decision": "solve", "in_docs": True, "report": {},
+    }
+    conv, _ = orch.open_conversation()
+    run_convo(conv, [
+        "heat_pump", "no", "alarm E21.RLP on my heat pump", "Bosch",
+        ("Greenline HE", {"state": "SPECIALIST", "decision": "solve"}),
+    ])
+    conv.refresh_from_db()
+    cs = conv.case_state
+    cs["question_keys"] = ["category", "postal_code", "problem", "brand", "model", "extra"]
+    conv.case_state = cs
+    conv.save(update_fields=["case_state"])
+    orch.process_turn(conv, "The circuit breaker wasn't tripped, and it's not a Bosch anyway, "
+                            "I'm pretty sure it's an IVT.")
+    conv.refresh_from_db()
+    assert conv.case_state["slots"]["brand"] == "IVT", "correction dropped by the question budget"
+    # The stale Bosch model must not survive the rebind. With the budget spent the re-ask
+    # resolves straight to "unknown" (budget machinery) rather than a fresh answer — fine.
+    assert conv.case_state["slots"].get("model") in (None, "unknown")
+
+
+def test_l8e_brand_correction_at_approval_reaches_the_lead(seeded, mock_gemini):
+    """run100 X002's last turn: 'Yes, send to Nordland. But it's a Bosch, not IVT.' The consent
+    and the correction arrive in one message; the lead must carry the corrected brand."""
+    conv, _ = orch.open_conversation()
+    run_convo(conv, [
+        "heat_pump", "no", "alarm E21.RLP on my heat pump", "Bosch",
+        ("Greenline HE", {"state": "ESCALATE"}),   # default specialist mock escalates
+        "no error code",                # diag step
+        "Erik Johansson", "070-123 45 67", "skip",   # name, phone, email
+        "85234", "skip",                              # postcode (declined early → asked here), address
+    ])
+    res = orch.process_turn(conv, "Yes, send to Nordland. But it's an IVT, not Bosch.")
+    assert res["state"] == "RESOLVED", res["message"]   # consent recognised despite the "not"
+    conv.refresh_from_db()
+    sess = Session.objects.get(conversation=conv)
+    assert ServiceRequest.objects.filter(session=sess).exists()
+    assert sess.manufacturer == "IVT", f"lead went out as {sess.manufacturer!r}"

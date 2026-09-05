@@ -967,15 +967,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         cs["await_brand_reconfirm"] = False
         new_brand = cs.pop("pending_brand", None)
         if new_brand and _is_yes(user_text):
-            # Rebind identity to the corrected brand and re-identify machine/manual: drop the
-            # now-stale model (it belonged to the old brand) and re-ask it, then re-route.
-            cs["slots"]["brand"] = new_brand
-            cs["slots"]["model"] = None
-            cs["slots"]["nameplate_photo"] = False
-            cs["machine_id"] = None
-            cs["specialist_turns"] = 0  # fresh identity → fresh troubleshooting budget
-            cs["current_slot"] = "model"
-            cs["state"] = STATE_INTAKE
+            _rebind_brand(cs, new_brand)
             return None
         # declined → keep the original identity; fall through to normal troubleshooting.
     elif not clarify:
@@ -988,6 +980,13 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
             _charge_question(cs, "brand_reconfirm")
             return {"message": t(locale, "brand_reconfirm", brand=new_brand),
                     "chips": _yesno_chips(locale)}
+        if new_brand:
+            # run100 X002: budget spent → the reconfirm can't be asked, and the correction was
+            # silently DROPPED (lead went out as the wrong brand after the customer said
+            # otherwise twice). The reconfirm is a courtesy; the correction is the safety-
+            # relevant part. Apply it directly.
+            _rebind_brand(cs, new_brand)
+            return None
 
     # Three-way specialist (plan S3): manual mode has a confirmed machine + its manual;
     # general mode has a serviced category but NO machine/manual — approved general knowledge
@@ -1301,9 +1300,14 @@ def _is_yes(text: str) -> bool:
     txt = (text or "").strip().lower()
     if txt == "yes_send":
         return True
-    if _NEG.search(txt):
+    # Judge the FIRST clause only. "Yes, send to Nordland. But it's an IVT, not Bosch."
+    # (run100 X002) carries consent AND a correction; a negation in the correction must not
+    # turn the consent into a refusal — that lost the lead outright. A negated first clause
+    # ("yes please don't send", "not yet") still refuses.
+    first = re.split(r"[.!?;]|\b(?:but|men|fast)\b", txt, maxsplit=1)[0]
+    if _NEG.search(first):
         return False
-    return bool(_AFFIRM.search(txt))
+    return bool(_AFFIRM.search(first))
 
 
 # Whole-input decline for a contact slot — so "no" is a decline but "Antonio" is a name.
@@ -1380,6 +1384,15 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             from chat.casestate import flush_to_session
             from crm import leads
 
+            # run100 X002: "Yes, send to Nordland. But it's a Bosch, not IVT." — consent and
+            # a brand correction in one message. No reconfirm this late (they just said it
+            # explicitly); the lead must carry the corrected brand, and the stale model of
+            # the old brand must not ride along with it.
+            corrected = _detect_brand_contradiction(cs, user_text)
+            if corrected:
+                cs["slots"]["brand"] = corrected
+                cs["slots"]["model"] = None
+                cs["machine_id"] = None
             session = flush_to_session(conversation, cs)
             _sync_customer(session, cs)
             session.booking_requested = True
@@ -1529,6 +1542,18 @@ def _yesno_chips(locale: str = "en") -> list[dict]:
             {"value": "no", "label": t(locale, "chip_no")}]
 
 
+def _rebind_brand(cs, new_brand: str) -> None:
+    """Rebind identity to a corrected brand and re-identify machine/manual: drop the
+    now-stale model (it belonged to the old brand) and re-ask it, then re-route."""
+    cs["slots"]["brand"] = new_brand
+    cs["slots"]["model"] = None
+    cs["slots"]["nameplate_photo"] = False
+    cs["machine_id"] = None
+    cs["specialist_turns"] = 0  # fresh identity → fresh troubleshooting budget
+    cs["current_slot"] = "model"
+    cs["state"] = STATE_INTAKE
+
+
 def _detect_brand_contradiction(cs, user_text: str) -> str | None:
     """L8: return a DIFFERENT recognized (seeded) brand the customer names in a corrective
     way, or None. Pure DB read — deterministic, no LLM. Only fires when the locked brand is
@@ -1541,7 +1566,12 @@ def _detect_brand_contradiction(cs, user_text: str) -> str | None:
     if not txt or current in ("", "unknown", "other"):
         return None
     low = txt.lower()
-    if not (_CORRECTION.search(low) or len(txt.split()) <= 3):
+    # "not Bosch" / "inte Bosch" — negating the LOCKED brand by name is the most direct
+    # correction there is (run100 X002: "it's an IVT, not Bosch"), and it is specific to
+    # the current brand, so a casual "my neighbour has a Bosch" still doesn't fire.
+    negates_current = re.search(
+        r"\b(not|inte|ej|no)\s+(a |an |en |ett |the )?" + re.escape(current) + r"\b", low)
+    if not (_CORRECTION.search(low) or negates_current or len(txt.split()) <= 3):
         return None
     for name in Vendor.objects.values_list("name", flat=True):
         n = (name or "").strip()
