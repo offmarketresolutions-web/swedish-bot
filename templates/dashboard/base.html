@@ -90,6 +90,24 @@
         </button>
         <div class="text-sm text-nl-base/60">{% block breadcrumb %}{% endblock %}</div>
         <div class="ml-auto flex items-center gap-3 text-sm text-nl-base/60">
+          {# Language switcher. A plain POST form, so it works with JS disabled; auto-submits
+             on change when JS is available. LocaleMiddleware persists the choice in the
+             session, so it follows the operator across every page. #}
+          <form action="{% url 'set_language' %}" method="post" class="flex items-center gap-1">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <label for="lang-select" class="sr-only">{% trans "Language" %}</label>
+            <select id="lang-select" name="language" onchange="this.form.submit()"
+                    class="bg-transparent border border-nl-border rounded px-1.5 py-0.5 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-nl-primary cursor-pointer">
+              {% get_current_language as CURRENT_LANG %}
+              {% get_available_languages as AVAILABLE_LANGS %}
+              {% for code, name in AVAILABLE_LANGS %}
+                <option value="{{ code }}" {% if code == CURRENT_LANG %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+            <noscript><button type="submit" class="underline">{% trans "Go" %}</button></noscript>
+          </form>
           <a href="/widget-demo" class="hover:text-nl-primary">{% trans "View site" %}</a>
           {% if user.is_authenticated %}<span class="text-nl-base/60">·</span><span>{{ user.get_username }}</span>{% endif %}
         </div>

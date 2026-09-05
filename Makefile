@@ -1,4 +1,4 @@
-.PHONY: install dev check migrate makemigrations run test test-live test-e2e lint spike seed demo css up down logs deploy-migrate smoke
+.PHONY: install dev check migrate makemigrations run test test-live test-e2e lint spike seed demo css messages up down logs deploy-migrate smoke
 
 install:
 	uv sync
@@ -8,6 +8,15 @@ install:
 css:
 	npx -y tailwindcss@3.4.17 -c tailwind.config.js -i static/src/input.css -o static/dashboard/css/app.css --minify
 	uv run python tools/css_inputs_hash.py --write
+
+# Rebuild the translation catalogue. Django's makemessages/compilemessages need the GNU
+# gettext binaries (xgettext/msgfmt), which aren't installed on Windows — these do the same
+# two jobs via polib. Django reads ONLY the compiled .mo, so `compile` is what makes a
+# translation actually appear; committing a .po without it changes nothing.
+messages:
+	uv run python tools/i18n_messages.py extract
+	uv run python tools/i18n_messages.py compile
+	uv run python tools/i18n_messages.py stats
 
 # Playwright end-to-end (needs the stack up on :8080 + staff user admin/nordland123).
 test-e2e:

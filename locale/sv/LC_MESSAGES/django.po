@@ -1,107 +1,2094 @@
+#
 msgid ""
 msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
-"MIME-Version: 1.0\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: nordland-bot\n"
 "Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # Dashboard navigation
+#: templates/dashboard/base.html:39 templates/dashboard/overview.html:3
 msgid "Overview"
 msgstr "Översikt"
 
+#: templates/dashboard/_stat_block.html:8
+#: templates/dashboard/analytics.html:114 templates/dashboard/overview.html:9
 msgid "Sessions"
 msgstr "Sessioner"
 
-msgid "Admin"
-msgstr "Admin"
-
 # Overview
+#: templates/dashboard/overview.html:10
 msgid "Escalated"
 msgstr "Eskalerade"
 
+#: templates/dashboard/analytics.html:115 templates/dashboard/overview.html:11
+#: templates/dashboard/session_detail.html:73
 msgid "Resolved"
 msgstr "Lösta"
 
+#: templates/dashboard/_stat_block.html:20
+#: templates/dashboard/overview.html:12
 msgid "Leads"
 msgstr "Leads"
 
+#: templates/dashboard/analytics.html:181
+#: templates/dashboard/kb_vendor.html:35 templates/dashboard/overview.html:17
 msgid "By severity"
 msgstr "Efter allvarlighetsgrad"
 
+#: templates/dashboard/overview.html:22
 msgid "By category"
 msgstr "Efter kategori"
 
+#: templates/dashboard/overview.html:27
 msgid "Top brands"
 msgstr "Vanligaste märken"
 
-msgid "No data yet"
-msgstr "Ingen data ännu"
-
 # Session list
+#: templates/dashboard/knowledge.html:57
 msgid "Filter"
 msgstr "Filtrera"
 
+#: templates/dashboard/session_list.html:16
 msgid "All severities"
 msgstr "Alla allvarlighetsgrader"
 
+#: templates/dashboard/session_detail.html:53
+#: templates/dashboard/session_list.html:84
 msgid "Equipment"
 msgstr "Utrustning"
 
+#: templates/dashboard/session_detail.html:63
+#: templates/dashboard/session_list.html:47
+#: templates/dashboard/session_list.html:86
 msgid "Problem"
 msgstr "Problem"
 
+#: templates/dashboard/session_detail.html:68
+#: templates/dashboard/session_list.html:14
+#: templates/dashboard/session_list.html:87
 msgid "Severity"
 msgstr "Allvarlighetsgrad"
 
+#: templates/dashboard/session_list.html:88
 msgid "Decision"
 msgstr "Beslut"
 
+#: templates/dashboard/session_list.html:20
+#: templates/dashboard/session_list.html:89
+#: templates/dashboard/voice_phone.html:47
+#: templates/dashboard/voice_phone.html:55
 msgid "Status"
 msgstr "Status"
 
+#: templates/dashboard/session_list.html:90
+#: templates/dashboard/voice_phone.html:48
+#: templates/dashboard/voice_phone.html:57
+#: templates/dashboard/voice_phone.html:80
+#: templates/dashboard/voice_phone.html:88
 msgid "When"
 msgstr "När"
 
-msgid "No sessions yet"
-msgstr "Inga sessioner ännu"
-
-# Session detail
-msgid "All sessions"
-msgstr "Alla sessioner"
-
-msgid "Session"
-msgstr "Session"
-
+#: templates/dashboard/_chat_modal.html:12
+#: templates/dashboard/session_detail.html:17
 msgid "Conversation"
 msgstr "Konversation"
 
-msgid "No messages"
-msgstr "Inga meddelanden"
-
+#: templates/dashboard/session_detail.html:51
 msgid "Report"
 msgstr "Rapport"
 
+#: templates/dashboard/session_detail.html:62
 msgid "Error code"
 msgstr "Felkod"
 
+#: templates/dashboard/session_detail.html:64
 msgid "Confidence"
 msgstr "Säkerhet"
 
+#: templates/dashboard/session_detail.html:76
 msgid "AI summary"
 msgstr "AI-sammanfattning"
 
+#: templates/dashboard/session_detail.html:74
 msgid "Service recommended"
 msgstr "Service rekommenderas"
 
+#: templates/dashboard/session_detail.html:75
 msgid "Booking requested"
 msgstr "Bokning begärd"
 
+#: templates/dashboard/_agent_card.html:95
+#: templates/dashboard/forms_settings.html:34
+#: templates/dashboard/knowledge_form.html:16
+#: templates/dashboard/service_area.html:27
+#: templates/dashboard/session_detail.html:79
+#: templates/dashboard/settings.html:24
+#: templates/dashboard/voice_credentials.html:30
 msgid "Save"
 msgstr "Spara"
 
+#: templates/dashboard/_chat_replica.html:11
+#: templates/dashboard/session_detail.html:85
+#: templates/dashboard/session_list.html:46
+#: templates/dashboard/session_list.html:85
 msgid "Customer"
 msgstr "Kund"
 
+#: templates/dashboard/session_detail.html:94
 msgid "Lead delivery"
 msgstr "Lead-leverans"
+
+#: templates/dashboard/_agent_card.html:12
+#: templates/dashboard/_vendor_notes.html:8
+msgid "Saved"
+msgstr "Sparat"
+
+#: templates/dashboard/_agent_card.html:14
+msgid "active"
+msgstr "aktiv"
+
+#: templates/dashboard/_agent_card.html:15
+msgid "disabled"
+msgstr "inaktiverad"
+
+#: templates/dashboard/_agent_card.html:20
+msgid "Runtime"
+msgstr "Körinställningar"
+
+#: templates/dashboard/_agent_card.html:22 templates/dashboard/flow.html:115
+msgid "Model"
+msgstr "Modell"
+
+#: templates/dashboard/_agent_card.html:25 templates/dashboard/flow.html:119
+msgid "Temperature"
+msgstr "Temperatur"
+
+#: templates/dashboard/_agent_card.html:28
+msgid "Thinking budget"
+msgstr "Tankebudget"
+
+#: templates/dashboard/_agent_card.html:31
+msgid "Max output tokens"
+msgstr "Max output-tokens"
+
+#: templates/dashboard/_agent_card.html:36
+msgid "Thinking enabled"
+msgstr "Tänkande aktiverat"
+
+#: templates/dashboard/_agent_card.html:37 templates/dashboard/flow.html:128
+#: templates/dashboard/forms_settings.html:30
+#: templates/dashboard/service_area.html:78
+msgid "Active"
+msgstr "Aktiv"
+
+#: templates/dashboard/_agent_card.html:38
+msgid "Inject FAQ"
+msgstr "Infoga FAQ"
+
+#: templates/dashboard/_agent_card.html:44
+msgid "FAQ injection"
+msgstr "FAQ-infogning"
+
+#: templates/dashboard/_agent_card.html:45
+msgid ""
+"Which categories’ FAQ &amp; guides to inject into this agent. Select none to"
+" use the matched machine’s own category."
+msgstr ""
+"Vilka kategoriers FAQ &amp; guider som ska infogas i den här agenten. Välj "
+"ingen för att använda den matchade maskinens egen kategori."
+
+#: templates/dashboard/_agent_card.html:52
+msgid "Ctrl/Cmd-click to select multiple. Only used when “Inject FAQ” is on."
+msgstr ""
+"Ctrl/Cmd-klicka för att välja flera. Används bara när ”Infoga FAQ” är på."
+
+#: templates/dashboard/_agent_card.html:57
+msgid "Prompt"
+msgstr "Prompt"
+
+#: templates/dashboard/_agent_card.html:58
+msgid "Language directive"
+msgstr "Språkdirektiv"
+
+#: templates/dashboard/_agent_card.html:61 templates/dashboard/flow.html:137
+msgid "Prompt body"
+msgstr "Prompttext"
+
+#: templates/dashboard/_agent_card.html:67
+msgid "Common issues & solutions"
+msgstr "Vanliga problem & lösningar"
+
+#: templates/dashboard/_agent_card.html:68
+msgid ""
+"Freeform owner notes for this agent. Not yet auto-injected into the live "
+"prompt — recorded here for the team."
+msgstr ""
+"Fria ägaranteckningar för den här agenten. Infogas ännu inte automatiskt i "
+"den aktiva prompten — sparas här för teamet."
+
+#: templates/dashboard/_agent_card.html:69
+msgid "e.g. Customers often confuse E5 with E9 on IVT units…"
+msgstr "t.ex. Kunder förväxlar ofta E5 med E9 på IVT-enheter…"
+
+#: templates/dashboard/_agent_card.html:73
+msgid "Tool calls"
+msgstr "Verktygsanrop"
+
+#: templates/dashboard/_agent_card.html:74
+msgid "Enable a capability with one click — the agent instantly has access."
+msgstr "Aktivera en funktion med ett klick — agenten får åtkomst direkt."
+
+#: templates/dashboard/_agent_card.html:82
+msgid "not built yet"
+msgstr "inte byggt än"
+
+#: templates/dashboard/_agent_card.html:87
+msgid "No tools registered."
+msgstr "Inga verktyg registrerade."
+
+#: templates/dashboard/_agent_card.html:93
+msgid "Changes apply immediately on save."
+msgstr "Ändringar börjar gälla direkt när du sparar."
+
+#: templates/dashboard/_agent_map.html:2
+msgid ""
+"Agent flow: intake to router to specialist or intelligent intake, with a "
+"safety backstop and a summarizer"
+msgstr ""
+"Agentflöde: mottagning till router till specialist eller intelligent "
+"mottagning, med en säkerhetsspärr och en sammanfattare"
+
+#: templates/dashboard/_agent_map.html:26
+msgid "facts"
+msgstr "fakta"
+
+#: templates/dashboard/_agent_map.html:28
+#: templates/dashboard/kb_machine_page.html:17
+msgid "supported"
+msgstr "stöds"
+
+#: templates/dashboard/_agent_map.html:30
+#: templates/dashboard/_machine_panel.html:5
+#: templates/dashboard/kb_machine_page.html:17
+#: templates/dashboard/kb_vendor.html:96
+msgid "unsupported"
+msgstr "stöds ej"
+
+#: templates/dashboard/_agent_map.html:32
+msgid "conf ≥ 0.80"
+msgstr "konf ≥ 0,80"
+
+#: templates/dashboard/_agent_map.html:34
+msgid "uncertain / unsafe"
+msgstr "osäker / riskabel"
+
+#: templates/dashboard/_agent_map.html:36
+msgid "qualified lead"
+msgstr "kvalificerad förfrågan"
+
+#: templates/dashboard/_agent_map.html:38
+msgid "reviews · vetoes unsafe"
+msgstr "granskar · stoppar osäkert"
+
+#: templates/dashboard/_agent_map.html:40
+msgid "on close"
+msgstr "vid avslut"
+
+#: templates/dashboard/_agent_map.html:45
+msgid "Intake"
+msgstr "Mottagning"
+
+#: templates/dashboard/_agent_map.html:46
+msgid "gathers the facts"
+msgstr "samlar in fakta"
+
+#: templates/dashboard/_agent_map.html:50
+msgid "Router"
+msgstr "Router"
+
+#: templates/dashboard/_agent_map.html:51
+msgid "classify + identify"
+msgstr "klassificera + identifiera"
+
+#: templates/dashboard/_agent_map.html:55
+msgid "Specialist"
+msgstr "Specialist"
+
+#: templates/dashboard/_agent_map.html:56
+msgid "answers from the manual"
+msgstr "svarar utifrån manualen"
+
+#: templates/dashboard/_agent_map.html:60
+msgid "Intelligent intake"
+msgstr "Intelligent mottagning"
+
+#: templates/dashboard/_agent_map.html:61
+msgid "unsupported → lead"
+msgstr "stöds ej → förfrågan"
+
+#: templates/dashboard/_agent_map.html:65
+msgid "Safety backstop"
+msgstr "Säkerhetsspärr"
+
+#: templates/dashboard/_agent_map.html:66
+msgid "vetoes unsafe answers"
+msgstr "stoppar osäkra svar"
+
+#: templates/dashboard/_agent_map.html:70
+msgid "Summarizer"
+msgstr "Sammanfattare"
+
+#: templates/dashboard/_agent_map.html:71
+msgid "AI summary for staff"
+msgstr "AI-sammanfattning för personalen"
+
+#: templates/dashboard/_agent_map.html:76
+msgid "Solve"
+msgstr "Löst"
+
+#: templates/dashboard/_agent_map.html:78 templates/dashboard/flow.html:211
+msgid "Escalate → lead"
+msgstr "Eskalera → förfrågan"
+
+#: templates/dashboard/_agent_tabs.html:8
+msgid "Agent flow layers"
+msgstr "Lager i agentflödet"
+
+#: templates/dashboard/_chat_modal.html:5
+msgid "View full chat"
+msgstr "Visa hela chatten"
+
+#: templates/dashboard/_chat_modal.html:13
+#: templates/dashboard/_machine_doc_modal.html:15
+msgid "Close"
+msgstr "Stäng"
+
+#: templates/dashboard/_chat_modal.html:16
+#: templates/dashboard/_machine_doc_modal.html:18
+msgid "Loading…"
+msgstr "Laddar…"
+
+#: templates/dashboard/_chat_replica.html:10
+msgid "Customer photo"
+msgstr "Foto från kunden"
+
+#: templates/dashboard/_chat_replica.html:16
+msgid "No messages in this conversation."
+msgstr "Inga meddelanden i den här konversationen."
+
+#: templates/dashboard/_faq_pending.html:15
+msgid "Safe checks:"
+msgstr "Säkra kontroller:"
+
+#: templates/dashboard/_faq_pending.html:21
+#: templates/dashboard/_faq_pending.html:41
+#: templates/dashboard/_knowledge_list.html:21
+#: templates/dashboard/_knowledge_list.html:56
+msgid "Approve"
+msgstr "Godkänn"
+
+#: templates/dashboard/_faq_pending.html:25
+#: templates/dashboard/_faq_pending.html:45
+msgid "Delete this pending FAQ entry?"
+msgstr "Ta bort den här väntande FAQ-posten?"
+
+#: templates/dashboard/_faq_pending.html:33
+msgid "Site FAQ"
+msgstr "Webbplats-FAQ"
+
+#: templates/dashboard/_faq_pending.html:51
+msgid "Nothing waiting on approval."
+msgstr "Inget väntar på godkännande."
+
+#: templates/dashboard/_guardrail_list.html:11
+#: templates/dashboard/_service_area_list.html:25
+msgid "On"
+msgstr "På"
+
+#: templates/dashboard/_guardrail_list.html:11
+#: templates/dashboard/_service_area_list.html:25
+msgid "Off"
+msgstr "Av"
+
+#: templates/dashboard/_guardrail_list.html:16
+msgid "Remove this guardrail?"
+msgstr "Ta bort den här skyddsregeln?"
+
+#: templates/dashboard/_guardrail_list.html:22
+msgid "No extra guardrails for this agent yet."
+msgstr "Inga extra skyddsregler för den här agenten än."
+
+#: templates/dashboard/_knowledge_faq_section.html:3
+#: templates/dashboard/base.html:53 templates/dashboard/faq.html:2
+#: templates/dashboard/faq.html:3 templates/dashboard/faq_form.html:4
+msgid "FAQ"
+msgstr "FAQ"
+
+#: templates/dashboard/_knowledge_faq_section.html:7
+msgid "Open the full knowledge page →"
+msgstr "Öppna hela kunskapssidan →"
+
+#: templates/dashboard/_knowledge_faq_section.html:15
+msgid "No approved entries yet."
+msgstr "Inga godkända poster ännu."
+
+#: templates/dashboard/_knowledge_faq_section.html:19
+msgid ""
+"No knowledge corpus — by design (this agent doesn't map to a single "
+"knowledge family)."
+msgstr ""
+"Ingen kunskapskorpus — avsiktligt (den här agenten hör inte till en enskild "
+"kunskapsfamilj)."
+
+#: templates/dashboard/_knowledge_faq_section.html:6
+msgid "Approved knowledge for {{ label }}."
+msgstr "Godkänd kunskap för {{ label }}."
+
+#: templates/dashboard/_knowledge_list.html:21
+#: templates/dashboard/_knowledge_list.html:56
+msgid "Unapprove"
+msgstr "Ångra godkännande"
+
+#: templates/dashboard/_knowledge_list.html:22
+#: templates/dashboard/_knowledge_list.html:57
+msgid "Edit"
+msgstr "Redigera"
+
+#: templates/dashboard/_knowledge_list.html:26
+#: templates/dashboard/_knowledge_list.html:61
+msgid "Delete this entry?"
+msgstr "Ta bort den här posten?"
+
+#: templates/dashboard/_machine_doc_modal.html:14
+msgid "Documentation"
+msgstr "Dokumentation"
+
+#: templates/dashboard/_machine_docs.html:4
+msgid "document(s)"
+msgstr "dokument"
+
+#: templates/dashboard/_machine_docs.html:9
+#: templates/dashboard/_machine_panel.html:28
+#: templates/dashboard/customer_detail.html:103
+#: templates/dashboard/customer_detail.html:137
+msgid "Download"
+msgstr "Ladda ner"
+
+#: templates/dashboard/_machine_docs.html:17
+msgid "Documentation not loaded"
+msgstr "Dokumentation ej inläst"
+
+#: templates/dashboard/_machine_docs.html:19
+msgid "Open machine page to upload"
+msgstr "Öppna maskinsidan för att ladda upp"
+
+#: templates/dashboard/_machine_docs.html:18
+msgid "No manual has been ingested for {{ name }} yet."
+msgstr "Ingen manual har lästs in för {{ name }} än."
+
+#: templates/dashboard/_machine_panel.html:7
+msgid "Manual ingested and parsed."
+msgstr "Manualen är inläst och tolkad."
+
+#: templates/dashboard/_machine_panel.html:11
+msgid "Manuals"
+msgstr "Manualer"
+
+#: templates/dashboard/_machine_panel.html:20
+msgid "ingested"
+msgstr "inläst"
+
+#: templates/dashboard/_machine_panel.html:20
+msgid "tokens"
+msgstr "tokens"
+
+#: templates/dashboard/_machine_panel.html:20
+msgid "not parsed"
+msgstr "ej tolkad"
+
+#: templates/dashboard/_machine_panel.html:25
+msgid "Hide"
+msgstr "Dölj"
+
+#: templates/dashboard/_machine_panel.html:25
+#: templates/dashboard/_machine_panel.html:25
+msgid "Preview"
+msgstr "Förhandsgranska"
+
+#: templates/dashboard/_machine_panel.html:27
+msgid "Open"
+msgstr "Öppna"
+
+#: templates/dashboard/_machine_panel.html:35
+msgid "PDF preview"
+msgstr "Förhandsvisning av PDF"
+
+#: templates/dashboard/_machine_panel.html:39
+msgid "No manuals yet — upload one below."
+msgstr "Inga manualer än — ladda upp en nedan."
+
+#: templates/dashboard/_machine_panel.html:49
+msgid "Upload or replace a manual (PDF)"
+msgstr "Ladda upp eller ersätt en manual (PDF)"
+
+#: templates/dashboard/_machine_panel.html:54
+msgid "Choose a PDF or drop it here"
+msgstr "Välj en PDF eller släpp den här"
+
+#: templates/dashboard/_machine_panel.html:55
+msgid "PDF only · re-parsed on upload"
+msgstr "Endast PDF · tolkas om vid uppladdning"
+
+#: templates/dashboard/_machine_panel.html:56
+msgid "Manual PDF file"
+msgstr "PDF-fil för manual"
+
+#: templates/dashboard/_machine_panel.html:61
+msgid "Manual language"
+msgstr "Manualens språk"
+
+#: templates/dashboard/_machine_panel.html:64
+msgid "Document kind"
+msgstr "Dokumenttyp"
+
+#: templates/dashboard/_machine_panel.html:67
+msgid "Replace existing document"
+msgstr "Ersätt befintligt dokument"
+
+#: templates/dashboard/_machine_panel.html:68
+msgid "(new document)"
+msgstr "(nytt dokument)"
+
+#: templates/dashboard/_machine_panel.html:69
+msgid "replace"
+msgstr "ersätt"
+
+#: templates/dashboard/_machine_panel.html:72
+#: templates/dashboard/customer_detail.html:152
+msgid "Upload"
+msgstr "Ladda upp"
+
+#: templates/dashboard/_machine_panel.html:78
+msgid "Machine notes"
+msgstr "Maskinanteckningar"
+
+#: templates/dashboard/_machine_panel.html:78
+msgid "injected into the specialist"
+msgstr "infogas i specialisten"
+
+#: templates/dashboard/_machine_panel.html:84
+msgid "Add a safe, verified note…"
+msgstr "Lägg till en säker, verifierad anteckning…"
+
+#: templates/dashboard/_machine_panel.html:84
+msgid "New machine note"
+msgstr "Ny maskinanteckning"
+
+#: templates/dashboard/_machine_panel.html:85
+#: templates/dashboard/guardrails.html:36
+msgid "Add"
+msgstr "Lägg till"
+
+#: templates/dashboard/_notes_more.html:10
+#: templates/dashboard/_notes_more.html:10
+msgid "Delete note"
+msgstr "Ta bort anteckning"
+
+#: templates/dashboard/_notes_more.html:12
+msgid "Delete this note?"
+msgstr "Ta bort den här anteckningen?"
+
+#: templates/dashboard/_notes_more.html:15
+msgid "No notes yet."
+msgstr "Inga anteckningar ännu."
+
+#: templates/dashboard/_notes_more.html:21
+msgid "Load more notes"
+msgstr "Ladda fler anteckningar"
+
+#: templates/dashboard/_pagination.html:8
+msgid "Pagination"
+msgstr "Sidnavigering"
+
+#: templates/dashboard/_pagination.html:15
+#: templates/dashboard/_pagination.html:17
+msgid "Prev"
+msgstr "Föreg."
+
+#: templates/dashboard/_pagination.html:24
+#: templates/dashboard/_pagination.html:26
+msgid "Next"
+msgstr "Nästa"
+
+#: templates/dashboard/_pagination.html:10
+msgid "{{ start }}–{{ end }} of {{ total }}"
+msgstr "{{ start }}–{{ end }} av {{ total }}"
+
+#: templates/dashboard/_pagination.html:20
+msgid "Page {{ num }} of {{ total }}"
+msgstr "Sida {{ num }} av {{ total }}"
+
+#: templates/dashboard/_related_crm.html:4 templates/dashboard/base.html:47
+#: templates/dashboard/category_detail.html:29
+#: templates/dashboard/customer_detail.html:4
+#: templates/dashboard/customer_form.html:4
+#: templates/dashboard/customer_list.html:3
+#: templates/dashboard/customer_list.html:9
+msgid "Customers"
+msgstr "Kunder"
+
+#: templates/dashboard/_related_crm.html:9
+msgid "No customers linked yet."
+msgstr "Inga kunder kopplade än."
+
+#: templates/dashboard/_related_crm.html:13
+#: templates/dashboard/category_detail.html:40
+msgid "Recent conversations"
+msgstr "Senaste konversationer"
+
+#: templates/dashboard/_related_crm.html:19
+#: templates/dashboard/category_detail.html:46
+msgid "No conversations yet."
+msgstr "Inga konversationer ännu."
+
+#: templates/dashboard/_service_area_list.html:16
+msgid "All categories"
+msgstr "Alla kategorier"
+
+#: templates/dashboard/_service_area_list.html:21
+msgid "Export"
+msgstr "Exportera"
+
+#: templates/dashboard/_service_area_list.html:30
+msgid "Remove this service area?"
+msgstr "Ta bort det här arbetsområdet?"
+
+#: templates/dashboard/_service_area_list.html:36
+msgid "No service areas defined yet."
+msgstr "Inga arbetsområden har definierats än."
+
+#: templates/dashboard/_service_area_test.html:9
+msgid "Inside service area"
+msgstr "Inom arbetsområdet"
+
+#: templates/dashboard/_service_area_test.html:10
+msgid "Border — technician confirms"
+msgstr "Gränsområde — tekniker bekräftar"
+
+#: templates/dashboard/_service_area_test.html:11
+msgid "Outside service area"
+msgstr "Utanför arbetsområdet"
+
+#: templates/dashboard/_service_area_test.html:12
+msgid "Unknown postcode"
+msgstr "Okänt postnummer"
+
+#: templates/dashboard/_service_area_test.html:13
+msgid "Not configured"
+msgstr "Ej konfigurerad"
+
+#: templates/dashboard/_service_area_test.html:19
+msgid ""
+"(feature disabled — this is a preview only, nothing changes for customers "
+"yet)"
+msgstr ""
+"(funktionen är inaktiverad — det här är bara en förhandsvisning, inget "
+"ändras för kunderna än)"
+
+#: templates/dashboard/_settings_tabs.html:5 templates/dashboard/base.html:77
+msgid "Integrations"
+msgstr "Integrationer"
+
+#: templates/dashboard/_settings_tabs.html:8 templates/dashboard/base.html:79
+#: templates/dashboard/voice_credentials.html:3
+msgid "API credentials"
+msgstr "API-uppgifter"
+
+#: templates/dashboard/_settings_tabs.html:11
+#: templates/dashboard/service_area.html:3
+msgid "Service area"
+msgstr "Arbetsområde"
+
+#: templates/dashboard/_settings_tabs.html:14
+#: templates/dashboard/forms_settings.html:3
+msgid "Website & forms"
+msgstr "Webbplats & formulär"
+
+#: templates/dashboard/_stat_block.html:12
+msgid "Resolution"
+msgstr "Lösningsgrad"
+
+#: templates/dashboard/_stat_block.html:16
+msgid "Escalation"
+msgstr "Eskaleringsgrad"
+
+#: templates/dashboard/_stat_block.html:24
+#: templates/dashboard/analytics.html:71
+msgid "Avg turns"
+msgstr "Repliker i snitt"
+
+#: templates/dashboard/_vendor_notes.html:5
+msgid "Guidance appended to this vendor’s specialist…"
+msgstr "Vägledning som läggs till den här tillverkarens specialist…"
+
+#: templates/dashboard/_vendor_notes.html:7
+msgid "Save notes"
+msgstr "Spara anteckningar"
+
+#: templates/dashboard/agent_config.html:2
+msgid "Agent Config"
+msgstr "Agentkonfiguration"
+
+#: templates/dashboard/agent_config.html:3
+#: templates/dashboard/agent_detail.html:3 templates/dashboard/base.html:57
+msgid "Agents"
+msgstr "Agenter"
+
+#: templates/dashboard/agent_config.html:5
+msgid "Agent Configuration"
+msgstr "Agentkonfiguration"
+
+#: templates/dashboard/agent_config.html:6
+msgid ""
+"Tune each agent's prompt, model and runtime settings — changes take effect "
+"immediately, no redeploy."
+msgstr ""
+"Justera varje agents prompt, modell och körinställningar — ändringarna "
+"börjar gälla direkt, ingen ny driftsättning."
+
+#: templates/dashboard/agent_config.html:12
+msgid ""
+"The hard safety guardrails (electrical / refrigerant / pressure refusals, "
+"escalation rules) live in code and cannot be weakened here."
+msgstr ""
+"De hårda skyddsreglerna för säkerhet (nekanden vid el / köldmedium / tryck, "
+"eskaleringsregler) ligger i koden och kan inte försvagas här."
+
+#: templates/dashboard/agent_config.html:16
+msgid ""
+"Live in production: every save applies to the next conversation immediately "
+"— no deploy, no restart."
+msgstr ""
+"Live i produktion: varje sparning slår igenom direkt i nästa konversation — "
+"ingen driftsättning, ingen omstart."
+
+#: templates/dashboard/agent_config.html:23
+msgid "How the agents work together"
+msgstr "Så samarbetar agenterna"
+
+#: templates/dashboard/agent_config.html:24
+msgid "Click a layer to open its agent(s) →"
+msgstr "Klicka på ett lager för att öppna dess agent(er) →"
+
+#: templates/dashboard/agent_config.html:34
+msgid "All agents"
+msgstr "Alla agenter"
+
+#: templates/dashboard/agent_config.html:39
+msgid "No agent prompts seeded yet."
+msgstr "Inga agentprompter har lagts in ännu."
+
+#: templates/dashboard/agent_detail.html:2
+msgid "Agent"
+msgstr "Agent"
+
+#: templates/dashboard/agent_detail.html:7
+#: templates/dashboard/agent_detail.html:7
+msgid "Back to all agents"
+msgstr "Tillbaka till alla agenter"
+
+#: templates/dashboard/agent_detail.html:8
+msgid "Step"
+msgstr "Steg"
+
+#: templates/dashboard/agent_detail.html:11
+msgid "Test in Playground"
+msgstr "Testa i Testytan"
+
+#: templates/dashboard/agent_detail.html:17
+msgid ""
+"Saving here updates the live bot instantly — the next customer conversation "
+"uses your new settings. No deploy, no restart."
+msgstr ""
+"När du sparar här uppdateras boten direkt — nästa kundkonversation använder "
+"dina nya inställningar. Ingen driftsättning, ingen omstart."
+
+#: templates/dashboard/agent_detail.html:23
+msgid "Where this agent sits — click another node to jump to it:"
+msgstr ""
+"Var den här agenten sitter — klicka på en annan nod för att hoppa dit:"
+
+#: templates/dashboard/agent_detail.html:29
+msgid "AI prompt assistant"
+msgstr "AI-promptassistent"
+
+#: templates/dashboard/agent_detail.html:30
+msgid ""
+"Describe what to ADD — e.g. “add a guardrail that we never advise draining a"
+" pressurised tank”. Gemini reads the full current prompt and returns it with"
+" only your addition; it never removes existing rules. Review the proposal in"
+" the prompt body below, then Save."
+msgstr ""
+"Beskriv vad som ska LÄGGAS TILL — t.ex. ”lägg till en skyddsregel om att vi "
+"aldrig rekommenderar att tömma en trycksatt tank”. Gemini läser hela den "
+"nuvarande prompten och returnerar den med enbart ditt tillägg; den tar "
+"aldrig bort befintliga regler. Granska förslaget i promptfältet nedan och "
+"spara sedan."
+
+#: templates/dashboard/agent_detail.html:32
+msgid "I want more guardrails about…"
+msgstr "Jag vill ha fler skyddsregler om…"
+
+#: templates/dashboard/agent_detail.html:35
+msgid "Thinking…"
+msgstr "Tänker…"
+
+#: templates/dashboard/agent_detail.html:35
+#: templates/dashboard/agent_detail.html:35
+msgid "Generate addition"
+msgstr "Generera tillägg"
+
+#: templates/dashboard/analytics.html:3 templates/dashboard/analytics.html:4
+#: templates/dashboard/base.html:41
+#: templates/dashboard/customer_detail.html:23
+#: templates/dashboard/kb_machine_page.html:32
+#: templates/dashboard/kb_vendor.html:31
+msgid "Analytics"
+msgstr "Statistik"
+
+#: templates/dashboard/analytics.html:18 templates/dashboard/analytics.html:98
+msgid "target"
+msgstr "mål"
+
+#: templates/dashboard/analytics.html:24
+msgid "All success metrics are at or above target."
+msgstr "Alla framgångsmått ligger på eller över målet."
+
+#: templates/dashboard/analytics.html:29
+msgid "Date range"
+msgstr "Datumintervall"
+
+#: templates/dashboard/analytics.html:30
+msgid "Window:"
+msgstr "Period:"
+
+#: templates/dashboard/analytics.html:31
+msgid "7 days"
+msgstr "7 dagar"
+
+#: templates/dashboard/analytics.html:32
+msgid "30 days"
+msgstr "30 dagar"
+
+#: templates/dashboard/analytics.html:33
+msgid "90 days"
+msgstr "90 dagar"
+
+#: templates/dashboard/analytics.html:34
+msgid "Updated"
+msgstr "Uppdaterad"
+
+#: templates/dashboard/analytics.html:41 templates/dashboard/base.html:45
+#: templates/dashboard/session_detail.html:4
+#: templates/dashboard/session_list.html:3
+msgid "Conversations"
+msgstr "Konversationer"
+
+#: templates/dashboard/analytics.html:46
+msgid "Resolution rate"
+msgstr "Lösningsgrad"
+
+#: templates/dashboard/analytics.html:47
+msgid "of all conversations"
+msgstr "av alla konversationer"
+
+#: templates/dashboard/analytics.html:51
+msgid "Deflection"
+msgstr "Avlastning"
+
+#: templates/dashboard/analytics.html:52
+msgid "solved without a human"
+msgstr "löst utan människa"
+
+#: templates/dashboard/analytics.html:56
+msgid "Escalation rate"
+msgstr "Eskaleringsgrad"
+
+#: templates/dashboard/analytics.html:61
+msgid "Leads captured"
+msgstr "Fångade förfrågningar"
+
+#: templates/dashboard/analytics.html:62
+msgid "capture rate"
+msgstr "fångstgrad"
+
+#: templates/dashboard/analytics.html:66
+msgid "Returning customers"
+msgstr "Återkommande kunder"
+
+#: templates/dashboard/analytics.html:67
+msgid "of customers"
+msgstr "av kunderna"
+
+#: templates/dashboard/analytics.html:78
+msgid "Success scoreboard"
+msgstr "Resultattavla"
+
+#: templates/dashboard/analytics.html:89
+msgid "✓ met"
+msgstr "✓ uppnått"
+
+#: templates/dashboard/analytics.html:90
+msgid "below"
+msgstr "under målet"
+
+#: templates/dashboard/analytics.html:110
+msgid "Daily activity"
+msgstr "Daglig aktivitet"
+
+#: templates/dashboard/analytics.html:118
+msgid "Sessions per day (sessions line) with a thinner resolved line."
+msgstr "Sessioner per dag (sessionslinjen) med en tunnare linje för lösta."
+
+#: templates/dashboard/analytics.html:123
+msgid "No activity in this window yet."
+msgstr "Ingen aktivitet i den här perioden ännu."
+
+#: templates/dashboard/analytics.html:159
+msgid "By category group"
+msgstr "Per kategorigrupp"
+
+#: templates/dashboard/analytics.html:203
+msgid "By decision"
+msgstr "Per beslut"
+
+#: templates/dashboard/analytics.html:225
+#: templates/dashboard/analytics.html:334
+msgid "By status"
+msgstr "Per status"
+
+#: templates/dashboard/analytics.html:247
+#: templates/dashboard/kb_vendor.html:55
+msgid "Top machines"
+msgstr "Vanligaste maskinerna"
+
+#: templates/dashboard/analytics.html:274
+#: templates/dashboard/kb_machine_page.html:35
+msgid "Top problems"
+msgstr "Vanligaste problemen"
+
+#: templates/dashboard/analytics.html:296
+msgid "Sessions by vendor"
+msgstr "Sessioner per tillverkare"
+
+#: templates/dashboard/analytics.html:318
+msgid "Lead delivery health"
+msgstr "Leveransstatus för förfrågningar"
+
+#: templates/dashboard/analytics.html:322
+msgid "Requests"
+msgstr "Förfrågningar"
+
+#: templates/dashboard/analytics.html:326
+msgid "Delivery success"
+msgstr "Lyckade leveranser"
+
+#: templates/dashboard/analytics.html:330
+msgid "Failed"
+msgstr "Misslyckade"
+
+#: templates/dashboard/analytics.html:344
+msgid "No deliveries yet."
+msgstr "Inga leveranser än."
+
+#: templates/dashboard/analytics.html:347
+msgid "By sink"
+msgstr "Per leveransmål"
+
+#: templates/dashboard/analytics.html:358
+msgid "No delivery sinks recorded."
+msgstr "Inga leveransmål registrerade."
+
+#: templates/dashboard/analytics.html:16
+msgid "{{ n }} metric below target{% plural %}{{ n }} metrics below target"
+msgstr ""
+"{{ n }} nyckeltal under målet{% plural %}{{ n }} nyckeltal under målet"
+
+#: templates/dashboard/analytics.html:42
+msgid "{{ n }} resolved{% plural %}{{ n }} resolved"
+msgstr "{{ n }} löst{% plural %}{{ n }} lösta"
+
+#: templates/dashboard/analytics.html:57
+msgid "{{ n }} escalated{% plural %}{{ n }} escalated"
+msgstr "{{ n }} eskalerad{% plural %}{{ n }} eskalerade"
+
+#: templates/dashboard/analytics.html:72
+msgid "conf {{ c }}"
+msgstr "konf {{ c }}"
+
+#: templates/dashboard/analytics.html:88 templates/dashboard/analytics.html:95
+msgid "target {{ tgt_pct }}%"
+msgstr "mål {{ tgt_pct }}%"
+
+#: templates/dashboard/analytics.html:111
+msgid "last {{ n }} day{% plural %}last {{ n }} days"
+msgstr "senaste {{ n }} dagen{% plural %}senaste {{ n }} dagarna"
+
+#: templates/dashboard/analytics.html:258
+#: templates/dashboard/kb_vendor.html:65
+msgid "{{ r }}/{{ n }} resolved"
+msgstr "{{ r }}/{{ n }} lösta"
+
+#: templates/dashboard/base.html:23
+msgid "Skip to content"
+msgstr "Hoppa till innehåll"
+
+#: templates/dashboard/base.html:43
+msgid "Support"
+msgstr "Support"
+
+#: templates/dashboard/base.html:49 templates/dashboard/knowledge.html:2
+#: templates/dashboard/knowledge.html:3
+#: templates/dashboard/knowledge_form.html:4
+msgid "Knowledge"
+msgstr "Kunskap"
+
+#: templates/dashboard/base.html:51 templates/dashboard/category_detail.html:3
+#: templates/dashboard/category_form.html:4
+#: templates/dashboard/category_list.html:3
+#: templates/dashboard/kb_machine_page.html:4
+#: templates/dashboard/kb_manager.html:2 templates/dashboard/kb_manager.html:3
+#: templates/dashboard/kb_vendor.html:2 templates/dashboard/kb_vendor.html:4
+#: templates/dashboard/machine_form.html:4
+#: templates/dashboard/vendor_form.html:4
+msgid "Knowledge Base"
+msgstr "Kunskapsbas"
+
+#: templates/dashboard/base.html:55 templates/dashboard/faq.html:11
+msgid "Kunskapsbank"
+msgstr "Kunskapsbank"
+
+#: templates/dashboard/base.html:59 templates/dashboard/guardrails.html:2
+#: templates/dashboard/guardrails.html:3
+msgid "Guardrails"
+msgstr "Skyddsregler"
+
+#: templates/dashboard/base.html:61 templates/dashboard/flow.html:2
+#: templates/dashboard/flow.html:3 templates/dashboard/flow.html:11
+msgid "Flow builder"
+msgstr "Flödesbyggare"
+
+#: templates/dashboard/base.html:63 templates/dashboard/voice_phone.html:3
+msgid "Phone / Voice"
+msgstr "Telefon / Röst"
+
+#: templates/dashboard/base.html:65 templates/dashboard/voice_phone.html:2
+#: templates/dashboard/voice_phone.html:5
+msgid "Phone assistant"
+msgstr "Telefonassistent"
+
+#: templates/dashboard/base.html:67
+msgid "Tools"
+msgstr "Verktyg"
+
+#: templates/dashboard/base.html:69
+msgid "Test chat"
+msgstr "Testchatt"
+
+#: templates/dashboard/base.html:71
+msgid "Homepage demo"
+msgstr "Demo på startsidan"
+
+#: templates/dashboard/base.html:73
+msgid "Playground"
+msgstr "Testyta"
+
+#: templates/dashboard/base.html:75 templates/dashboard/service_area.html:10
+#: templates/dashboard/settings.html:3
+#: templates/dashboard/voice_credentials.html:3
+#: templates/dashboard/voice_credentials.html:5
+msgid "Settings"
+msgstr "Inställningar"
+
+#: templates/dashboard/base.html:80
+msgid "Django Admin"
+msgstr "Django Admin"
+
+#: templates/dashboard/base.html:88
+msgid "Toggle navigation"
+msgstr "Växla navigering"
+
+#: templates/dashboard/base.html:99
+msgid "Language"
+msgstr "Språk"
+
+#: templates/dashboard/base.html:109
+msgid "Go"
+msgstr "Byt"
+
+#: templates/dashboard/base.html:111
+msgid "View site"
+msgstr "Visa webbplatsen"
+
+#: templates/dashboard/base.html:153
+msgid "Something went wrong. Please try again."
+msgstr "Något gick fel. Försök igen."
+
+#: templates/dashboard/base.html:156
+msgid "Network error — check your connection and try again."
+msgstr "Nätverksfel — kontrollera din anslutning och försök igen."
+
+#: templates/dashboard/category_detail.html:4
+#: templates/dashboard/category_list.html:2
+#: templates/dashboard/category_list.html:4
+#: templates/dashboard/category_list.html:6
+msgid "Equipment types"
+msgstr "Utrustningstyper"
+
+#: templates/dashboard/category_detail.html:12
+msgid ""
+"Equipment type — its machines, the customers who own them, and recent "
+"conversations."
+msgstr ""
+"Utrustningstyp — dess maskiner, kunderna som äger dem och senaste "
+"konversationerna."
+
+#: templates/dashboard/category_detail.html:17
+#: templates/dashboard/kb_vendor.html:84
+msgid "Machines"
+msgstr "Maskiner"
+
+#: templates/dashboard/category_detail.html:21
+msgid "No machines in this type."
+msgstr "Inga maskiner i den här typen."
+
+#: templates/dashboard/category_detail.html:23
+msgid "Sub-types:"
+msgstr "Undertyper:"
+
+#: templates/dashboard/category_detail.html:34
+msgid "No customers yet for this type."
+msgstr "Inga kunder än för den här typen."
+
+#: templates/dashboard/category_form.html:2
+#: templates/dashboard/category_list.html:8
+msgid "New category"
+msgstr "Ny kategori"
+
+#: templates/dashboard/category_form.html:6
+msgid "Categories"
+msgstr "Kategorier"
+
+#: templates/dashboard/category_form.html:8
+msgid "New"
+msgstr "Ny"
+
+#: templates/dashboard/category_form.html:18
+msgid "Create category"
+msgstr "Skapa kategori"
+
+#: templates/dashboard/category_form.html:19
+#: templates/dashboard/customer_form.html:17
+#: templates/dashboard/faq_form.html:17
+#: templates/dashboard/knowledge_form.html:17
+#: templates/dashboard/machine_form.html:17
+#: templates/dashboard/vendor_form.html:17
+msgid "Cancel"
+msgstr "Avbryt"
+
+#: templates/dashboard/category_list.html:15
+msgid "machine(s)"
+msgstr "maskin(er)"
+
+#: templates/dashboard/category_list.html:15
+msgid "under"
+msgstr "under"
+
+#: templates/dashboard/customer_detail.html:15
+msgid "Senaste ärende"
+msgstr "Senaste ärende"
+
+#: templates/dashboard/customer_detail.html:25
+msgid "Returning customer"
+msgstr "Återkommande kund"
+
+#: templates/dashboard/customer_detail.html:30
+msgid "Last contact:"
+msgstr "Senaste kontakt:"
+
+#: templates/dashboard/customer_detail.html:31
+msgid "—"
+msgstr "—"
+
+#: templates/dashboard/customer_detail.html:33
+msgid "Files:"
+msgstr "Filer:"
+
+#: templates/dashboard/customer_detail.html:39
+msgid "Equipment & routing"
+msgstr "Utrustning & routing"
+
+#: templates/dashboard/customer_detail.html:44
+msgid ""
+"No equipment linked yet — it's assigned automatically when a conversation "
+"escalates."
+msgstr ""
+"Ingen utrustning kopplad än — den kopplas automatiskt när en konversation "
+"eskaleras."
+
+#: templates/dashboard/customer_detail.html:46
+msgid "All units seen:"
+msgstr "Alla kända enheter:"
+
+#: templates/dashboard/customer_detail.html:48
+msgid "AI summary:"
+msgstr "AI-sammanfattning:"
+
+#: templates/dashboard/customer_detail.html:52
+msgid "Senaste ärenden"
+msgstr "Senaste ärenden"
+
+#: templates/dashboard/customer_detail.html:67
+msgid "less"
+msgstr "mindre"
+
+#: templates/dashboard/customer_detail.html:67
+msgid "more"
+msgstr "mer"
+
+#: templates/dashboard/customer_detail.html:82
+msgid "Uploaded files"
+msgstr "Uppladdade filer"
+
+#: templates/dashboard/customer_detail.html:85
+msgid "Machine documentation"
+msgstr "Maskindokumentation"
+
+#: templates/dashboard/customer_detail.html:88
+msgid "Invoices & documents"
+msgstr "Fakturor & dokument"
+
+#: templates/dashboard/customer_detail.html:101
+msgid "via"
+msgstr "via"
+
+#: templates/dashboard/customer_detail.html:121
+msgid "manual(s)"
+msgstr "manual(er)"
+
+#: templates/dashboard/customer_detail.html:122
+msgid "documentation not loaded"
+msgstr "dokumentation ej inläst"
+
+#: templates/dashboard/customer_detail.html:142
+msgid "No invoices or documents stored yet."
+msgstr "Inga fakturor eller dokument sparade än."
+
+#: templates/dashboard/customer_detail.html:154
+msgid ""
+"Invoices, quotes, or documents — up to 20 MB. Stored in this customer’s "
+"folder."
+msgstr ""
+"Fakturor, offerter eller dokument — upp till 20 MB. Sparas i den här kundens"
+" mapp."
+
+#: templates/dashboard/customer_detail.html:10
+msgid "{{ phone }} · {{ email }} · {{ address }} · {{ postal }} {{ city }}"
+msgstr "{{ phone }} · {{ email }} · {{ address }} · {{ postal }} {{ city }}"
+
+#: templates/dashboard/customer_form.html:2
+#: templates/dashboard/customer_form.html:6
+msgid "Add customer"
+msgstr "Lägg till kund"
+
+#: templates/dashboard/customer_form.html:16
+msgid "Create customer"
+msgstr "Skapa kund"
+
+#: templates/dashboard/customer_list.html:12
+msgid "New customer"
+msgstr "Ny kund"
+
+#: templates/dashboard/customer_list.html:17
+msgid "Search name, phone, email, postal…"
+msgstr "Sök namn, telefon, e-post, postnummer…"
+
+#: templates/dashboard/customer_list.html:18
+msgid "Search customers"
+msgstr "Sök kunder"
+
+#: templates/dashboard/customer_list.html:21 templates/dashboard/faq.html:32
+#: templates/dashboard/session_list.html:23
+msgid "Search"
+msgstr "Sök"
+
+#: templates/dashboard/customer_list.html:22 templates/dashboard/faq.html:33
+#: templates/dashboard/knowledge.html:58
+#: templates/dashboard/session_list.html:24
+msgid "Clear"
+msgstr "Rensa"
+
+#: templates/dashboard/customer_list.html:77
+msgid "Name"
+msgstr "Namn"
+
+#: templates/dashboard/customer_list.html:80
+msgid "Phone"
+msgstr "Telefon"
+
+#: templates/dashboard/customer_list.html:81
+msgid "Email"
+msgstr "E-post"
+
+#: templates/dashboard/customer_list.html:82
+msgid "Postal"
+msgstr "Postnummer"
+
+#: templates/dashboard/customer_list.html:83
+msgid "City"
+msgstr "Ort"
+
+#: templates/dashboard/customer_list.html:84
+msgid "Since"
+msgstr "Kund sedan"
+
+#: templates/dashboard/customer_list.html:6
+msgid "{{ counter }} customer{% plural %}{{ counter }} customers"
+msgstr "{{ counter }} kund{% plural %}{{ counter }} kunder"
+
+#: templates/dashboard/faq.html:9 templates/dashboard/faq_form.html:16
+msgid "Add site FAQ"
+msgstr "Lägg till webbplats-FAQ"
+
+#: templates/dashboard/faq.html:10 templates/dashboard/faq_form.html:16
+msgid "Add category FAQ"
+msgstr "Lägg till kategori-FAQ"
+
+#: templates/dashboard/faq.html:16
+msgid ""
+"Site FAQ is the public “Vanliga frågor”, searched by the assistant. Category"
+" FAQ is tied to an equipment type and is injected into the specialist "
+"(configure which categories on the specialist agent). Both are also editable"
+" in Django Admin."
+msgstr ""
+"Webbplatsens FAQ är de publika ”Vanliga frågor” som assistenten söker i. "
+"Kategori-FAQ hör till en utrustningstyp och infogas i specialisten (välj "
+"vilka kategorier på specialistagenten). Båda går även att redigera i Django "
+"Admin."
+
+#: templates/dashboard/faq.html:21
+msgid "Väntar på godkännande"
+msgstr "Väntar på godkännande"
+
+#: templates/dashboard/faq.html:23
+msgid ""
+"Imported general knowledge is excluded from the assistant until approved "
+"here."
+msgstr ""
+"Importerad allmän kunskap används inte av assistenten förrän den godkänts "
+"här."
+
+#: templates/dashboard/faq.html:29
+msgid "Search questions and answers…"
+msgstr "Sök frågor och svar…"
+
+#: templates/dashboard/faq.html:30
+msgid "Search FAQ"
+msgstr "Sök i FAQ"
+
+#: templates/dashboard/faq.html:51 templates/dashboard/voice_phone.html:80
+#: templates/dashboard/voice_phone.html:87
+msgid "Source"
+msgstr "Källa"
+
+#: templates/dashboard/faq.html:5
+msgid "{{ n }} question{% plural %}{{ n }} questions"
+msgstr "{{ n }} fråga{% plural %}{{ n }} frågor"
+
+#: templates/dashboard/flow.html:12
+msgid ""
+"Drag to arrange. Click a step to configure it. Click an arrow to set the "
+"fields collected on that transition. Use the → handle on a step to connect "
+"it to another."
+msgstr ""
+"Dra för att ordna. Klicka på ett steg för att konfigurera det. Klicka på en "
+"pil för att ange vilka fält som samlas in vid övergången. Använd →-handtaget"
+" på ett steg för att koppla det till ett annat."
+
+#: templates/dashboard/flow.html:15
+msgid "unsaved changes"
+msgstr "osparade ändringar"
+
+#: templates/dashboard/flow.html:17
+msgid "Saving…"
+msgstr "Sparar…"
+
+#: templates/dashboard/flow.html:17 templates/dashboard/flow.html:17
+msgid "Save flow"
+msgstr "Spara flöde"
+
+#: templates/dashboard/flow.html:24
+msgid ""
+"Agent steps edit the live bot directly — saving an agent applies to the next"
+" conversation immediately. The hard safety guardrails stay enforced in code "
+"and can't be removed here."
+msgstr ""
+"Agentstegen redigerar den skarpa boten direkt — när du sparar en agent "
+"gäller det omedelbart för nästa konversation. De hårda skyddsreglerna för "
+"säkerhet ligger kvar i koden och kan inte tas bort här."
+
+#: templates/dashboard/flow.html:29
+msgid "Add step:"
+msgstr "Lägg till steg:"
+
+#: templates/dashboard/flow.html:75
+msgid "Connect to another step"
+msgstr "Koppla till ett annat steg"
+
+#: templates/dashboard/flow.html:87
+msgid "Nothing selected."
+msgstr "Inget valt."
+
+#: templates/dashboard/flow.html:88
+msgid ""
+"Click a step to edit it, or an arrow to choose which fields to collect on "
+"that transition."
+msgstr ""
+"Klicka på ett steg för att redigera det, eller på en pil för att välja vilka"
+" fält som ska samlas in vid övergången."
+
+#: templates/dashboard/flow.html:97 templates/dashboard/flow.html:224
+msgid "Delete"
+msgstr "Ta bort"
+
+#: templates/dashboard/flow.html:100
+msgid "Title"
+msgstr "Titel"
+
+#: templates/dashboard/flow.html:107
+msgid "Agent role"
+msgstr "Agentroll"
+
+#: templates/dashboard/flow.html:114
+msgid "Live agent settings"
+msgstr "Live-agentens inställningar"
+
+#: templates/dashboard/flow.html:122
+msgid "Max tokens"
+msgstr "Max tokens"
+
+#: templates/dashboard/flow.html:127
+msgid "Thinking"
+msgstr "Tänkande"
+
+#: templates/dashboard/flow.html:131
+msgid "AI: add to this prompt (never rewrites)"
+msgstr "AI: lägg till i den här prompten (skriver aldrig om)"
+
+#: templates/dashboard/flow.html:133
+msgid "add guardrails about…"
+msgstr "lägg till skyddsregler om…"
+
+#: templates/dashboard/flow.html:134 templates/dashboard/flow.html:134
+msgid "AI add"
+msgstr "AI-tillägg"
+
+#: templates/dashboard/flow.html:141
+msgid "Save agent (live)"
+msgstr "Spara agent (live)"
+
+#: templates/dashboard/flow.html:142
+msgid "Full editor ↗"
+msgstr "Fullständig redigerare ↗"
+
+#: templates/dashboard/flow.html:146
+msgid "No prompt row for this role yet."
+msgstr "Ingen promptrad för den här rollen än."
+
+#: templates/dashboard/flow.html:153
+msgid "Question to ask"
+msgstr "Fråga att ställa"
+
+#: templates/dashboard/flow.html:156
+msgid "Save answer as (field name)"
+msgstr "Spara svaret som (fältnamn)"
+
+#: templates/dashboard/flow.html:159
+msgid "Quick-reply chips (comma-separated)"
+msgstr "Snabbsvarsknappar (kommaseparerade)"
+
+#: templates/dashboard/flow.html:167
+msgid "Message to the customer"
+msgstr "Meddelande till kunden"
+
+#: templates/dashboard/flow.html:175
+msgid "Wait (seconds)"
+msgstr "Väntetid (sekunder)"
+
+#: templates/dashboard/flow.html:178
+msgid "Reason / note"
+msgstr "Orsak / anteckning"
+
+#: templates/dashboard/flow.html:188
+msgid "Method"
+msgstr "Metod"
+
+#: templates/dashboard/flow.html:193
+msgid "Save response as"
+msgstr "Spara svaret som"
+
+#: templates/dashboard/flow.html:197
+#: templates/dashboard/forms_settings.html:23
+msgid "URL"
+msgstr "URL"
+
+#: templates/dashboard/flow.html:200
+msgid "Note"
+msgstr "Anteckning"
+
+#: templates/dashboard/flow.html:208 templates/dashboard/voice_phone.html:46
+#: templates/dashboard/voice_phone.html:54
+msgid "Outcome"
+msgstr "Utfall"
+
+#: templates/dashboard/flow.html:210
+msgid "Solve (resolved)"
+msgstr "Lös (löst)"
+
+#: templates/dashboard/flow.html:212
+msgid "Other"
+msgstr "Övrigt"
+
+#: templates/dashboard/flow.html:223
+msgid "Transition"
+msgstr "Övergång"
+
+#: templates/dashboard/flow.html:227
+msgid "Arrow label"
+msgstr "Pilens etikett"
+
+#: templates/dashboard/flow.html:231
+msgid "Fields to collect here"
+msgstr "Fält att samla in här"
+
+#: templates/dashboard/flow.html:232
+msgid "Add field"
+msgstr "Lägg till fält"
+
+#: templates/dashboard/flow.html:235
+msgid "No fields collected on this transition."
+msgstr "Inga fält samlas in vid den här övergången."
+
+#: templates/dashboard/flow.html:241
+msgid "field name"
+msgstr "fältnamn"
+
+#: templates/dashboard/flow.html:242
+msgid "label"
+msgstr "etikett"
+
+#: templates/dashboard/flow.html:245
+msgid "required"
+msgstr "obligatoriskt"
+
+#: templates/dashboard/flow.html:246
+msgid "remove"
+msgstr "ta bort"
+
+#: templates/dashboard/forms_settings.html:10
+msgid "Form buttons"
+msgstr "Formulärknappar"
+
+#: templates/dashboard/forms_settings.html:12
+msgid ""
+"One URL per case category. Each active row's URL gets a signed prefill token"
+" (?nl_case=…) appended automatically when the bot offers it as a chip, so "
+"the customer's answers carry over to your real form."
+msgstr ""
+"En URL per ärendekategori. Varje aktiv rads URL får automatiskt en signerad "
+"förifyllningstoken (?nl_case=…) tillagd när boten erbjuder den som en "
+"snabbsvarsknapp, så att kundens svar följer med till ditt riktiga formulär."
+
+#: templates/dashboard/forms_settings.html:19
+msgid "Label"
+msgstr "Etikett"
+
+#: templates/dashboard/forms_settings.html:39
+msgid "Prefill snippet install"
+msgstr "Installation av förifyllningskod"
+
+#: templates/dashboard/forms_settings.html:40
+msgid ""
+"When you're ready to install the prefill snippet on the real WordPress form,"
+" follow"
+msgstr ""
+"När du är redo att installera förifyllningskoden på det riktiga WordPress-"
+"formuläret, följ"
+
+#: templates/dashboard/guardrails.html:9
+msgid ""
+"Guardrails you add here are injected into the agent and apply to the very "
+"next conversation. They can only ADD restrictions — the hard safety baseline"
+" below is enforced in code and a safety check runs on every reply, so "
+"nothing here can ever weaken it."
+msgstr ""
+"Skyddsregler du lägger till här infogas i agenten och gäller redan från "
+"nästa konversation. De kan bara LÄGGA TILL begränsningar — den hårda "
+"säkerhetsbasen nedan är inbyggd i koden och en säkerhetskontroll körs på "
+"varje svar, så inget här kan någonsin försvaga den."
+
+#: templates/dashboard/guardrails.html:14
+msgid "Always enforced (code baseline)"
+msgstr "Tillämpas alltid (baslinje i koden)"
+
+#: templates/dashboard/guardrails.html:15
+msgid "Hard-coded and non-editable. Applies to every agent."
+msgstr "Hårdkodat och går inte att redigera. Gäller alla agenter."
+
+#: templates/dashboard/guardrails.html:34
+msgid "Add a guardrail rule for this agent…"
+msgstr "Lägg till en skyddsregel för den här agenten…"
+
+#: templates/dashboard/kb_machine_page.html:19
+msgid "Aliases:"
+msgstr "Alias:"
+
+#: templates/dashboard/kb_machine_page.html:25
+msgid "Delete machine"
+msgstr "Ta bort maskin"
+
+#: templates/dashboard/kb_machine_page.html:49
+msgid "No problems categorized for this machine yet."
+msgstr "Inga problem kategoriserade för den här maskinen än."
+
+#: templates/dashboard/kb_machine_page.html:68
+msgid "Edit machine"
+msgstr "Redigera maskin"
+
+#: templates/dashboard/kb_machine_page.html:79
+msgid "Save changes"
+msgstr "Spara ändringar"
+
+#: templates/dashboard/kb_machine_page.html:23
+msgid "Delete machine “{{ m }}” and its manuals/notes? This cannot be undone."
+msgstr ""
+"Ta bort maskinen ”{{ m }}” och dess manualer/anteckningar? Detta kan inte "
+"ångras."
+
+#: templates/dashboard/kb_manager.html:7
+msgid "Knowledge Base Manager"
+msgstr "Kunskapsbashanterare"
+
+#: templates/dashboard/kb_manager.html:11
+msgid "Pick a brand to manage its machines, manuals and notes."
+msgstr ""
+"Välj ett märke för att hantera dess maskiner, manualer och anteckningar."
+
+#: templates/dashboard/kb_manager.html:15
+msgid "Browse by type"
+msgstr "Bläddra efter typ"
+
+#: templates/dashboard/kb_manager.html:16
+#: templates/dashboard/vendor_form.html:2
+#: templates/dashboard/vendor_form.html:6
+msgid "Add brand"
+msgstr "Lägg till märke"
+
+#: templates/dashboard/kb_manager.html:34
+#: templates/dashboard/kb_vendor.html:14
+msgid "inactive"
+msgstr "inaktiv"
+
+#: templates/dashboard/kb_manager.html:9
+msgid "{{ vc }} brand{% plural %}{{ vc }} brands"
+msgstr "{{ vc }} märke{% plural %}{{ vc }} märken"
+
+#: templates/dashboard/kb_manager.html:10
+msgid "{{ mc }} machine{% plural %}{{ mc }} machines"
+msgstr "{{ mc }} maskin{% plural %}{{ mc }} maskiner"
+
+#: templates/dashboard/kb_manager.html:33
+#: templates/dashboard/kb_vendor.html:13
+msgid "{{ n }} machine{% plural %}{{ n }} machines"
+msgstr "{{ n }} maskin{% plural %}{{ n }} maskiner"
+
+#: templates/dashboard/kb_vendor.html:18
+#: templates/dashboard/machine_form.html:2
+#: templates/dashboard/machine_form.html:6
+msgid "Add machine"
+msgstr "Lägg till maskin"
+
+#: templates/dashboard/kb_vendor.html:22
+msgid "Delete brand"
+msgstr "Ta bort märke"
+
+#: templates/dashboard/kb_vendor.html:49
+msgid "No sessions recorded for this brand yet."
+msgstr "Inga sessioner registrerade för det här märket än."
+
+#: templates/dashboard/kb_vendor.html:73
+msgid "No machines identified in sessions yet."
+msgstr "Inga maskiner har identifierats i sessioner ännu."
+
+#: templates/dashboard/kb_vendor.html:111
+msgid "Per-vendor agent notes"
+msgstr "Agentanteckningar per tillverkare"
+
+#: templates/dashboard/kb_vendor.html:112
+msgid "Appended to the specialist for this vendor’s machines."
+msgstr "Läggs till specialisten för den här tillverkarens maskiner."
+
+#: templates/dashboard/kb_vendor.html:117
+msgid "Brand notes"
+msgstr "Märkesanteckningar"
+
+#: templates/dashboard/kb_vendor.html:127
+msgid "No brand notes yet."
+msgstr "Inga märkesanteckningar än."
+
+#: templates/dashboard/kb_vendor.html:134
+msgid "Add brand note"
+msgstr "Lägg till märkesanteckning"
+
+#: templates/dashboard/kb_vendor.html:20
+msgid ""
+"Delete “{{ v }}” and ALL its machines, manuals and notes? This cannot be "
+"undone."
+msgstr ""
+"Ta bort ”{{ v }}” och ALLA dess maskiner, manualer och anteckningar? Detta "
+"kan inte ångras."
+
+#: templates/dashboard/knowledge.html:16
+msgid "Total"
+msgstr "Totalt"
+
+#: templates/dashboard/knowledge.html:17 templates/dashboard/knowledge.html:53
+msgid "Approved"
+msgstr "Godkända"
+
+#: templates/dashboard/knowledge.html:18 templates/dashboard/knowledge.html:54
+msgid "Pending"
+msgstr "Väntar"
+
+#: templates/dashboard/knowledge.html:21 templates/dashboard/knowledge.html:23
+msgid "Ny post"
+msgstr "Ny post"
+
+#: templates/dashboard/knowledge.html:30
+msgid "All"
+msgstr "Alla"
+
+#: templates/dashboard/knowledge.html:42
+msgid "Search question, answer, keywords…"
+msgstr "Sök fråga, svar, nyckelord…"
+
+#: templates/dashboard/knowledge.html:43
+msgid "Search knowledge"
+msgstr "Sök i kunskapsbasen"
+
+#: templates/dashboard/knowledge.html:47
+msgid "Onset: all"
+msgstr "Uppkomst: alla"
+
+#: templates/dashboard/knowledge.html:52
+msgid "Status: all"
+msgstr "Status: alla"
+
+#: templates/dashboard/machine_form.html:16
+msgid "Create machine"
+msgstr "Skapa maskin"
+
+#: templates/dashboard/service_area.html:11
+msgid ""
+"Default off. Gates the lead/quote form only — troubleshooting continues for "
+"everyone regardless of area."
+msgstr ""
+"Avstängd som standard. Styr endast förfrågnings-/offertformuläret — "
+"felsökningen fortsätter för alla oavsett arbetsområde."
+
+#: templates/dashboard/service_area.html:16
+msgid "Enable service-area check"
+msgstr "Aktivera kontroll av arbetsområde"
+
+#: templates/dashboard/service_area.html:18
+msgid "Previous-installer names (comma-separated)"
+msgstr "Namn på tidigare installatörer (kommaseparerade)"
+
+#: templates/dashboard/service_area.html:21
+msgid ""
+"A customer naming one of these upgrades an outside/border result to inside."
+msgstr ""
+"Om en kund nämner någon av dessa uppgraderas ett resultat utanför/på gränsen"
+" till innanför."
+
+#: templates/dashboard/service_area.html:23
+msgid "Fallback contact URL (shown on outside-area decline)"
+msgstr "Reserv-URL för kontakt (visas vid nekande utanför arbetsområdet)"
+
+#: templates/dashboard/service_area.html:32
+msgid "Postcode dataset"
+msgstr "Postnummerdata"
+
+#: templates/dashboard/service_area.html:36
+msgid ""
+"to load the offline GeoNames table (download from "
+"download.geonames.org/export/zip/SE.zip)."
+msgstr ""
+"för att läsa in GeoNames-tabellen offline (ladda ner från "
+"download.geonames.org/export/zip/SE.zip)."
+
+#: templates/dashboard/service_area.html:42
+msgid "Test a postcode"
+msgstr "Testa ett postnummer"
+
+#: templates/dashboard/service_area.html:45
+msgid "Postcode"
+msgstr "Postnummer"
+
+#: templates/dashboard/service_area.html:49
+msgid "Check"
+msgstr "Kontrollera"
+
+#: templates/dashboard/service_area.html:55
+msgid "Preview (read-only)"
+msgstr "Förhandsvisning (skrivskyddad)"
+
+#: templates/dashboard/service_area.html:56
+msgid ""
+"Equirectangular projection — for a shape sanity-check only, not to scale for"
+" navigation."
+msgstr ""
+"Ekvirektangulär projektion — endast för att kontrollera formen, inte "
+"skalenlig för navigering."
+
+#: templates/dashboard/service_area.html:61
+msgid "Service areas"
+msgstr "Arbetsområden"
+
+#: templates/dashboard/service_area.html:69
+msgid "Name (e.g. Main corridor)"
+msgstr "Namn (t.ex. Huvudstråket)"
+
+#: templates/dashboard/service_area.html:72
+msgid "Inside"
+msgstr "Inom"
+
+#: templates/dashboard/service_area.html:73
+msgid "Extension"
+msgstr "Utökat område"
+
+#: templates/dashboard/service_area.html:75
+msgid "Border km"
+msgstr "Gräns km"
+
+#: templates/dashboard/service_area.html:84
+msgid "No categories selected = applies to all."
+msgstr "Inga kategorier valda = gäller alla."
+
+#: templates/dashboard/service_area.html:87
+msgid "GeoJSON Polygon/MultiPolygon/Feature — [lng, lat] order."
+msgstr "GeoJSON Polygon/MultiPolygon/Feature — ordning [lng, lat]."
+
+#: templates/dashboard/service_area.html:88
+msgid "Add service area"
+msgstr "Lägg till arbetsområde"
+
+#: templates/dashboard/service_area.html:34
+msgid "{{ count }} postcode loaded{% plural %}{{ count }} postcodes loaded"
+msgstr ""
+"{{ count }} postnummer inläst{% plural %}{{ count }} postnummer inlästa"
+
+#: templates/dashboard/session_detail.html:41
+msgid "Attachments"
+msgstr "Bilagor"
+
+#: templates/dashboard/session_detail.html:57
+msgid "Brand"
+msgstr "Märke"
+
+#: templates/dashboard/session_detail.html:60
+msgid "Type"
+msgstr "Typ"
+
+#: templates/dashboard/session_detail.html:10
+msgid "Session #{{ id }}"
+msgstr "Session #{{ id }}"
+
+#: templates/dashboard/session_list.html:11
+msgid "Search equipment, summary, customer…"
+msgstr "Sök utrustning, sammanfattning, kund…"
+
+#: templates/dashboard/session_list.html:12
+msgid "Search conversations"
+msgstr "Sök konversationer"
+
+#: templates/dashboard/session_list.html:19
+msgid "status"
+msgstr "status"
+
+#: templates/dashboard/session_list.html:6
+msgid "{{ counter }} session{% plural %}{{ counter }} sessions"
+msgstr "{{ counter }} session{% plural %}{{ counter }} sessioner"
+
+#: templates/dashboard/settings.html:10
+msgid "n8n → Google Drive mirror"
+msgstr "n8n → Google Drive-spegling"
+
+#: templates/dashboard/settings.html:11
+msgid ""
+"When enabled, every newly registered customer file is POSTed (signed) to "
+"your n8n webhook, which mirrors it into a per-customer Google Drive folder "
+"and returns the Drive link. Default off. Import "
+"tools/n8n/drive_mirror.workflow.json into n8n."
+msgstr ""
+"När funktionen är aktiverad skickas varje nyregistrerad kundfil (signerad) "
+"med POST till din n8n-webhook, som speglar den till en Google Drive-mapp per"
+" kund och returnerar Drive-länken. Avstängd som standard. Importera "
+"tools/n8n/drive_mirror.workflow.json till n8n."
+
+#: templates/dashboard/settings.html:14
+msgid "n8n webhook URL"
+msgstr "n8n webhook-URL"
+
+#: templates/dashboard/settings.html:18
+msgid "Shared secret"
+msgstr "Delad hemlighet"
+
+#: templates/dashboard/settings.html:21
+msgid ""
+"Signs the payload as HMAC-SHA256 in the X-Nordland-Signature header. Set the"
+" same value in the n8n workflow."
+msgstr ""
+"Signerar nyttolasten som HMAC-SHA256 i headern X-Nordland-Signature. Ange "
+"samma värde i n8n-arbetsflödet."
+
+#: templates/dashboard/settings.html:23
+msgid "Enable mirror"
+msgstr "Aktivera spegling"
+
+#: templates/dashboard/vendor_form.html:16
+msgid "Create brand"
+msgstr "Skapa märke"
+
+#: templates/dashboard/voice_credentials.html:2
+msgid "Voice credentials"
+msgstr "API-uppgifter för röst"
+
+#: templates/dashboard/voice_credentials.html:7
+msgid ""
+"Stored in the database and applied live — no redeploy. Provider keys "
+"(ElevenLabs/Deepgram) live in Vapi's own dashboard."
+msgstr ""
+"Sparas i databasen och tillämpas direkt — ingen ny driftsättning behövs. "
+"Leverantörsnycklar (ElevenLabs/Deepgram) finns i Vapis egen kontrollpanel."
+
+#: templates/dashboard/voice_credentials.html:21
+msgid "set"
+msgstr "angiven"
+
+#: templates/dashboard/voice_credentials.html:22
+msgid "unset"
+msgstr "ej angiven"
+
+#: templates/dashboard/voice_credentials.html:25
+msgid "current"
+msgstr "nuvarande"
+
+#: templates/dashboard/voice_credentials.html:28
+msgid "value"
+msgstr "värde"
+
+#: templates/dashboard/voice_phone.html:3
+msgid "Assistant"
+msgstr "Assistent"
+
+#: templates/dashboard/voice_phone.html:11
+msgid "Vapi"
+msgstr "Vapi"
+
+#: templates/dashboard/voice_phone.html:12
+msgid "configured"
+msgstr "konfigurerad"
+
+#: templates/dashboard/voice_phone.html:13
+msgid "not configured (dry-run)"
+msgstr "ej konfigurerad (dry-run)"
+
+#: templates/dashboard/voice_phone.html:16
+msgid "Assistant id"
+msgstr "Assistent-id"
+
+#: templates/dashboard/voice_phone.html:19
+msgid "Publish status"
+msgstr "Publiceringsstatus"
+
+#: templates/dashboard/voice_phone.html:20
+msgid "in sync (no drift)"
+msgstr "i synk (ingen avvikelse)"
+
+#: templates/dashboard/voice_phone.html:21
+msgid "blocked"
+msgstr "blockerad"
+
+#: templates/dashboard/voice_phone.html:22
+msgid "pending changes"
+msgstr "väntande ändringar"
+
+#: templates/dashboard/voice_phone.html:29
+msgid "Publish to Vapi"
+msgstr "Publicera till Vapi"
+
+#: templates/dashboard/voice_phone.html:35
+msgid "Assistant payload (diff preview)"
+msgstr "Assistentens nyttolast (diff-förhandsvisning)"
+
+#: templates/dashboard/voice_phone.html:41
+msgid "Recent calls"
+msgstr "Senaste samtalen"
+
+#: templates/dashboard/voice_phone.html:46
+#: templates/dashboard/voice_phone.html:53
+#: templates/dashboard/voice_phone.html:79
+#: templates/dashboard/voice_phone.html:85
+msgid "Call id"
+msgstr "Samtals-id"
+
+#: templates/dashboard/voice_phone.html:47
+#: templates/dashboard/voice_phone.html:56
+msgid "Dur"
+msgstr "Längd"
+
+#: templates/dashboard/voice_phone.html:60
+msgid "Fetch"
+msgstr "Hämta"
+
+#: templates/dashboard/voice_phone.html:74
+msgid "Tool-call log"
+msgstr "Logg för verktygsanrop"
+
+#: templates/dashboard/voice_phone.html:79
+#: templates/dashboard/voice_phone.html:86
+msgid "Tool"
+msgstr "Verktyg"
+
+#~ msgid "Admin"
+#~ msgstr "Admin"
+
+#~ msgid "No data yet"
+#~ msgstr "Ingen data ännu"
+
+#~ msgid "No sessions yet"
+#~ msgstr "Inga sessioner ännu"
+
+# Session detail
+#~ msgid "All sessions"
+#~ msgstr "Alla sessioner"
+
+#~ msgid "Session"
+#~ msgstr "Session"
+
+#~ msgid "No messages"
+#~ msgstr "Inga meddelanden"

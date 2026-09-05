@@ -242,6 +242,14 @@ def _login(page: Page):
 def test_v2_d_dashboard_tabs(page: Page, orm):
     _login(page)
 
+    # The browser context is deliberately sv-SE (conftest) so the CUSTOMER pages render as a
+    # Swedish visitor sees them. The dashboard, however, is the operator's and is switchable,
+    # so this test drives the real language switcher to English first — which both makes the
+    # English assertions below deterministic and proves the switcher works in a real browser.
+    page.goto(f"{BASE_URL}/dashboard/")
+    page.select_option("#lang-select", "en")
+    page.wait_for_load_state()
+
     # Settings landing -> tabs bar present.
     resp = page.goto(f"{BASE_URL}/dashboard/settings/")
     assert resp is not None and resp.status == 200

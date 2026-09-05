@@ -19,6 +19,10 @@ dependencies = [
 dev = [
     "fpdf2>=2.8.7",
     "playwright>=1.61.0",
+    # Build-time only (`make messages`): Django's makemessages/compilemessages need the GNU
+    # gettext binaries, which aren't available on the Windows dev box. Not imported at runtime
+    # — Django reads the compiled .mo directly — so this never ships in the Docker image.
+    "polib>=1.2",
     "pytest>=8.3",
     "pytest-django>=4.9",
     "pytest-playwright>=0.8.0",

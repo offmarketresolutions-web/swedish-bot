@@ -154,3 +154,26 @@ def test_demo_form_post_without_js_is_not_rejected_by_csrf(client):
     assert "csrfmiddlewaretoken" in body, "POST form is missing {% csrf_token %} → 403 without JS"
     resp = client.post(reverse("demo-form"), {"name": "Test"})
     assert resp.status_code == 200, f"no-JS submit returned {resp.status_code}, not a page"
+
+
+def test_customer_pages_stay_swedish_regardless_of_operator_language(client):
+    """Deliberate asymmetry, decided 2026-09-05 after an i18n survey.
+
+    The DASHBOARD is switchable (the operator asked for English + a switcher). The PUBLIC
+    pages are not: they serve Swedish customers of a Swedish plumbing firm, and one of the
+    strings is the GDPR consent sentence — the text the customer legally agrees to. With
+    LANGUAGE_CODE="en", wrapping these in {% trans %} would serve an English marketing page
+    AND an English consent line to any visitor whose browser omits Accept-Language: sv.
+
+    So these pages hold their Swedish copy directly. This test fails if someone wraps them
+    in {% trans %} without also pinning the view's locale — which is the accident to catch.
+    """
+    from django.utils import translation
+    with translation.override("en"):
+        for url in ("/demo/homepage", "/demo/form"):
+            body = client.get(url).content.decode("utf-8")
+            assert 'lang="sv"' in body, f"{url} lost its Swedish lang attribute"
+            assert "Värmepump" in body or "värmepump" in body, (
+                f"{url} rendered non-Swedish copy under an English locale — customer-facing "
+                "pages must not follow the operator's language choice"
+            )

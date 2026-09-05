@@ -375,3 +375,40 @@ fails when the committed CSS no longer matches the templates — the stale-CSS c
 cannot ship silently again. Verified by simulating a template class edit.
 
 745 tests passing.
+
+## Addendum — the dashboard is now English with a working language switcher (2026-09-05)
+
+The operator asked for English with the ability to switch. The dashboard source was already
+English (586 `{% trans %}` tags), but **switching did nothing**, for three separate reasons:
+
+| Broken | Why it mattered |
+|---|---|
+| No `set_language` route — `django.conf.urls.i18n` was never included | there was no endpoint to change language *with* |
+| No compiled `.mo` (only a stale `.po`: 33 entries vs 449 real strings) | Django reads only the `.mo`; every string silently fell back to English |
+| No switcher UI anywhere | nothing for the operator to click |
+
+All three fixed. The switcher is a plain POST form (works with JS off, auto-submits with JS
+on), the choice persists in the standard language cookie, and the catalogue is **449/449
+translated (100%)** and compiled.
+
+### A deliberate asymmetry — customer pages do NOT switch
+
+An i18n survey ran read-only *before* any edit, and caught a trap worth recording: with
+`LANGUAGE_CODE="en"`, wrapping the public pages in `{% trans %}` would serve an English
+marketing page **and an English GDPR consent line** to any Swedish visitor whose browser
+omits `Accept-Language: sv`. The consent sentence is what the customer legally agrees to.
+
+So: the **dashboard** (operator) switches; the **public pages** (Swedish customers) hold
+their Swedish copy. `tests/test_public_pages.py` pins this — it renders both pages under an
+English locale and fails if the Swedish copy moves. The survey also mapped what must never be
+translated: the widget's `data-lang="sv"` (it sets the *bot's* conversation language),
+`<option value>` slugs matched against `SERVICED_FAMILIES`, `data-field` prefill keys, the
+IVT authorised-dealer claims, and the municipality names that double as gazetteer entries.
+
+### Tooling
+`make messages` extracts and compiles without GNU gettext (absent on Windows) via `polib`,
+a build-time-only dependency. `tools/i18n_apply.py` refuses any translation whose
+placeholders (`{{ x }}`, `%(x)s`, `{% %}`, HTML tags) don't match its source — the one
+translation error a human reviewer reliably misses. It rejected 0 of 422 on this pass.
+
+749 tests passing.
