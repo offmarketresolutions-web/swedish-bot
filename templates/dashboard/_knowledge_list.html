@@ -29,7 +29,7 @@
     {% endfor %}
   </div>
   {% else %}
-    <p class="text-sm text-nl-base/50 py-4">{% trans "No entries match." %}</p>
+    {% include 'dashboard/_empty_state.html' with icon='book' heading=_('No entries match') guidance=_('No site FAQ entries match your search or filters.') %}
   {% endif %}
 {% else %}
   {% if entries %}
@@ -64,7 +64,7 @@
     {% endfor %}
   </div>
   {% else %}
-    <p class="text-sm text-nl-base/50 py-4">{% trans "No entries match." %}</p>
+    {% include 'dashboard/_empty_state.html' with icon='book' heading=_('No entries match') guidance=_('No knowledge entries match your search or filters. Try broadening them.') %}
   {% endif %}
 {% endif %}
 </div>

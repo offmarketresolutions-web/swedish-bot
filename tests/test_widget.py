@@ -59,3 +59,79 @@ def test_prefill_snippet_reads_nl_case_param():
     assert "nl_case" in snippet
     assert "/api/prefill/" in snippet
     assert "FIELD_MAP" in snippet
+
+
+# ---- resilience gaps ("works no matter what") ----------------------------
+
+def _js():
+    return (WIDGET / "nordland-widget.js").read_text(encoding="utf-8")
+
+
+def test_widget_aborts_hung_requests_with_a_timeout():
+    js = _js()
+    assert "AbortController" in js
+    assert "ctrl.abort()" in js
+    assert "REQUEST_TIMEOUT_MS" in js
+
+
+def test_widget_offers_retry_on_network_failure_without_forcing_a_retype():
+    js = _js()
+    # a retry affordance exists and reuses the original request, not a re-typed one
+    assert 'setAttribute("data-testid", "widget-retry")' in js
+    assert "appendRetryButton" in js
+    assert "I18N.retry" in js
+
+
+def test_widget_backs_off_on_429_instead_of_hammering():
+    js = _js()
+    assert "429" in js
+    assert "RATE_LIMIT_BACKOFF_MS" in js
+    assert "rate_limited" in js
+    en = json.loads((WIDGET / "i18n" / "en.json").read_text(encoding="utf-8"))
+    sv = json.loads((WIDGET / "i18n" / "sv.json").read_text(encoding="utf-8"))
+    assert "rate_limited" in en and "rate_limited" in sv
+    assert "retry" in en and "retry" in sv
+
+
+def test_widget_session_persistence_is_guarded_and_restores_thread():
+    js = _js()
+    assert "sessionStorage.setItem" in js
+    assert "sessionStorage.getItem" in js
+    assert js.count("catch (e) {}") >= 3  # matchMedia + save() + load() all guarded
+    assert "function restore()" in js
+    assert "s.convo" in js  # reload restores the persisted transcript, not a blank slate
+
+
+def test_widget_panel_uses_dvh_with_a_vh_fallback_for_ios_safari():
+    js = _js()
+    assert "height:100vh;max-height:100vh;height:100dvh;max-height:100dvh" in js
+
+
+def test_widget_rescrolls_log_when_the_keyboard_opens_on_mobile():
+    js = _js()
+    assert "visualViewport" in js
+
+
+def test_widget_traps_tab_and_escape_returns_focus_to_launcher():
+    js = _js()
+    assert 'e.key === "Escape"' in js
+    assert 'e.key !== "Tab"' in js
+    assert "launcher.focus()" in js
+
+
+def test_widget_disables_input_and_shows_busy_state_while_a_turn_is_in_flight():
+    js = _js()
+    assert "input.disabled = busy" in js
+    assert "aria-busy" in js
+
+
+def test_widget_degrades_when_abortcontroller_is_missing():
+    """The widget is deliberately ES5 and already calls fetch() unguarded, but there is a
+    real browser window with fetch and WITHOUT AbortController (Chrome 42-65, Safari
+    10.1-12). Our demographic runs old devices; `new AbortController()` throwing there
+    would kill every send outright. Degrade to an untimed fetch instead of dying."""
+    js = (WIDGET / "nordland-widget.js").read_text(encoding="utf-8")
+    assert "typeof AbortController" in js, (
+        "AbortController is constructed unguarded — on a fetch-capable browser without it, "
+        "every message send throws and the widget is dead"
+    )

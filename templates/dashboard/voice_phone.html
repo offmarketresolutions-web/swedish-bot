@@ -24,7 +24,7 @@
     </div>
     <form method="post" action="{% url 'dash-voice-publish' %}">
       {% csrf_token %}
-      <button class="text-sm px-4 py-2 rounded bg-nl-primary text-white"
+      <button class="btn btn-primary"
               {% if preview.action == 'skipped' %}disabled{% endif %}>
         {% trans "Publish to Vapi" %}
       </button>
@@ -39,56 +39,60 @@
 
 <section class="mb-8">
   <h2 class="text-sm font-semibold uppercase tracking-wide text-nl-base/50 mb-3">{% trans "Recent calls" %}</h2>
-  <div class="overflow-x-auto">
+  <div class="nl-card overflow-hidden">
+  {% if recent_calls %}
     <table class="w-full text-sm">
-      <thead class="text-nl-base/50 text-left"><tr>
-        <th class="py-1 pr-4">{% trans "Call id" %}</th><th class="py-1 pr-4">{% trans "Outcome" %}</th>
-        <th class="py-1 pr-4">{% trans "Status" %}</th><th class="py-1 pr-4">{% trans "Dur" %}</th>
-        <th class="py-1 pr-4">{% trans "When" %}</th><th class="py-1"></th>
+      <thead class="hidden md:table-header-group bg-nl-bg text-left text-nl-base/60"><tr>
+        <th class="px-3 py-2 font-medium">{% trans "Call id" %}</th><th class="px-3 py-2 font-medium">{% trans "Outcome" %}</th>
+        <th class="px-3 py-2 font-medium">{% trans "Status" %}</th><th class="px-3 py-2 font-medium">{% trans "Dur" %}</th>
+        <th class="px-3 py-2 font-medium">{% trans "When" %}</th><th class="px-3 py-2 font-medium"></th>
       </tr></thead>
-      <tbody>
+      <tbody class="block md:table-row-group">
       {% for c in recent_calls %}
-        <tr class="border-t border-white/5">
-          <td class="py-1 pr-4"><code>{{ c.call_id|truncatechars:16 }}</code></td>
-          <td class="py-1 pr-4">{{ c.outcome|default:"—" }}</td>
-          <td class="py-1 pr-4">{{ c.status|default:"—" }}</td>
-          <td class="py-1 pr-4">{{ c.duration_s|default:"—" }}</td>
-          <td class="py-1 pr-4">{{ c.created_at|date:"Y-m-d H:i" }}</td>
-          <td class="py-1">
+        <tr class="block md:table-row border-t border-nl-border first:border-t-0 md:first:border-t hover:bg-nl-bg/60 p-3 md:p-0">
+          <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Call id' %}"><code>{{ c.call_id|truncatechars:16 }}</code></td>
+          <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Outcome' %}">{{ c.outcome|default:"—" }}</td>
+          <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Status' %}">{{ c.status|default:"—" }}</td>
+          <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Dur' %}">{{ c.duration_s|default:"—" }}</td>
+          <td class="block md:table-cell md:px-3 md:py-2 text-nl-base/60 before:content-[attr(data-label)] before:font-medium before:mr-2 md:before:content-none" data-label="{% trans 'When' %}">{{ c.created_at|date:"Y-m-d H:i" }}</td>
+          <td class="block md:table-cell md:px-3 md:py-2">
             <form method="post" action="{% url 'dash-voice-fetch' c.call_id %}">
-              {% csrf_token %}<button class="text-xs text-nl-primary underline">{% trans "Fetch" %}</button>
+              {% csrf_token %}<button class="btn btn-secondary px-2 py-0.5 text-xs">{% trans "Fetch" %}</button>
             </form>
           </td>
         </tr>
-      {% empty %}
-        <tr><td colspan="6" class="py-3 text-nl-base/40">{% trans "No calls yet." %}</td></tr>
       {% endfor %}
       </tbody>
     </table>
+  {% else %}
+    {% include 'dashboard/_empty_state.html' with icon='bot' heading=_('No calls yet') %}
+  {% endif %}
   </div>
 </section>
 
 <section>
   <h2 class="text-sm font-semibold uppercase tracking-wide text-nl-base/50 mb-3">{% trans "Tool-call log" %}</h2>
-  <div class="overflow-x-auto">
+  <div class="nl-card overflow-hidden">
+  {% if tool_calls %}
     <table class="w-full text-sm">
-      <thead class="text-nl-base/50 text-left"><tr>
-        <th class="py-1 pr-4">{% trans "Call id" %}</th><th class="py-1 pr-4">{% trans "Tool" %}</th>
-        <th class="py-1 pr-4">{% trans "Source" %}</th><th class="py-1 pr-4">{% trans "When" %}</th>
+      <thead class="hidden md:table-header-group bg-nl-bg text-left text-nl-base/60"><tr>
+        <th class="px-3 py-2 font-medium">{% trans "Call id" %}</th><th class="px-3 py-2 font-medium">{% trans "Tool" %}</th>
+        <th class="px-3 py-2 font-medium">{% trans "Source" %}</th><th class="px-3 py-2 font-medium">{% trans "When" %}</th>
       </tr></thead>
-      <tbody>
+      <tbody class="block md:table-row-group">
       {% for t in tool_calls %}
-        <tr class="border-t border-white/5">
-          <td class="py-1 pr-4"><code>{{ t.call_id|truncatechars:16 }}</code></td>
-          <td class="py-1 pr-4">{{ t.name }}</td>
-          <td class="py-1 pr-4">{{ t.source }}</td>
-          <td class="py-1 pr-4">{{ t.created_at|date:"Y-m-d H:i" }}</td>
+        <tr class="block md:table-row border-t border-nl-border first:border-t-0 md:first:border-t hover:bg-nl-bg/60 p-3 md:p-0">
+          <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Call id' %}"><code>{{ t.call_id|truncatechars:16 }}</code></td>
+          <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Tool' %}">{{ t.name }}</td>
+          <td class="block md:table-cell md:px-3 md:py-2 before:content-[attr(data-label)] before:font-medium before:text-nl-base/60 before:mr-2 md:before:content-none" data-label="{% trans 'Source' %}">{{ t.source }}</td>
+          <td class="block md:table-cell md:px-3 md:py-2 text-nl-base/60 before:content-[attr(data-label)] before:font-medium before:mr-2 md:before:content-none" data-label="{% trans 'When' %}">{{ t.created_at|date:"Y-m-d H:i" }}</td>
         </tr>
-      {% empty %}
-        <tr><td colspan="4" class="py-3 text-nl-base/40">{% trans "No tool calls yet." %}</td></tr>
       {% endfor %}
       </tbody>
     </table>
+  {% else %}
+    {% include 'dashboard/_empty_state.html' with icon='cog' heading=_('No tool calls yet') %}
+  {% endif %}
   </div>
 </section>
 {% endblock %}

@@ -1,15 +1,15 @@
 {% load i18n %}
 <div class="flex gap-1 mb-6 border-b border-nl-border text-sm" data-testid="settings-tabs">
-  <a href="{% url 'dash-settings' %}"
+  <a href="{% url 'dash-settings' %}" {% if url == 'dash-settings' %}aria-current="page"{% endif %}
      class="px-3 py-2 -mb-px border-b-2 {% if url == 'dash-settings' %}border-nl-primary font-semibold{% else %}border-transparent text-nl-base/60 hover:text-nl-base{% endif %}">
     {% trans "Integrations" %}</a>
-  <a href="{% url 'dash-voice-credentials' %}"
+  <a href="{% url 'dash-voice-credentials' %}" {% if url == 'dash-voice-credentials' %}aria-current="page"{% endif %}
      class="px-3 py-2 -mb-px border-b-2 {% if url == 'dash-voice-credentials' %}border-nl-primary font-semibold{% else %}border-transparent text-nl-base/60 hover:text-nl-base{% endif %}">
     {% trans "API credentials" %}</a>
-  <a href="{% url 'dash-service-area' %}"
+  <a href="{% url 'dash-service-area' %}" {% if url == 'dash-service-area' %}aria-current="page"{% endif %}
      class="px-3 py-2 -mb-px border-b-2 {% if url == 'dash-service-area' %}border-nl-primary font-semibold{% else %}border-transparent text-nl-base/60 hover:text-nl-base{% endif %}">
     {% trans "Service area" %}</a>
-  <a href="{% url 'dash-forms' %}"
+  <a href="{% url 'dash-forms' %}" {% if url == 'dash-forms' %}aria-current="page"{% endif %}
      class="px-3 py-2 -mb-px border-b-2 {% if url == 'dash-forms' %}border-nl-primary font-semibold{% else %}border-transparent text-nl-base/60 hover:text-nl-base{% endif %}">
     {% trans "Website & forms" %}</a>
 </div>

@@ -11,6 +11,24 @@
 /* Alpine: hide elements until Alpine initializes (no flash of x-show content). */
 [x-cloak] { display: none !important; }
 
+/* Generic "working on it" affordance for the button/control driving an
+   in-flight htmx or form request (see base.html htmx:beforeRequest wiring).
+   Appends a small spinner in the button's own text colour — no markup needed
+   per-button, so every action gets consistent feedback for free. */
+.nl-busy { @apply cursor-wait; }
+.nl-busy::after {
+  content: "";
+  display: inline-block;
+  width: 0.75em; height: 0.75em;
+  margin-left: 0.5em;
+  vertical-align: -0.125em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 9999px;
+  animation: nl-spin .6s linear infinite;
+}
+@keyframes nl-spin { to { transform: rotate(360deg); } }
+
 @layer components {
   /* a11y skip link — hidden until focused */
   .nl-skip-link { @apply sr-only; }

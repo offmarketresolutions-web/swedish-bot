@@ -337,3 +337,41 @@ echoes; abuse handled calmly; every §12 geo path exercised (decline, override, 
 | **Refrigerant rule** (S018 class). Hissing + chemical smell now gets the deterministic emergency line (no switch instruction). Manufacturer advice for A2L fleets (R32/R290) is stricter still. | Keep as is unless your fleet is A2L-heavy; then extend the rule to any "hissing near the unit". | owner call |
 | **Postcode source.** GeoNames lacks some real codes (5 of 29 the simulator used, all Stockholm). Unknown → proceed-with-note is the spec'd preliminary behaviour. | Fine for launch. If out-of-area leads become a cost, license PostNord's table (drop-in via `import_postcodes`). | later |
 | **Clock.** This PC is 58 minutes fast; the Gemini auth shim compensates, but it is a latent failure. | `w32tm /resync` as administrator. | 10 seconds |
+
+## Addendum — UI hardening round (2026-09-05)
+
+Three Sonnet agents, disjoint file ownership (widget / dashboard / public pages), each
+TDD, each result adversarially reviewed before merge. The brief was the owner's:
+"easy, fast, modern, and works no matter what."
+
+### Bugs that were live in production
+
+| Bug | Surface | Impact |
+|---|---|---|
+| **Committed Tailwind CSS was stale since 2026-06-22** — 34 templates moved on, 36 utilities they used (`file:*` pickers, `border-b-2`, `bg-black/20`, `border-white/5`) were never generated | dashboard | styling silently missing for ~10 weeks; nothing failed, pages just looked wrong |
+| **Mobile nav unreachable with JS off** — the drawer is `-translate-x-full` and only Alpine could open it | dashboard | no navigation at all on a phone without JS |
+| **Demo form unsubmittable without JS** — steps 2–3 permanently `display:none`, no `action`/`method`, `novalidate` | public | a no-JS visitor could never reach submit or the consent checkbox |
+| **Page 569px wide on a 375px phone** — `.nav-cta{display:none}` silently defeated by a later same-specificity `.btn{display:inline-flex}` | public | horizontal overflow / zoomed-out page on every phone |
+| **Focus ring 2.04:1 against the brand blue** (needs 3:1) | public | keyboard users couldn't see focus on the primary buttons |
+
+### Hardening added
+Widget: request timeout via `AbortController` (our Vertex quota genuinely stalls sockets),
+retry that resends without making the customer retype, 429 backoff, `dvh` with a `vh`
+fallback for iOS, re-scroll when the keyboard opens, busy-lock against double-send.
+Dashboard: one global htmx/form busy handler (not 20 hand-edited buttons), body scroll-lock
+and focus handling on the drawer, `aria-current` on tabs, shared empty-state and a visible
+error toast on `htmx:responseError`. Public: explicit `label[for]`, per-step validation that
+actually announces, `postal-code`/`tel`/`email` inputmode+autocomplete, 44px tap targets.
+
+### Caught in review, not by the agents
+- `AbortController` constructed unguarded — dead widget on fetch-capable-but-older browsers.
+- Submit button disabled *during* the submit event — drops its `name`/`value` (latent).
+- `method="post"` added with no `{% csrf_token %}` — a no-JS submit would have 403'd,
+  strictly worse than the bug it replaced.
+
+### Guard against recurrence
+`make css` now writes `static/dashboard/css/.inputs.sha256`, and `tests/test_css_build.py`
+fails when the committed CSS no longer matches the templates — the stale-CSS class of bug
+cannot ship silently again. Verified by simulating a template class edit.
+
+745 tests passing.

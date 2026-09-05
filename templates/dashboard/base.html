@@ -7,19 +7,30 @@
   <link rel="stylesheet" href="{% static 'dashboard/css/app.css' %}">
   <script src="{% static 'vendor/htmx.min.js' %}"></script>
   <script defer src="{% static 'vendor/alpine.min.js' %}"></script>
+  {# No-JS fallback: without Alpine the mobile drawer can never be toggled open,
+     so on narrow screens render the sidebar in normal flow instead of off-canvas,
+     and hide the (otherwise inert) hamburger button. Desktop is unaffected — it
+     shows the sidebar via plain CSS (lg:translate-x-0), no JS required there. #}
+  <noscript><style>
+    #sidebar-toggle { display: none; }
+    @media (max-width: 1023.98px) { .nl-sidebar { position: static; transform: none; width: 100%; } }
+  </style></noscript>
 </head>
 <body class="bg-nl-bg text-nl-base" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-      x-data="{ sidebar: false }" @keydown.escape.window="sidebar = false">
+      x-data="{ sidebar: false, closeSidebar() { this.sidebar = false; this.$nextTick(() => $refs.sidebarToggle && $refs.sidebarToggle.focus()) } }"
+      :class="sidebar && 'overflow-hidden'"
+      @keydown.escape.window="closeSidebar()">
   <a href="#main" class="nl-skip-link">{% trans "Skip to content" %}</a>
 
   {% with url=request.resolver_match.url_name %}
   <div class="min-h-screen flex lg:pl-60">
     <!-- mobile overlay -->
-    <div x-show="sidebar" @click="sidebar=false" x-transition.opacity
+    <div x-show="sidebar" @click="closeSidebar()" x-transition.opacity
          class="fixed inset-0 bg-black/40 z-30 lg:hidden" x-cloak></div>
 
     <!-- sidebar -->
-    <aside id="app-sidebar" class="nl-sidebar" :class="sidebar ? 'translate-x-0' : ''">
+    <aside id="app-sidebar" class="nl-sidebar" :class="sidebar ? 'translate-x-0' : ''"
+           x-effect="sidebar && $nextTick(() => { var f = $el.querySelector('a, button'); f && f.focus(); })">
       <a href="{% url 'dash-overview' %}" class="flex items-center gap-2 px-4 h-14 border-b border-white/10">
         <img src="{% static 'brand/nordland-logo-white.png' %}" onerror="this.src='{% static 'brand/nordland-logo.png' %}';this.classList.add('bg-white','rounded','p-1')" alt="Nordland VVS" class="h-8 w-auto">
       </a>
@@ -74,7 +85,7 @@
     <!-- content column -->
     <div class="flex-1 flex flex-col min-w-0">
       <header class="nl-topbar">
-        <button @click="sidebar = !sidebar" class="lg:hidden p-2 -ml-2 text-nl-base/70" aria-label="{% trans 'Toggle navigation' %}" :aria-expanded="sidebar" aria-controls="app-sidebar">
+        <button id="sidebar-toggle" x-ref="sidebarToggle" @click="sidebar = !sidebar" class="lg:hidden p-2 -ml-2 text-nl-base/70" aria-label="{% trans 'Toggle navigation' %}" :aria-expanded="sidebar" aria-controls="app-sidebar">
           {% include 'dashboard/_icon.html' with name='menu' %}
         </button>
         <div class="text-sm text-nl-base/60">{% block breadcrumb %}{% endblock %}</div>
@@ -91,5 +102,42 @@
   {% endwith %}
 
   {% include 'dashboard/_toasts.html' %}
+  <script>
+  (function () {
+    // Perceived-speed + "works no matter what" plumbing, wired once here instead
+    // of per-button, so every current and future htmx/form action gets it free.
+    function buttonsIn(el) {
+      if (!el || !el.querySelectorAll) return [];
+      return el.matches && el.matches('button, input[type=submit]') ? [el]
+        : Array.prototype.slice.call(el.querySelectorAll('button, input[type=submit]'));
+    }
+    function setBusy(el, busy) {
+      buttonsIn(el).forEach(function (b) { b.disabled = busy; b.classList.toggle('nl-busy', busy); });
+    }
+    // htmx requests: disable the triggering control (or its form's submit buttons)
+    // for the round trip, and show the .nl-busy spinner (input.css).
+    document.body.addEventListener('htmx:beforeRequest', function (e) { setBusy(e.detail.elt, true); });
+    ['htmx:afterRequest', 'htmx:sendError'].forEach(function (evt) {
+      document.body.addEventListener(evt, function (e) { setBusy(e.detail.elt, false); });
+    });
+    // Plain (non-htmx) form posts: same double-submit guard: browser navigates
+    // away on success, so there is nothing to re-enable.
+    // Deferred a tick on purpose: a button disabled DURING the submit event is omitted
+    // from the payload, so a future `<button name="action" value="delete">` would lose
+    // its value silently. No form relies on that today; this keeps it that way.
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      setTimeout(function () { setBusy(form, true); }, 0);
+    });
+    // Any failed htmx request (network drop or non-2xx) surfaces to the user
+    // instead of silently doing nothing.
+    document.body.addEventListener('htmx:responseError', function () {
+      window.nlToast && window.nlToast({ type: 'error', message: '{% trans "Something went wrong. Please try again." %}' });
+    });
+    document.body.addEventListener('htmx:sendError', function () {
+      window.nlToast && window.nlToast({ type: 'error', message: '{% trans "Network error — check your connection and try again." %}' });
+    });
+  })();
+  </script>
 </body>
 </html>

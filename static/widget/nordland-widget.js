@@ -17,6 +17,8 @@
   var STORE_KEY = "nordland-chat:" + LANG;       // sessionStorage namespace
   var MAX_FILE = 10 * 1024 * 1024;               // 10 MB attach guard
   var OK_TYPES = ["image/", "application/pdf"];
+  var REQUEST_TIMEOUT_MS = 20000;                // our Vertex quota can stall sockets — abort, don't hang
+  var RATE_LIMIT_BACKOFF_MS = 4000;              // 429: pause before letting the customer hammer retry
 
   // i18n — defaults; loadI18n() overlays the locale catalog. Extra UX strings
   // beyond the shared catalog keys fall back to these and are safe if absent.
@@ -25,6 +27,9 @@
     typing: "Assistant is typing…", photo: "📷 Photo",
     title: "Nordland VVS — Support",
     error: "Connection problem. Please try again.",
+    timeout: "That took too long. Please try again.",
+    rate_limited: "Too many requests — please wait a moment and try again.",
+    retry: "Try again",
     open: "Open chat", close: "Close chat", minimize: "Minimize",
     nudge: "Chat with us",
     status: "Usually replies within a few minutes",
@@ -121,7 +126,11 @@
     ".nl-send svg{width:19px;height:19px;display:block}" +
     ".nl-err{font-size:12px;color:#d9370c;padding:0 14px 6px;display:none}" +
     ".nl-err.nl-show{display:block}" +
-    "@media (max-width:480px){.nl-panel{inset:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;border-radius:0}.nl-panel.nl-show{display:flex;animation:nl-slide .2s ease}.nl-bubble{max-width:85%}}" +
+    ".nl-retry{display:block;margin-top:7px;border:1px solid currentColor;background:transparent;color:inherit;border-radius:12px;padding:4px 11px;font:600 12px system-ui,Arial,sans-serif;cursor:pointer}" +
+    ".nl-retry:disabled{opacity:.5;cursor:default}" +
+    // dvh (iOS 15.4+) gives the real visible height under the keyboard/URL bar;
+    // the vh line first is the fallback for browsers that don't know dvh.
+    "@media (max-width:480px){.nl-panel{inset:0;width:100%;max-width:100%;height:100vh;max-height:100vh;height:100dvh;max-height:100dvh;border-radius:0}.nl-panel.nl-show{display:flex;animation:nl-slide .2s ease}.nl-bubble{max-width:85%}}" +
     "@keyframes nl-slide{from{transform:translateY(100%)}to{transform:none}}" +
     (reduceMotion ? ".nl-panel.nl-show,.nl-launcher,.nl-launcher svg{animation:none!important;transition:none!important}" : "");
   var styleTag = el("style"); styleTag.textContent = css; document.head.appendChild(styleTag);
@@ -316,7 +325,39 @@
     setTimeout(function () { errLine.classList.remove("nl-show"); }, 7000);
   }
 
-  // ---- transport (unchanged contract) ---------------------------------
+  // ---- transport --------------------------------------------------------
+  // Wraps fetch with a hard timeout (AbortController) so a stalled socket
+  // (observed in prod against our Vertex quota) can't spin the UI forever.
+  function fetchWithTimeout(url, opts, ms) {
+    // There is a real browser window with fetch and WITHOUT AbortController (Chrome
+    // 42-65, Safari 10.1-12) and this demographic runs old devices — constructing it
+    // unguarded would throw and kill every send. Degrade to an untimed fetch: slower to
+    // fail, but it still works, which is the whole point.
+    if (typeof AbortController === "undefined") return fetch(url, opts || {});
+    var ctrl = new AbortController();
+    var timedOut = false;
+    var timer = setTimeout(function () { timedOut = true; ctrl.abort(); }, ms || REQUEST_TIMEOUT_MS);
+    opts = opts || {};
+    opts.signal = ctrl.signal;
+    return fetch(url, opts).then(
+      function (r) { clearTimeout(timer); return r; },
+      function (err) { clearTimeout(timer); err.timedOut = timedOut; throw err; }
+    );
+  }
+  // Appends a "try again" control to a bubble that resends the same request —
+  // the customer never has to retype what they already sent. A 429 disables
+  // the button for a short backoff instead of letting them hammer retry.
+  function appendRetryButton(bubble, onRetry, rateLimited) {
+    var btn = el("button", "nl-retry", I18N.retry);
+    btn.type = "button";
+    btn.setAttribute("data-testid", "widget-retry");
+    if (rateLimited) {
+      btn.disabled = true;
+      setTimeout(function () { btn.disabled = false; }, RATE_LIMIT_BACKOFF_MS);
+    }
+    btn.onclick = function () { btn.disabled = true; onRetry(); };
+    bubble.appendChild(btn);
+  }
   function loadI18n() {
     fetch(API + "/static/widget/i18n/" + LANG + ".json")
       .then(function (r) { return r.ok ? r.json() : null; })
@@ -336,27 +377,40 @@
       .catch(function () {});
   }
   function openSession() {
-    fetch(API + "/api/chat/session", {
+    fetchWithTimeout(API + "/api/chat/session", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ language: LANG })
     })
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (r.status === 429) { var e = new Error("rate_limited"); e.rateLimited = true; throw e; }
+        return r.json();
+      })
       .then(function (j) {
-        if (!j || !j.public_id) { addMsg(I18N.error, "bot"); return; }  // 429 / error JSON
+        if (!j || !j.public_id) { var e2 = new Error("bad_session"); throw e2; }
         sessionId = j.public_id;
         addMsg(j.message, "bot");
         renderChips(j.chips);
       })
-      .catch(function () { addMsg(I18N.error, "bot"); });
+      .catch(function (err) {
+        var msg = err && err.timedOut ? I18N.timeout : err && err.rateLimited ? I18N.rate_limited : I18N.error;
+        var bubble = addMsg(msg, "bot", false);  // transient — don't persist the error into the transcript
+        appendRetryButton(bubble, openSession, !!(err && err.rateLimited));
+      });
   }
   function streamReply(opts) {
     busy = true;
     syncSend();
     var typingBubble = showTyping();
     var first = true;
-    fetch(API + "/api/chat/" + sessionId + "/message", opts).then(function (resp) {
-      if (!resp.ok || !resp.body) {  // 429 rate-limit / 5xx: don't hang on a dead 'typing…'
-        typingBubble.textContent = I18N.error; busy = false; syncSend(); return;
+    function fail(msg, rateLimited) {
+      busy = false; syncSend();
+      typingBubble.textContent = msg;
+      appendRetryButton(typingBubble, function () { streamReply(opts); }, rateLimited);
+    }
+    fetchWithTimeout(API + "/api/chat/" + sessionId + "/message", opts).then(function (resp) {
+      if (resp.status === 429) { fail(I18N.rate_limited, true); return; }
+      if (!resp.ok || !resp.body) {  // 5xx: don't hang on a dead 'typing…'
+        fail(I18N.error, false); return;
       }
       var reader = resp.body.getReader(), dec = new TextDecoder(), buf = "";
       function pump() {
@@ -382,9 +436,8 @@
         });
       }
       return pump();
-    }).catch(function () {
-      typingBubble.textContent = I18N.error;
-      busy = false; syncSend();
+    }).catch(function (err) {
+      fail(err && err.timedOut ? I18N.timeout : I18N.error, false);
     });
   }
   function send(value, label) {
@@ -415,6 +468,8 @@
   function hasText() { return input.value.trim().length > 0; }
   function syncSend() {
     sendBtn.disabled = busy || !(hasText() || pendingFile);
+    sendBtn.setAttribute("aria-busy", busy ? "true" : "false");
+    input.disabled = busy;  // slow connection: no typing into a turn that's already in flight, no double-send
   }
   function clearPending() {
     pendingFile = null; fileInput.value = "";
@@ -457,6 +512,16 @@
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); }
   });
   sendBtn.onclick = submit;
+
+  // iOS Safari resizes the visual viewport (not the layout viewport) when the
+  // on-screen keyboard opens/closes; re-pin the log to the newest message and
+  // keep the composer in view instead of letting the keyboard cover it.
+  input.addEventListener("focus", function () { setTimeout(scrollDown, 300); });
+  try {
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", function () { if (isOpen()) scrollDown(); });
+    }
+  } catch (e) {}
 
   // ---- open / close ---------------------------------------------------
   function isOpen() { return panel.classList.contains("nl-show"); }

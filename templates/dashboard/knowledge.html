@@ -6,7 +6,7 @@
 
 <div class="flex gap-1 mb-6 border-b border-nl-border text-sm" data-testid="knowledge-tabs">
   {% for t in tabs %}
-    <a href="{% url 'dash-knowledge' t.slug %}"
+    <a href="{% url 'dash-knowledge' t.slug %}" {% if t.active %}aria-current="page"{% endif %}
        class="px-3 py-2 -mb-px border-b-2 {% if t.active %}border-nl-primary font-semibold{% else %}border-transparent text-nl-base/60 hover:text-nl-base{% endif %}">
       {{ t.label }}</a>
   {% endfor %}

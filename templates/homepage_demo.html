@@ -13,6 +13,9 @@
     a{color:inherit}
     img,svg{display:block;max-width:100%}
     .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+    textarea:focus-visible{outline:3px solid #fff;outline-offset:1px;
+      box-shadow:0 0 0 5px var(--nl-d);border-radius:4px}
 
     /* Demo badge */
     .demo-badge{background:var(--nl-d);color:#fff;text-align:center;font-size:13px;
@@ -26,11 +29,12 @@
            color:var(--nl-d);text-decoration:none;letter-spacing:-.01em}
     .brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--nl),var(--nl-d));
                 display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px}
-    nav.links{display:flex;gap:26px;font-size:15px;font-weight:600}
-    nav.links a{text-decoration:none;color:var(--muted)}
+    nav.links{display:none;gap:26px;font-size:15px;font-weight:600}
+    nav.links a{text-decoration:none;color:var(--muted);padding:10px 2px;display:inline-block}
     nav.links a:hover{color:var(--nl-d)}
-    .nav-cta{display:none}
-    @media (min-width:820px){.nav-cta{display:inline-flex}}
+    @media (min-width:640px){nav.links{display:flex}}
+    a.nav-cta{display:none}
+    @media (min-width:820px){a.nav-cta{display:inline-flex}}
     .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;
          font-weight:700;font-size:15px;padding:12px 22px;cursor:pointer;text-decoration:none;
          transition:transform .12s ease,background .12s ease,box-shadow .12s ease}
@@ -115,7 +119,7 @@
     footer.site{background:var(--nl-d);color:#dce9f5;padding:48px 24px 28px}
     .footer-grid{display:grid;grid-template-columns:1fr;gap:28px;max-width:1120px;margin:0 auto}
     @media (min-width:720px){.footer-grid{grid-template-columns:2fr 1fr 1fr}}
-    .footer-grid h4{color:#fff;font-size:14px;margin:0 0 12px;letter-spacing:.02em}
+    .footer-grid h3{color:#fff;font-size:14px;margin:0 0 12px;letter-spacing:.02em}
     .footer-grid ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14.5px}
     .footer-grid a{text-decoration:none;color:#cfe0f0}
     .footer-grid a:hover{color:#fff}
@@ -307,14 +311,14 @@
   <footer class="site" id="kontakt">
     <div class="footer-grid">
       <div>
-        <h4>Nordland VVS</h4>
+        <h3>Nordland VVS</h3>
         <p style="max-width:44ch;color:#cfe0f0;font-size:14.5px;margin:0">
           Helhetsleverantör av värmepumpar, vattenpumpar och vattenrening i Kramfors, Härnösand,
           Sundsvall, Gävle och Älvkarleby.
         </p>
       </div>
       <div>
-        <h4>Tjänster</h4>
+        <h3>Tjänster</h3>
         <ul>
           <li><a href="#tjanster">Värmepumpar</a></li>
           <li><a href="#tjanster">Vattenpumpar</a></li>
@@ -322,7 +326,7 @@
         </ul>
       </div>
       <div>
-        <h4>Kontakt</h4>
+        <h3>Kontakt</h3>
         <ul>
           <li>Se nordlandvvs.se för kontaktuppgifter</li>
           <li><a href="#top" data-open-chat>Chatta med oss →</a></li>

@@ -7,6 +7,7 @@ install:
 # the Docker image stays Python-only). Re-run after editing dashboard templates.
 css:
 	npx -y tailwindcss@3.4.17 -c tailwind.config.js -i static/src/input.css -o static/dashboard/css/app.css --minify
+	uv run python tools/css_inputs_hash.py --write
 
 # Playwright end-to-end (needs the stack up on :8080 + staff user admin/nordland123).
 test-e2e:

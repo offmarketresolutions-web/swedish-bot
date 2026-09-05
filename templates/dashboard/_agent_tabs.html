@@ -17,7 +17,8 @@ Expects `tabs` (LAYERS from core.agent_registry) and optional `current_role`.
         <div x-show="open" x-cloak x-transition class="absolute z-20 mt-1 min-w-[220px] bg-white border border-nl-border rounded-md shadow-lg py-1"
              data-testid="agent-tab-dropdown-{{ layer.key }}">
           {% for r in layer.roles %}
-            <a href="{% url 'dash-agent-detail' r.role %}" class="block px-3 py-2 text-sm hover:bg-nl-primaryl {% if r.role == current_role %}font-semibold text-nl-primary{% endif %}">
+            <a href="{% url 'dash-agent-detail' r.role %}" {% if r.role == current_role %}aria-current="page"{% endif %}
+               class="block px-3 py-2 text-sm hover:bg-nl-primaryl {% if r.role == current_role %}font-semibold text-nl-primary{% endif %}">
               {{ r.label }}
             </a>
           {% endfor %}
@@ -25,6 +26,7 @@ Expects `tabs` (LAYERS from core.agent_registry) and optional `current_role`.
       </div>
     {% else %}
       <a href="{% url 'dash-agent-detail' layer.roles.0.role %}"
+         {% if current_role == layer.roles.0.role %}aria-current="page"{% endif %}
          class="px-3 py-2 text-sm font-medium rounded-t-md {% if current_role == layer.roles.0.role %}text-nl-primary border-b-2 border-nl-primary{% else %}text-nl-base/70 hover:text-nl-primary{% endif %}"
          data-testid="agent-tab-{{ layer.key }}">
         {{ layer.label_en }}

@@ -59,3 +59,50 @@ def test_session_detail_edit_updates_fields(staff, client, a_session):
     assert a_session.resolved is True
     assert a_session.service_recommended is False  # unchecked → False
     assert a_session.ai_summary == "edited summary"
+
+
+# ── UX/a11y regressions (perceived speed, empty states, "works no matter what") ──
+
+def test_htmx_feedback_wiring_present_on_every_page(staff, client):
+    """base.html wires one global handler so every htmx action (current or future)
+    gets a busy affordance, a double-submit guard, and a visible failure — instead
+    of each template remembering to add hx-indicator/hx-disabled-elt by hand."""
+    html = client.get("/dashboard/").content.decode()
+    assert "htmx:beforeRequest" in html
+    assert "htmx:responseError" in html
+    assert "nl-busy" in html
+
+
+def test_alpine_cloak_used_so_nothing_flashes_before_hydration(staff, client):
+    html = client.get("/dashboard/").content.decode()
+    assert "x-cloak" in html
+
+
+def test_sidebar_has_no_js_fallback(staff, client):
+    """Without JS the off-canvas drawer can never be opened — so the fallback
+    must render the sidebar in normal flow on mobile and hide the dead toggle."""
+    html = client.get("/dashboard/").content.decode()
+    assert "<noscript>" in html
+    assert 'id="sidebar-toggle"' in html
+    assert "#sidebar-toggle { display: none; }" in html
+
+
+def test_sidebar_toggle_has_aria_wiring(staff, client):
+    html = client.get("/dashboard/").content.decode()
+    assert 'aria-controls="app-sidebar"' in html
+    assert ":aria-expanded=" in html
+
+
+def test_session_list_empty_state_vs_populated(staff, client, a_session):
+    empty_html = client.get("/dashboard/sessions/?q=NO_SUCH_MATCH_XYZ").content.decode()
+    assert "No matching conversations" in empty_html
+    populated_html = client.get("/dashboard/sessions/").content.decode()
+    assert "No matching conversations" not in populated_html
+    assert "No conversations yet" not in populated_html
+
+
+def test_customer_list_uses_empty_state_when_empty(staff, client):
+    html = client.get("/dashboard/customers/").content.decode()
+    assert "No customers yet" in html
+    # shared empty-state partial, not a bare empty table
+    assert 'class="flex flex-col items-center justify-center text-center' in html
