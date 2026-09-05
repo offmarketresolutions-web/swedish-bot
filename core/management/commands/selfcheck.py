@@ -69,11 +69,20 @@ class Command(BaseCommand):
         check("active Vendor + Machine present", n_vendor > 0 and n_machine > 0,
               f"{n_vendor} active vendors, {n_machine} supported machines")
 
-        # 4. FAQEntry corpus counts (approved vs pending) — informational, never fails.
+        # 4. FAQEntry corpus — WARN if the general-knowledge package never landed.
+        # This was hardcoded True and so reported PASS against a production DB holding a
+        # single hand-seeded entry: the deploy gate stayed green while the general-
+        # knowledge retrieval layer had nothing to draw on. The approved/pending split
+        # stays informational (approval is the owner's editorial pace, not a defect).
         from kb.models import FAQEntry
         n_approved = FAQEntry.objects.filter(is_approved=True).count()
         n_pending = FAQEntry.objects.filter(is_approved=False).count()
-        check("FAQEntry corpus", True, f"{n_approved} approved, {n_pending} pending owner review")
+        n_imported = FAQEntry.objects.exclude(source_id="").count()
+        check("FAQEntry corpus", n_imported > 0,
+              f"{n_approved} approved, {n_pending} pending owner review, "
+              f"{n_imported} from the general-knowledge package"
+              + ("" if n_imported else " — run post_deploy (or import_general_knowledge)"),
+              warn_only=True)
 
         # 5. GeoSettings + ServiceArea state — WARN, owner go-live item.
         from crm.models import GeoSettings, ServiceArea

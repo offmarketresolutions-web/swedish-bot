@@ -120,6 +120,10 @@ class Command(BaseCommand):
                 parent = resolve_category(parent_slug) if parent_slug else None
                 if dry:
                     self.stdout.write(f"  [would create category] {our_slug} (parent={parent_slug})")
+                    # Unsaved stand-in: without it every entry in a not-yet-seeded category
+                    # resolves to None and the dry run reports a skip that the real run
+                    # would not produce. Never saved — dry mode returns before any write.
+                    cat = Category(slug=our_slug, name=name, parent=parent, group=group)
                 else:
                     cat, created = Category.objects.get_or_create(
                         slug=our_slug, defaults={"name": name, "parent": parent, "group": group})

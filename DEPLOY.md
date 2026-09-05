@@ -148,13 +148,18 @@ docker compose -f docker-compose.prod.yaml exec web python manage.py selfcheck
 ```
 
 `post_deploy` chains `seed_kb` (no-clobber — never overwrites a dashboard-edited
-prompt/chip), `import_general_knowledge` (only if you pass `--faq <path>`),
+prompt/chip), `import_general_knowledge` (the repo package at
+`data/general_knowledge/nordland-general-knowledge.json` by default — pass `--faq
+<path>` for a different one, or `--skip-faq` for none; every row lands unapproved
+and a re-run never un-approves what the owner already approved),
 `seed_service_areas`, `import_postcodes` (only if `PostcodeArea` is empty, or pass
 `--force-postcodes`), then `selfcheck`. It's idempotent — safe to run on every
 deploy, code change or not. `selfcheck` alone exits 1 (and prints a PASS/FAIL/WARN
 table) if anything a live deploy needs is actually missing — migrations pending,
 an `AgentPrompt` row missing/blank for any of the 11 `AGENT_ROLE_CHOICES`, no
 active vendor/machine, no `PostcodeArea` rows, or the static widget file missing.
+An empty general-knowledge corpus also prints **WARN** (it used to print PASS, which
+is how production ran for a while on a single FAQ entry).
 `GeoSettings`/`ServiceArea` and `FormButton` gaps print as **WARN**, not FAIL —
 those are owner go-live items (see checklist below), not code defects.
 

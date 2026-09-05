@@ -4,6 +4,8 @@ import json
 import pytest
 from django.core.management import call_command
 
+from chat.models import Conversation
+
 pytestmark = pytest.mark.django_db
 
 
@@ -55,3 +57,20 @@ def test_unknown_session_404(client, mock_gemini):
     resp = client.post("/api/chat/00000000-0000-0000-0000-000000000000/message",
                        data="{}", content_type="application/json")
     assert resp.status_code == 404
+
+
+def test_session_without_a_language_defaults_to_swedish(client, seeded, mock_gemini):
+    """Nordland VVS serves Swedish customers. The documented embed pins data-lang="sv",
+    but an embed pasted without it (or any direct API caller) used to get an English
+    bot — a silent, customer-facing failure nobody would notice in the logs. The
+    fallback must be the business's own language, not English."""
+    j = client.post("/api/chat/session", data="{}", content_type="application/json").json()
+    assert j["message"].startswith("Hej!"), j["message"]
+    assert Conversation.objects.get(public_id=j["public_id"]).language == "sv"
+
+
+def test_session_still_honours_an_explicit_language(client, seeded, mock_gemini):
+    j = client.post("/api/chat/session", data=json.dumps({"language": "en"}),
+                    content_type="application/json").json()
+    assert j["message"].startswith("Hi!"), j["message"]
+    assert Conversation.objects.get(public_id=j["public_id"]).language == "en"

@@ -64,7 +64,10 @@ def create_session(request):
     if not _rate_ok(f"sess:{_client_ip(request)}", settings.RATE_LIMIT_SESSION):
         return JsonResponse({"error": "rate_limited"}, status=429)
     data = _body(request)
-    lang = (data.get("language") or "en")[:5]
+    # Nordland VVS serves Swedish customers: an embed that forgets data-lang, or any
+    # direct API caller, must still get a Swedish bot rather than silently switching
+    # the whole conversation to English.
+    lang = (data.get("language") or settings.CHAT_DEFAULT_LANG)[:5]
     conv, greet = open_conversation(lang)
     return JsonResponse({"public_id": str(conv.public_id), **greet})
 

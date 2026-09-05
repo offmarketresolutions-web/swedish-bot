@@ -160,3 +160,51 @@ def test_selfcheck_form_buttons_ready_when_urls_filled():
 
     line = next(ln for ln in output.splitlines() if "FormButton" in ln)
     assert "PASS" in line, line
+
+
+def test_post_deploy_imports_the_repo_faq_package_without_being_asked():
+    """The production deploy came up with 1 FAQEntry because post_deploy skipped the
+    FAQ import unless an operator remembered `--faq <path>` — and no package existed
+    to point at. The package now ships in the repo, so a plain post_deploy must load
+    it; otherwise the next rebuild silently loses the corpus again."""
+    from kb.models import FAQEntry
+    call_command("post_deploy", skip_selfcheck=True)
+    imported = FAQEntry.objects.exclude(source_id="")
+    assert imported.count() >= 90, f"only {imported.count()} imported"
+    assert not imported.filter(is_approved=True).exists(), "package rows must land unapproved"
+
+
+def test_post_deploy_faq_import_is_idempotent_and_keeps_approvals():
+    from kb.models import FAQEntry
+    call_command("post_deploy", skip_selfcheck=True)
+    n = FAQEntry.objects.count()
+    FAQEntry.objects.exclude(source_id="").update(is_approved=True)
+
+    call_command("post_deploy", skip_selfcheck=True)
+
+    assert FAQEntry.objects.count() == n
+    assert not FAQEntry.objects.exclude(source_id="").filter(is_approved=False).exists(), \
+        "a re-run must never un-approve rows the owner already approved"
+
+
+def test_selfcheck_warns_when_the_general_knowledge_corpus_is_absent():
+    """selfcheck was the deploy gate and it reported PASS against a production DB
+    holding 1 FAQ entry, because the corpus check was hardcoded True. An empty corpus
+    means the retrieval layer has nothing general to draw on — it has to be visible."""
+    from kb.models import FAQEntry
+    call_command("post_deploy", skip_selfcheck=True)
+    _seed_full()
+    FAQEntry.objects.exclude(source_id="").delete()
+
+    _, output = _run_selfcheck()
+    line = next(ln for ln in output.splitlines() if "FAQEntry corpus" in ln)
+    assert "WARN" in line, line
+
+
+def test_selfcheck_passes_the_corpus_check_once_imported():
+    call_command("post_deploy", skip_selfcheck=True)
+    _seed_full()
+
+    _, output = _run_selfcheck()
+    line = next(ln for ln in output.splitlines() if "FAQEntry corpus" in ln)
+    assert "PASS" in line, line

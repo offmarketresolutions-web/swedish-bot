@@ -6,12 +6,14 @@ tests stay fast and deterministic; the real package is run manually per the
 Sprint S1 plan."""
 import json
 import zipfile
+from io import StringIO
 
 import pytest
 from django.core.management import call_command
 
 from kb.management.commands.import_general_knowledge import (
-    CATEGORY_SLUG_MAP, normalize_subtypes,
+    CATEGORY_SLUG_MAP,
+    normalize_subtypes,
 )
 from kb.models import Category, FAQEntry, SiteFAQ
 
@@ -204,3 +206,17 @@ def test_import_accepts_zip(tmp_path):
     call_command("import_general_knowledge", str(zip_path))
     assert FAQEntry.objects.filter(source_id="HP-GEN-001").exists()
     assert SiteFAQ.objects.filter(slug="site-001").exists()
+
+
+def test_dry_run_does_not_report_creatable_categories_as_skipped(tmp_path):
+    """A dry run against a DB that hasn't seeded `radiators` used to print
+    "No category for RAD-001 — skipped" for every such entry, because dry mode
+    resolves the category to None. The real run creates the leaf and imports the
+    row, so the dry run was reporting failures that would not happen — the one
+    thing that makes an operator abort a good import."""
+    json_path, _ = _package(tmp_path)
+    assert not Category.objects.filter(slug="radiators").exists()
+    err, out = StringIO(), StringIO()
+    call_command("import_general_knowledge", str(json_path), "--dry-run", stdout=out, stderr=err)
+    assert "skipped" not in err.getvalue().lower(), err.getvalue()
+    assert "RAD-001 -> FAQEntry(category=radiators)" in out.getvalue()

@@ -106,6 +106,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # ── i18n / l10n (plan §11) ────────────────────────────────────────────
 LANGUAGE_CODE = "en"
 LANGUAGES = [("en", "English"), ("sv", "Svenska")]
+# Language a customer conversation opens in when the caller names none. Separate from
+# LANGUAGE_CODE, which is the STAFF dashboard's default: the dashboard is English with a
+# switcher, while the customers are Swedish. Overridable per install.
+CHAT_DEFAULT_LANG = os.getenv("CHAT_DEFAULT_LANG", "sv")
 LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = "Europe/Stockholm"
 USE_I18N = True

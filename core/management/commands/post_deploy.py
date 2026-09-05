@@ -1,7 +1,7 @@
 """One idempotent command chaining everything a deploy needs after code+migrate.
 
-Runs, in order: seed_kb (no-clobber), import_general_knowledge (only if --faq is
-given), seed_service_areas, import_postcodes (only if PostcodeArea is empty),
+Runs, in order: seed_kb (no-clobber), import_general_knowledge (the repo package by
+default), seed_service_areas, import_postcodes (only if PostcodeArea is empty),
 selfcheck. Safe to run on every deploy — every step it calls is itself
 idempotent, so re-running never clobbers owner edits or duplicates rows.
 
@@ -14,8 +14,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
+
+# Shipped with the code (Dockerfile COPYs it), so a rebuilt container always carries the
+# corpus. Before this, the FAQ import needed an operator to remember `--faq <path>` and
+# there was no package to point at — which is how production ran on 1 FAQ entry.
+DEFAULT_FAQ_PACKAGE = settings.BASE_DIR / "data" / "general_knowledge" / "nordland-general-knowledge.json"
 
 
 class Command(BaseCommand):
@@ -24,7 +30,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--faq", default=None,
                              help="Path to the general-knowledge FAQ package (.zip/.json). "
-                                  "Skipped if not given.")
+                                  f"Defaults to {DEFAULT_FAQ_PACKAGE.name} in the repo.")
+        parser.add_argument("--skip-faq", action="store_true",
+                             help="Don't import the FAQ package at all.")
         parser.add_argument("--postcodes", default=None,
                              help="Path to the GeoNames SE postcode export (.zip/.txt). "
                                   "Only imported if PostcodeArea is currently empty, "
@@ -40,13 +48,17 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.MIGRATE_HEADING("2/5 import_general_knowledge"))
         faq_path = opts["faq"]
-        if faq_path:
+        if opts["skip_faq"]:
+            self.stdout.write("skipped (--skip-faq)")
+        elif faq_path:
             path = Path(faq_path)
             if not path.exists():
                 raise CommandError(f"--faq path not found: {path}")
             call_command("import_general_knowledge", str(path))
+        elif DEFAULT_FAQ_PACKAGE.exists():
+            call_command("import_general_knowledge", str(DEFAULT_FAQ_PACKAGE))
         else:
-            self.stdout.write("skipped (no --faq path given)")
+            self.stdout.write(f"skipped (no --faq path given and {DEFAULT_FAQ_PACKAGE} is missing)")
 
         self.stdout.write(self.style.MIGRATE_HEADING("3/5 seed_service_areas"))
         call_command("seed_service_areas")

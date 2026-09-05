@@ -9,7 +9,7 @@
   "use strict";
   var script = document.currentScript;
   var API = new URL(script.src).origin;
-  var LANG = (script.getAttribute("data-lang") || "en").slice(0, 5);
+  var LANG = (script.getAttribute("data-lang") || "sv").slice(0, 5);  // sv: the customers' language
   var AUTO_OPEN = script.getAttribute("data-open") === "1";  // open the chat on load (chat pages)
   // Languages offered in the in-widget selector (value must have a widget/i18n/<v>.json).
   var LANGS = [["sv", "Svenska"], ["en", "English"]];

@@ -1,0 +1,1576 @@
+{
+ "entries": [
+  {
+   "answer_sv": "Välj HEAT eller solsymbol och ställ temperaturen över rumstemperaturen. Vänta genom normal startfördröjning eller avfrostning och kontrollera om innedelen börjar blåsa varm luft. Rengör luftfiltren. Om den fortfarande blåser kallt trots tydligt värmebehov bör service erbjudas.",
+   "applicable_subtypes": [
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_air",
+   "faq_id": "AAHP-001",
+   "faq_type": "category",
+   "keywords": [
+    "luftvärmepump ingen värme blåser kallt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Luftvärmepumpen blåser men ger ingen värme. Vad kan jag kontrollera?",
+   "safe_customer_checks": "HEAT-läge; högre börvärde; vänta normal start; rengör filter",
+   "service_trigger": "Blåser men värmer inte efter säkra kontroller",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det kan vara normal avfrostning. Under avfrostning kan fläktar stanna tillfälligt och vatten eller ånga komma från utedelen. Exakt tidsförlopp ska hämtas från manualen. Om värmen inte återkommer efter avfrostningen bör service erbjudas.",
+   "applicable_subtypes": [
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_air",
+   "faq_id": "AAHP-002",
+   "faq_type": "category",
+   "keywords": [
+    "avfrostning ånga fläkt stannar"
+   ],
+   "onset_type": "any",
+   "question_sv": "Varför stannar fläkten och det kommer ånga från utedelen?",
+   "safe_customer_checks": "Avvakta dokumenterad avfrostningstid och observera återgång",
+   "service_trigger": "Värmen återkommer inte",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Byt båda batterierna, kontrollera polariteten, rikta fjärrkontrollen mot mottagaren och lyssna efter bekräftelseljud. Kontrollera att inget blockerar signalen. Använd eventuell nöddrift/AUX-knapp endast om exakt manual beskriver den.",
+   "applicable_subtypes": [
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_air",
+   "faq_id": "AAHP-003",
+   "faq_type": "category",
+   "keywords": [
+    "fjärrkontroll batteri luftvärmepump"
+   ],
+   "onset_type": "any",
+   "question_sv": "Fjärrkontrollen verkar inte fungera. Vad kan jag göra?",
+   "safe_customer_checks": "Byt batterier; kontrollera polaritet; rikta mot mottagare",
+   "service_trigger": "Ingen respons trots nya batterier och fri signalväg",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja. Kontrollera att den inte står i AUTO, DRY, kyla, 10-graders underhållsvärme, nattläge, eco eller timer. För felsökning av värme ska HEAT-läge användas. Om korrekt läge inte hjälper bör service erbjudas.",
+   "applicable_subtypes": [
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_air",
+   "faq_id": "AAHP-004",
+   "faq_type": "category",
+   "keywords": [
+    "fel läge AUTO DRY 10 grader eco"
+   ],
+   "onset_type": "any",
+   "question_sv": "Värmepumpen värmer dåligt trots hög temperaturinställning. Kan den stå i fel läge?",
+   "safe_customer_checks": "Kontrollera HEAT; 10 °C-läge; AUTO/DRY; timer/eco",
+   "service_trigger": "Korrekt läge men ingen värme",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Välj COOL eller snöflinga, ställ temperaturen under rumstemperaturen och använd normal eller hög fläkthastighet. Kontrollera filter, stängda fönster och dörrar samt att utedelen kan arbeta. Om innedelen blåser men luften inte blir kall efter normal väntetid bör service erbjudas.",
+   "applicable_subtypes": [
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_air",
+   "faq_id": "AAHP-005",
+   "faq_type": "category",
+   "keywords": [
+    "kyler inte COOL snöflinga"
+   ],
+   "onset_type": "any",
+   "question_sv": "Luftvärmepumpen kyler inte. Vad kan jag kontrollera?",
+   "safe_customer_checks": "COOL-läge; lägre börvärde; filter; stäng fönster/dörrar",
+   "service_trigger": "Blåser men kyler inte",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Stoppa kyldriften om det finns risk för vattenskada. Kontrollera filter, synlig kondensslang och om vatten normalt rinner ut utomhus. Blås inte med högt tryck och tillsätt inte kemikalier. Blockerad slang, pump eller kondensbricka kräver service.",
+   "applicable_subtypes": [
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_air",
+   "faq_id": "AAHP-006",
+   "faq_type": "category",
+   "keywords": [
+    "droppar vatten innedel kyla kondens"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det droppar vatten från innedelen vid kyldrift. Vad ska jag göra?",
+   "safe_customer_checks": "Stoppa kyla vid skaderisk; kontrollera filter och synlig kondensslang",
+   "service_trigger": "Vatten fortsätter komma inomhus",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Stäng av kyldriften, låt isen smälta naturligt och skydda golvet. Rengör luftfiltren. Använd inte värmepistol, hett vatten eller verktyg. Om isbildningen återkommer behövs service.",
+   "applicable_subtypes": [
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_air",
+   "faq_id": "AAHP-007",
+   "faq_type": "category",
+   "keywords": [
+    "is innedel luftvärmepump"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det bildas is i innedelen. Vad gör jag?",
+   "safe_customer_checks": "Stäng av kyla; låt smälta; rengör filter",
+   "service_trigger": "Återkommande isbildning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Rengör användarfiltren och använd eventuell självtorkningsfunktion om manualen beskriver den. Ihållande lukt, djup smuts i värmeväxlare/fläkthjul eller stående kondens kräver professionell rengöring.",
+   "applicable_subtypes": [
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_air",
+   "faq_id": "AAHP-008",
+   "faq_type": "category",
+   "keywords": [
+    "lukt innedel rengöring"
+   ],
+   "onset_type": "any",
+   "question_sv": "Luftvärmepumpen luktar illa. Vad kan jag göra?",
+   "safe_customer_checks": "Rengör filter; använd godkänd självtorkning",
+   "service_trigger": "Lukten kvarstår",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ett tunt frostlager kan vara normalt och ska normalt försvinna vid avfrostning. Tjock is, upprepade misslyckade avfrostningar, blockerad fläkt eller is som byggs upp i botten behöver bedömas. Kunden kan ta bort lös snö och löv men ska inte hacka is eller använda kokande vatten.",
+   "applicable_subtypes": [
+    "air_to_water"
+   ],
+   "category_slug": "heat_pump_air_water",
+   "faq_id": "AWHP-001",
+   "faq_type": "category",
+   "keywords": [
+    "luft vatten frost is avfrostning"
+   ],
+   "onset_type": "any",
+   "question_sv": "Är frost på utedelen normalt?",
+   "safe_customer_checks": "Ta bort lös snö/löv; observera avfrostning och dränering",
+   "service_trigger": "Tjock eller återkommande is; fläkt blockerad",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja, vatten och ibland synlig ånga kan vara normalt under avfrostning. Det ska skiljas från läckage från rör eller anslutningar. Om vattnet inte kan rinna undan eller is byggs upp runt enheten bör service erbjudas.",
+   "applicable_subtypes": [
+    "air_to_water",
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_water",
+   "faq_id": "AWHP-002",
+   "faq_type": "category",
+   "keywords": [
+    "vatten ånga utedel avfrostning"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det kommer vatten eller ånga från utedelen. Är det normalt?",
+   "safe_customer_checks": "Observera om det sker under avfrostning och om dräneringen är fri",
+   "service_trigger": "Blockerad dränering eller isbildning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Inte alltid. Fläkten kan stå still under avfrostning, startfördröjning eller när inget värmebehov finns. Kontrollera driftläge, larm och om kompressorn senare startar. Om det finns tydligt värmebehov men fläkt och kompressor inte går efter normal väntetid bör service erbjudas.",
+   "applicable_subtypes": [
+    "air_to_water",
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump_air_water",
+   "faq_id": "AWHP-003",
+   "faq_type": "category",
+   "keywords": [
+    "fläkt står still utedel"
+   ],
+   "onset_type": "any",
+   "question_sv": "Utedelens fläkt står still. Är värmepumpen trasig?",
+   "safe_customer_checks": "Kontrollera larm; driftläge; vänta dokumenterad starttid",
+   "service_trigger": "Ingen drift trots tydligt behov och normal väntetid",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja. Luft/vattenanläggningar kan ha en separat laddkrets mellan inne- och utedel. Då kan HP-larm bero på flöde i laddkretsen, pump, filter eller värmeväxlare även om radiatorerna är öppna. Kunden kan läsa temperaturer och kontrollera synligt tryck, men intern laddkrets kräver service.",
+   "applicable_subtypes": [
+    "air_to_water"
+   ],
+   "category_slug": "heat_pump_air_water",
+   "faq_id": "AWHP-004",
+   "faq_type": "category",
+   "keywords": [
+    "luft vatten HP laddkrets flöde"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan en luft/vattenvärmepump få HP-larm trots att radiatorerna är öppna?",
+   "safe_customer_checks": "Läs framledning/retur och synligt tryck",
+   "service_trigger": "Återkommande HP eller misstänkt laddflödesproblem",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera att kondens- och smältvatten kan rinna undan och ta bort lös snö och löv. Hacka inte is nära rör eller batteri. Om bottenplåt, dränering eller värmekabel inte fungerar krävs service.",
+   "applicable_subtypes": [
+    "air_to_water"
+   ],
+   "category_slug": "heat_pump_air_water",
+   "faq_id": "AWHP-005",
+   "faq_type": "category",
+   "keywords": [
+    "is under utedel dränering bottenplåt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det bildas is under utedelen. Vad kan jag göra?",
+   "safe_customer_checks": "Rensa lös snö/löv och kontrollera fri avrinning",
+   "service_trigger": "Återkommande is i botten eller blockerad dränering",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja, beroende på anläggningens konstruktion och hur länge den varit strömlös. Stäng inte av hela systemet på nytt om det tar bort frostskydd, om inte manual eller tekniker säger det. Vid långvarigt avbrott i minusgrader ska ärendet hanteras skyndsamt.",
+   "applicable_subtypes": [
+    "air_to_water"
+   ],
+   "category_slug": "heat_pump_air_water",
+   "faq_id": "AWHP-006",
+   "faq_type": "category",
+   "keywords": [
+    "strömavbrott frysrisk luft vatten"
+   ],
+   "onset_type": "any",
+   "question_sv": "Värmepumpen har varit strömlös i kyla. Finns det frysrisk?",
+   "safe_customer_checks": "Notera utetemperatur och hur länge anläggningen varit strömlös",
+   "service_trigger": "Långvarigt avbrott i kyla eller misstänkt frysning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja. Ett smutsigt filter minskar luftflödet och kan försämra värmeåtervinningen eller bidra till larm. Rengör eller byt filtret enligt exakt manual och ändra inte ventilernas injustering.",
+   "applicable_subtypes": [
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump_exhaust_air",
+   "faq_id": "EAHP-001",
+   "faq_type": "category",
+   "keywords": [
+    "frånluft filter luftflöde"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan ett smutsigt frånluftsfilter påverka värmepumpen?",
+   "safe_customer_checks": "Rengör eller byt användarfilter enligt manual",
+   "service_trigger": "Larm eller dåligt luftflöde kvarstår",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera att ventilerna inte är blockerade och att huset får ersättningsluft. Rengör ytorna men ändra inte ventilernas injusterade läge. Om fläkten inte går eller luftflödet fortfarande är lågt bör service erbjudas.",
+   "applicable_subtypes": [
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump_exhaust_air",
+   "faq_id": "EAHP-002",
+   "faq_type": "category",
+   "keywords": [
+    "frånluftsventil tilluft ersättningsluft"
+   ],
+   "onset_type": "any",
+   "question_sv": "Ska jag öppna frånlufts- och tilluftsventiler när värmepumpen har dåligt luftflöde?",
+   "safe_customer_checks": "Kontrollera blockering; rengör utan att ändra injustering",
+   "service_trigger": "Fläkt eller luftflöde fungerar inte normalt",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Nej. En filterpåminnelse kan vara planerat underhåll och behöver inte betyda driftfel. Rengör eller byt filtret enligt manualen och återställ endast påminnelsen genom normal användarmeny. Om larm om lågt luftflöde eller lågtryck kvarstår behövs fortsatt kontroll.",
+   "applicable_subtypes": [
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump_exhaust_air",
+   "faq_id": "EAHP-003",
+   "faq_type": "category",
+   "keywords": [
+    "filterpåminnelse frånluft larm"
+   ],
+   "onset_type": "any",
+   "question_sv": "Är en filterpåminnelse samma sak som ett fel?",
+   "safe_customer_checks": "Utför filterunderhåll enligt manual och återställ användarpåminnelse",
+   "service_trigger": "Driftlarm kvarstår efter filterunderhåll",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "På vissa modeller kan ett torrt vattenlås eller felaktigt placerad slangände orsaka bubblande. Följ endast modellens användarinstruktion för vattenlås och kondens. Blanda inte ihop detta med bubblande ljud från en köldbärarkrets.",
+   "applicable_subtypes": [
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump_exhaust_air",
+   "faq_id": "EAHP-004",
+   "faq_type": "category",
+   "keywords": [
+    "bubblar spillkopp kondensslang vattenlås"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det bubblar i spillkoppen eller kondensslangen. Vad kan det bero på?",
+   "safe_customer_checks": "Kontrollera synligt vattenlås/slang enligt exakt manual",
+   "service_trigger": "Bubblandet eller avrinningen kvarstår",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Synligt slam eller geléliknande smuts kan blockera en användarservicebar kondensväg. Rengör endast enligt exakt manual och utan att öppna elutrymmen. Om avrinningen fortfarande är blockerad eller vatten läcker ska service erbjudas.",
+   "applicable_subtypes": [
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump_exhaust_air",
+   "faq_id": "EAHP-005",
+   "faq_type": "category",
+   "keywords": [
+    "kondens avlopp gelé smuts frånluft"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kondensvattnet rinner dåligt från frånluftsvärmepumpen. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Inspektera och rengör endast användarservicebar kondensdel enligt manual",
+   "service_trigger": "Blockering eller läckage kvarstår",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "HP betyder högtryck och kan vid värmedrift bero på att värmen inte transporteras bort tillräckligt snabbt. Ett stort stabilt temperaturdelta kan tyda på lågt flöde, stängda ventiler, smutsigt användarfilter, cirkulationsproblem eller givarfel. Kunden kan läsa temperaturerna, öppna termostater och kontrollera synligt tryck; intern pump, ventil, givare och värmeväxlare kräver service.",
+   "applicable_subtypes": [
+    "water_to_water"
+   ],
+   "category_slug": "heat_pump_liquid_water",
+   "faq_id": "GSHP-001",
+   "faq_type": "category",
+   "keywords": [
+    "HP högtryck stor skillnad framledning retur lågt flöde"
+   ],
+   "onset_type": "any",
+   "question_sv": "Vad betyder HP-larm tillsammans med stor skillnad mellan framledning och retur?",
+   "safe_customer_checks": "Läs framledning/retur; öppna termostater; kontrollera synligt tryck",
+   "service_trigger": "Larmet återkommer eller delta förblir stort",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "När larmet främst kommer under varmvattenproduktion kan problemet ligga i flödet genom varmvatten- eller värmeöverföringen, exempelvis cirkulationspump, filter, växelventil, värmeväxlare eller givare. Kunden kan notera om larmet även kommer vid husvärme och läsa framledning/retur. Intern kontroll och eventuell rengöring eller backspolning är servicearbete.",
+   "applicable_subtypes": [
+    "water_to_water"
+   ],
+   "category_slug": "heat_pump_liquid_water",
+   "faq_id": "GSHP-002",
+   "faq_type": "category",
+   "keywords": [
+    "HP varmvatten växelventil värmeväxlare"
+   ],
+   "onset_type": "any",
+   "question_sv": "HP-larmet kommer när värmepumpen gör varmvatten. Vad kan det tyda på?",
+   "safe_customer_checks": "Notera om larmet gäller varmvatten, husvärme eller båda; läs temperaturer",
+   "service_trigger": "Återkommande HP under varmvattenproduktion",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det beror på modell, effekt och driftläge. Som praktisk Nordland-erfarenhet kan ungefär 7–10 °C under stabil kompressordrift ofta vara rimligt, medan tillskott kan öka skillnaden. Ett stabilt delta över cirka 13 °C är misstänkt men ska inte ensamt användas som diagnos. Exakt bedömning kräver modell- och driftdata.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump_liquid_water",
+   "faq_id": "GSHP-003",
+   "faq_type": "category",
+   "keywords": [
+    "temperaturdelta 7 10 13 grader"
+   ],
+   "onset_type": "any",
+   "question_sv": "Hur stor skillnad mellan framledning och retur är normalt?",
+   "safe_customer_checks": "Läs temperaturer under stabil drift och notera driftläge",
+   "service_trigger": "Stort stabilt delta tillsammans med larm eller dålig värme",
+   "source_type": "Nordland VVS practical experience"
+  },
+  {
+   "answer_sv": "Ja, som en grov observation. Om displayen visar stor skillnad och rören också känns tydligt olika stöder det att temperaturskillnaden är verklig. Om display och rör inte stämmer överens kan givare eller givarkontakt behöva kontrolleras. Känn aldrig på mycket heta, elektriska eller rörliga delar.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump_liquid_water",
+   "faq_id": "GSHP-004",
+   "faq_type": "category",
+   "keywords": [
+    "känna på rör framledning retur givare"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan jag känna på rören för att bedöma flödet?",
+   "safe_customer_checks": "Känn försiktigt på lättåtkomliga fram- och returrör; jämför med display",
+   "service_trigger": "Display och fysisk känsla avviker tydligt",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "LP betyder lågtryck och kan vara kopplat till låg temperatur eller dåligt flöde på köldbärarsidan, luft i kollektorn, lågt nivå- eller tryckvärde, igensatt filter, köldbärarpump eller ett fel i köldmediekretsen. Kunden kan läsa temperaturer, observera nivå/tryck och lyssna efter bubblande ljud. Påfyllning, luftning med extern pump och köldmediearbete kräver service.",
+   "applicable_subtypes": [
+    "water_to_water"
+   ],
+   "category_slug": "heat_pump_liquid_water",
+   "faq_id": "GSHP-005",
+   "faq_type": "category",
+   "keywords": [
+    "LP lågtryck köldbärare brine luft"
+   ],
+   "onset_type": "any",
+   "question_sv": "Vad kan ett LP-larm på en bergvärmepump bero på?",
+   "safe_customer_checks": "Läs köldbärartemperaturer; observera nivå/tryck; lyssna efter bubblande",
+   "service_trigger": "LP återkommer eller köldbärarvärden är avvikande",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det tyder ofta på luft i köldbärarkretsen. Kunden kan beskriva ljudet och var det hörs, men ska inte fylla eller lufta kollektorn med extern pump. Korrekt avluftning och cirkulation kräver serviceutrustning.",
+   "applicable_subtypes": [
+    "water_to_water"
+   ],
+   "category_slug": "heat_pump_liquid_water",
+   "faq_id": "GSHP-006",
+   "faq_type": "category",
+   "keywords": [
+    "bubblar vattenfall köldbärare borrhål luft"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det låter som vattenfall eller bubblar i köldbärarrören. Vad betyder det?",
+   "safe_customer_checks": "Lyssna och lokalisera ljudet; kontrollera synlig nivå/tryck",
+   "service_trigger": "Bubblande/vattenfallsljud i köldbärarkretsen",
+   "source_type": "Nordland VVS practical experience"
+  },
+  {
+   "answer_sv": "Endast om exakt manual tydligt anger att filtret är användarservicebart och visar rätt isolerings- och rengöringsförfarande. Om filtertyp, ventiler eller tryckförhållanden är osäkra ska kunden inte öppna filtret. Service ska erbjudas.",
+   "applicable_subtypes": [
+    "water_to_water"
+   ],
+   "category_slug": "heat_pump_liquid_water",
+   "faq_id": "GSHP-007",
+   "faq_type": "category",
+   "keywords": [
+    "köldbärarfilter rengöra smutsfilter"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan jag rengöra köldbärarfiltret själv?",
+   "safe_customer_checks": "Följ endast exakt användarmanual för användarservicebart filter",
+   "service_trigger": "Filtertyp eller isolering är osäker",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Längre gångtider och högre effektbehov kan avslöja ett marginalproblem i flödet som inte märks under mildare väder. Detta är praktisk erfarenhet, inte en universell tillverkarregel. Återkommande larm vid första kalla perioden bör följas upp med service.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water"
+   ],
+   "category_slug": "heat_pump_liquid_water",
+   "faq_id": "GSHP-008",
+   "faq_type": "category",
+   "keywords": [
+    "första kylan HP larm flöde"
+   ],
+   "onset_type": "any",
+   "question_sv": "Varför kommer HP- eller flödesproblem ofta först när det blir kallt?",
+   "safe_customer_checks": "Notera utetemperatur och när larmet uppstår",
+   "service_trigger": "Återkommande larm vid hög belastning",
+   "source_type": "Nordland VVS practical experience"
+  },
+  {
+   "answer_sv": "Om det alltid har varit något för kallt kan en liten ändring av en normal användarinställning vara rimlig enligt manualen för modellen. Om värmen fungerade tidigare men plötsligt blivit sämre bör man inte börja med att höja värmekurvan; kontrollera först larm, driftläge, schema och andra enkla avvikelser. Om ingen tydlig inställningsändring förklarar problemet bör service erbjudas.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air",
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-001",
+   "faq_type": "category",
+   "keywords": [
+    "kallt inne värmekurva plötsligt alltid kallt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det är för kallt inne. Ska jag ändra värmeinställningen?",
+   "safe_customer_checks": "Kontrollera larm; driftläge; schema/semesterläge; önskad temperatur",
+   "service_trigger": "Plötslig förändring utan tydlig användarinställning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Om det alltid har varit för varmt kan en liten ändring av den normala användarinställningen göras enligt exakt manual. Notera ursprungsvärdet och ändra en sak i taget. Om temperaturen plötsligt blivit för hög efter att tidigare ha varit normal bör driftläge, schema, givarinformation och andra felorsaker kontrolleras innan större inställningar ändras.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air",
+    "air_to_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-002",
+   "faq_type": "category",
+   "keywords": [
+    "för varmt sänka värme inställning"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det är för varmt inne. Kan jag sänka värmen?",
+   "safe_customer_checks": "Kontrollera driftläge; schema; rumstemperaturinställning",
+   "service_trigger": "Plötslig temperaturförändring utan tydlig inställningsorsak",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Om varmvattenkomforten alltid varit låg kan normal-, komfort- eller tillfälligt extra varmvatten användas om den exakta manualen beskriver det som en användarinställning. Ändra en inställning i taget och undvik service- och installatörsmenyer.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-003",
+   "faq_type": "category",
+   "keywords": [
+    "varmvatten komfort extra varmvatten inställning"
+   ],
+   "onset_type": "any",
+   "question_sv": "Varmvattnet har alltid varit otillräckligt. Kan jag ändra inställningen?",
+   "safe_customer_checks": "Kontrollera varmvattenläge och normal användarinställning enligt exakt manual",
+   "service_trigger": "Otillräcklig kapacitet trots korrekt användarinställning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Nej, inte som första åtgärd. Om varmvattnet tidigare fungerade normalt bör man först kontrollera larm, ändrat driftläge, schema, strömavbrott eller annan dokumenterad driftstörning. Om ingen tydlig användarinställning förklarar försämringen bör service erbjudas.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-004",
+   "faq_type": "category",
+   "keywords": [
+    "plötsligt mindre varmvatten höja inställning"
+   ],
+   "onset_type": "any",
+   "question_sv": "Varmvattnet har plötsligt blivit sämre. Ska jag bara höja inställningen?",
+   "safe_customer_checks": "Kontrollera larm; varmvattenläge; schema; strömavbrott",
+   "service_trigger": "Plötslig försämring utan enkel förklaring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera om det finns ett aktivt larm, att rätt driftläge är valt, att radiator- eller golvvärmeventiler inte är stängda och att det synliga systemtrycket verkar normalt för anläggningen. Om problemet kom plötsligt eller kvarstår efter dessa enkla kontroller bör service erbjudas.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-005",
+   "faq_type": "category",
+   "keywords": [
+    "ingen värme pumpen går kallt hus"
+   ],
+   "onset_type": "any",
+   "question_sv": "Värmepumpen går men huset blir inte varmt. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Läs larm; kontrollera driftläge; öppna normala termostater; läs synligt tryck",
+   "service_trigger": "Plötsligt fel eller ingen förbättring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Skriv av hela larmtexten eller ta ett tydligt foto av displayen. Felkoden får bara tolkas mot rätt modell eller verifierad produktfamilj. Om exakt modell inte är säker ska typskylten kontrolleras innan modellspecifika råd ges.",
+   "applicable_subtypes": [],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-006",
+   "faq_type": "category",
+   "keywords": [
+    "piper larm felkod meddelande display"
+   ],
+   "onset_type": "any",
+   "question_sv": "Värmepumpen piper och visar ett meddelande jag inte förstår. Vad ska jag göra?",
+   "safe_customer_checks": "Läs av hela larmtexten; ta foto av display och typskylt",
+   "service_trigger": "Larmet kvarstår eller kräver professionell åtgärd",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Nya skramlande, slipande, kraftigt vibrerande eller återkommande ovanliga ljud bör tas på allvar, särskilt om de kommer tillsammans med larm eller försämrad funktion. Kunden kan beskriva när ljudet uppstår och spela in det, men ska inte öppna kåpor eller röra interna komponenter. Ett nytt eller tilltagande ljud bör normalt leda till service.",
+   "applicable_subtypes": [],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-007",
+   "faq_type": "category",
+   "keywords": [
+    "slamrar skramlar vibrerar missljud"
+   ],
+   "onset_type": "any",
+   "question_sv": "Värmepumpen låter mer än vanligt. När behövs service?",
+   "safe_customer_checks": "Lyssna och dokumentera när ljudet uppstår; kontrollera larm",
+   "service_trigger": "Nytt eller tilltagande mekaniskt ljud",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Högre energianvändning kan bero på kallare väder, ändrade temperatur- eller varmvatteninställningar, mer eltillskott, försämrat flöde, smutsiga filter eller ett driftfel. Börja med att kontrollera larm, temperaturinställningar, filter och om eltillskott används mer än normalt. Vid en tydlig plötslig ökning bör service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-008",
+   "faq_type": "category",
+   "keywords": [
+    "hög elförbrukning energi eltillskott"
+   ],
+   "onset_type": "any",
+   "question_sv": "Värmepumpen drar mer energi än tidigare. Vad kan orsaka det?",
+   "safe_customer_checks": "Kontrollera larm; inställningar; filter; symbol för eltillskott",
+   "service_trigger": "Plötslig eller oförklarlig ökning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "En liten mängd kondens eller vatten från avfrostning kan vara normal för vissa typer av värmepumpar. Kontinuerligt läckage, vatten från en okänd anslutning eller vatten nära elutrustning är inte något kunden ska felsöka invändigt. Dokumentera var vattnet kommer från och boka service vid fortsatt eller större läckage.",
+   "applicable_subtypes": [
+    "air_to_water",
+    "exhaust_air",
+    "air_to_air",
+    "water_to_water"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-009",
+   "faq_type": "category",
+   "keywords": [
+    "droppar vatten läckage kondens"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det droppar vatten vid värmepumpen. Är det normalt?",
+   "safe_customer_checks": "Observera var vattnet kommer från; kontrollera om det är kondens/avfrostning",
+   "service_trigger": "Kontinuerligt eller större läckage; vatten nära el",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Täta stopp kan bero på återkommande larm, korta driftcykler, flödesproblem, inställningar eller annan driftstörning. Läs av larmhistorik och notera när stoppen sker. Återkommande stopp efter att anläggningen tidigare fungerat normalt bör bedömas av service.",
+   "applicable_subtypes": [],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-010",
+   "faq_type": "category",
+   "keywords": [
+    "stannar ofta korta driftcykler larm"
+   ],
+   "onset_type": "any",
+   "question_sv": "Värmepumpen stannar ofta. Vad kan det bero på?",
+   "safe_customer_checks": "Läs larmhistorik; notera driftläge och tidpunkt",
+   "service_trigger": "Återkommande stopp eller återkommande säkerhetslarm",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Fyllning bör bara göras när systemtypen är känd och den exakta manualen eller en godkänd Nordland-instruktion anger rätt metod och måltryck. Öppna och slutna expansionssystem ska inte behandlas likadant. Om trycket sjunker igen efter påfyllning bör läckage, säkerhetsventil och expansionsfunktion bedömas av service.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-011",
+   "faq_type": "category",
+   "keywords": [
+    "lågt tryck fylla på vatten manometer"
+   ],
+   "onset_type": "any",
+   "question_sv": "Systemtrycket är lågt. Kan jag fylla på vatten?",
+   "safe_customer_checks": "Läs synlig manometer; identifiera systemtyp; följ exakt godkänd fyllningsinstruktion",
+   "service_trigger": "Trycket sjunker igen; systemtyp okänd; snabb tryckförändring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det kan tyda på ett läckage, en läckande säkerhetsventil, ett problem med expansionskärlet eller en annan tryckförlust. Kontrollera om spill- eller avloppsröret från värmesystemets säkerhetsventil droppar och om det finns synligt läckage. Plugga aldrig säkerhetsventilens utlopp. Återkommande tryckfall kräver service.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-012",
+   "faq_type": "category",
+   "keywords": [
+    "trycket sjunker läckage säkerhetsventil expansionskärl"
+   ],
+   "onset_type": "any",
+   "question_sv": "Trycket sjunker efter att jag har fyllt på. Vad betyder det?",
+   "safe_customer_checks": "Inspektera synliga läckor och säkerhetsventilens spillrör utan att manövrera ventilen",
+   "service_trigger": "Återkommande tryckfall",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ett snabbt trycklyft vid liten påfyllning kan tyda på att expansionskärlet har för liten fungerande luftvolym, fel förtryck, skadat membran eller blockerad anslutning. Kunden ska inte justera expansionskärlets förtryck. Avbryt påfyllningen och boka service.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-013",
+   "faq_type": "category",
+   "keywords": [
+    "trycket stiger snabbt expansionskärl"
+   ],
+   "onset_type": "any",
+   "question_sv": "Trycket stiger mycket snabbt när jag fyller systemet. Vad kan det bero på?",
+   "safe_customer_checks": "Avbryt påfyllning; notera tryckförändringen",
+   "service_trigger": "Snabb tryckstegring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja, ett öppet expansionssystem kan ha lägre visat tryck beroende på höjdskillnaden till expansionskärlet. Därför ska man inte bedöma 0,5 bar som fel innan systemtypen är identifierad. I ett öppet system fyller man normalt enligt anläggningens kända instruktion tills vatten når varnings- eller skvallerröret.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-014",
+   "faq_type": "category",
+   "keywords": [
+    "öppet expansionssystem 0",
+    "5 bar skvallerrör"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan ett värmesystem fungera med ungefär 0,5 bar?",
+   "safe_customer_checks": "Identifiera öppet eller slutet expansionssystem",
+   "service_trigger": "Systemtypen är okänd eller trycket avviker från installationens normala nivå",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "En liten mängd vatten från varmvattenberedarens säkerhetsventil kan förekomma när vattnet värms och expanderar. Kontinuerligt eller stort flöde behöver bedömas. Värmesystemets och varmvattenberedarens säkerhetsventiler ska skiljas åt, och utloppet får aldrig pluggas.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-015",
+   "faq_type": "category",
+   "keywords": [
+    "säkerhetsventil spillrör droppar"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det kommer vatten ur säkerhetsventilens spillrör. Är det normalt?",
+   "safe_customer_checks": "Observera vilken ventil/spillledning som droppar och när",
+   "service_trigger": "Kontinuerligt eller stort flöde",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja. Kompressorn kan fortfarande gå medan eltillskottet saknas, vilket märks tydligast vid kall väderlek eller stort varmvattenbehov. Kontrollera om symbol för eltillskott visas, om en normal extern säkring har löst ut och om det nyligen varit strömavbrott. Återkommande utlöst skydd eller utebliven temperaturökning kräver service.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-016",
+   "faq_type": "category",
+   "keywords": [
+    "elpatron eltillskott kallt ute säkring"
+   ],
+   "onset_type": "any",
+   "question_sv": "Värmepumpen klarar inte huset när det blir kallt. Kan eltillskottet ha slutat fungera?",
+   "safe_customer_checks": "Kontrollera symbol för eltillskott; extern säkring; senaste strömavbrott",
+   "service_trigger": "Eltillskott verkar inte ge effekt eller skydd löser igen",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Värmekurvan eller en normal parallellförskjutning kan justeras försiktigt när huset långvarigt är för kallt eller varmt och anläggningen i övrigt fungerar normalt. Ändra små steg, notera ursprungsvärdet och vänta på resultat. Ändra inte värmekurvan som första åtgärd vid ett plötsligt värmefel.",
+   "applicable_subtypes": [
+    "water_to_water",
+    "air_to_water",
+    "exhaust_air"
+   ],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-017",
+   "faq_type": "category",
+   "keywords": [
+    "värmekurva parallellförskjutning inställning"
+   ],
+   "onset_type": "any",
+   "question_sv": "När är det lämpligt att ändra värmekurvan?",
+   "safe_customer_checks": "Notera ursprungsvärde; liten ändring enligt exakt manual",
+   "service_trigger": "Plötsligt fel eller ingen rimlig effekt av normal justering",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja. Kontrollera om ett schema, semesterläge, ekonomiläge eller nattsänkning har aktiverats. Om anläggningen tidigare fungerade normalt och ingen sådan inställning förklarar förändringen bör felet inte döljas med stora inställningsändringar; service kan behövas.",
+   "applicable_subtypes": [],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-018",
+   "faq_type": "category",
+   "keywords": [
+    "schema semesterläge nattläge eco"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan schema, semesterläge eller nattläge göra att det blir kallt eller lite varmvatten?",
+   "safe_customer_checks": "Kontrollera schema; semesterläge; eco/nattläge",
+   "service_trigger": "Ingen tydlig inställningsorsak till plötslig förändring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Många värmepumpar har en normal startfördröjning efter stopp, strömavbrott eller lägesbyte. Exakt tid ska hämtas från rätt manual. Om anläggningen inte startar efter den normala fördröjningen eller visar larm bör service eller fortsatt verifierad felsökning erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "heat_pump",
+   "faq_id": "HP-GEN-019",
+   "faq_type": "category",
+   "keywords": [
+    "startfördröjning väntetid startar inte direkt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Är det normalt att värmepumpen inte startar direkt?",
+   "safe_customer_checks": "Vänta den tid som anges i exakt manual; kontrollera larm",
+   "service_trigger": "Startar inte efter dokumenterad fördröjning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera att termostaten är öppen och att radiatorn inte har luft. Om radiatorn fortfarande är kall kan ventil, injustering eller flöde behöva kontrolleras av service. Slå inte på ventilen och demontera inte termostathuset utan instruktion.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-001",
+   "faq_type": "category",
+   "keywords": [
+    "en radiator kall termostat lufta"
+   ],
+   "onset_type": "any",
+   "question_sv": "En radiator är kall medan de andra är varma. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Öppna termostat; lufta vanlig radiator om systemtryck och rutin är kända",
+   "service_trigger": "Radiatorn förblir kall",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "En viss temperaturskillnad är normal när radiatorn avger värme. Om nederdelen är helt kall och rummet inte blir varmt kan flödet vara lågt eller radiatorn vara felinjusterad. Kontrollera att termostaten är öppen och boka service om problemet kvarstår.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-002",
+   "faq_type": "category",
+   "keywords": [
+    "radiator varm upptill kall nertill"
+   ],
+   "onset_type": "any",
+   "question_sv": "Radiatorn är varm upptill men kall nertill. Är det fel?",
+   "safe_customer_checks": "Öppna termostat; jämför med andra radiatorer",
+   "service_trigger": "Rummet blir inte varmt eller skillnaden är tydligt onormal",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det tyder ofta på luft i radiatorn. En vanlig radiator kan luftas om kunden känner till rätt rutin och kan kontrollera systemtrycket efteråt. Om det kommer mycket luft upprepade gånger eller trycket sjunker bör service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-003",
+   "faq_type": "category",
+   "keywords": [
+    "radiator kall upptill luft i radiator"
+   ],
+   "onset_type": "any",
+   "question_sv": "Radiatorn är kall upptill men varm längre ner. Behöver den luftas?",
+   "safe_customer_checks": "Lufta radiator enligt godkänd rutin; kontrollera systemtryck efteråt",
+   "service_trigger": "Återkommande luft eller tryckfall",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Porlande ljud kan bero på luft i systemet eller olämpligt flöde. Lufta vanliga radiatorer enligt godkänd rutin och kontrollera synligt systemtryck. Om ljudet återkommer eller flera radiatorer påverkas bör service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-004",
+   "faq_type": "category",
+   "keywords": [
+    "porlar kluckar radiator luft"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det porlar eller kluckar i radiatorerna. Vad kan det bero på?",
+   "safe_customer_checks": "Lufta vanlig radiator; läs synligt systemtryck",
+   "service_trigger": "Återkommande ljud eller flera radiatorer påverkas",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera att termostaten är helt öppen och jämför med andra radiatorer. En fast ventil kan vara orsaken, men kunden ska inte demontera ventil eller göra ingrepp utan en verifierad användarinstruktion. Om värmen inte återkommer bör service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-005",
+   "faq_type": "category",
+   "keywords": [
+    "radiatortermostat fast ventil kall"
+   ],
+   "onset_type": "any",
+   "question_sv": "Radiatorn blir inte varm trots att termostaten står högt. Vad gör jag?",
+   "safe_customer_checks": "Öppna termostat; jämför temperatur med andra radiatorer",
+   "service_trigger": "Radiatorn förblir kall",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ljummet vatten kan vara normalt vid milt väder och låg värmebelastning. Om huset håller rätt temperatur är det inte nödvändigtvis ett fel. Om inomhustemperaturen samtidigt sjunker bör larm, driftläge, systemtryck och värmepumpens temperaturer kontrolleras.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-006",
+   "faq_type": "category",
+   "keywords": [
+    "alla radiatorer ljumma"
+   ],
+   "onset_type": "any",
+   "question_sv": "Alla radiatorer är bara ljumma. Är det ett fel?",
+   "safe_customer_checks": "Kontrollera inomhustemperatur; larm; driftläge; synligt tryck",
+   "service_trigger": "Huset blir kallt eller problemet kom plötsligt",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera att radiatorns termostat är öppen, att radiatorn är fri från luft och att möbler eller gardiner inte blockerar värmen. Om rummet alltid varit kallt kan injustering eller radiatorstorlek behöva bedömas. Om det plötsligt blivit kallt kan ventil- eller flödesfel behöva service.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-007",
+   "faq_type": "category",
+   "keywords": [
+    "ett rum kallt radiator"
+   ],
+   "onset_type": "any",
+   "question_sv": "Ett rum är kallare än resten av huset. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Öppna termostat; lufta; kontrollera fri luftcirkulation",
+   "service_trigger": "Plötslig förändring eller långvarig otillräcklig kapacitet",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja, i ett slutet värmesystem kan trycket sjunka efter luftning. Läs av manometern och följ bara en exakt godkänd fyllningsinstruktion för den aktuella anläggningen. Öppna system kan ha en annan fyllningsmetod.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-008",
+   "faq_type": "category",
+   "keywords": [
+    "lufta radiator tryck efteråt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Behöver jag kontrollera trycket efter att jag luftat radiatorer?",
+   "safe_customer_checks": "Läs manometer; följ verifierad fyllningsrutin",
+   "service_trigger": "Trycket sjunker återkommande eller systemtypen är okänd",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Nej, inte som första åtgärd. Kontrollera larm, driftläge, systemtryck, externa säkringar och om cirkulation eller eltillskott verkar fungera. En plötslig förändring efter normal drift bör behandlas som ett möjligt fel och service erbjudas om ingen enkel orsak hittas.",
+   "applicable_subtypes": [],
+   "category_slug": "radiators",
+   "faq_id": "RAD-009",
+   "faq_type": "category",
+   "keywords": [
+    "alla radiatorer kalla plötsligt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Alla radiatorer blev plötsligt kalla. Ska jag höja värmekurvan?",
+   "safe_customer_checks": "Kontrollera larm; driftläge; synligt tryck; externa säkringar",
+   "service_trigger": "Plötsligt bortfall av värme",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Golvvärme har ofta stor tröghet, särskilt i betong. En ändring kan ta många timmar innan den märks. Gör små ändringar och vänta innan nästa justering. Exakt rekommenderad väntetid ska hämtas från anläggningens instruktion.",
+   "applicable_subtypes": [],
+   "category_slug": "floor_heating",
+   "faq_id": "UFH-001",
+   "faq_type": "category",
+   "keywords": [
+    "golvvärme långsam trög"
+   ],
+   "onset_type": "any",
+   "question_sv": "Varför reagerar golvvärmen så långsamt när jag ändrar temperaturen?",
+   "safe_customer_checks": "Gör en liten ändring; avvakta enligt systemets normala tröghet",
+   "service_trigger": "Ingen effekt trots rimlig väntetid eller plötslig förändring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera rummets normala termostat, att den inte står i semester- eller nattläge och om ställdonet eller slingindikeringen visar värmebehov utan att öppna el- eller fördelarskåp. Om rummet plötsligt blivit kallt kan ställdon, ventil eller flöde behöva service.",
+   "applicable_subtypes": [],
+   "category_slug": "floor_heating",
+   "faq_id": "UFH-002",
+   "faq_type": "category",
+   "keywords": [
+    "golvvärme ett rum kallt termostat ställdon"
+   ],
+   "onset_type": "any",
+   "question_sv": "Ett rum med golvvärme är kallt medan andra rum är varma. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Kontrollera rumstermostat och normalt användarläge; observera synlig indikering",
+   "service_trigger": "Rummet förblir kallt eller felet uppstod plötsligt",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera värmepumpens larm och driftläge, systemtrycket och om värmebehov finns. Om samtliga zoner plötsligt tappat värme är det sannolikt inte bara en rumstermostat. Service bör erbjudas om ingen enkel driftinställning förklarar felet.",
+   "applicable_subtypes": [],
+   "category_slug": "floor_heating",
+   "faq_id": "UFH-003",
+   "faq_type": "category",
+   "keywords": [
+    "alla golvvärmeslingor kalla"
+   ],
+   "onset_type": "any",
+   "question_sv": "Alla golvvärmeslingor verkar kalla. Vad bör jag kontrollera?",
+   "safe_customer_checks": "Kontrollera larm; driftläge; synligt systemtryck; värmebehov",
+   "service_trigger": "Alla zoner kalla efter tidigare normal drift",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "En liten ändring av normal rumstemperatur eller dokumenterad användarinställning kan vara rimlig. Ändra en sak i taget och notera ursprungsvärdet. Om systemet aldrig når önskad temperatur kan injustering, framledningstemperatur eller dimensionering behöva bedömas av Nordland VVS.",
+   "applicable_subtypes": [],
+   "category_slug": "floor_heating",
+   "faq_id": "UFH-004",
+   "faq_type": "category",
+   "keywords": [
+    "golvvärme alltid kallt justera"
+   ],
+   "onset_type": "any",
+   "question_sv": "Golvvärmen har alltid varit för kall. Kan jag höja inställningen?",
+   "safe_customer_checks": "Liten normal användarjustering enligt manual",
+   "service_trigger": "Golvet når aldrig önskad temperatur",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Nej, kunden bör inte börja ändra grundinjustering eller flödesmätare. Kontrollera larm, driftläge, schema, termostat och systemtryck. Om ingen enkel inställning förklarar förändringen bör service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "floor_heating",
+   "faq_id": "UFH-005",
+   "faq_type": "category",
+   "keywords": [
+    "golvvärme plötsligt kallt flöde"
+   ],
+   "onset_type": "any",
+   "question_sv": "Golvvärmen fungerade tidigare men är nu plötsligt för kall. Ska jag öka flödet?",
+   "safe_customer_checks": "Kontrollera larm; driftläge; schema; termostat; synligt tryck",
+   "service_trigger": "Plötslig försämring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Om den alltid varit för varm kan en liten normal rumstemperaturjustering göras enligt systemets instruktion. Om golvet plötsligt blivit onormalt varmt bör schema, termostat och styrning kontrolleras och service erbjudas om felet kvarstår. Ändra inte grundflöden eller servicemenyer.",
+   "applicable_subtypes": [],
+   "category_slug": "floor_heating",
+   "faq_id": "UFH-006",
+   "faq_type": "category",
+   "keywords": [
+    "golvvärme för varmt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Golvvärmen är för varm. Vad kan jag ändra?",
+   "safe_customer_checks": "Kontrollera rumstermostat; schema; normal användarinställning",
+   "service_trigger": "Plötslig övertemperatur eller utebliven reglering",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Viss ojämnhet kan bero på slingornas placering, golvkonstruktion och möblering. Tydlig eller nytillkommen ojämnhet kan tyda på luft, lågt flöde eller problem i en slinga. Kunden kan jämföra rum och termostater men bör inte ändra grundinjusteringen själv.",
+   "applicable_subtypes": [],
+   "category_slug": "floor_heating",
+   "faq_id": "UFH-007",
+   "faq_type": "category",
+   "keywords": [
+    "golvvärme ojämn varmt kallt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Varför är golvet varmt på vissa ställen och kallt på andra?",
+   "safe_customer_checks": "Jämför rumstermostater och vilka zoner som begär värme",
+   "service_trigger": "Nytillkommen tydlig ojämnhet",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "En plötslig förändring kan bero på utebliven regenerering, filtermedia, styrventil, förändrad råvattenkvalitet eller störning i anläggningen. Kontrollera larm, salt- eller regenereringsstatus och om alla tappställen påverkas. Om ingen enkel förklaring finns bör service och eventuell vattenanalys erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-001",
+   "faq_type": "category",
+   "keywords": [
+    "missfärgat vatten filter plötsligt"
+   ],
+   "onset_type": "sudden",
+   "question_sv": "Vattnet har plötsligt blivit missfärgat trots att filtret fungerade tidigare. Vad gör jag?",
+   "safe_customer_checks": "Kontrollera display/larm; salt; regenereringsstatus; flera tappställen",
+   "service_trigger": "Plötslig försämring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det kan bero på att filtret inte regenererar eller backspolar korrekt, fel salt/kemikalie, förbrukat media, förändrat råvatten eller fel dimensionering. Kontrollera normal driftstatus och användarförråd enligt manualen. Om problemet kvarstår bör vattenanalys och service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-002",
+   "faq_type": "category",
+   "keywords": [
+    "järn mangan fläckar vattenfilter"
+   ],
+   "onset_type": "any",
+   "question_sv": "Jag får järn- eller manganfläckar trots filter. Vad kan det bero på?",
+   "safe_customer_checks": "Kontrollera driftstatus; salt/kemikalieförråd enligt manual",
+   "service_trigger": "Fläckar kvarstår eller har uppstått plötsligt",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "En förändring i lukt eller smak kan bero på råvattnet, filtret, stillastående vatten eller förbrukat filtermedia. Om förändringen är plötslig eller om förorening misstänks bör vattnet inte användas till dryck eller matlagning innan det bedömts. Service och vattenanalys bör erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-003",
+   "faq_type": "category",
+   "keywords": [
+    "lukt smak vattenfilter"
+   ],
+   "onset_type": "any",
+   "question_sv": "Vattnet luktar eller smakar annorlunda. Vad ska jag göra?",
+   "safe_customer_checks": "Jämför kallvatten vid flera tappställen; notera när förändringen började",
+   "service_trigger": "Plötslig förändring eller misstänkt förorening",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera saltnivå, larm, om avhärdaren har ström och om normal regenerering har skett. Fyll endast på godkänd filtersalt. Om hårdheten återkommer trots korrekt salt och regenerering bör service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-004",
+   "faq_type": "category",
+   "keywords": [
+    "hårt vatten avhärdare salt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Vattnet har blivit hårt igen. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Kontrollera salt; ström; regenereringsstatus",
+   "service_trigger": "Hårt vatten kvarstår",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Normala användarkontroller kan omfatta larm, driftstatus och synligt media enligt manualen. Dosering, programmering eller byte av filtermedia ska inte ändras utan verifierad instruktion och ofta service. Ett nytt vattenprov bör ligga till grund för bedömningen.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-005",
+   "faq_type": "category",
+   "keywords": [
+    "lågt pH pH-filter surt vatten"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan jag själv justera ett pH-filter om vattnet fortfarande är surt?",
+   "safe_customer_checks": "Kontrollera driftstatus och ta vattenprov",
+   "service_trigger": "Lågt pH trots normal drift",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera att enheten har ström, att klocka och normalt driftläge verkar rimliga, om ett larm visas och om salt eller annat användarförråd finns. En manuell regenerering får startas endast via normal användarmeny och enligt exakt manual. Om regenerering inte startar eller avslutas korrekt behövs service.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-006",
+   "faq_type": "category",
+   "keywords": [
+    "filter regenererar inte"
+   ],
+   "onset_type": "any",
+   "question_sv": "Filtret verkar inte regenerera. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Ström; display; larm; salt; manuell regenerering enligt manual",
+   "service_trigger": "Regenerering startar eller avslutas inte",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera ström, larm, normal driftstatus och att synliga externa ventiler står enligt manualen. Öppna inte styrventilen och ändra inte installatörsprogrammering. Om backspolningen inte genomförs ska service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-007",
+   "faq_type": "category",
+   "keywords": [
+    "backspolning vattenfilter"
+   ],
+   "onset_type": "any",
+   "question_sv": "Backspolningen fungerar inte. Vad kan jag göra?",
+   "safe_customer_checks": "Kontrollera ström/larm/driftstatus och tydligt märkta externa ventiler",
+   "service_trigger": "Backspolning uteblir",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera den synliga saltnivån och fyll endast på den typ av salt som tillverkaren eller Nordland VVS godkänt för anläggningen. Undvik att ändra dosering eller intern programmering. Om salt finns men vattnet ändå är hårt eller filtret larmar bör service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-008",
+   "faq_type": "category",
+   "keywords": [
+    "filtersalt fylla på avhärdare"
+   ],
+   "onset_type": "any",
+   "question_sv": "Hur kontrollerar och fyller jag på filtersalt?",
+   "safe_customer_checks": "Kontrollera synlig saltnivå; fyll godkänd salt",
+   "service_trigger": "Problem kvarstår trots korrekt salt",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det kan bero på igensatt användarpatron, filtermedia, fel i styrventil, utebliven backspolning eller en felaktig bypassposition. Kontrollera om trycket är normalt före filtret, synlig bypass och eventuell användarservicebar patron enligt manualen. Plötsligt tryckfall bör leda till service om den enkla kontrollen inte löser problemet.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-009",
+   "faq_type": "category",
+   "keywords": [
+    "lågt tryck efter filter"
+   ],
+   "onset_type": "sudden",
+   "question_sv": "Vattentrycket har plötsligt blivit lågt efter filtret. Vad kan det bero på?",
+   "safe_customer_checks": "Jämför före/efter filter; kontrollera bypass; användarpatron enligt manual",
+   "service_trigger": "Plötsligt eller kvarstående tryckfall",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja, om den är tydligt märkt och den exakta manualen visar normalläget. Ändra inte en okänd ventiluppsättning. Bypass kan tillfälligt påverka vattenkvaliteten, så använd inte obehandlat vatten till dryck om säkerheten är osäker.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-010",
+   "faq_type": "category",
+   "keywords": [
+    "bypass vattenfilter ventil"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan jag kontrollera filtrets bypassventil?",
+   "safe_customer_checks": "Kontrollera tydligt märkt bypass enligt manual",
+   "service_trigger": "Ventilläge är osäkert eller problemet kvarstår",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Vid större läckage, stäng närmaste säkert åtkomliga avstängningsventil om du vet vilken det är. Öppna inte en trycksatt filtertank eller styrventil. Dokumentera var det läcker och boka service. Vatten nära elutrustning är akut.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-011",
+   "faq_type": "category",
+   "keywords": [
+    "vattenfilter läcker"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det läcker från vattenfiltret. Vad ska jag göra?",
+   "safe_customer_checks": "Stäng synlig stopventil vid större läcka; ta foto",
+   "service_trigger": "Läckage från tank, ventil eller anslutning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Läs av hela larmet och identifiera exakt modell. Återställ endast via normal användarmeny om manualen tillåter det. Bypassa inte UV-larm eller flödesvakt. Vid osäker vattenkvalitet ska vattnet inte användas till dryck eller matlagning innan anläggningen bedömts.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-012",
+   "faq_type": "category",
+   "keywords": [
+    "UV larm vattenfilter"
+   ],
+   "onset_type": "any",
+   "question_sv": "UV-anläggningen visar larm. Kan jag återställa den?",
+   "safe_customer_checks": "Läs larm; identifiera modell; normal återställning enligt manual",
+   "service_trigger": "Larm kvarstår eller vattenkvaliteten är osäker",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Då kan problemet ligga i vattenanalys, filterval, dimensionering, media, programmering eller installation snarare än ett plötsligt fel. Nordland VVS bör bedöma råvatten, kapacitet och behandlingsmetod och vid behov lämna service- eller offertförslag.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-013",
+   "faq_type": "category",
+   "keywords": [
+    "vattenkvalitet aldrig bra filter dimensionering"
+   ],
+   "onset_type": "long_term",
+   "question_sv": "Vattenkvaliteten har aldrig blivit bra efter installationen. Vad kan behöva kontrolleras?",
+   "safe_customer_checks": "Samla senaste vattenanalys och notera vilka problem som kvarstår",
+   "service_trigger": "Otillräckligt resultat sedan installation",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Vattenanalys behövs när vattenkvaliteten förändras, när ett filter ska dimensioneras eller när behandlingen inte ger önskat resultat. Analysen bör omfatta de problem som ska behandlas, exempelvis järn, mangan, hårdhet, pH, lukt eller mikrobiologisk risk.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-014",
+   "faq_type": "category",
+   "keywords": [
+    "vattenanalys järn mangan pH hårdhet"
+   ],
+   "onset_type": "any",
+   "question_sv": "När behöver jag göra en vattenanalys?",
+   "safe_customer_checks": "Beställ relevant vattenanalys",
+   "service_trigger": "Resultat behöver teknisk bedömning eller filteråtgärd",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Använd inte vattnet till dryck eller matlagning innan det har bedömts eller analyserats. Ta prov enligt laboratoriets instruktion och boka service om filter, UV eller brunnsanläggning kan vara inblandad. Påstå inte att vattnet är säkert utan verifierat provresultat.",
+   "applicable_subtypes": [],
+   "category_slug": "water_filtration",
+   "faq_id": "WF-015",
+   "faq_type": "category",
+   "keywords": [
+    "förorenat dricksvatten analys"
+   ],
+   "onset_type": "any",
+   "question_sv": "Vad ska jag göra om jag misstänker att dricksvattnet är förorenat?",
+   "safe_customer_checks": "Avstå från konsumtion; beställ provtagning",
+   "service_trigger": "Misstänkt hälsorisk",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera om alla tappställen är drabbade, läs av synlig manometer, lyssna om pumpen startar och kontrollera normal extern brytare eller säkring. Kontrollera också synligt läckage och att en normal avstängningsventil är öppen. Öppna inte pumpstyrning eller tryckströmbrytare. Om vattnet inte återkommer ska service erbjudas.",
+   "applicable_subtypes": [
+    "submersible_pump",
+    "jet_pump",
+    "pressure_system",
+    "well"
+   ],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-001",
+   "faq_type": "category",
+   "keywords": [
+    "inget vatten brunn pump"
+   ],
+   "onset_type": "sudden",
+   "question_sv": "Det kommer inget vatten. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Alla tappställen; manometer; pumpens ljud; extern brytare/säkring; synlig ventil/läcka",
+   "service_trigger": "Ingen vattenleverans efter enkla kontroller",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "En plötslig tryckförsämring kan bero på läckage, ström- eller pumpfel, igensatt användarfilter, backventil, trycksystem eller brunnens tillrinning. Kontrollera om alla tappställen påverkas, läs manometern och lyssna hur pumpen arbetar. Ändra inte tryckströmbrytare eller trycktankens förtryck. Service bör erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-002",
+   "faq_type": "category",
+   "keywords": [
+    "lågt vattentryck plötsligt"
+   ],
+   "onset_type": "sudden",
+   "question_sv": "Vattentrycket har plötsligt blivit lågt. Vad kan det bero på?",
+   "safe_customer_checks": "Alla tappställen; manometer; pumpens drift; synligt läckage",
+   "service_trigger": "Plötslig försämring",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Långvarigt lågt tryck kan bero på dimensionering, pumpkapacitet, rörsystem, tryckförluster eller brunnens tillrinning. Kunden ska inte själv ändra tryckströmbrytarens grundinställningar. Nordland VVS bör bedöma anläggningen och vid behov lämna service- eller offertförslag.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-003",
+   "faq_type": "category",
+   "keywords": [
+    "alltid lågt tryck dimensionering"
+   ],
+   "onset_type": "long_term",
+   "question_sv": "Vattentrycket har alltid varit lågt. Kan det justeras?",
+   "safe_customer_checks": "Notera tryck vid olika tappningar och om alla tappställen påverkas",
+   "service_trigger": "Otillräcklig kapacitet sedan installation",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kraftigt varierande tryck kan bero på trycktank, tryckströmbrytare, pumpstyrning, luft i systemet eller varierande pumpdrift. Kunden kan läsa manometern och beskriva hur snabbt trycket ändras men ska inte justera förtryck eller tryckströmbrytare. Service bör erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-004",
+   "faq_type": "category",
+   "keywords": [
+    "varierande tryck hydropress hydrofor"
+   ],
+   "onset_type": "any",
+   "question_sv": "Vattentrycket varierar kraftigt. Vad kan det bero på?",
+   "safe_customer_checks": "Observera manometer och pumpens start/stopp",
+   "service_trigger": "Kraftiga tryckvariationer",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera om vatten används, om det finns synligt läckage och om manometertrycket stiger. En pump som går kontinuerligt kan bero på läckage, låg tillrinning, pumpfel, backventil eller tryckstyrning. Om pumpen inte bygger tryck bör den inte tvingas fortsätta; service ska erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-005",
+   "faq_type": "category",
+   "keywords": [
+    "pump går hela tiden kontinuerligt"
+   ],
+   "onset_type": "any",
+   "question_sv": "Pumpen går hela tiden. Vad ska jag göra?",
+   "safe_customer_checks": "Stäng normala tappställen; kontrollera synlig läcka; observera manometer",
+   "service_trigger": "Pumpen går kontinuerligt eller bygger inte tryck",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Täta starter kan tyda på för liten fungerande volym i trycktanken, läckage, backventilproblem eller felaktig styrning. Kunden kan notera hur snabbt trycket faller och om vatten används. Förtryck och tryckströmbrytare ska inte justeras av kunden. Service bör erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-006",
+   "faq_type": "category",
+   "keywords": [
+    "pump startar ofta korta cykler trycktank"
+   ],
+   "onset_type": "any",
+   "question_sv": "Pumpen startar och stoppar mycket ofta. Vad kan det bero på?",
+   "safe_customer_checks": "Observera manometer och startfrekvens utan vattenförbrukning",
+   "service_trigger": "Täta start/stopp-cykler",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det kan bero på läckage, backventil, läckande pumpdel eller tappställe. Stäng normala tappställen och observera manometern samt synliga läckor. Demontera inte backventil eller pump. Återkommande tryckfall kräver service.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-007",
+   "faq_type": "category",
+   "keywords": [
+    "trycket sjunker utan vattenförbrukning backventil"
+   ],
+   "onset_type": "any",
+   "question_sv": "Trycket sjunker trots att ingen använder vatten. Vad kan det bero på?",
+   "safe_customer_checks": "Stäng tappställen; observera manometer; kontrollera synligt läckage",
+   "service_trigger": "Trycket sjunker utan förbrukning",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Luft kan bero på låg vattennivå eller tillrinning, läckage på sugsidan, pumpens placering, trycksystem eller nyligen utfört arbete. Notera om luften kommer vid alla tappställen och om pumpen går annorlunda. Plötsligt nytillkommen luft bör leda till service.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-008",
+   "faq_type": "category",
+   "keywords": [
+    "luft i vattnet brunn pump"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det kommer luft i vattnet. Vad kan det bero på?",
+   "safe_customer_checks": "Kontrollera alla tappställen; notera när luften uppstår; lyssna på pumpen",
+   "service_trigger": "Plötsligt eller återkommande luftproblem",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera normal extern brytare eller säkring och läs eventuell styrdisplay. Öppna inte elbox eller pumpstyrning. Om ström finns men pumpen inte startar krävs service.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-009",
+   "faq_type": "category",
+   "keywords": [
+    "pump tyst startar inte"
+   ],
+   "onset_type": "any",
+   "question_sv": "Pumpen är helt tyst och inget vatten kommer. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Kontrollera extern brytare/säkring; läs styrdisplay",
+   "service_trigger": "Pumpen startar inte",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Nytt skrammel, vibration, kavitationliknande ljud eller förändrat driftljud kan bero på luft, låg tillrinning, slitage eller lösa delar. Kunden kan spela in ljudet och notera när det uppstår men ska inte demontera pumpen. Ett nytt eller tilltagande ljud bör leda till service.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-010",
+   "faq_type": "category",
+   "keywords": [
+    "vattenpump missljud vibrerar"
+   ],
+   "onset_type": "any",
+   "question_sv": "Vattenpumpen låter mer än vanligt. Vad kan det bero på?",
+   "safe_customer_checks": "Lyssna, spela in och notera driftläge",
+   "service_trigger": "Nytt eller tilltagande ljud",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Skriv av hela larmtexten eller ta ett foto och ange pumpens samt styrningens exakta modell. Larmet får bara tolkas mot rätt produkt. En normal användaråterställning får endast göras om exakt manual tillåter det. Återkommande larm kräver service.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-011",
+   "faq_type": "category",
+   "keywords": [
+    "pumpstyrning larm felkod"
+   ],
+   "onset_type": "any",
+   "question_sv": "Pumpstyrningen visar ett larm. Vad ska jag göra?",
+   "safe_customer_checks": "Foto/läs av larm; identifiera pump och styrning",
+   "service_trigger": "Återkommande eller okänt larm",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Kontrollera normal extern brytare eller säkring och om styrningen visar larm. Återställ en extern brytare högst en gång. Om skyddet löser igen eller pumpen fortfarande inte startar ska service erbjudas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-012",
+   "faq_type": "category",
+   "keywords": [
+    "strömavbrott vattenpump säkring"
+   ],
+   "onset_type": "any",
+   "question_sv": "Vattenpumpen fungerar inte efter ett strömavbrott. Vad kan jag kontrollera?",
+   "safe_customer_checks": "Extern brytare/säkring; styrdisplay; en återställning",
+   "service_trigger": "Skydd löser igen eller pumpen startar inte",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Ja, om delar ligger utsatta eller anläggningen varit utan värme i minusgrader. Kontrollera synliga frostskador utan att använda öppen låga eller stark värme. Misstänkt frysning, sprucken ledning eller uteblivet vatten i sträng kyla bör hanteras skyndsamt.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-013",
+   "faq_type": "category",
+   "keywords": [
+    "frusen vattenledning brunn pump"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan vattenledningen eller pumpanläggningen ha frusit?",
+   "safe_customer_checks": "Kontrollera synliga frostskador; notera temperatur och avbrottstid",
+   "service_trigger": "Misstänkt frysning eller läckage",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Det är möjligt, men inget vatten eller luft i systemet bevisar inte att brunnen är torr. Pump, läckage, styrning, backventil och tillrinning måste bedömas tillsammans. Kunden kan notera om problemet kommer efter stor förbrukning och om vattnet återkommer efter vila. Service och eventuell kapacitetsbedömning behövs.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-014",
+   "faq_type": "category",
+   "keywords": [
+    "brunnen sinat låg tillrinning"
+   ],
+   "onset_type": "any",
+   "question_sv": "Kan brunnen ha sinat?",
+   "safe_customer_checks": "Notera samband med stor förbrukning och återhämtning efter vila",
+   "service_trigger": "Återkommande vattenbrist",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Om bara ett tappställe påverkas sitter problemet oftare lokalt i blandare, sil eller ledning än i pump eller brunn. Kontrollera om övriga tappställen har normalt flöde. Om hela huset påverkas ska pump- och trycksystemet bedömas.",
+   "applicable_subtypes": [],
+   "category_slug": "water_pump_well",
+   "faq_id": "WPW-015",
+   "faq_type": "category",
+   "keywords": [
+    "bara en kran dåligt tryck"
+   ],
+   "onset_type": "any",
+   "question_sv": "Det är bara dåligt tryck i en kran. Är det fel på brunnen?",
+   "safe_customer_checks": "Jämför flera tappställen; kontrollera användarservicebar strålsamlare",
+   "service_trigger": "Flera eller alla tappställen påverkas",
+   "source_type": "Nordland VVS conversation-derived knowledge"
+  },
+  {
+   "answer_sv": "Nordland VVS servar de flesta värmepumpsmärken samt vattenpumpar, vattenbrunnar, trycksystem, vattenfilter och vattenreningsanläggningar. Om vi först behöver kontrollera förutsättningarna för en ovanlig modell kan kunden ändå skicka in en serviceförfrågan.",
+   "faq_id": "site-001",
+   "faq_type": "site",
+   "question_sv": "Vilka typer av anläggningar servar Nordland VVS?",
+   "subcategory_slug": "service_scope"
+  },
+  {
+   "answer_sv": "Nordland VVS servar de flesta värmepumpsmärken. Skicka in fabrikat, modell och en kort felbeskrivning så kontrollerar vi förutsättningarna för just din anläggning.",
+   "faq_id": "site-002",
+   "faq_type": "site",
+   "question_sv": "Vilka värmepumpsmärken servar ni?",
+   "subcategory_slug": "brands"
+  },
+  {
+   "answer_sv": "När felsökningen visar att service behövs får du en knapp till rätt serviceformulär. De tekniska uppgifter du redan lämnat bör följa med så att du främst behöver fylla i namn, telefon, e-post och installationsadress.",
+   "faq_id": "site-003",
+   "faq_type": "site",
+   "question_sv": "Hur bokar jag service?",
+   "subcategory_slug": "booking"
+  },
+  {
+   "answer_sv": "Nej. En visad formulärknapp är inte en bekräftad bokning. Serviceförfrågan skapas först när formuläret har skickats in och mottagits.",
+   "faq_id": "site-004",
+   "faq_type": "site",
+   "question_sv": "Är servicen bokad när jag klickar på formuläret?",
+   "subcategory_slug": "booking_status"
+  },
+  {
+   "answer_sv": "Arbetsområdet kontrolleras först med anläggningens postnummer och slutligt med den fullständiga adressen. Gränsfall kan skickas in för manuell bedömning.",
+   "faq_id": "site-005",
+   "faq_type": "site",
+   "question_sv": "Vilket område arbetar Nordland VVS inom?",
+   "subcategory_slug": "service_area"
+  },
+  {
+   "answer_sv": "Installationer som sålts eller installerats av Nordland VVS, Bylunds VVS eller Nordborr i Sundsvall hanteras som Nordland VVS-installationer för service, garanti- och reklamationsbedömning.",
+   "faq_id": "site-006",
+   "faq_type": "site",
+   "question_sv": "Vem ansvarar för installationer som gjordes av Bylunds VVS eller Nordborr i Sundsvall?",
+   "subcategory_slug": "previous_installations"
+  },
+  {
+   "answer_sv": "Ja, du kan skicka in serviceärendet till Nordland VVS. Vi bedömer anläggningen och kontrollerar samtidigt hur ett eventuellt garantiärende ska hanteras. Garanti kan inte bekräftas innan villkor och installationsuppgifter har kontrollerats.",
+   "faq_id": "site-007",
+   "faq_type": "site",
+   "question_sv": "Kan Nordland VVS hjälpa till med ett möjligt garantiärende?",
+   "subcategory_slug": "warranty"
+  },
+  {
+   "answer_sv": "Ja. Skriv det modellnamn du hittar eller ladda upp ett tydligt foto på typskylten. Om modellen inte kan identifieras exakt kan Nordland VVS ändå ta emot en serviceförfrågan.",
+   "faq_id": "site-008",
+   "faq_type": "site",
+   "question_sv": "Kan jag få hjälp om jag inte vet exakt modell?",
+   "subcategory_slug": "unknown_model"
+  },
+  {
+   "answer_sv": "Välj service när en befintlig anläggning har ett fel eller behöver underhåll. Välj offert när du vill köpa, installera, byta eller bygga om en anläggning.",
+   "faq_id": "site-009",
+   "faq_type": "site",
+   "question_sv": "Ska jag välja service eller offert?",
+   "subcategory_slug": "quote_or_service"
+  },
+  {
+   "answer_sv": "Rök, brandlukt, gnistor, gas- eller bränslelukt, vatten nära elutrustning, större okontrollerat läckage eller allvarlig frysrisk ska hanteras skyndsamt. Vid omedelbar fara eller brand ska 112 kontaktas.",
+   "faq_id": "site-010",
+   "faq_type": "site",
+   "question_sv": "När är ett ärende akut?",
+   "subcategory_slug": "urgent"
+  }
+ ]
+}
