@@ -442,6 +442,26 @@ def counts_by_category() -> dict[str, int]:
     return out
 
 
+# Re-tagged 2026-09-05 after a human read of all run100 transcripts: these "resolvable"
+# personas describe faults the manual itself sends to a technician (high-pressure /
+# moisture alarms H01 5252 / 5295 / A01 5378, a breaker that re-trips after reset,
+# alarm codes with no manual entry, no-heat persisting after every safe check). The bot
+# escalated every one of them correctly; the label was wrong, and it was dragging the
+# category's outcome-match down for behaviour we WANT. Kept explicit and separate from
+# the generator so the change is reviewable and reversible. R018 (condensation drip,
+# "is that normal?") stays resolvable — the reassure-and-close path answers it.
+TECHNICIAN_ONLY = {
+    "R024", "R009", "R049", "R013",   # high-pressure / moisture / A01 alarms
+    "R023", "R029",                   # breaker re-trips after reset
+    "V034", "V035",                   # undocumented alarm codes ("Larm 10", "A32")
+    "R014", "R003",                   # no heat persists after all safe checks
+}
+for _s in SPECS:
+    if _s.id in TECHNICIAN_ONLY and _s.expected_outcome == "resolved":
+        _s.expected_outcome = "escalated_lead"
+        _s.notes = (_s.notes + " | re-tagged 2026-09-05: technician-only per manual").strip(" |")
+
+
 if __name__ == "__main__":
     print(counts_by_category())
     print(f"total={len(SPECS)}")

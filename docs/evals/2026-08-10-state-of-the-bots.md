@@ -325,3 +325,15 @@ echoes; abuse handled calmly; every §12 geo path exercised (decline, override, 
 - **Phone-only dedup on shared household numbers** — now gated by given name; a household with
   two customers of the same given name on one line will still merge. Rare; documented.
 - `severity="service"` flagged by a reviewer is a valid enum here (quote/booking), not a bug.
+
+## Decisions only the owner can make — with a recommended default for each (2026-09-05)
+
+| Decision | Recommendation | What it takes |
+|---|---|---|
+| **Push + deploy.** 60 commits are on this PC only; `git push` fails with 403 because the machine's GitHub identity is `happytimecustomerexperience-droid`, not the repo owner. | Log in as the owner on this PC (`gh auth login`, or replace the GitHub entry in Windows Credential Manager), push, then the six `DEPLOY.md` commands over SSH. Prod's compose already runs `migrate` on start; `post_deploy` + `selfcheck` are the two you still type. | 15 minutes |
+| **Retention cutoff.** `purge_pii --days N` counts from `Customer.created_at` — a customer active yesterday but first seen 2 years ago is purged. | Switch to last activity (`Session.created_at` max per customer). Small change, one test. Say yes and it ships. | one commit |
+| **Vertex region.** Prod runs `us-central1` on the `ALLOW_NON_EU_RESIDENCY` flag with Swedish customer PII. | Provision the `europe-north1` project (Vertex is available there), move the service account, drop the flag. Latency also improves for Sweden. | GCP console + 2 env vars |
+| **FAQ corpus.** Prod has 1/93 general-knowledge entries approved; the eval ran with all 93. The bot's "resolve" behaviour in prod is therefore weaker than what was measured. | Approve in the dashboard (bulk approve exists). Until then, expect more escalations than the eval showed. | dashboard, ~30 min review |
+| **Refrigerant rule** (S018 class). Hissing + chemical smell now gets the deterministic emergency line (no switch instruction). Manufacturer advice for A2L fleets (R32/R290) is stricter still. | Keep as is unless your fleet is A2L-heavy; then extend the rule to any "hissing near the unit". | owner call |
+| **Postcode source.** GeoNames lacks some real codes (5 of 29 the simulator used, all Stockholm). Unknown → proceed-with-note is the spec'd preliminary behaviour. | Fine for launch. If out-of-area leads become a cost, license PostNord's table (drop-in via `import_postcodes`). | later |
+| **Clock.** This PC is 58 minutes fast; the Gemini auth shim compensates, but it is a latent failure. | `w32tm /resync` as administrator. | 10 seconds |
