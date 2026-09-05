@@ -41,17 +41,22 @@ def exact_machine(query: str, model_text: str = "", *, vendor=None):
     return None
 
 
-def candidate_matches(query: str, *, vendor=None, threshold: float = DEFAULT_THRESHOLD,
-                      limit: int = 4):
+def candidate_matches(query: str, *, vendor=None, category_ids=None,
+                      threshold: float = DEFAULT_THRESHOLD, limit: int = 4):
     """Return up to `limit` (Machine, score) plausible matches at/above `threshold`,
     best first — the ambiguity set offered to the customer as chips ('Geo 600' ->
-    [Geo 600C, Geo 600E]). Retrieval ONLY; the orchestrator owns the bind policy."""
+    [Geo 600C, Geo 600E]). Retrieval ONLY; the orchestrator owns the bind policy.
+    `category_ids` narrows to the stated sub-type/family (same as suggest_models): without
+    it, "IVT 600-serien" trigram-matched IVT 490 / IVT 402 (exhaust-air) on the shared
+    vendor token and the customer was offered the wrong family (run100 V036 + 5 more)."""
     q = (query or "").strip().lower()
     if not q:
         return []
     base = Machine.objects.filter(is_supported=True)
     if vendor is not None:
         base = base.filter(vendor=vendor)
+    if category_ids:
+        base = base.filter(category_id__in=category_ids)
     qs = (base.annotate(sim=Greatest(TrigramSimilarity("search_text", q),
                                      _WordSimilarity(F("search_text"), Value(q))))
           .filter(sim__gte=threshold).order_by("-sim").select_related("vendor"))

@@ -312,3 +312,13 @@ JS/CSS, or the theme footer) — `chat/prefill.py` docstring has the reference v
 (2) set the four `FormButton` URLs in the dashboard to the real `/offert/` / `/kontakta-oss/`
 pages (blank URLs never render a chip — `selfcheck` warns until they're filled);
 (3) confirm the `dropdown` option values so the ärende can be preselected.
+
+**If `selfcheck` reports `PostcodeArea loaded FAIL 0 rows`** (a fresh or reset database):
+`post_deploy` only imports postcodes when given the file — run once:
+```bash
+docker compose -f docker-compose.prod.yaml exec web python manage.py import_postcodes /app/data/SE.zip
+```
+(GeoNames `SE.zip` — the same file the dev DB was loaded from; 18,870 rows.) Rehearsed
+2026-09-05 against a July-shaped replica DB: `migrate` (3 new), `post_deploy`, owner-edited
+prompts kept verbatim, every new contract key delivered by the code-owned addendum — this
+postcode step was the only manual one.

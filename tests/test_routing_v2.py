@@ -252,3 +252,25 @@ def test_machine_pdf_context_text_fallback(seeded):
     cached, inline = context.machine_pdf_context(m, "en")
     assert cached is None
     assert inline and "SECRET MANUAL BODY" in inline[0]
+
+
+def test_disambiguation_candidates_stay_in_the_stated_family(seeded):
+    """run100 V036 (+V033-V035, R039, R048): customer said 'IVT Geo, 600-serien'
+    (water_to_water) and was offered Geo 412C / IVT 490 / IVT 402 — two exhaust-air
+    machines — because _resolve_machine's candidate set was vendor-scoped only and the
+    shared 'ivt' token trigram-matched the wrong family. Candidates must respect the
+    stated sub-type like _consume_model_search already does."""
+    from kb.identification import candidate_matches
+    from kb.models import Category, Machine, Vendor
+    ivt = Vendor.objects.get(name="IVT")
+    w2w = Category.objects.get(slug="water_to_water")
+    for name in ("Geo 600C", "Geo 600E"):
+        Machine.objects.get_or_create(vendor=ivt, model_name=name, defaults={
+            "category": w2w, "slug": name.lower().replace(" ", "-"), "is_supported": True,
+            "search_text": f"ivt {name.lower()}", "aliases": [name.lower()]})
+    exhaust = set(Machine.objects.filter(category__slug="exhaust_air").values_list("id", flat=True))
+    assert exhaust, "fixture needs the exhaust-air IVT machines (490/402)"
+    cands = candidate_matches("IVT 600-serien", vendor=ivt, category_ids=[w2w.id], limit=4)
+    ids = {m.id for m, _ in cands}
+    assert ids, "should still offer the Geo 600 family"
+    assert not (ids & exhaust), [m.model_name for m, _ in cands]

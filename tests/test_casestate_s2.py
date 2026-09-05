@@ -284,3 +284,20 @@ def test_single_result_still_resolves_every_pending_check(seeded, mock_gemini):
     orch.process_turn(conv, "none of that helped")
 
     assert {c["result"] for c in _cs(conv)["report"]["checks"]} == {"no_help"}
+
+
+def test_bare_postcode_is_accepted_deterministically_without_an_llm_call(seeded, mock_gemini):
+    """Found in the 2026-09-05 latency run: '852 34' — a valid Sundsvall postcode, present in
+    the table, and the spec's own 'with or without a space' example — was rejected twice with
+    'didn't quite catch that'. looks_rich() treats any digit-bearing text as rich, so the bare
+    postcode went to the bulk extractor, which returns nothing for six digits with no context.
+    A message shaped like a Swedish postcode at the postcode question is accepted by regex —
+    normalized to five digits — and costs zero model calls."""
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")                 # -> postcode question
+    before = len(mock_gemini.calls)
+    res = orch.process_turn(conv, "852 34")
+    conv.refresh_from_db()
+    assert conv.case_state["slots"]["postal_code"] == "85234"
+    assert len(mock_gemini.calls) == before, "a bare postcode must not cost a model call"
+    assert "didn't quite catch" not in (res.get("message") or "").lower()

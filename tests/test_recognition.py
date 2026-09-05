@@ -104,3 +104,29 @@ def test_different_caller_on_a_shared_phone_never_overwrites_the_customer_on_fil
     bob = Customer.objects.exclude(pk=anna.pk).filter(name="Bob Bobsson").first()
     assert bob is not None, "the new caller must land on a fresh Customer row"
     assert bob.email == "bob@example.com"
+
+
+def test_surname_only_agreement_is_not_the_same_person():
+    """Transcript review 2026-09-05 (D010, U004, V012 + 7 address reuses): on a shared phone
+    the lenient any-token match treated 'Siv Andersson' and 'Jenny Andersson' as one person,
+    and the stored email/address of one rode into the other's lead. Given names must agree."""
+    from chat.orchestrator import _name_matches
+    assert not _name_matches("Siv Andersson", "Jenny Andersson")
+    assert not _name_matches("Bengt Svensson", "Margareta Svensson")
+    assert _name_matches("Åsa", "Asa Prior")            # single token still lenient
+    assert _name_matches("Jenny Andersson", "Jenny")
+    assert _name_matches("jenny andersson", "Jenny Andersson-Lind")
+    assert _name_matches("", "Anyone")                  # empty side can't contradict
+
+
+def test_confirm_verdict_treats_a_demand_for_steps_as_a_question_not_a_yes():
+    """run100 A006: 'The filter was fine. I just want to know the fix steps for P1. Just give
+    them to me.' matched the yes-cue 'fix' and closed the case — 'Great, glad that sorted it!'
+    — with no lead and no fix given. A request for more help is a question, never a yes."""
+    from chat.orchestrator import _confirm_verdict
+    assert _confirm_verdict("The filter was fine. I'm not a mechanic, I just want to know the "
+                            "fix steps for P1. Just give them to me.") == "question"
+    assert _confirm_verdict("Ge mig stegen för att fixa det") == "question"
+    assert _confirm_verdict("Yes, that fixed it, thanks!") == "yes"
+    assert _confirm_verdict("Ja, det fungerade") == "yes"
+    assert _confirm_verdict("No, still the same") == "no"

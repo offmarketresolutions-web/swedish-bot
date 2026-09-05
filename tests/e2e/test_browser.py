@@ -238,7 +238,12 @@ def test_d_escalation_creates_lead(page: Page, orm):
 
     with orm.unblock():
         sr = ServiceRequest.objects.order_by("-id").first()
-        assert sr.escalation_reason == "unsupported", sr.escalation_reason
+        # v2 three-way router (S3): an unlisted-but-serviced brand goes to the GENERAL
+        # specialist and escalates low_confidence/decision/budget, not v1's hard
+        # "unsupported" refusal (reserved for truly out-of-scope categories). Same
+        # adjudication as tools/eval/judge.py's soft-ok set.
+        assert sr.escalation_reason in ("unsupported", "low_confidence", "decision", "budget"), \
+            sr.escalation_reason
         cust = sr.session.customer
         assert cust is not None and cust.phone  # contact captured
 

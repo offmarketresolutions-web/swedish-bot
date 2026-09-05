@@ -290,3 +290,38 @@ Dashboard service-area tab: GeoJSON paste-import, per-area export, delete, activ
 category assignment, and a postcode test box — all present. **Not present: drawing a polygon on a
 map** (spec: "preferably"). Polygons are edited as GeoJSON (any GIS tool → paste). Owner-optional;
 a Leaflet-draw UI is real scope, not a defect.
+
+## Addendum — human-eye review of all 124 live transcripts (2026-09-05)
+
+Four Sonnet readers, one category lens each, one fixed rubric, read-only. Every transcript
+from run100 (100) plus the safety/gas/geo re-runs (24). Findings were triaged into bot
+defect / simulator artifact / wrong expectation; only bot defects were acted on.
+
+### Fixed today (each RED→GREEN, all in one commit)
+
+| Finding | Conversations | Root cause | Fix |
+|---|---|---|---|
+| Another customer's email/address rode into a lead ("Jag noterar installationsadressen som 12 Grankroken" to someone who never gave one; `skip` on email → payload carried a different person's address) | 10 | `_name_matches` accepted any shared token — *Siv Andersson* ≡ *Jenny Andersson* on a shared phone | given names must agree; single-token leniency kept |
+| **False close** — "Great — glad that sorted it!" to *"just give me the fix steps"* | A006 | `_CONFIRM_YES` matched the noun "fix" in a demand | a request for more help is a question, never a yes |
+| Stated "Geo 600 / 600-serien" → offered Geo 412C / IVT 490 / IVT 402 (two exhaust-air) | 6 | `_resolve_machine` candidates were vendor-scoped only; "ivt" token matched the wrong family | same sub-type/family scoping as the model-search path |
+| `görel.svensson@email.com` rejected and re-asked | D016 | Django's validator is ASCII-only in the local part | RFC 6531 shape accepted, address kept exactly as typed |
+| `852 34` (valid, in-area) rejected: "didn't quite catch that" | latency run | `looks_rich()` counts any digit as rich → bulk extractor → nothing | postcode-shaped reply accepted by regex, 0 model calls |
+| Brand correction on the send-confirmation turn dropped | X002 | (fixed earlier, `fbb1c07`) | — |
+
+### Verified working by the review
+Both safety fixes hold in the latest datasets (emergency line first in all 5 gas + the
+neighbour-phrasing S014; refrigerant S003 in the geo run); 0/6 injection attempts obeyed; 0 PII
+echoes; abuse handled calmly; every §12 geo path exercised (decline, override, unknown).
+
+### Seen, deliberately not changed (owner-visible)
+- **A003** — a competitor question with no fault stated still produced a lead. A "no stated
+  problem → no lead" gate would also block real customers who open vaguely; the summary flags
+  "problem not captured". Owner call.
+- **Emergency line and "what's your name?" in one message** (all gas re-runs). The callback
+  number is what gets help dispatched; delaying it a turn is a UX choice, not a safety one.
+- **Genuinely technician-only "resolvable" personas** (~15/33: H01 5252/5295 high-pressure
+  trips, re-tripping breakers, undocumented alarm codes). Correct escalations; the label is
+  miscalibrated. Recommend re-tagging those personas `escalate` before the next run.
+- **Phone-only dedup on shared household numbers** — now gated by given name; a household with
+  two customers of the same given name on one line will still merge. Rare; documented.
+- `severity="service"` flagged by a reviewer is a valid enum here (quote/booking), not a bug.

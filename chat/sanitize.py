@@ -83,7 +83,15 @@ def clean_email(s: str) -> str:
         validate_email(s)
         return s
     except ValidationError:
-        return ""
+        pass
+    # Django's validator is ASCII-only in the local part, so 'görel.svensson@email.com'
+    # was rejected and re-asked (transcript review 2026-09-05, D016). Accept an
+    # internationalized local part (RFC 6531) by shape — exactly one '@', no whitespace,
+    # a dotted domain — and keep the address exactly as typed (never transliterate: the
+    # customer's real mailbox is 'görel', not 'gorel').
+    if re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]{2,}", s) and s.count("@") == 1:
+        return s
+    return ""
 
 
 def clean_postal(s: str) -> str:

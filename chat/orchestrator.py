@@ -129,6 +129,10 @@ _CONFIRM_NO = re.compile(
     r"\b(no|nope|nej|still|same|again|didn'?t|did ?not|doesn'?t|does ?not|wasn'?t|isn'?t|"
     r"won'?t|not (?:work|fix|help|better)\w*|inte|fortfarande|kvarstår|samma|"
     r"inget hände|hjälpte inte|inte bättre)\b", re.IGNORECASE)
+_CONFIRM_REQUEST = re.compile(
+    r"\b(just give|give me|tell me|show me|how do i|how to|what are the|the (fix|repair) steps|"
+    r"steps?|instructions?|ge mig|visa mig|hur gör|hur fixar|berätta|stegen|instruktion\w*)\b",
+    re.IGNORECASE)
 _CONFIRM_YES = re.compile(
     r"\b(work(?:ed|s|ing)?|fix(?:ed|es)?|solv\w*|clear(?:ed|s)?|sorted|resolved|done|great|"
     r"thanks|thank you|perfect|gone|better now|löst\w*|funka\w*|funger\w*|löste|fungerade|"
@@ -184,6 +188,12 @@ def _confirm_verdict(text: str) -> str:
     low = txt.lower()
     if _CONFIRM_NO.search(low):
         return "no"
+    # A demand for MORE help is never a confirmation, even when it contains a yes-cue as a
+    # noun: "I just want the fix steps for P1, just give them to me" matched fix(?:ed|es)?
+    # and closed the case with "Great — glad that sorted it!" (run100 A006) — a false
+    # resolution with no lead. Treat it as a question so the clarify pass answers it.
+    if _CONFIRM_REQUEST.search(low):
+        return "question"
     if low in ("yes", "yes_send") or _is_yes(low) or _CONFIRM_YES.search(low):
         return "yes"
     if "?" in txt:
@@ -202,10 +212,17 @@ def _name_matches(given: str, known: str) -> bool:
     """GAP 5 — do the caller-given name and the on-file name agree enough to greet as a
     returning customer? Lenient: an empty side can't contradict; otherwise they must share
     at least one whole name token ('Asa' vs 'Asa Prior' → yes; 'Björn' vs 'Anna' → no)."""
-    g, k = set(_norm_name(given).split()), set(_norm_name(known).split())
+    g, k = _norm_name(given).split(), _norm_name(known).split()
     if not g or not k:
         return True
-    return bool(g & k)
+    # A single-token side may match ANY token of the other ('Åsa' vs 'Åsa Prior'). When
+    # both sides carry a given name, the GIVEN names must agree: sharing only a surname
+    # ('Siv Andersson' vs 'Jenny Andersson') is not the same person — on a shared phone
+    # that merge sent one customer's stored email/address into another customer's lead
+    # (transcript review 2026-09-05: D010, U004, V012 + 7 address reuses).
+    if len(g) == 1 or len(k) == 1:
+        return bool(set(g) & set(k))
+    return g[0] == k[0]
 
 
 def _parse_json(text: str) -> dict:
@@ -356,7 +373,18 @@ def _intake_step(cs, user_text, locale) -> dict | None:
         # raw customer text.
         just_bulked = False
         off_domain_now = False
-        if intake.looks_rich(user_text):
+        # A bare Swedish postcode at the postcode question ("852 34" / "85234") is accepted
+        # by shape, normalized to five digits, zero model calls (spec: "with or without a
+        # space, normalized"). looks_rich() counts any digit as "rich", so this used to go
+        # to the bulk extractor, which returns nothing for six digits with no context, and
+        # a valid in-area postcode got "didn't quite catch that" (2026-09-05 latency run).
+        pure_pc = (current == "postal_code"
+                   and re.fullmatch(r"\s*\d{3}\s?\d{2}\s*", user_text or "") is not None
+                   and sanitize.normalize_postcode(user_text))
+        if pure_pc:
+            if not cs["slots"].get("postal_code") or cs["slots"]["postal_code"] == "unknown":
+                cs["slots"]["postal_code"] = pure_pc
+        elif intake.looks_rich(user_text):
             extracted = intake.bulk_extract(user_text, cs, locale)
             off_domain_now = bool(extracted.pop("off_domain", False))
             for k, v in extracted.items():
@@ -579,7 +607,12 @@ def _resolve_machine(cs, locale) -> dict | None:
         _bind_confirmed(cs, machine)
         return None
 
-    cands = candidate_matches(query, vendor=vendor, limit=4)
+    # Scope the ambiguity set to the stated sub-type/family exactly as _consume_model_search
+    # does — otherwise "IVT 600-serien" offered Geo 412C / IVT 490 / IVT 402 (two of them
+    # exhaust-air) to a customer who said "Geo" (run100 V036, V033-V035, R039, R048).
+    from chat.intake import _family_ids
+    cat_ids = _family_ids(s.get("subtype")) or _family_ids(s.get("category"))
+    cands = candidate_matches(query, vendor=vendor, category_ids=cat_ids, limit=4)
     # Machine disambiguation gets the "extremely necessary" +1 allowance (plan: a manual
     # match one answer away is worth exceeding the question budget for). Still fails
     # closed past that: give up on binding rather than ask a 7th+ question.

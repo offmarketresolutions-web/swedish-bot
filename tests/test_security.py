@@ -166,3 +166,15 @@ def test_bad_image_rejected(seeded, client, mock_gemini):
     resp = client.post(f"/api/chat/{pid}/message", data={"message": "hi", "image": bad})
     body = b"".join(resp.streaming_content).decode()
     assert "Image not accepted" in body
+
+
+def test_clean_email_accepts_swedish_letters_in_the_local_part():
+    """Transcript review 2026-09-05 (D016): 'görel.svensson@email.com' was rejected and re-asked
+    ('Förlåt, jag uppfattade inte riktigt') — Django's validator is ASCII-only in the local
+    part. Swedish customers have Swedish names; keep the address exactly as typed."""
+    from chat import sanitize
+    assert sanitize.clean_email("görel.svensson@email.com") == "görel.svensson@email.com"
+    assert sanitize.clean_email("åsa.öberg@example.se") == "åsa.öberg@example.se"
+    assert sanitize.clean_email("not an email") == ""
+    assert sanitize.clean_email("a@b") == ""                    # no TLD
+    assert sanitize.clean_email("a@b.com\nBcc: c@d.com") == ""  # header injection still dead
