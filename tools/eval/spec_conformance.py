@@ -318,6 +318,25 @@ def _reask_known(rec):
     return out
 
 
+@rule("S7-ONSET-ESTABLISHED", "§7",
+      "Establish always/gradual vs sudden before deciding a comfort or performance case — "
+      "it is what decides between a documented user setting and offering service")
+def _onset(rec):
+    slots = rec.get("slots") or {}
+    cat = (slots.get("category") or "").strip().lower()
+    if cat in ("", "unknown"):
+        return []
+    comfort = re.compile(
+        r"för kallt|för varmt|kallare|varmare|inte varmt|ljummet|svalare|varmvatt|"
+        r"too cold|too warm|not heating|no heat|less hot water|lukewarm|colder|weaker", re.I)
+    if not any(comfort.search(c) for c in user_turns(rec)):
+        return []
+    if slots.get("onset"):
+        return []
+    return ["comfort/performance complaint decided without establishing onset "
+            "(always/gradual vs sudden)"]
+
+
 # ── runner ───────────────────────────────────────────────────────────────────
 
 def run(rows: list[dict], only: str | None = None) -> dict:

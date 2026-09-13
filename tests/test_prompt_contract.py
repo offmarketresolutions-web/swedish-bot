@@ -52,7 +52,8 @@ def test_manual_specialist_never_offered_consult_web(seeded):
 
 def test_addendum_not_duplicated_when_body_already_declares_keys(seeded):
     body = ('You are the heat pump specialist. Return JSON with "no_action_needed": '
-            'true/false and "consult_web": {{"question": "<...>"}} or null.')
+            'true/false and "consult_web": {{"question": "<...>"}} or null. '
+            'If the onset is unknown, ask about it first.')
     _set_body("heat_pump_specialist", body)
     out = prompts.render("heat_pump_specialist")
     assert "OUTPUT CONTRACT (required by the backend)" not in out
@@ -167,3 +168,33 @@ def test_freshly_seeded_prompts_need_no_safety_addendum(role, seeded):
     SAFETY addendum is a safety net for stale/owner-edited bodies, not a second source
     of truth that could drift from seed_prompts.py, and must never duplicate the text."""
     assert "SAFETY (required by the backend)" not in prompts.render(role)
+
+
+def test_specialists_are_required_to_establish_onset_before_a_comfort_verdict():
+    """Spec §7: "The system must distinguish between: 1. A condition that has always
+    existed or has developed gradually. 2. A sudden change after the system previously
+    worked normally." That distinction decides whether a documented customer setting is
+    appropriate (§7) or service should be offered (§8).
+
+    Across 100 live conversations onset was never captured in 67, and in 32 of those the
+    customer was reporting a comfort/heat problem — so the specialist could not apply the
+    rule at all and defaulted to escalating. Nothing ever ASKS: onset is only extracted
+    opportunistically when a customer happens to volunteer it.
+
+    Code-owned because seed_kb is no-clobber: an already-seeded prompt would never get it."""
+    from chat.prompts import contract_addendum
+
+    body = "You are a specialist. Return JSON."
+    add = contract_addendum("specialist", body)
+    assert "onset" in add, add
+    assert "suddenly" in add.lower() and "always" in add.lower(), add
+
+    # Already declared in the body -> not duplicated. Keyed on the specific rule
+    # ("onset is unknown"), not the bare word: every seeded body mentions "onset" for
+    # fact extraction while saying nothing about ASKING for it.
+    assert "onset" not in contract_addendum("specialist", body + " If the onset is unknown, ask.")
+
+    # General (no-manual) specialists need it too — §7 covers both.
+    from chat.prompts import _GENERAL_ROLES
+    for role in _GENERAL_ROLES:
+        assert "onset" in contract_addendum(role, body), role

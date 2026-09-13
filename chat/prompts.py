@@ -98,6 +98,22 @@ _CONTRACT_ADDENDA: tuple[tuple[str, tuple[str, ...], str], ...] = (
      '(a documented reassurance) — that is a valid decision="solve" provided it meets '
      "the same in-docs and confidence bar. Never set it true for anything you were "
      "unsure about or that involves a safety-scope task."),
+    # Spec §7: the always/gradual-vs-sudden distinction is what decides between offering a
+    # documented customer setting and offering service (§8). Across 100 live conversations
+    # onset went uncaptured in 67 — nothing ever ASKS for it, it is only extracted when a
+    # customer volunteers it — so the specialist could not apply the rule and escalated by
+    # default. Keyed on "onset": a freshly seeded body that already handles it is untouched.
+    ("onset is unknown", _SPECIALIST_ROLES,
+     'When the customer reports a COMFORT or PERFORMANCE problem (too cold, too warm, less '
+     'hot water, weaker heating/cooling, poorer output) and you do not yet know the onset, '
+     'ask ONE short question before giving a verdict: has it always been like this or come '
+     'on gradually, or did it change suddenly after working normally? Report it as '
+     '"onset": "always" | "gradual" | "sudden". Always/gradual means a documented normal '
+     'user setting may be appropriate (explain what it affects, note the original value, '
+     'one small change at a time). Sudden means do NOT simply raise the curve or the '
+     'hot-water setting — check alarms, operating mode, schedules, holiday mode, power '
+     'interruption, pressure, circulation or backup heat first, and offer Nordland VVS '
+     'service when no user-setting change explains it.'),
     ("consult_web", _GENERAL_ROLES,
      'You may also include "consult_web": {{"question": "<one specific question>"}} '
      "(or null) to consult OFFICIAL manufacturer sources for identification, "

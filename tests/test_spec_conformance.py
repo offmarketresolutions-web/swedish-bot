@@ -166,3 +166,23 @@ def test_every_rule_cites_a_spec_section():
     for r in sc.RULES:
         assert r["section"].startswith("§"), r
         assert r["desc"].strip(), r
+
+
+def test_comfort_complaint_without_onset_is_flagged():
+    """§7's always-vs-sudden distinction is the precondition for deciding the case."""
+    rec = conv([("user", "Det är för kallt i huset.")],
+               slots={"category": "heat_pump", "onset": None})
+    assert fire("S7-ONSET-ESTABLISHED", rec)
+
+
+def test_comfort_complaint_with_onset_established_is_not_flagged():
+    rec = conv([("user", "Det är för kallt i huset.")],
+               slots={"category": "heat_pump", "onset": "always"})
+    assert not fire("S7-ONSET-ESTABLISHED", rec)
+
+
+def test_non_comfort_case_does_not_require_onset():
+    """A leak or an alarm code is not a comfort/performance complaint; §7 doesn't apply."""
+    rec = conv([("user", "Det läcker vatten under pumpen.")],
+               slots={"category": "heat_pump", "onset": None})
+    assert not fire("S7-ONSET-ESTABLISHED", rec)
