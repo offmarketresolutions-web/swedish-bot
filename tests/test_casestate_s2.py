@@ -458,3 +458,20 @@ def test_a_failed_extractor_call_does_not_charge_a_strike(monkeypatch):
     assert cs["slots"].get("category") in (None, ""), "the slot must not be degraded"
     assert "uppfattade inte" not in (out or {}).get("message", ""), \
         "the customer must not be told they were unclear"
+
+
+def test_a_postcode_first_given_during_contact_collection_is_normalised():
+    """§2/§12. The first fix covered the intake path only. An EMERGENCY skips the early
+    postcode ask, so the code arrives during contact collection and was mirrored into
+    slots raw — every safety conversation in the verification run stored '111 52 '. The
+    service-area lookup itself is safe (crm.geo.geocode_postcode strips spaces), but the
+    raw value rides into the lead payload and the session record, and any consumer that
+    does not strip sees it."""
+    from chat.orchestrator import _escalate_step
+
+    cs = {"slots": {"category": "heat_pump"}, "contact": {"name": "Ada", "phone": "+46701234567",
+          "email": "a@b.se"}, "contact_slot": "postal_code", "diag_done": True,
+          "awaiting_approval": False, "report": {}}
+    _escalate_step(None, cs, "111 52 Stockholm", "sv")
+    assert cs["slots"].get("postal_code") == "11152", cs["slots"].get("postal_code")
+    assert cs["contact"].get("postal_code") in (None, "11152"), cs["contact"].get("postal_code")

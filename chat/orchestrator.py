@@ -1524,6 +1524,9 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
                 return {"message": msg, "chips": [], "decision": "escalate"}
             if cur == "phone":  # gave up validating → keep what they typed for staff
                 val = sanitize.clean_lead_field(raw, 32)
+        # §2/§12: five digits wherever a postcode is stored — the contact record is what
+        # the website form prefills from, so a raw "111 52 " would surface to the customer.
+        val = _normalise_slot_value(cur, val)
         cs["contact"][cur] = val
         if cur == "postal_code" and val:
             # Live geo run (S003): a postcode first given HERE — the emergency path skips
@@ -1532,6 +1535,12 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             # it and record the PRELIMINARY status for the office to triage. No decline this
             # late: name/phone are already given, and an emergency lead is never blocked on
             # geography — the gate ran (empty) at escalation start, by design.
+            # §2/§12: five digits, here too. The intake fast path normalises, but an
+            # emergency skips the early ask entirely and the code first arrives HERE — so
+            # every safety conversation stored "111 52 " and carried it into the lead.
+            # (crm.geo.geocode_postcode strips spaces itself, so the area lookup was never
+            # wrong; the stored value was.)
+            val = _normalise_slot_value("postal_code", val)
             if not cs["slots"].get("postal_code") or cs["slots"]["postal_code"] == "unknown":
                 cs["slots"]["postal_code"] = val
             if cs.get("service_area") in (None, "", "unknown"):
