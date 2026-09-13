@@ -113,11 +113,23 @@ def clean_address(s: str) -> str:
     return strip_control(no_crlf(cap(s, 160)))
 
 
+# A two-part alarm code: letter(s)+digits, then a separate digit group ("H01 5252",
+# "A01 5378"). No manufacturer model takes this shape, whereas plenty of real models are
+# single letter+digit tokens — NIBE genuinely sells F1145, S1255 and F730 — so the guard
+# below must match the TWO-part form only. run100 R039 opened with "H01 5252 again" and
+# ended with slots.model = "H01 5252": the alarm stored as the machine, matching no manual
+# and riding into the lead as the model.
+_ALARM_AS_MODEL = re.compile(r"^[A-Za-z]{1,3}\d{1,4}[ \-]\d{2,5}$")
+
+
 def clean_model(s: str) -> str:
     """Identification token (model/serial). Reject sentence-like content (a model is
-    a short token like 'IVT 490' / 'Geo 600C', never a sentence/instruction)."""
+    a short token like 'IVT 490' / 'Geo 600C', never a sentence/instruction) and reject
+    a two-part alarm code, which is a fault reading, not a machine."""
     s = no_crlf(cap(s, 40))
     if not _MODEL.match(s) or len(s.split()) > 4:
+        return ""
+    if _ALARM_AS_MODEL.match(s.strip()):
         return ""
     return s
 

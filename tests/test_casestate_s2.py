@@ -348,3 +348,40 @@ def test_dont_know_in_model_search_gives_up_instead_of_searching(reply):
     assert cs["model_search_mode"] is False, reply
     assert cs["slots"]["model"] in (None, "", "unknown"), \
         f"{reply!r} must not be stored as a model name: {cs['slots']['model']!r}"
+
+
+def test_consent_is_recorded_on_the_answer_not_on_the_question():
+    """contact.consent was set to True at the moment the bot ASKED "shall I send this?",
+    so a customer who answered "Nej" was left recorded as having consented (run100 D017:
+    a billing complaint who said "Nej, jag vill inte att en tekniker ska höra av sig" and
+    still carried consent=True). Nothing persisted it — Customer.consent_to_contact is
+    only written on the yes-path — but a consent flag must never be true for someone who
+    said no."""
+    from chat.orchestrator import _escalate_step
+
+    cs = {"slots": {}, "contact": {"name": "Ismael Andersson", "phone": "+46701234567",
+                                   "email": "i@e.se", "address": "Götgatan 23",
+                                   "postal_code": "12134"},
+          "contact_slot": None, "diag_done": True, "awaiting_approval": False, "report": {}}
+    out = _escalate_step(None, cs, "Götgatan 23", "sv")
+    assert cs.get("awaiting_approval") is True, out
+    assert cs["contact"].get("consent") is not True, \
+        "consent must not be true merely because the approval question was asked"
+
+
+@pytest.mark.parametrize("code", ["H01 5252", "H01 5295", "A01 5378", "E15 210"])
+def test_an_alarm_code_is_not_accepted_as_a_model(code):
+    """run100 R039 opened with "H01 5252 again. filter probably." and ended with
+    slots.model = "H01 5252" — the alarm code stored as the machine model, which then
+    rides into the lead and matches no manual."""
+    from chat.sanitize import clean_model
+    assert clean_model(code) == "", code
+
+
+@pytest.mark.parametrize("model", ["F1145", "S1255", "F730", "IVT 490", "Geo 412C",
+                                   "Vent 402", "EcoHeat 8", "Greenline HE"])
+def test_real_models_that_look_like_codes_are_still_accepted(model):
+    """NIBE genuinely sells F1145 / S1255 / F730. Rejecting anything letter+digit shaped
+    would silently drop a whole manufacturer's catalogue."""
+    from chat.sanitize import clean_model
+    assert clean_model(model) == model, model

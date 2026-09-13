@@ -186,3 +186,17 @@ def test_non_comfort_case_does_not_require_onset():
     rec = conv([("user", "Det läcker vatten under pumpen.")],
                slots={"category": "heat_pump", "onset": None})
     assert not fire("S7-ONSET-ESTABLISHED", rec)
+
+
+def test_alarm_code_stored_as_model_is_flagged():
+    rec = conv([("user", "H01 5252 again. filter probably.")],
+               slots={"category": "heat_pump", "model": "H01 5252"})
+    assert fire("S3-MODEL-IS-NOT-AN-ALARM", rec)
+
+
+def test_a_real_model_that_looks_like_a_code_is_not_flagged():
+    """NIBE F1145 is a genuine product; only the two-part alarm shape is a fault reading."""
+    for model in ("F1145", "S1255", "IVT 490", "Geo 412C"):
+        rec = conv([("user", f"Jag har en {model}.")],
+                   slots={"category": "heat_pump", "model": model})
+        assert not fire("S3-MODEL-IS-NOT-AN-ALARM", rec), model

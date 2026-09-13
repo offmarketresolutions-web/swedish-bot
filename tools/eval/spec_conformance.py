@@ -337,6 +337,15 @@ def _onset(rec):
             "(always/gradual vs sudden)"]
 
 
+@rule("S3-MODEL-IS-NOT-AN-ALARM", "§1/§3",
+      "An alarm code is a fault reading, never the machine's model")
+def _alarm_as_model(rec):
+    model = ((rec.get("slots") or {}).get("model") or "").strip()
+    if model and re.fullmatch(r"[A-Za-z]{1,3}\d{1,4}[ \-]\d{2,5}", model):
+        return [f"alarm code {model!r} stored as the model"]
+    return []
+
+
 # ── runner ───────────────────────────────────────────────────────────────────
 
 def run(rows: list[dict], only: str | None = None) -> dict:

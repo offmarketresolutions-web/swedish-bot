@@ -198,3 +198,27 @@ def test_specialists_are_required_to_establish_onset_before_a_comfort_verdict():
     from chat.prompts import _GENERAL_ROLES
     for role in _GENERAL_ROLES:
         assert "onset" in contract_addendum(role, body), role
+
+
+def test_the_onset_ask_actually_reaches_a_rendered_specialist_prompt(seeded):
+    """contract_addendum() returning the text is not the same as the agent receiving it —
+    render() interpolates and can swallow content. This asserts the integration point,
+    against a DB body seeded BEFORE the rule existed, which is what every already-deployed
+    install looks like."""
+    from chat import prompts
+
+    for role in ("specialist", "heat_pump_specialist", "water_pump_specialist",
+                 "water_filtration_specialist", "intelligent_specialist"):
+        out = prompts.render(role, locale="sv", brand="IVT", model="Geo 412C",
+                             category="heat_pump", brand_notes="", faq="", general_knowledge="",
+                             problem="kallt", error_code="", forced_wrapup="false",
+                             previous_checks="", onset="", common_issues="", tools="",
+                             consult_notes="")
+        # Two wordings carry this rule: the seeded ONSET RULES block (fresh installs) and
+        # the contract addendum (installs seeded before the rule existed). Assert the part
+        # they share, so the test holds in BOTH states rather than pinning one of them.
+        # Whitespace-normalised: the seeded block is hard-wrapped, so "ask ONE short
+        # question" spans a line break there and would never match literally.
+        flat = " ".join(out.split())
+        assert "ask ONE short question" in flat, role
+        assert "suddenly after working normally" in flat, role

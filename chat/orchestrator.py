@@ -1452,6 +1452,7 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             # a brand correction in one message. No reconfirm this late (they just said it
             # explicitly); the lead must carry the corrected brand, and the stale model of
             # the old brand must not ride along with it.
+            cs["contact"]["consent"] = True
             corrected = _detect_brand_contradiction(cs, user_text)
             if corrected:
                 cs["slots"]["brand"] = corrected
@@ -1543,7 +1544,9 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
 
     cs["contact_slot"] = None
     cs["awaiting_approval"] = True
-    cs["contact"]["consent"] = True
+    # Consent is recorded when the customer GRANTS it (the _is_yes branch above), never
+    # when the question is asked — run100 D017 refused ("Nej, jag vill inte att en tekniker
+    # ska höra av sig") and was still carrying consent=True.
     msg = t(locale, "approval")
     addr = cs["contact"].get("address")
     if addr:
