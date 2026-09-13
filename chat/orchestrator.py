@@ -64,6 +64,34 @@ _EMERGENCY_TRIGGERS = (
 )
 
 
+# Internal knowledge-citation tags ([K<pk>], [B<n>], [W<n> host]) exist so staff can trace
+# which snippet an answer came from. The seeded prompts ask the model to put them in
+# answer_to_customer, which IS the customer's message — 35 of 100 live-eval conversations
+# showed a real customer a raw "[K72]". Prompts are owner-editable DB rows and seed_kb is
+# no-clobber, so wording alone can never fix an already-seeded install: strip in code, at
+# every point an answer becomes customer-visible.
+_KB_TAG_RE = re.compile(r"\s*\[(?:K|B|W)\d+(?:\s+[^\]]*)?\]")
+
+
+def _strip_kb_tags(text: str | None) -> str:
+    """Remove internal citation tags from customer-facing text, leaving spacing tidy.
+    Only digit-suffixed K/B/W tags match, so ordinary bracketed prose ("[Kapitel 4]") survives."""
+    if not text:
+        return ""
+    return re.sub(r"[ 	]{2,}", " ", _KB_TAG_RE.sub("", text)).strip()
+
+
+def _pre_escalate_prompt(cs: dict, locale: str) -> str:
+    """The pre-escalation diagnostic ask, minus any question the customer already answered.
+
+    Spec §1/§2.3: facts already given must never be requested again. Asking every customer
+    for an error code — including the ones who had just supplied one — produced 8 of the 14
+    "I already told you" complaints across 100 live conversations."""
+    slots = cs.get("slots") or {}
+    have_code = bool(slots.get("error_code") or slots.get("alarm_text"))
+    return t(locale, "pre_escalate_diag_have_code" if have_code else "pre_escalate_diag")
+
+
 def _deterministic_emergency(cs, events, locale, key: str, reason: str) -> dict:
     cs["gas_emergency"] = True  # flag name kept: "a code-owned emergency line has been sent"
     cs["severity"] = "urgent"
@@ -1097,7 +1125,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     if general:
         data = _maybe_consult(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale)
 
-    answer = data.get("answer_to_customer", "") or ""
+    answer = _strip_kb_tags(data.get("answer_to_customer"))
     # S9: validate model output schema; anything off -> fail-closed to escalate.
     _c = data.get("confidence")
     conf = _c if isinstance(_c, (int, float)) and 0.0 <= _c <= 1.0 else 0.0
@@ -1188,7 +1216,7 @@ def _unsupported_step(conversation, cs, events, locale) -> dict:
     cs["severity"] = data.get("severity") or cs.get("severity") or "normal"
     cs["report"]["service_recommended"] = True
     cs["escalation_reason"] = "unsupported"
-    answer = data.get("answer_to_customer") or ""
+    answer = _strip_kb_tags(data.get("answer_to_customer"))
     # GUARD (audit 2026-08-11, run100 A019): unlike _specialist_step, this path never ran
     # its draft through guardrails.is_unsafe() — a prompt-injection persona framed as
     # unsupported equipment ("it's a gas valve") got a forbidden-topic acknowledgment past
@@ -1223,7 +1251,7 @@ def _begin_escalation(cs, locale, prefix: str = "") -> dict:
         cs["diag_done"] = True
         cs["await_diag"] = True
         cs["contact_slot"] = None
-        return {"message": prefix + t(locale, "pre_escalate_diag") + note, "chips": [], "decision": "escalate"}
+        return {"message": prefix + _pre_escalate_prompt(cs, locale) + note, "chips": [], "decision": "escalate"}
     cs["contact_slot"] = "name"
     return {"message": prefix + t(locale, "escalate_leadin") + note, "chips": [], "decision": "escalate"}
 
@@ -1410,7 +1438,7 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
         # reached escalation without going through _begin_escalation (e.g. a routing rule)
         cs["diag_done"] = True
         cs["await_diag"] = True
-        return {"message": t(locale, "pre_escalate_diag"), "chips": [], "decision": "escalate"}
+        return {"message": _pre_escalate_prompt(cs, locale), "chips": [], "decision": "escalate"}
 
     if cs.get("awaiting_approval"):
         if _is_yes(user_text):

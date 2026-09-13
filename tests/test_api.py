@@ -1,5 +1,6 @@
 """HTTP layer: session + SSE message endpoints (plan §10)."""
 import json
+import re
 
 import pytest
 from django.core.management import call_command
@@ -74,3 +75,36 @@ def test_session_still_honours_an_explicit_language(client, seeded, mock_gemini)
                     content_type="application/json").json()
     assert j["message"].startswith("Hi!"), j["message"]
     assert Conversation.objects.get(public_id=j["public_id"]).language == "en"
+
+
+def test_internal_kb_citation_tags_never_reach_the_customer(client, seeded, mock_gemini):
+    """The seeded specialist prompt tells the model to put the [K<pk>] traceability tag in
+    answer_to_customer "so staff can trace the source" — but that field IS the customer's
+    message. In the 100-conversation live eval, 35 conversations showed a real customer a
+    raw "[K72]". The prompt is a DB row and seed_kb is no-clobber, so fixing the wording
+    cannot reach an already-seeded install: the strip has to be code-owned."""
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Check the extract-air filter is clean. [K72] Then note the code. [K1]",
+        "confidence": 0.9, "decision": "solve", "in_docs": True, "report": {},
+    }
+    pid = client.post("/api/chat/session", data="{}", content_type="application/json").json()["public_id"]
+    _say(client, pid, "heat_pump")
+    _say(client, pid, "no")
+    _say(client, pid, "no_heat")
+    _say(client, pid, "IVT")
+    final = _say(client, pid, "IVT 490")
+
+    # Guard against a vacuous pass: if the specialist answer never surfaced, the assertion
+    # below would hold for the wrong reason.
+    assert final["decision"] == "solve" and "filter" in final["message"], final["message"]
+    assert not re.search(r"\[K\d+\]", final["message"]),         f"internal citation tag shown to the customer: {final['message']}"
+
+
+def test_strip_kb_tags_removes_tags_without_damaging_the_answer():
+    from chat.orchestrator import _strip_kb_tags
+    assert _strip_kb_tags("Rengör filtret. [K72] Kontrollera trycket. [K1]") ==         "Rengör filtret. Kontrollera trycket."
+    assert _strip_kb_tags("Inga taggar här.") == "Inga taggar här."
+    assert _strip_kb_tags("") == ""
+    assert _strip_kb_tags(None) == ""
+    # a bracketed non-citation must survive
+    assert _strip_kb_tags("Se [Kapitel 4] i manualen.") == "Se [Kapitel 4] i manualen."

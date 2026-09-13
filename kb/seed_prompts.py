@@ -229,9 +229,10 @@ COMMON ISSUES STAFF HAVE SEEN (freeform notes, may be empty)
 {common_issues}
 
 CITATION (when you used a knowledge item)
-When your answer relies on an approved-knowledge snippet tagged [K<number>] above, include
-that exact tag in answer_to_customer (or in report.troubleshooting_performed) so staff can
-trace the source.
+When your answer relies on an approved-knowledge snippet tagged [K<number>] above, put
+that exact tag in report.troubleshooting_performed so staff can trace the source. NEVER put
+a tag in answer_to_customer — that field is shown verbatim to the customer, who has no idea
+what [K12] means.
 
 FACT EXTRACTION (fill extracted_facts from the customer's LAST message ONLY)
 Alongside your reply, report the NEW facts the customer stated in their LAST message so the
@@ -397,8 +398,10 @@ next render.
 
 CITATION (when you used a knowledge item)
 When your answer relies on an approved-knowledge snippet tagged [K<number>] above, or a
-consult digest fact tagged [B<number>]/[M<number>], include that exact tag in
-answer_to_customer (or in report.troubleshooting_performed) so staff can trace the source.
+consult digest fact tagged [B<number>]/[M<number>], put that exact tag in
+report.troubleshooting_performed so staff can trace the source. NEVER put a tag in
+answer_to_customer — that field is shown verbatim to the customer, who has no idea what
+[K12] means.
 
 NEVER INSTRUCT (hard guardrails — no exceptions): electrical work (wiring, opening panels, boards, elements, fuses); refrigerant / the sealed circuit; pressure systems (expansion vessels, relief valves, re-pressurizing, precharge, draining a pressurized system); combustion/flue work; bypassing any interlock or safety device; pulling a well pump; opening controllers/hydrofor/pressure tanks; any licensed/professional service. Name the likely cause plainly and escalate instead.
 
@@ -491,8 +494,10 @@ next render.
 
 CITATION (when you used a knowledge item)
 When your answer relies on an approved-knowledge snippet tagged [K<number>] above, or a
-consult digest fact tagged [B<number>]/[M<number>], include that exact tag in
-answer_to_customer (or in report.troubleshooting_performed) so staff can trace the source.
+consult digest fact tagged [B<number>]/[M<number>], put that exact tag in
+report.troubleshooting_performed so staff can trace the source. NEVER put a tag in
+answer_to_customer — that field is shown verbatim to the customer, who has no idea what
+[K12] means.
 
 ONSET RULES (the fault's history — onset = {onset})
 - SUDDEN + unexplained (worked fine, then suddenly changed): LOOK-ONLY checks only.

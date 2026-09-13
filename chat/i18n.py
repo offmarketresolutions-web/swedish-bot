@@ -44,6 +44,11 @@ T = {
                              "problem in a bit more detail — and if the machine is showing any error "
                              "or fault code, send a photo of the display (it really helps the "
                              "technician). If there's no code, just let me know.",
+        # Used when an error/alarm code is ALREADY on file — spec §2.3 forbids re-asking
+        # for a fact the customer has given ("It's H01 5295. That's what I said.").
+        "pre_escalate_diag_have_code": "Before I pass this to a Nordland VVS technician, please "
+                             "describe the problem in a bit more detail — anything about when it "
+                             "happens helps the technician.",
         "reask": "Sorry, I didn't quite catch that. ",
         "reask_phone": "That doesn't look like a phone number. Please include the area or "
                        "country code — e.g. 070-123 45 67, or +44 20 7946 0958.",
@@ -132,6 +137,9 @@ T = {
                              "beskriv gärna problemet lite mer i detalj, och om maskinen visar någon "
                              "fel- eller larmkod, skicka en bild på displayen (det hjälper teknikern "
                              "mycket). Finns ingen kod, säg bara till.",
+        "pre_escalate_diag_have_code": "Innan jag skickar detta vidare till en tekniker från "
+                             "Nordland VVS — beskriv gärna problemet lite mer i detalj, allt om när "
+                             "det händer hjälper teknikern.",
         "reask": "Förlåt, jag uppfattade inte riktigt. ",
         "reask_phone": "Det ser inte ut som ett telefonnummer. Ange gärna riktnummer eller "
                        "landskod — t.ex. 070-123 45 67, eller +46 70 123 45 67.",

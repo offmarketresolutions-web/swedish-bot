@@ -301,3 +301,28 @@ def test_bare_postcode_is_accepted_deterministically_without_an_llm_call(seeded,
     assert conv.case_state["slots"]["postal_code"] == "85234"
     assert len(mock_gemini.calls) == before, "a bare postcode must not cost a model call"
     assert "didn't quite catch" not in (res.get("message") or "").lower()
+
+
+def test_pre_escalate_diag_does_not_re_ask_for_an_error_code_already_known():
+    """Spec §1/§2.3: "The customer must not be asked for those facts again later."
+    The pre-escalation turn asked every customer for an error code even when one was
+    already captured — it triggered 8 of the 14 "I already told you" complaints across
+    100 live conversations (R019 "It's H01 5295. That's what I said.", R039, V034)."""
+    from chat.i18n import t
+    from chat.orchestrator import _pre_escalate_prompt
+
+    known = {"slots": {"error_code": "H01 5252", "alarm_text": None}}
+    unknown = {"slots": {"error_code": None, "alarm_text": None}}
+
+    # No code on file → still ask for one.
+    assert _pre_escalate_prompt(unknown, "en") == t("en", "pre_escalate_diag")
+    # Code already captured → ask for detail, never for the code again.
+    msg = _pre_escalate_prompt(known, "en")
+    assert "fault code" not in msg and "error" not in msg.lower(), msg
+    assert "detail" in msg.lower(), msg
+    # Same in Swedish.
+    sv = _pre_escalate_prompt(known, "sv")
+    assert "larmkod" not in sv and "felkod" not in sv, sv
+    # An alarm TEXT counts as already-known too.
+    assert "fault code" not in _pre_escalate_prompt(
+        {"slots": {"error_code": None, "alarm_text": "För stor skillnad framledning"}}, "en")
