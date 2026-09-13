@@ -103,6 +103,12 @@ def test_internal_kb_citation_tags_never_reach_the_customer(client, seeded, mock
 def test_strip_kb_tags_removes_tags_without_damaging_the_answer():
     from chat.orchestrator import _strip_kb_tags
     assert _strip_kb_tags("Rengör filtret. [K72] Kontrollera trycket. [K1]") ==         "Rengör filtret. Kontrollera trycket."
+    # The model emits several ids in one tag — "[K51, K53]" reached customers on 2 of the
+    # 37 leaking turns in the live run because the first pattern demanded whitespace after
+    # the number. Real leaked text, replayed.
+    assert _strip_kb_tags("...behöver vi boka in en servicetekniker. [K51, K53]") ==         "...behöver vi boka in en servicetekniker."
+    assert _strip_kb_tags("Se manualen. [W1 nibe.eu]") == "Se manualen."
+    assert _strip_kb_tags("Enligt [K2,K7] gäller detta.") == "Enligt gäller detta."
     assert _strip_kb_tags("Inga taggar här.") == "Inga taggar här."
     assert _strip_kb_tags("") == ""
     assert _strip_kb_tags(None) == ""

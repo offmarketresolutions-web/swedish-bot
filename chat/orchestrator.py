@@ -70,7 +70,12 @@ _EMERGENCY_TRIGGERS = (
 # showed a real customer a raw "[K72]". Prompts are owner-editable DB rows and seed_kb is
 # no-clobber, so wording alone can never fix an already-seeded install: strip in code, at
 # every point an answer becomes customer-visible.
-_KB_TAG_RE = re.compile(r"\s*\[(?:K|B|W)\d+(?:\s+[^\]]*)?\]")
+# Anything after the leading K/B/W + digits is part of the tag: a source host
+# ("[W1 nibe.eu]") or, as the model actually emits, several ids at once ("[K51, K53]").
+# The first version required whitespace after the number, so a comma-joined tag survived
+# and still reached the customer on 2 of 37 leaking turns in the live run.
+# "[Kapitel 4]" is untouched — K must be followed by a digit.
+_KB_TAG_RE = re.compile(r"\s*\[(?:K|B|W)\d+[^\]]*\]")
 
 
 def _strip_kb_tags(text: str | None) -> str:
