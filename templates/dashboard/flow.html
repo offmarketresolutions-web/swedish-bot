@@ -24,6 +24,40 @@
     <p>{% trans "Agent steps edit the live bot directly — saving an agent applies to the next conversation immediately. The hard safety guardrails stay enforced in code and can't be removed here." %}</p>
   </div>
 
+  {% comment %}The canvas is saved once and then hand-arranged, while agents are added,
+  switched off and deleted independently — so the builder could quietly stop describing the
+  bot it configures. This never rewrites the saved layout (that is the owner's work); it
+  makes any divergence impossible to miss and one click to fix.{% endcomment %}
+  <div class="nl-card bg-amber-50 border-amber-300 px-4 py-2 mb-3 text-sm text-amber-900"
+       x-show="outOfSync" x-cloak data-testid="flow-sync-warning">
+    <div class="flex items-start gap-2 flex-wrap">
+      <span aria-hidden="true">⚠️</span>
+      <div class="flex-1 min-w-0 space-y-1">
+        <template x-if="sync.missing.length">
+          <p data-testid="flow-sync-missing">
+            <b x-text="sync.missing.length"></b>
+            <span>{% trans "agent(s) are not on the canvas:" %}</span>
+            <span x-text="sync.missing.map(m => m.display).join(', ')"></span>
+          </p>
+        </template>
+        <template x-if="sync.orphans.length">
+          <p data-testid="flow-sync-orphans">
+            <span>{% trans "Step(s) point at an agent that no longer exists:" %}</span>
+            <span x-text="sync.orphans.join(', ')"></span>
+          </p>
+        </template>
+        <template x-if="sync.inactive.length">
+          <p data-testid="flow-sync-inactive">
+            <span>{% trans "Switched off, so the bot skips them:" %}</span>
+            <span x-text="sync.inactive.join(', ')"></span>
+          </p>
+        </template>
+      </div>
+      <button class="btn btn-secondary text-xs shrink-0" x-show="sync.missing.length"
+              @click="addMissingAgents()" data-testid="flow-sync-add">{% trans "Add the missing steps" %}</button>
+    </div>
+  </div>
+
   <!-- palette -->
   <div class="flex flex-wrap items-center gap-2 mb-3" data-testid="flow-palette">
     <span class="text-xs font-medium text-nl-base/60 mr-1">{% trans "Add step:" %}</span>
@@ -71,6 +105,8 @@
               </div>
               <div class="px-2.5 py-1.5 flex items-center justify-between text-[10px] text-nl-base/60">
                 <span class="truncate" x-text="n.kind==='agent' ? agentModel(n) : n.kind"></span>
+                <span class="shrink-0 mr-1 font-semibold" :class="nodeFlag(n).cls"
+                      x-text="nodeFlag(n).text" :title="nodeFlag(n).title"></span>
                 <button class="text-nl-primary font-bold px-1 rounded hover:bg-nl-primaryl shrink-0"
                         @click.stop="startConnect(n.id)" title="{% trans 'Connect to another step' %}" :data-testid="'connect-'+n.id">→</button>
               </div>
@@ -261,10 +297,12 @@
 
 {{ graph|json_script:"flow-graph" }}
 {{ agents|json_script:"flow-agents" }}
+{{ sync|json_script:"flow-sync" }}
 <script>
   window.flowCanvas = function () {
     const GRAPH = JSON.parse(document.getElementById("flow-graph").textContent);
     const AGENTS = JSON.parse(document.getElementById("flow-agents").textContent);
+    const SYNC = JSON.parse(document.getElementById("flow-sync").textContent);
     const CSRF = "{{ csrf_token }}";
     const SAVE_URL = "{% url 'dash-flow-save' %}";
     const NW = 176, NH = 60;
@@ -276,7 +314,7 @@
       request: "bg-violet-100 text-violet-800", end: "bg-green-100 text-green-800",
     };
     return {
-      nodes: GRAPH.nodes || [], edges: GRAPH.edges || [], agents: AGENTS, kinds: Object.keys(LABELS),
+      nodes: GRAPH.nodes || [], edges: GRAPH.edges || [], agents: AGENTS, sync: SYNC, kinds: Object.keys(LABELS),
       sel: null, cur: null, connectFrom: null, dragId: null, dragDX: 0, dragDY: 0,
       saving: false, dirty: false, msg: "", msgType: "", canvasW: 900, canvasH: 560, _tt: null,
       assistText: "", assistBusy: false,
@@ -288,6 +326,33 @@
       kindIcon(k) { return ICONS[k] || "•"; },
       kindHeader(k) { return HEADERS[k] || "bg-slate-100"; },
       agentModel(n) { const a = this.agents[n.role]; return a ? a.model_id : "(pick a role)"; },
+
+      // Divergence between the saved canvas and the live agent table. Recomputed on the
+      // client after addMissingAgents() so the banner clears without a reload.
+      get outOfSync() {
+        return this.sync.missing.length + this.sync.orphans.length + this.sync.inactive.length > 0;
+      },
+      nodeFlag(n) {
+        if (n.kind !== "agent") return { text: "", cls: "", title: "" };
+        const a = this.agents[n.role];
+        if (!a) return { text: "⚠ missing", cls: "text-nl-action",
+                         title: "This step names an agent that no longer exists." };
+        if (!a.is_active) return { text: "off", cls: "text-amber-600",
+                                   title: "This agent is switched off; the bot skips it." };
+        return { text: "", cls: "", title: "" };
+      },
+      addMissingAgents() {
+        // Drop the new steps in a fresh column to the right of everything already placed,
+        // so nothing lands on top of the owner's arrangement.
+        const right = this.nodes.reduce((m, n) => Math.max(m, n.x), 0) + 220;
+        this.sync.missing.forEach((m, i) => {
+          this.nodes.push({ id: this.uid("agent_"), kind: "agent", role: m.role,
+                            title: m.display, x: right, y: 40 + i * 110, config: {} });
+        });
+        this.sync.missing = [];
+        this.dirty = true;
+        this.relayout();   // the new column may be wider than the current canvas
+      },
 
       // selection
       isSel(t, id) { return this.sel && this.sel.t === t && this.sel.id === id; },

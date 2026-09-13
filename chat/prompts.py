@@ -114,6 +114,18 @@ _CONTRACT_ADDENDA: tuple[tuple[str, tuple[str, ...], str], ...] = (
      'hot-water setting — check alarms, operating mode, schedules, holiday mode, power '
      'interruption, pressure, circulation or backup heat first, and offer Nordland VVS '
      'service when no user-setting change explains it.'),
+    # The recap is INTERNAL, and the shared language directive says "reason internally in
+    # English; only the final user-facing text is localized" — so the summarizer was free to
+    # write it either way and did: 3 of the last ~20 real cases came back in English on a
+    # Swedish dashboard, for Swedish technicians reading Swedish transcripts. The recap has
+    # a reader, and that reader speaks Swedish. Keyed on "Skriv sammanfattningen" so a body
+    # that already says this is left alone.
+    ("Skriv sammanfattningen", ("summarizer",),
+     "Skriv sammanfattningen på SVENSKA. It is read by Swedish technicians in the "
+     "dashboard, so write it in Swedish even though it is an internal note and not "
+     "customer-facing. Technical identifiers stay verbatim: model numbers, error codes, "
+     "brand names. Keep the required literal markers exactly as specified above "
+     '("not captured", "Missing:", the form/button sentence) — those are parsed.'),
     ("consult_web", _GENERAL_ROLES,
      'You may also include "consult_web": {{"question": "<one specific question>"}} '
      "(or null) to consult OFFICIAL manufacturer sources for identification, "

@@ -19,6 +19,7 @@ urlpatterns = [
          name="dash-voice-fetch"),
     path("", views.overview, name="dash-overview"),
     path("analytics/", views.analytics_dashboard, name="dash-analytics"),
+    path("analytics/export", views.analytics_export, name="dash-analytics-export"),
     path("sessions/", views.session_list, name="dash-sessions"),
     path("sessions/<int:pk>/", views.session_detail, name="dash-session"),
     path("sessions/<int:pk>/replica", views.conversation_replica, name="dash-session-replica"),

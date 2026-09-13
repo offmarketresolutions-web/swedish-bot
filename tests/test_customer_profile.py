@@ -171,3 +171,56 @@ def test_returning_customer_updates_not_duplicates_profile(seeded, mock_gemini):
     assert cust.address == "Storgatan 5"
     assert "F2" in cust.profile_summary  # refreshed to the newer case
     assert cust.sessions.count() == 2
+
+
+def test_a_shared_number_does_not_fork_the_other_persons_profile(seeded):
+    """Two people on one number — a partner, a landlord, an office line, a mistyped digit.
+
+    The lookup used to take the FIRST row on the phone hash and, if the name didn't agree,
+    give up and start a new row. So once the second person existed, the first one was never
+    matched again and got a fresh Customer on EVERY visit. The dev DB had one person with
+    the same name, number and email spread across three rows, one session each.
+
+    Driven through _sync_customer directly rather than a whole chat: this is a question
+    about identity matching, and a returning customer legitimately skips the address
+    question, which desynchronises the scripted conversation helper.
+    """
+    from chat.models import Conversation
+    from chat.orchestrator import _sync_customer
+    from crm.models import Customer, Session, phone_hash
+
+    shared = "+46705552271"
+
+    def visit(name: str, email: str) -> Session:
+        session = Session.objects.create(conversation=Conversation.objects.create(language="sv"))
+        _sync_customer(session, {"contact": {"name": name, "phone": shared, "email": email,
+                                             "address": "Storgatan 5", "postal_code": "98101",
+                                             "consent": True}})
+        session.refresh_from_db()
+        return session
+
+    # ORDER MATTERS. The old lookup took .first() on the phone hash, so the bug only bites
+    # when the OTHER person holds the lower id — which is exactly how it appeared in the dev
+    # DB. Create Bengt first, or this test passes against the broken code.
+    bengt = visit("Bengt Karlsson", "bengt@example.se")
+    bengt_id = bengt.customer_id
+    assert bengt_id, "Bengt's visit created no profile"
+
+    # Anna calls from the same line. She is a different person, so a second row is correct.
+    first = visit("Anna Lindqvist", "anna@example.se")
+    anna_id = first.customer_id
+    assert anna_id != bengt_id, "Anna was merged onto Bengt's profile"
+    assert Customer.objects.filter(phone_hash=phone_hash(shared)).count() == 2
+
+    # Anna comes back. She must land on HER row, not a third one.
+    again = visit("Anna Lindqvist", "anna@example.se")
+    assert again.customer_id == anna_id, (
+        "Anna was forked onto a new row because someone else shares her number")
+    assert Customer.objects.filter(phone_hash=phone_hash(shared)).count() == 2, (
+        "a third row was created for a person who already had one")
+
+    anna = Customer.objects.get(pk=anna_id)
+    assert anna.sessions.count() == 2, (
+        f"her visits are split across rows ({anna.sessions.count()} session(s) on her profile)")
+    assert anna.email == "anna@example.se", "her details were overwritten by the other caller"
+    assert Customer.objects.get(pk=bengt_id).email == "bengt@example.se"

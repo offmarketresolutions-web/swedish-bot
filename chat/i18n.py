@@ -40,6 +40,16 @@ T = {
                                  "unit. A Nordland technician is being alerted urgently.",
         "confirm_resolved": "Great — glad that sorted it! If anything else comes up, just let "
                             "me know.",
+        # Offered AFTER the fix has been given, never before it — the answer is not held
+        # back pending contact details. The reason is the customer's, not ours: a
+        # specialist reviews the case and gets in touch if there's a better answer.
+        "save_details_offer": "Glad that sorted it! Can I take your phone number and email? One of "
+                              "our specialists reviews these cases, and if we have a better "
+                              "suggestion for your unit we'll get in touch.",
+        "save_details_done": "Thanks{name_sfx} — Nordland VVS has your details. A specialist will "
+                             "look over the case and contact you if there's more we can do. All "
+                             "the best!",
+        "save_details_declined": "No problem. If anything else comes up, just let me know.",
         "pre_escalate_diag": "Before I pass this to a Nordland VVS technician, please describe the "
                              "problem in a bit more detail — and if the machine is showing any error "
                              "or fault code, send a photo of the display (it really helps the "
@@ -50,6 +60,10 @@ T = {
                              "describe the problem in a bit more detail — anything about when it "
                              "happens helps the technician.",
         "reask": "Sorry, I didn't quite catch that. ",
+        # A turn that crashed on our side. Never blames the customer, and never asks them
+        # to repeat something they already typed — their message is still on screen.
+        "turn_failed": "Something went wrong on our side just now — that wasn't you. "
+                       "Please send that again, or call us and we'll pick it up from here.",
         "reask_phone": "That doesn't look like a phone number. Please include the area or "
                        "country code — e.g. 070-123 45 67, or +44 20 7946 0958.",
         "contact_name": "What's your name?",
@@ -133,6 +147,12 @@ T = {
                                  "vädra, ingen öppen eld eller rökning i närheten, och rör eller "
                                  "hantera inte enheten. En tekniker från Nordland larmas nu.",
         "confirm_resolved": "Vad bra — kul att det löste sig! Hör av dig om något mer dyker upp.",
+        "save_details_offer": "Vad bra att det löste sig! Får jag ta ditt telefonnummer och din "
+                              "e-post? En av våra specialister går igenom ärendet, och har vi ett "
+                              "bättre förslag för din anläggning hör vi av oss.",
+        "save_details_done": "Tack{name_sfx} — Nordland VVS har dina uppgifter. En specialist tittar "
+                             "på ärendet och hör av sig om det finns mer vi kan göra. Ha det bra!",
+        "save_details_declined": "Inga problem. Hör av dig om något mer dyker upp.",
         "pre_escalate_diag": "Innan jag skickar detta vidare till en tekniker från Nordland VVS — "
                              "beskriv gärna problemet lite mer i detalj, och om maskinen visar någon "
                              "fel- eller larmkod, skicka en bild på displayen (det hjälper teknikern "
@@ -141,6 +161,8 @@ T = {
                              "Nordland VVS — beskriv gärna problemet lite mer i detalj, allt om när "
                              "det händer hjälper teknikern.",
         "reask": "Förlåt, jag uppfattade inte riktigt. ",
+        "turn_failed": "Något gick fel hos oss just nu — det var inte du. "
+                       "Skicka gärna igen, eller ring oss så tar vi det därifrån.",
         "reask_phone": "Det ser inte ut som ett telefonnummer. Ange gärna riktnummer eller "
                        "landskod — t.ex. 070-123 45 67, eller +46 70 123 45 67.",
         "contact_name": "Vad heter du?",

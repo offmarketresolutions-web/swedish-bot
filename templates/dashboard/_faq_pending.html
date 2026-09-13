@@ -11,11 +11,21 @@
             {% if e.onset_type %}<span class="text-xs px-2 py-0.5 rounded-full bg-nl-bg text-nl-base/70">{{ e.onset_type }}</span>{% endif %}
           </div>
           <p class="text-sm font-medium">{{ e.preview_text.question|default:"—" }}</p>
+          {% comment %}The answer is what actually gets said to a customer, so it has to be
+          readable before anyone approves it — this list used to show only the question,
+          which meant approving 102 answers sight-unseen.{% endcomment %}
+          {% if e.preview_text.answer %}
+            <p class="text-sm text-nl-base/80 mt-1 whitespace-pre-line" data-testid="faq-pending-answer">{{ e.preview_text.answer }}</p>
+          {% else %}
+            <p class="text-sm text-nl-base/50 mt-1 italic">{% trans "No answer text — edit before approving." %}</p>
+          {% endif %}
           {% if e.safe_customer_checks %}
-            <p class="text-xs text-nl-base/60 mt-1 truncate">{% trans "Safe checks:" %} {{ e.safe_customer_checks|truncatechars:120 }}</p>
+            <p class="text-xs text-nl-base/60 mt-1">{% trans "Safe checks:" %} {{ e.safe_customer_checks }}</p>
           {% endif %}
         </div>
         <span class="flex items-center gap-1 shrink-0">
+          <a class="btn btn-secondary px-2 py-0.5 text-xs" data-testid="faq-pending-edit"
+             href="{% url 'dash-knowledge-entry-edit' e.pk %}?next={{ request.path|urlencode }}">{% trans "Edit" %}</a>
           <button class="btn btn-primary px-2 py-0.5 text-xs"
                   hx-post="{% url 'dash-faq-approve' 'entry' e.pk %}"
                   hx-target="#faq-pending" hx-swap="outerHTML">{% trans "Approve" %}</button>
@@ -34,8 +44,15 @@
             {% if s.topic %}<span class="text-xs px-2 py-0.5 rounded-full bg-nl-bg text-nl-base/70">{{ s.topic }}</span>{% endif %}
           </div>
           <p class="text-sm font-medium">{{ s.question }}</p>
+          {% if s.answer %}
+            <p class="text-sm text-nl-base/80 mt-1 whitespace-pre-line" data-testid="faq-pending-answer">{{ s.answer }}</p>
+          {% else %}
+            <p class="text-sm text-nl-base/50 mt-1 italic">{% trans "No answer text — edit before approving." %}</p>
+          {% endif %}
         </div>
         <span class="flex items-center gap-1 shrink-0">
+          <a class="btn btn-secondary px-2 py-0.5 text-xs" data-testid="faq-pending-edit"
+             href="{% url 'dash-knowledge-site-edit' s.pk %}?next={{ request.path|urlencode }}">{% trans "Edit" %}</a>
           <button class="btn btn-primary px-2 py-0.5 text-xs"
                   hx-post="{% url 'dash-faq-approve' 'site' s.pk %}"
                   hx-target="#faq-pending" hx-swap="outerHTML">{% trans "Approve" %}</button>

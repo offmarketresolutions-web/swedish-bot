@@ -364,6 +364,13 @@ def _debug_snapshot(cs) -> dict:
 # ── state handlers ─────────────────────────────────────────────────────
 
 def _advance(conversation, cs, user_text, events, locale) -> dict:
+    # Post-fix contact capture. Runs before everything else because the case is already
+    # solved — these turns are collecting a phone and email for the specialist review, not
+    # troubleshooting, and must not re-enter the specialist or spend a model call.
+    if cs.get("awaiting_save_offer") or cs.get("save_slot"):
+        out = _save_details_step(conversation, cs, user_text, locale)
+        if out is not None:
+            return out
     # Gas/fuel smell or leak in the customer's words → deterministic emergency, before any
     # model call, in every pre-escalation state.
     if (user_text and not cs.get("gas_emergency")
@@ -412,6 +419,29 @@ def _normalise_slot_value(slot: str, value):
     return value
 
 
+def _repair_model_slot(cs, user_text: str) -> None:
+    """Undo the extractor throwing away part of the model the customer actually typed.
+
+    The per-slot extractor reads "AirX 500" as series + number and keeps only "500". That
+    identifies nothing: the query "IVT 500" trigram-matches Aero 500, Geo 500C, Geo 500E
+    and AirX 500 equally, so the customer was asked to choose between options that included
+    the answer they had just given (seen live in production, 2026-09-13).
+
+    slots.model holds the CUSTOMER's words by contract, so this never substitutes the
+    catalog's name — it restores the longer span they actually typed, and only when that
+    span says more than what was stored. "Compress 7000i" is already better than the
+    "7000i" alias that matches inside it, so that one is left alone.
+    """
+    from kb.identification import _norm, machine_named_in
+
+    hit = machine_named_in(user_text, vendor=_vendor_for(cs["slots"].get("brand")))
+    if hit is None:
+        return
+    _, span = hit
+    if len(_norm(span)) > len(_norm(cs["slots"].get("model") or "")):
+        cs["slots"]["model"] = span
+
+
 def _intake_step(cs, user_text, locale) -> dict | None:
     current = cs.get("current_slot")
     if current and user_text:
@@ -438,6 +468,8 @@ def _intake_step(cs, user_text, locale) -> dict | None:
             for k, v in extracted.items():
                 if v and not cs["slots"].get(k):
                     cs["slots"][k] = _normalise_slot_value(k, v)
+            if cs["slots"].get("model"):
+                _repair_model_slot(cs, user_text)
             just_bulked = bool(extracted)  # did THIS bulk call actually pull any fact?
         # Feature 1 -- off-domain graceful close: count CONSECUTIVE off-domain turns (any
         # on-target/on-topic rich reply resets the streak). A vague/garbled reply never sets
@@ -479,6 +511,8 @@ def _intake_step(cs, user_text, locale) -> dict | None:
                     on_target = False
             if on_target and value:
                 cs["slots"][current] = value
+                if current == "model":
+                    _repair_model_slot(cs, user_text)
                 cs["reask"] = 0
             elif just_bulked:
                 # GAP 2: the rich opener yielded OTHER facts but doesn't answer this exact
@@ -1044,10 +1078,19 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         cs["awaiting_confirm"] = False
         verdict = _confirm_verdict(user_text)
         if verdict == "yes":
+            # RESOLVED right here, not after the offer below: the case is solved the moment
+            # they say the fix worked. Leaving it in SPECIALIST until the offer is answered
+            # would strand every customer who closes the tab at that point as an unresolved
+            # case in the dashboard. The offer is an afterword, not part of resolving.
             cs["state"] = STATE_RESOLVED
             cs["decision"] = "solve"
             cs["report"]["resolved"] = True
-            return {"message": t(locale, "confirm_resolved"), "chips": [], "decision": "solve",
+            # The fix has already been delivered. Only now offer to keep their details, so
+            # a self-solved case still reaches the CRM — and so the answer is never held
+            # back pending a phone number. Declining closes the conversation normally.
+            cs["awaiting_save_offer"] = True
+            return {"message": t(locale, "save_details_offer"),
+                    "chips": _save_offer_chips(locale), "decision": "solve",
                     "model": prompts.model_for("specialist")}
         if verdict == "question":
             return _specialist_step(conversation, cs, user_text, events, locale, clarify=True)
@@ -1411,10 +1454,78 @@ def _is_decline(text: str) -> bool:
     return bool(_DECLINE.match((text or "").strip().lower()))
 
 
+def _save_offer_chips(locale):
+    return [{"value": "yes_save", "label": t(locale, "chip_yes")},
+            {"value": "no_save", "label": t(locale, "chip_no")}]
+
+
+# Asked in this order after a self-solved case, once the fix is already given. Phone and
+# email both, because the specialist reviewing the case needs a way to come back with a
+# better suggestion — and a name so the follow-up isn't addressed to nobody.
+_SAVE_SLOTS = ("name", "phone", "email")
+
+
+def _save_details_step(conversation, cs, user_text, locale) -> dict | None:
+    """Post-fix contact capture. Returns None when this step doesn't apply.
+
+    Never gates the solution: it only runs after the customer has confirmed the fix
+    worked. Declining at any point closes the conversation normally, and nothing is
+    written unless we end up with a real way to reach them.
+    """
+    if cs.pop("awaiting_save_offer", False):
+        if not _is_yes(user_text):
+            cs["state"] = STATE_RESOLVED
+            return {"message": t(locale, "save_details_declined"), "chips": [], "decision": "solve"}
+        cs["save_slot"] = "name"
+        return {"message": t(locale, "contact_name"), "chips": [], "decision": "solve"}
+
+    cur = cs.get("save_slot")
+    if not cur:
+        return None
+
+    raw = (user_text or "").strip()
+    if _is_decline(raw):
+        val = ""
+    else:
+        cleaner = {"name": sanitize.clean_name, "phone": sanitize.clean_phone,
+                   "email": sanitize.clean_email}[cur]
+        val = cleaner(raw)
+        # One re-ask on an unparseable answer, then move on rather than loop — they have
+        # already been helped, so this must never become an interrogation.
+        if not val and not cs.get("save_reasked_" + cur):
+            cs["save_reasked_" + cur] = True
+            msg = t(locale, "reask_phone") if cur == "phone" else t(locale, "reask") + t(locale, "contact_" + cur)
+            return {"message": msg, "chips": [], "decision": "solve"}
+    if val:
+        cs["contact"][cur] = val
+
+    nxt = next((s for s in _SAVE_SLOTS[_SAVE_SLOTS.index(cur) + 1:] if not cs["contact"].get(s)), None)
+    if nxt:
+        cs["save_slot"] = nxt
+        return {"message": t(locale, "contact_" + nxt), "chips": [], "decision": "solve"}
+
+    cs["save_slot"] = None
+    cs["state"] = STATE_RESOLVED
+    from chat.casestate import flush_to_session
+    session = flush_to_session(conversation, cs)
+    cs["contact"]["consent"] = True   # they asked us to keep these details
+    _sync_customer(session, cs)       # no-ops when no phone/email/address was given
+    name = cs["contact"].get("name") or ""
+    return {"message": t(locale, "save_details_done", name_sfx=(" " + name) if name else ""),
+            "chips": [], "decision": "solve"}
+
+
 def _sync_customer(session, cs):
     from crm.models import Customer, phone_hash
 
     ct = cs["contact"]
+    # A CRM row needs at least one way to reach the person. Four of production's seven
+    # customers were a name and nothing else — created when someone answered "what's your
+    # name?" with a question or a refusal and then gave no phone, email or address. Those
+    # are not leads, they are rows a human has to clean up. The Session still carries the
+    # whole case either way, so nothing is lost by not writing one.
+    if not session.customer and not any(ct.get(f) for f in ("phone", "email", "address")):
+        return
     c = session.customer
     if c is None:
         # P-F: a returning caller must land on their existing profile (matched by
@@ -1425,10 +1536,18 @@ def _sync_customer(session, cs):
         # with the current caller's. Require the same lenient name agreement already used
         # for the "welcome back" copy; when it fails, start a fresh row instead of
         # corrupting someone else's record.
+        # Check EVERY row on that number, not just the first. Taking .first() and then
+        # rejecting it on the name meant that once any other person existed on the number
+        # — a partner, a landlord, an office line, a mistyped digit — the real owner was
+        # never matched again and got a brand-new row on every single visit. Seen in the
+        # dev DB: one person, same name, same number, same email, three rows, one session
+        # each, history split three ways.
         h = phone_hash(ct.get("phone") or "")
-        existing = Customer.objects.filter(phone_hash=h).first() if h else None
-        if existing and not _name_matches(ct.get("name"), existing.name):
-            existing = None
+        existing = None
+        if h:
+            existing = next(
+                (row for row in Customer.objects.filter(phone_hash=h).order_by("id")
+                 if _name_matches(ct.get("name"), row.name)), None)
         c = existing or Customer()
     c.name = ct.get("name") or c.name
     c.phone = ct.get("phone") or c.phone

@@ -7,7 +7,9 @@ import json
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
@@ -16,6 +18,7 @@ from core.enums import AGENT_ROLE_CHOICES, DOC_KIND_CHOICES, LANG_CHOICES, SEVER
 from crm import analytics
 from crm.models import Session
 from dashboard.forms import BrandNoteForm, CustomerForm, MachineForm, VendorForm
+from kb.models import CATEGORY_GROUP_CHOICES
 
 _EDITABLE = ["severity", "ai_summary"]
 _BOOL_EDITABLE = ["resolved", "service_recommended", "booking_requested"]
@@ -67,18 +70,64 @@ def overview(request):
     return render(request, "dashboard/overview.html", ctx)
 
 
-@staff_member_required
-def analytics_dashboard(request):
-    """Full analytics: KPIs, success scoreboard, breakdowns, trend, lead health."""
+TREND_WINDOWS = (7, 30, 90)
+
+
+def _trend_days(request) -> int:
+    """The analytics window, clamped to the three offered by the page."""
     try:
         days = int(request.GET.get("days") or 30)
     except ValueError:
         days = 30
-    days = days if days in (7, 30, 90) else 30
+    return days if days in TREND_WINDOWS else 30
+
+
+@staff_member_required
+def analytics_dashboard(request):
+    """Full analytics: KPIs, success scoreboard, breakdowns, trend, lead health."""
+    days = _trend_days(request)
     ctx = analytics.dashboard_context(days)
     # surface metrics below their target for an at-a-glance "needs attention" banner
     ctx["at_risk"] = [m for m in ctx.get("success", []) if not m.get("met")]
     return render(request, "dashboard/analytics.html", ctx)
+
+
+@staff_member_required
+def analytics_export(request):
+    """The trend window as CSV — one row per day, plus the success scoreboard.
+
+    The dashboard can only ever show the shapes we thought to build. The owner reports to
+    people who use a spreadsheet, so the numbers behind the chart have to leave the page:
+    every day in the window, and every success metric with its target and whether it was
+    met. Same window as the chart (?days=), so a download always matches what is on screen.
+    """
+    import csv
+
+    days = _trend_days(request)
+    ctx = analytics.dashboard_context(days)
+
+    resp = HttpResponse(content_type="text/csv; charset=utf-8")
+    stamp = timezone.localdate().isoformat()
+    resp["Content-Disposition"] = f'attachment; filename="nordland-analytics-{days}d-{stamp}.csv"'
+    resp.write("﻿")  # Excel opens UTF-8 correctly only with a BOM (å/ä/ö in metric names)
+
+    w = csv.writer(resp)
+    w.writerow(["Daily activity"])
+    w.writerow(["date", "sessions", "resolved", "leads"])
+    totals = {"sessions": 0, "resolved": 0, "leads": 0}
+    for row in ctx["trend"]:
+        w.writerow([row["date"], row["sessions"], row["resolved"], row["leads"]])
+        for k in totals:
+            totals[k] += row[k] or 0
+    w.writerow(["total", totals["sessions"], totals["resolved"], totals["leads"]])
+
+    w.writerow([])
+    w.writerow(["Success metrics"])
+    w.writerow(["metric", "value", "target", "met"])
+    for m in ctx.get("success", []):
+        w.writerow([m.get("label") or m.get("key"), m.get("value"),
+                    m.get("target"), "yes" if m.get("met") else "no"])
+    return resp
 
 
 # Allowlist: sort key (URL) -> ORM column. Guards .order_by() against arbitrary input.
@@ -187,10 +236,12 @@ def _customer_machine_docs(customer, sessions):
     from kb.models import Machine
     ids, seen = [], set()
     if customer.primary_machine_id:
-        ids.append(customer.primary_machine_id); seen.add(customer.primary_machine_id)
+        ids.append(customer.primary_machine_id)
+        seen.add(customer.primary_machine_id)
     for s in sessions:
         if s.machine_id and s.machine_id not in seen:
-            seen.add(s.machine_id); ids.append(s.machine_id)
+            seen.add(s.machine_id)
+            ids.append(s.machine_id)
     machines = Machine.objects.filter(pk__in=ids).select_related("vendor").prefetch_related("documents")
     rows = []
     for m in machines:
@@ -210,7 +261,8 @@ def customer_detail(request, pk: int):
     equipment, seen = [], set()
     for s in sessions:
         if s.machine_id and s.machine_id not in seen:
-            seen.add(s.machine_id); equipment.append(s.machine)
+            seen.add(s.machine_id)
+            equipment.append(s.machine)
     all_files = list(customer.files.select_related("source_message").all())
     # Manifest tab (a) customer uploads; tab (c) invoices/other staff-stored files.
     uploads = [f for f in all_files if f.folder == "uploads"]
@@ -876,6 +928,32 @@ def _get_flow():
     return cfg
 
 
+def _flow_agent_sync(graph: dict, agents: dict) -> dict:
+    """Reconcile the saved canvas against the live agent table.
+
+    The graph is stored once and then hand-arranged, while AgentPrompt rows are added,
+    deactivated and deleted independently. Nothing connected the two, so adding an agent
+    left it invisible on the canvas and deleting one left a node pointing at nothing — the
+    builder quietly stopped describing the bot it configures.
+
+    This never rewrites the owner's layout (a GET must not, and their arrangement is the
+    point). It reports the divergence so the page can show it and offer one click to fix:
+
+      missing  — an agent exists but no step on the canvas uses it
+      orphans  — a step names a role that has no agent row any more
+      inactive — roles on the canvas whose agent is switched off
+    """
+    on_canvas = {n.get("role") for n in (graph or {}).get("nodes", [])
+                 if n.get("kind") == "agent" and n.get("role")}
+    return {
+        "missing": [{"role": r, "display": a["display"]}
+                    for r, a in agents.items() if r not in on_canvas],
+        "orphans": sorted(on_canvas - set(agents)),
+        "inactive": sorted(r for r in on_canvas
+                           if r in agents and not agents[r]["is_active"]),
+    }
+
+
 @staff_member_required
 @ensure_csrf_cookie
 def flow_canvas(request):
@@ -894,6 +972,7 @@ def flow_canvas(request):
         "graph": cfg.graph,
         "agents": agents,
         "kinds": NODE_KINDS,
+        "sync": _flow_agent_sync(cfg.graph, agents),
     })
 
 
@@ -1052,7 +1131,6 @@ def machine_delete(request, pk: int):
     return resp
 
 
-from kb.models import CATEGORY_GROUP_CHOICES
 
 # group key -> human label, for the KB landing sections (Heat/Air/Water/Hybrid/Other).
 _GROUP_LABELS = dict(CATEGORY_GROUP_CHOICES)

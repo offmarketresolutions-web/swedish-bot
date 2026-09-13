@@ -11,6 +11,9 @@
 <div class="nl-card p-5 max-w-2xl">
   <form method="post" class="space-y-4" data-testid="knowledge-form">
     {% csrf_token %}
+    {% comment %}Carried through the POST so Save returns to wherever the edit started —
+    the FAQ approval queue, when reviewing pending entries.{% endcomment %}
+    {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
     {% include "dashboard/_form_fields.html" with form=form %}
     <div class="flex items-center gap-2 pt-2">
       <button class="btn btn-primary">{% trans "Save" %}</button>

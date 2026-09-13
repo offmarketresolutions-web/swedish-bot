@@ -4,6 +4,7 @@ image re-encode + quota."""
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime, timezone
 
 from django.conf import settings
@@ -28,6 +29,17 @@ def _body(request) -> dict:
         except Exception:  # noqa: BLE001
             return {}
     return request.POST.dict()
+
+
+logger = logging.getLogger(__name__)
+
+
+def _turn_failed_message(conv) -> str:
+    """What the customer reads when a turn crashes. Their own language, and never their
+    fault — the same line an upstream outage already uses."""
+    from chat.i18n import t
+
+    return t(getattr(conv, "language", None) or "sv", "turn_failed")
 
 
 def _sse(obj: dict) -> str:
@@ -97,7 +109,25 @@ def post_message(request, public_id):
                 image_error = "; ".join(exc.messages) if hasattr(exc, "messages") else str(exc)
 
     def stream():
-        result = process_turn(conv, user_text, image=image)
+        # Flush a frame BEFORE the slow part. Django only starts the response when the
+        # generator is first iterated, so nothing reached the browser until the whole turn
+        # had been computed — and the widget aborts a request that has produced nothing
+        # after 20s. A turn that legitimately takes ~7s against Vertex would surface to the
+        # customer as "That took too long. Please try again." the moment Vertex was busy.
+        # The widget ignores frame types it doesn't know, so an older cached copy is fine.
+        yield _sse({"type": "ack"})
+        try:
+            result = process_turn(conv, user_text, image=image)
+        except Exception:  # noqa: BLE001
+            # Because the ack above has already been flushed, an exception here would
+            # otherwise truncate a stream the browser has accepted: the widget's reader
+            # just reaches done() and the customer is left with an empty bubble and no way
+            # to retry. Say something and log the traceback for us.
+            logger.exception("chat turn failed for conversation %s", conv.public_id)
+            yield _sse({"type": "message", "message": _turn_failed_message(conv),
+                        "chips": [], "state": None, "decision": "error"})
+            yield _sse({"type": "final"})
+            return
         for ev in result.get("events", []):
             yield _sse(ev)
         if image_error:

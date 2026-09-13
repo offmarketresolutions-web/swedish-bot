@@ -255,3 +255,29 @@ def test_a_genuine_instruction_is_still_flagged_in_a_long_turn():
     msg = ("Tack för informationen om din värmepump. För att komma vidare behöver du "
            "öppna pumpstyrningen och justera tryckvakten till 2 bar. Hör av dig sedan.")
     assert fire("S7-FORBIDDEN-GUIDANCE", conv([("assistant", msg)]))
+
+
+def test_contact_asked_after_a_self_solved_fix_is_not_flagged():
+    """§2.9 forbids asking for contact details DURING technical intake. Asking once the
+    customer already has their working answer — so a specialist can review the case and
+    follow up — is not intake, and flagging it would have condemned the correct flow."""
+    rec = conv([
+        ("assistant", "Clean the extract-air filter.\n\nDid that fix it?"),
+        ("user", "yes that worked"),
+        ("assistant", "Glad that sorted it! Can I take your phone number and email? "
+                      "One of our specialists reviews these cases."),
+        ("user", "yes please"),
+        ("assistant", "What's your name?"),
+    ], decision="solve")
+    assert not fire("S2-NO-CONTACT-IN-INTAKE", rec)
+
+
+def test_contact_asked_before_any_answer_is_still_flagged():
+    """The rule must keep its teeth: asking for a phone number mid-intake, before the
+    customer has been helped at all, is exactly what §2.9 prohibits."""
+    rec = conv([
+        ("assistant", "To start, what kind of equipment is it?"),
+        ("user", "heat pump"),
+        ("assistant", "What's the best phone number to reach you?"),
+    ])
+    assert fire("S2-NO-CONTACT-IN-INTAKE", rec)

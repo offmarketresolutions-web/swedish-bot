@@ -51,8 +51,49 @@ _ERRCODE = re.compile(r"^[A-Za-z]{0,4}\d[A-Za-z0-9]*(?:[ \-][A-Za-z0-9]{1,6})?$"
 _POSTAL_BAD = re.compile(r"[^0-9 ]")
 
 
+# Replies that are plainly not a name. Production accumulated customers literally called
+# "what", "no", "Kan du svara på fel som inte står i manualen" and "Jag vill inte ge dig
+# mera information om du inte hjälper mig" — each one a reply to "what's your name?" that
+# was a question, a refusal or confusion. clean_name only stripped punctuation, so any
+# sentence became a name and then a CRM row with no way to contact the person.
+_NOT_A_NAME = re.compile(
+    r"^(?:va|vad|vem|var|hur|varf[öo]r|n[äa]r|kan|ska|vill|beh[öo]ver|har|[äa]r|"
+    r"hej|hejsan|tja|halla|hall[åa]|tack|ok|okej|okay|yes|ja|japp|hmm+|"
+    r"what|who|why|how|when|where|can|could|should|would|do|does|did|is|are|"
+    r"i|you|the|my|it|hello|hi|thanks|sure|maybe|nothing|none)\b", re.I)
+# Function words that never appear inside a person's name. Checked per token, because a
+# reply can be a sentence without starting like one ("Kanske någon fråga").
+_NAME_STOPWORDS = {
+    "kanske", "n[åa]gon", "n[åa]got", "fr[åa]ga", "fr[åa]gor", "inte", "ingen", "inget",
+    "aldrig", "bara", "och", "eller", "men", "som", "att", "med", "f[öo]r", "om", "till",
+    "problem", "fel", "manualen", "information", "hj[äa]lpa", "hj[äa]lper",
+    "maybe", "some", "question", "questions", "not", "never", "just", "and", "or", "but",
+    "with", "about", "help", "answer", "manual",
+}
+_NAME_STOPWORD_RE = re.compile(r"^(?:" + "|".join(_NAME_STOPWORDS) + r")$", re.I)
+# A name is a handful of word-ish tokens — not a sentence. Four allows "Karl Gustav
+# Svensson" and "de Jong" while rejecting the sentences above.
+_MAX_NAME_WORDS = 4
+
+
 def clean_name(s: str) -> str:
-    return _NAME_BAD.sub("", no_crlf(cap(s, 80)))
+    """A person's name, or "" when the reply plainly isn't one.
+
+    Rejecting is the safe direction: an empty result makes the orchestrator re-ask once
+    and then continue without a name, whereas accepting a sentence writes an uncontactable
+    junk row into the CRM that staff have to clean up by hand.
+    """
+    raw = no_crlf(cap(s, 80)).strip()
+    if not raw or "?" in raw or any(ch.isdigit() for ch in raw):
+        return ""
+    cleaned = _NAME_BAD.sub("", raw).strip()
+    if not cleaned or len(cleaned.split()) > _MAX_NAME_WORDS:
+        return ""
+    if _NOT_A_NAME.match(cleaned):
+        return ""
+    if any(_NAME_STOPWORD_RE.match(tok) for tok in cleaned.split()):
+        return ""
+    return cleaned
 
 
 def clean_phone(s: str) -> str:

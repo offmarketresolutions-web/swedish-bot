@@ -5,7 +5,6 @@ description = "Nordland VVS — AI support chatbot + admin dashboard (Gemini, Dj
 requires-python = ">=3.11"
 dependencies = [
     "django>=5.2,<5.3",
-    "djangorestframework>=3.16",
     "psycopg[binary]>=3.2",
     "google-genai>=1.0",
     "python-dotenv>=1.0",
@@ -13,6 +12,10 @@ dependencies = [
     "pillow>=11.0",
     "gunicorn>=23.0",
     "whitenoise>=6.8",
+    # core/services/vapi.py, voice/callcontrol.py and voice/whatsapp.py all import this.
+    # It was only ever present transitively (via google-genai), so the voice stack would
+    # have broken the day that package changed its own dependencies.
+    "httpx>=0.28",
 ]
 
 [dependency-groups]

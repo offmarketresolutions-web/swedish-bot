@@ -34,7 +34,11 @@
     <aside id="app-sidebar" class="nl-sidebar" :class="sidebar ? 'translate-x-0' : ''"
            x-effect="sidebar && $nextTick(() => { var f = $el.querySelector('a, button'); f && f.focus(); })">
       <a href="{% url 'dash-overview' %}" class="flex items-center gap-2 px-4 h-14 border-b border-white/10">
-        <img src="{% static 'brand/nordland-logo-white.png' %}" onerror="this.src='{% static 'brand/nordland-logo.png' %}';this.classList.add('bg-white','rounded','p-1')" alt="Nordland VVS" class="h-8 w-auto">
+        {% comment %}There is no white-on-transparent logo in the brand folder and never
+        has been, so the onerror fallback that used to be here fired on every single
+        dashboard page — one guaranteed 404 per request. The colour logo on a white chip is
+        what actually rendered; this just says so directly.{% endcomment %}
+        <img src="{% static 'brand/nordland-logo.png' %}" alt="Nordland VVS" class="h-8 w-auto bg-white rounded p-1">
       </a>
       <nav class="flex-1 overflow-y-auto py-3 text-sm">
         <a href="{% url 'dash-overview' %}" class="nl-nav {% if url == 'dash-overview' %}nl-nav-on{% endif %}" {% if url == 'dash-overview' %}aria-current="page"{% endif %}>

@@ -41,6 +41,52 @@ def exact_machine(query: str, model_text: str = "", *, vendor=None):
     return None
 
 
+def machine_named_in(text: str, *, vendor=None, max_words: int = 4):
+    """(Machine, the exact span of `text` that named it), or None if nothing matched.
+
+    The span is returned rather than just the machine because the caller stores the
+    CUSTOMER's wording, not the catalog's: the seeded name for one unit is literally
+    "Bosch Compress 7000i", and rewriting a customer who typed "Compress 7000i" into that
+    would be a downgrade, not a repair.
+
+    exact_machine() compares the WHOLE reply, so it only fires when the customer typed
+    nothing but the model. The per-slot extractor, though, narrows "AirX 500" to "500" —
+    it reads "AirX" as the series and keeps the number — and "IVT 500" then trigram-matches
+    Aero 500 / Geo 500C / Geo 500E / AirX 500 equally well, so a customer who typed the
+    exact chip we had just offered was asked to disambiguate against a list containing
+    their own answer (seen live in production, 2026-09-13).
+
+    Scanning windows of the raw reply also catches the model inside a sentence ("it's an
+    AirX 500"). Longest window first, so "AirX 500" wins over a bare "500" alias, and a
+    window matching two machines is ignored rather than guessed at.
+    """
+    words = re.findall(r"[A-Za-z0-9]+", text or "")
+    if not words:
+        return None
+    base = Machine.objects.filter(is_supported=True)
+    if vendor is not None:
+        base = base.filter(vendor=vendor)
+    by_name: dict[str, set[int]] = {}
+    machines = {}
+    for m in base:
+        machines[m.id] = m
+        # Model-level names ONLY. exact_machine() also indexes vendor+model so it can match
+        # a whole reply like "IVT Geo 412C", but the span returned here is what gets STORED
+        # in slots.model — and matching that composite put the brand in the model slot
+        # ("IVT Geo 412C"), which is the brand slot's job.
+        names = {_norm(m.model_name)} | {_norm(a) for a in (m.aliases or [])}
+        names.discard("")
+        for n in names:
+            by_name.setdefault(n, set()).add(m.id)
+    for size in range(min(max_words, len(words)), 0, -1):
+        for i in range(len(words) - size + 1):
+            span = words[i:i + size]
+            ids = by_name.get(_norm("".join(span)))
+            if ids and len(ids) == 1:
+                return machines[next(iter(ids))], " ".join(span)
+    return None
+
+
 def candidate_matches(query: str, *, vendor=None, category_ids=None,
                       threshold: float = DEFAULT_THRESHOLD, limit: int = 4):
     """Return up to `limit` (Machine, score) plausible matches at/above `threshold`,

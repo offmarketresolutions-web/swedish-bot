@@ -475,3 +475,64 @@ def test_a_postcode_first_given_during_contact_collection_is_normalised():
     _escalate_step(None, cs, "111 52 Stockholm", "sv")
     assert cs["slots"].get("postal_code") == "11152", cs["slots"].get("postal_code")
     assert cs["contact"].get("postal_code") in (None, "11152"), cs["contact"].get("postal_code")
+
+
+@pytest.mark.parametrize("junk", [
+    "Kan du svara på fel som inte står i manualen",   # a question back
+    "Jag vill inte ge dig mera information om du inte hjälper mig",  # a refusal
+    "Kanske någon fråga",
+    "what", "okay", "hej", "hello", "hmm", "va",
+    "Vad menar du?", "How do I fix it?",
+    "det är en IVT Geo 412C",                          # answering a different question
+])
+def test_a_reply_that_is_not_a_name_is_not_stored_as_one(junk):
+    """Production had four customers literally named "what", "no", "Kan du svara på fel
+    som inte står i manualen" and "Jag vill inte ge dig mera information om du inte
+    hjälper mig" — every one a reply to "what's your name?" that was not a name.
+    clean_name only stripped punctuation, so any sentence became a name."""
+    from chat.sanitize import clean_name
+    assert clean_name(junk) == "", junk
+
+
+@pytest.mark.parametrize("name", [
+    "Anna Berg", "Erik Lindqvist", "Gun", "Margareta Andersson",
+    "Jean-Luc O'Brien", "Anna-Karin Bergström", "Karl Gustav Svensson",
+    "Nils", "Åsa Öberg", "de Jong",
+])
+def test_real_names_are_still_accepted(name):
+    """The guard must not cost us real customers. Swedish given names can be very short
+    (Gun, Nils) and real names carry hyphens, apostrophes and å/ä/ö."""
+    from chat.sanitize import clean_name
+    assert clean_name(name) == name, name
+
+
+def test_no_customer_row_without_a_way_to_reach_them(db):
+    """A CRM row with a name and nothing else is noise a human has to clean up — four of
+    the seven customers in production were exactly that. A lead is only a lead if someone
+    can be called, emailed or visited."""
+    from chat.models import Conversation
+    from chat.orchestrator import _sync_customer
+    from crm.models import Customer, Session
+
+    conv = Conversation.objects.create(language="sv")
+    session = Session.objects.create(conversation=conv, status="escalated")
+    before = Customer.objects.count()
+    _sync_customer(session, {"contact": {"name": "Bara Ett Namn"}, "slots": {}, "report": {}})
+    assert Customer.objects.count() == before, "created a customer nobody can contact"
+    session.refresh_from_db()
+    assert session.customer is None
+
+
+def test_a_customer_with_any_contact_route_is_still_created(db):
+    from chat.models import Conversation
+    from chat.orchestrator import _sync_customer
+    from crm.models import Customer, Session
+
+    for field, value in (("phone", "+46701234567"), ("email", "a@b.se"), ("address", "Storgatan 1")):
+        conv = Conversation.objects.create(language="sv")
+        session = Session.objects.create(conversation=conv, status="escalated")
+        _sync_customer(session, {"contact": {"name": "Anna Berg", field: value},
+                                 "slots": {}, "report": {}})
+        session.refresh_from_db()
+        assert session.customer is not None, field
+        assert Customer.objects.filter(pk=session.customer.pk).exists(), field

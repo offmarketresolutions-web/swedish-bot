@@ -11,6 +11,7 @@ from django.db.models import Q, TextField
 from django.db.models.functions import Cast
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from dashboard.forms import KnowledgeEntryForm, SiteFAQForm
@@ -168,7 +169,7 @@ def knowledge_entry_edit(request, pk: int):
         form = KnowledgeEntryForm(request.POST, instance=entry, **kwargs)
         if form.is_valid():
             form.save()  # never flips is_approved
-            resp = redirect("dash-knowledge", family=family)
+            resp = redirect(_next_url(request) or reverse("dash-knowledge", args=[family]))
             resp["HX-Trigger"] = _toast("success", "Knowledge entry updated.")
             return resp
     else:
@@ -178,6 +179,22 @@ def knowledge_entry_edit(request, pk: int):
         "title": "Redigera post", "entry": entry})
 
 
+def _next_url(request) -> str:
+    """The ?next= path to return to after Save, or "" when there isn't a safe one.
+
+    The FAQ approval queue links here with ?next=, so an edit made while reviewing pending
+    entries returns to that queue instead of dumping the reviewer back in the knowledge
+    list. Only same-site paths are honoured — an absolute URL from a crafted link would
+    otherwise turn Save into an open redirect.
+    """
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    nxt = request.POST.get("next") or request.GET.get("next") or ""
+    ok = nxt and url_has_allowed_host_and_scheme(
+        nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure())
+    return nxt if ok else ""
+
+
 @staff_member_required
 def knowledge_site_edit(request, pk: int):
     faq = get_object_or_404(SiteFAQ, pk=pk)
@@ -185,7 +202,7 @@ def knowledge_site_edit(request, pk: int):
         form = SiteFAQForm(request.POST, instance=faq)
         if form.is_valid():
             form.save()  # is_approved not in the form — preserved
-            resp = redirect("dash-knowledge", family="site")
+            resp = redirect(_next_url(request) or reverse("dash-knowledge", args=["site"]))
             resp["HX-Trigger"] = _toast("success", "Site FAQ updated.")
             return resp
     else:

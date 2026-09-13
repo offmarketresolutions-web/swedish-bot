@@ -9,12 +9,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # Dashboard navigation
-#: templates/dashboard/base.html:39 templates/dashboard/overview.html:3
+#: templates/dashboard/base.html:45 templates/dashboard/overview.html:3
 msgid "Overview"
 msgstr "Översikt"
 
 #: templates/dashboard/_stat_block.html:8
-#: templates/dashboard/analytics.html:114 templates/dashboard/overview.html:9
+#: templates/dashboard/analytics.html:116
+#: templates/dashboard/analytics.html:157 templates/dashboard/overview.html:9
 msgid "Sessions"
 msgstr "Sessioner"
 
@@ -23,17 +24,19 @@ msgstr "Sessioner"
 msgid "Escalated"
 msgstr "Eskalerade"
 
-#: templates/dashboard/analytics.html:115 templates/dashboard/overview.html:11
+#: templates/dashboard/analytics.html:117
+#: templates/dashboard/analytics.html:158 templates/dashboard/overview.html:11
 #: templates/dashboard/session_detail.html:73
 msgid "Resolved"
 msgstr "Lösta"
 
 #: templates/dashboard/_stat_block.html:20
-#: templates/dashboard/overview.html:12
+#: templates/dashboard/analytics.html:118
+#: templates/dashboard/analytics.html:159 templates/dashboard/overview.html:12
 msgid "Leads"
 msgstr "Leads"
 
-#: templates/dashboard/analytics.html:181
+#: templates/dashboard/analytics.html:310
 #: templates/dashboard/kb_vendor.html:35 templates/dashboard/overview.html:17
 msgid "By severity"
 msgstr "Efter allvarlighetsgrad"
@@ -122,8 +125,8 @@ msgstr "Bokning begärd"
 
 #: templates/dashboard/_agent_card.html:95
 #: templates/dashboard/forms_settings.html:34
-#: templates/dashboard/knowledge_form.html:16
-#: templates/dashboard/service_area.html:27
+#: templates/dashboard/knowledge_form.html:19
+#: templates/dashboard/service_area.html:35
 #: templates/dashboard/session_detail.html:79
 #: templates/dashboard/settings.html:24
 #: templates/dashboard/voice_credentials.html:30
@@ -158,11 +161,11 @@ msgstr "inaktiverad"
 msgid "Runtime"
 msgstr "Körinställningar"
 
-#: templates/dashboard/_agent_card.html:22 templates/dashboard/flow.html:115
+#: templates/dashboard/_agent_card.html:22 templates/dashboard/flow.html:151
 msgid "Model"
 msgstr "Modell"
 
-#: templates/dashboard/_agent_card.html:25 templates/dashboard/flow.html:119
+#: templates/dashboard/_agent_card.html:25 templates/dashboard/flow.html:155
 msgid "Temperature"
 msgstr "Temperatur"
 
@@ -178,9 +181,9 @@ msgstr "Max output-tokens"
 msgid "Thinking enabled"
 msgstr "Tänkande aktiverat"
 
-#: templates/dashboard/_agent_card.html:37 templates/dashboard/flow.html:128
+#: templates/dashboard/_agent_card.html:37 templates/dashboard/flow.html:164
 #: templates/dashboard/forms_settings.html:30
-#: templates/dashboard/service_area.html:78
+#: templates/dashboard/service_area.html:114
 msgid "Active"
 msgstr "Aktiv"
 
@@ -213,7 +216,7 @@ msgstr "Prompt"
 msgid "Language directive"
 msgstr "Språkdirektiv"
 
-#: templates/dashboard/_agent_card.html:61 templates/dashboard/flow.html:137
+#: templates/dashboard/_agent_card.html:61 templates/dashboard/flow.html:173
 msgid "Prompt body"
 msgstr "Prompttext"
 
@@ -349,7 +352,7 @@ msgstr "AI-sammanfattning för personalen"
 msgid "Solve"
 msgstr "Löst"
 
-#: templates/dashboard/_agent_map.html:78 templates/dashboard/flow.html:211
+#: templates/dashboard/_agent_map.html:78 templates/dashboard/flow.html:247
 msgid "Escalate → lead"
 msgstr "Eskalera → förfrågan"
 
@@ -379,27 +382,27 @@ msgstr "Foto från kunden"
 msgid "No messages in this conversation."
 msgstr "Inga meddelanden i den här konversationen."
 
-#: templates/dashboard/_faq_pending.html:15
+#: templates/dashboard/_faq_pending.html:23
 msgid "Safe checks:"
 msgstr "Säkra kontroller:"
 
-#: templates/dashboard/_faq_pending.html:21
-#: templates/dashboard/_faq_pending.html:41
+#: templates/dashboard/_faq_pending.html:31
+#: templates/dashboard/_faq_pending.html:58
 #: templates/dashboard/_knowledge_list.html:21
 #: templates/dashboard/_knowledge_list.html:56
 msgid "Approve"
 msgstr "Godkänn"
 
-#: templates/dashboard/_faq_pending.html:25
-#: templates/dashboard/_faq_pending.html:45
+#: templates/dashboard/_faq_pending.html:35
+#: templates/dashboard/_faq_pending.html:62
 msgid "Delete this pending FAQ entry?"
 msgstr "Ta bort den här väntande FAQ-posten?"
 
-#: templates/dashboard/_faq_pending.html:33
+#: templates/dashboard/_faq_pending.html:43
 msgid "Site FAQ"
 msgstr "Webbplats-FAQ"
 
-#: templates/dashboard/_faq_pending.html:51
+#: templates/dashboard/_faq_pending.html:68
 msgid "Nothing waiting on approval."
 msgstr "Inget väntar på godkännande."
 
@@ -422,7 +425,7 @@ msgid "No extra guardrails for this agent yet."
 msgstr "Inga extra skyddsregler för den här agenten än."
 
 #: templates/dashboard/_knowledge_faq_section.html:3
-#: templates/dashboard/base.html:53 templates/dashboard/faq.html:2
+#: templates/dashboard/base.html:59 templates/dashboard/faq.html:2
 #: templates/dashboard/faq.html:3 templates/dashboard/faq_form.html:4
 msgid "FAQ"
 msgstr "FAQ"
@@ -452,6 +455,8 @@ msgstr "Godkänd kunskap för {{ label }}."
 msgid "Unapprove"
 msgstr "Ångra godkännande"
 
+#: templates/dashboard/_faq_pending.html:28
+#: templates/dashboard/_faq_pending.html:55
 #: templates/dashboard/_knowledge_list.html:22
 #: templates/dashboard/_knowledge_list.html:57
 msgid "Edit"
@@ -631,7 +636,7 @@ msgstr "{{ start }}–{{ end }} av {{ total }}"
 msgid "Page {{ num }} of {{ total }}"
 msgstr "Sida {{ num }} av {{ total }}"
 
-#: templates/dashboard/_related_crm.html:4 templates/dashboard/base.html:47
+#: templates/dashboard/_related_crm.html:4 templates/dashboard/base.html:53
 #: templates/dashboard/category_detail.html:29
 #: templates/dashboard/customer_detail.html:4
 #: templates/dashboard/customer_form.html:4
@@ -698,17 +703,17 @@ msgstr ""
 "(funktionen är inaktiverad — det här är bara en förhandsvisning, inget "
 "ändras för kunderna än)"
 
-#: templates/dashboard/_settings_tabs.html:5 templates/dashboard/base.html:77
+#: templates/dashboard/_settings_tabs.html:5 templates/dashboard/base.html:83
 msgid "Integrations"
 msgstr "Integrationer"
 
-#: templates/dashboard/_settings_tabs.html:8 templates/dashboard/base.html:79
+#: templates/dashboard/_settings_tabs.html:8 templates/dashboard/base.html:85
 #: templates/dashboard/voice_credentials.html:3
 msgid "API credentials"
 msgstr "API-uppgifter"
 
 #: templates/dashboard/_settings_tabs.html:11
-#: templates/dashboard/service_area.html:3
+#: templates/dashboard/service_area.html:11
 msgid "Service area"
 msgstr "Arbetsområde"
 
@@ -743,7 +748,7 @@ msgid "Agent Config"
 msgstr "Agentkonfiguration"
 
 #: templates/dashboard/agent_config.html:3
-#: templates/dashboard/agent_detail.html:3 templates/dashboard/base.html:57
+#: templates/dashboard/agent_detail.html:3 templates/dashboard/base.html:63
 msgid "Agents"
 msgstr "Agenter"
 
@@ -852,7 +857,7 @@ msgid "Generate addition"
 msgstr "Generera tillägg"
 
 #: templates/dashboard/analytics.html:3 templates/dashboard/analytics.html:4
-#: templates/dashboard/base.html:41
+#: templates/dashboard/base.html:47
 #: templates/dashboard/customer_detail.html:23
 #: templates/dashboard/kb_machine_page.html:32
 #: templates/dashboard/kb_vendor.html:31
@@ -891,7 +896,7 @@ msgstr "90 dagar"
 msgid "Updated"
 msgstr "Uppdaterad"
 
-#: templates/dashboard/analytics.html:41 templates/dashboard/base.html:45
+#: templates/dashboard/analytics.html:41 templates/dashboard/base.html:51
 #: templates/dashboard/session_detail.html:4
 #: templates/dashboard/session_list.html:3
 msgid "Conversations"
@@ -949,66 +954,62 @@ msgstr "under målet"
 msgid "Daily activity"
 msgstr "Daglig aktivitet"
 
-#: templates/dashboard/analytics.html:118
-msgid "Sessions per day (sessions line) with a thinner resolved line."
-msgstr "Sessioner per dag (sessionslinjen) med en tunnare linje för lösta."
-
-#: templates/dashboard/analytics.html:123
+#: templates/dashboard/analytics.html:143
 msgid "No activity in this window yet."
 msgstr "Ingen aktivitet i den här perioden ännu."
 
-#: templates/dashboard/analytics.html:159
+#: templates/dashboard/analytics.html:288
 msgid "By category group"
 msgstr "Per kategorigrupp"
 
-#: templates/dashboard/analytics.html:203
+#: templates/dashboard/analytics.html:332
 msgid "By decision"
 msgstr "Per beslut"
 
-#: templates/dashboard/analytics.html:225
-#: templates/dashboard/analytics.html:334
+#: templates/dashboard/analytics.html:354
+#: templates/dashboard/analytics.html:463
 msgid "By status"
 msgstr "Per status"
 
-#: templates/dashboard/analytics.html:247
+#: templates/dashboard/analytics.html:376
 #: templates/dashboard/kb_vendor.html:55
 msgid "Top machines"
 msgstr "Vanligaste maskinerna"
 
-#: templates/dashboard/analytics.html:274
+#: templates/dashboard/analytics.html:403
 #: templates/dashboard/kb_machine_page.html:35
 msgid "Top problems"
 msgstr "Vanligaste problemen"
 
-#: templates/dashboard/analytics.html:296
+#: templates/dashboard/analytics.html:425
 msgid "Sessions by vendor"
 msgstr "Sessioner per tillverkare"
 
-#: templates/dashboard/analytics.html:318
+#: templates/dashboard/analytics.html:447
 msgid "Lead delivery health"
 msgstr "Leveransstatus för förfrågningar"
 
-#: templates/dashboard/analytics.html:322
+#: templates/dashboard/analytics.html:451
 msgid "Requests"
 msgstr "Förfrågningar"
 
-#: templates/dashboard/analytics.html:326
+#: templates/dashboard/analytics.html:455
 msgid "Delivery success"
 msgstr "Lyckade leveranser"
 
-#: templates/dashboard/analytics.html:330
+#: templates/dashboard/analytics.html:459
 msgid "Failed"
 msgstr "Misslyckade"
 
-#: templates/dashboard/analytics.html:344
+#: templates/dashboard/analytics.html:473
 msgid "No deliveries yet."
 msgstr "Inga leveranser än."
 
-#: templates/dashboard/analytics.html:347
+#: templates/dashboard/analytics.html:476
 msgid "By sink"
 msgstr "Per leveransmål"
 
-#: templates/dashboard/analytics.html:358
+#: templates/dashboard/analytics.html:487
 msgid "No delivery sinks recorded."
 msgstr "Inga leveransmål registrerade."
 
@@ -1037,26 +1038,26 @@ msgstr "mål {{ tgt_pct }}%"
 msgid "last {{ n }} day{% plural %}last {{ n }} days"
 msgstr "senaste {{ n }} dagen{% plural %}senaste {{ n }} dagarna"
 
-#: templates/dashboard/analytics.html:258
+#: templates/dashboard/analytics.html:387
 #: templates/dashboard/kb_vendor.html:65
 msgid "{{ r }}/{{ n }} resolved"
 msgstr "{{ r }}/{{ n }} lösta"
 
-#: templates/dashboard/base.html:23
+#: templates/dashboard/base.html:25
 msgid "Skip to content"
 msgstr "Hoppa till innehåll"
 
-#: templates/dashboard/base.html:43
+#: templates/dashboard/base.html:49
 msgid "Support"
 msgstr "Support"
 
-#: templates/dashboard/base.html:49 templates/dashboard/knowledge.html:2
+#: templates/dashboard/base.html:55 templates/dashboard/knowledge.html:2
 #: templates/dashboard/knowledge.html:3
 #: templates/dashboard/knowledge_form.html:4
 msgid "Knowledge"
 msgstr "Kunskap"
 
-#: templates/dashboard/base.html:51 templates/dashboard/category_detail.html:3
+#: templates/dashboard/base.html:57 templates/dashboard/category_detail.html:3
 #: templates/dashboard/category_form.html:4
 #: templates/dashboard/category_list.html:3
 #: templates/dashboard/kb_machine_page.html:4
@@ -1067,77 +1068,77 @@ msgstr "Kunskap"
 msgid "Knowledge Base"
 msgstr "Kunskapsbas"
 
-#: templates/dashboard/base.html:55 templates/dashboard/faq.html:11
+#: templates/dashboard/base.html:61 templates/dashboard/faq.html:11
 msgid "Kunskapsbank"
 msgstr "Kunskapsbank"
 
-#: templates/dashboard/base.html:59 templates/dashboard/guardrails.html:2
+#: templates/dashboard/base.html:65 templates/dashboard/guardrails.html:2
 #: templates/dashboard/guardrails.html:3
 msgid "Guardrails"
 msgstr "Skyddsregler"
 
-#: templates/dashboard/base.html:61 templates/dashboard/flow.html:2
+#: templates/dashboard/base.html:67 templates/dashboard/flow.html:2
 #: templates/dashboard/flow.html:3 templates/dashboard/flow.html:11
 msgid "Flow builder"
 msgstr "Flödesbyggare"
 
-#: templates/dashboard/base.html:63 templates/dashboard/voice_phone.html:3
+#: templates/dashboard/base.html:69 templates/dashboard/voice_phone.html:3
 msgid "Phone / Voice"
 msgstr "Telefon / Röst"
 
-#: templates/dashboard/base.html:65 templates/dashboard/voice_phone.html:2
+#: templates/dashboard/base.html:71 templates/dashboard/voice_phone.html:2
 #: templates/dashboard/voice_phone.html:5
 msgid "Phone assistant"
 msgstr "Telefonassistent"
 
-#: templates/dashboard/base.html:67
+#: templates/dashboard/base.html:73
 msgid "Tools"
 msgstr "Verktyg"
 
-#: templates/dashboard/base.html:69
+#: templates/dashboard/base.html:75
 msgid "Test chat"
 msgstr "Testchatt"
 
-#: templates/dashboard/base.html:71
+#: templates/dashboard/base.html:77
 msgid "Homepage demo"
 msgstr "Demo på startsidan"
 
-#: templates/dashboard/base.html:73
+#: templates/dashboard/base.html:79
 msgid "Playground"
 msgstr "Testyta"
 
-#: templates/dashboard/base.html:75 templates/dashboard/service_area.html:10
+#: templates/dashboard/base.html:81 templates/dashboard/service_area.html:18
 #: templates/dashboard/settings.html:3
 #: templates/dashboard/voice_credentials.html:3
 #: templates/dashboard/voice_credentials.html:5
 msgid "Settings"
 msgstr "Inställningar"
 
-#: templates/dashboard/base.html:80
+#: templates/dashboard/base.html:86
 msgid "Django Admin"
 msgstr "Django Admin"
 
-#: templates/dashboard/base.html:88
+#: templates/dashboard/base.html:94
 msgid "Toggle navigation"
 msgstr "Växla navigering"
 
-#: templates/dashboard/base.html:99
+#: templates/dashboard/base.html:105
 msgid "Language"
 msgstr "Språk"
 
-#: templates/dashboard/base.html:109
+#: templates/dashboard/base.html:115
 msgid "Go"
 msgstr "Byt"
 
-#: templates/dashboard/base.html:111
+#: templates/dashboard/base.html:117
 msgid "View site"
 msgstr "Visa webbplatsen"
 
-#: templates/dashboard/base.html:153
+#: templates/dashboard/base.html:159
 msgid "Something went wrong. Please try again."
 msgstr "Något gick fel. Försök igen."
 
-#: templates/dashboard/base.html:156
+#: templates/dashboard/base.html:162
 msgid "Network error — check your connection and try again."
 msgstr "Nätverksfel — kontrollera din anslutning och försök igen."
 
@@ -1193,7 +1194,7 @@ msgstr "Skapa kategori"
 #: templates/dashboard/category_form.html:19
 #: templates/dashboard/customer_form.html:17
 #: templates/dashboard/faq_form.html:17
-#: templates/dashboard/knowledge_form.html:17
+#: templates/dashboard/knowledge_form.html:20
 #: templates/dashboard/machine_form.html:17
 #: templates/dashboard/vendor_form.html:17
 msgid "Cancel"
@@ -1440,19 +1441,19 @@ msgstr ""
 "gäller det omedelbart för nästa konversation. De hårda skyddsreglerna för "
 "säkerhet ligger kvar i koden och kan inte tas bort här."
 
-#: templates/dashboard/flow.html:29
+#: templates/dashboard/flow.html:63
 msgid "Add step:"
 msgstr "Lägg till steg:"
 
-#: templates/dashboard/flow.html:75
+#: templates/dashboard/flow.html:111
 msgid "Connect to another step"
 msgstr "Koppla till ett annat steg"
 
-#: templates/dashboard/flow.html:87
+#: templates/dashboard/flow.html:123
 msgid "Nothing selected."
 msgstr "Inget valt."
 
-#: templates/dashboard/flow.html:88
+#: templates/dashboard/flow.html:124
 msgid ""
 "Click a step to edit it, or an arrow to choose which fields to collect on "
 "that transition."
@@ -1460,141 +1461,141 @@ msgstr ""
 "Klicka på ett steg för att redigera det, eller på en pil för att välja vilka"
 " fält som ska samlas in vid övergången."
 
-#: templates/dashboard/flow.html:97 templates/dashboard/flow.html:224
+#: templates/dashboard/flow.html:133 templates/dashboard/flow.html:260
 msgid "Delete"
 msgstr "Ta bort"
 
-#: templates/dashboard/flow.html:100
+#: templates/dashboard/flow.html:136
 msgid "Title"
 msgstr "Titel"
 
-#: templates/dashboard/flow.html:107
+#: templates/dashboard/flow.html:143
 msgid "Agent role"
 msgstr "Agentroll"
 
-#: templates/dashboard/flow.html:114
+#: templates/dashboard/flow.html:150
 msgid "Live agent settings"
 msgstr "Live-agentens inställningar"
 
-#: templates/dashboard/flow.html:122
+#: templates/dashboard/flow.html:158
 msgid "Max tokens"
 msgstr "Max tokens"
 
-#: templates/dashboard/flow.html:127
+#: templates/dashboard/flow.html:163
 msgid "Thinking"
 msgstr "Tänkande"
 
-#: templates/dashboard/flow.html:131
+#: templates/dashboard/flow.html:167
 msgid "AI: add to this prompt (never rewrites)"
 msgstr "AI: lägg till i den här prompten (skriver aldrig om)"
 
-#: templates/dashboard/flow.html:133
+#: templates/dashboard/flow.html:169
 msgid "add guardrails about…"
 msgstr "lägg till skyddsregler om…"
 
-#: templates/dashboard/flow.html:134 templates/dashboard/flow.html:134
+#: templates/dashboard/flow.html:170 templates/dashboard/flow.html:170
 msgid "AI add"
 msgstr "AI-tillägg"
 
-#: templates/dashboard/flow.html:141
+#: templates/dashboard/flow.html:177
 msgid "Save agent (live)"
 msgstr "Spara agent (live)"
 
-#: templates/dashboard/flow.html:142
+#: templates/dashboard/flow.html:178
 msgid "Full editor ↗"
 msgstr "Fullständig redigerare ↗"
 
-#: templates/dashboard/flow.html:146
+#: templates/dashboard/flow.html:182
 msgid "No prompt row for this role yet."
 msgstr "Ingen promptrad för den här rollen än."
 
-#: templates/dashboard/flow.html:153
+#: templates/dashboard/flow.html:189
 msgid "Question to ask"
 msgstr "Fråga att ställa"
 
-#: templates/dashboard/flow.html:156
+#: templates/dashboard/flow.html:192
 msgid "Save answer as (field name)"
 msgstr "Spara svaret som (fältnamn)"
 
-#: templates/dashboard/flow.html:159
+#: templates/dashboard/flow.html:195
 msgid "Quick-reply chips (comma-separated)"
 msgstr "Snabbsvarsknappar (kommaseparerade)"
 
-#: templates/dashboard/flow.html:167
+#: templates/dashboard/flow.html:203
 msgid "Message to the customer"
 msgstr "Meddelande till kunden"
 
-#: templates/dashboard/flow.html:175
+#: templates/dashboard/flow.html:211
 msgid "Wait (seconds)"
 msgstr "Väntetid (sekunder)"
 
-#: templates/dashboard/flow.html:178
+#: templates/dashboard/flow.html:214
 msgid "Reason / note"
 msgstr "Orsak / anteckning"
 
-#: templates/dashboard/flow.html:188
+#: templates/dashboard/flow.html:224
 msgid "Method"
 msgstr "Metod"
 
-#: templates/dashboard/flow.html:193
+#: templates/dashboard/flow.html:229
 msgid "Save response as"
 msgstr "Spara svaret som"
 
-#: templates/dashboard/flow.html:197
+#: templates/dashboard/flow.html:233
 #: templates/dashboard/forms_settings.html:23
 msgid "URL"
 msgstr "URL"
 
-#: templates/dashboard/flow.html:200
+#: templates/dashboard/flow.html:236
 msgid "Note"
 msgstr "Anteckning"
 
-#: templates/dashboard/flow.html:208 templates/dashboard/voice_phone.html:46
+#: templates/dashboard/flow.html:244 templates/dashboard/voice_phone.html:46
 #: templates/dashboard/voice_phone.html:54
 msgid "Outcome"
 msgstr "Utfall"
 
-#: templates/dashboard/flow.html:210
+#: templates/dashboard/flow.html:246
 msgid "Solve (resolved)"
 msgstr "Lös (löst)"
 
-#: templates/dashboard/flow.html:212
+#: templates/dashboard/flow.html:248
 msgid "Other"
 msgstr "Övrigt"
 
-#: templates/dashboard/flow.html:223
+#: templates/dashboard/flow.html:259
 msgid "Transition"
 msgstr "Övergång"
 
-#: templates/dashboard/flow.html:227
+#: templates/dashboard/flow.html:263
 msgid "Arrow label"
 msgstr "Pilens etikett"
 
-#: templates/dashboard/flow.html:231
+#: templates/dashboard/flow.html:267
 msgid "Fields to collect here"
 msgstr "Fält att samla in här"
 
-#: templates/dashboard/flow.html:232
+#: templates/dashboard/flow.html:268
 msgid "Add field"
 msgstr "Lägg till fält"
 
-#: templates/dashboard/flow.html:235
+#: templates/dashboard/flow.html:271
 msgid "No fields collected on this transition."
 msgstr "Inga fält samlas in vid den här övergången."
 
-#: templates/dashboard/flow.html:241
+#: templates/dashboard/flow.html:277
 msgid "field name"
 msgstr "fältnamn"
 
-#: templates/dashboard/flow.html:242
+#: templates/dashboard/flow.html:278
 msgid "label"
 msgstr "etikett"
 
-#: templates/dashboard/flow.html:245
+#: templates/dashboard/flow.html:281
 msgid "required"
 msgstr "obligatoriskt"
 
-#: templates/dashboard/flow.html:246
+#: templates/dashboard/flow.html:282
 msgid "remove"
 msgstr "ta bort"
 
@@ -1801,7 +1802,7 @@ msgstr "Status: alla"
 msgid "Create machine"
 msgstr "Skapa maskin"
 
-#: templates/dashboard/service_area.html:11
+#: templates/dashboard/service_area.html:19
 msgid ""
 "Default off. Gates the lead/quote form only — troubleshooting continues for "
 "everyone regardless of area."
@@ -1809,30 +1810,30 @@ msgstr ""
 "Avstängd som standard. Styr endast förfrågnings-/offertformuläret — "
 "felsökningen fortsätter för alla oavsett arbetsområde."
 
-#: templates/dashboard/service_area.html:16
+#: templates/dashboard/service_area.html:24
 msgid "Enable service-area check"
 msgstr "Aktivera kontroll av arbetsområde"
 
-#: templates/dashboard/service_area.html:18
+#: templates/dashboard/service_area.html:26
 msgid "Previous-installer names (comma-separated)"
 msgstr "Namn på tidigare installatörer (kommaseparerade)"
 
-#: templates/dashboard/service_area.html:21
+#: templates/dashboard/service_area.html:29
 msgid ""
 "A customer naming one of these upgrades an outside/border result to inside."
 msgstr ""
 "Om en kund nämner någon av dessa uppgraderas ett resultat utanför/på gränsen"
 " till innanför."
 
-#: templates/dashboard/service_area.html:23
+#: templates/dashboard/service_area.html:31
 msgid "Fallback contact URL (shown on outside-area decline)"
 msgstr "Reserv-URL för kontakt (visas vid nekande utanför arbetsområdet)"
 
-#: templates/dashboard/service_area.html:32
+#: templates/dashboard/service_area.html:40
 msgid "Postcode dataset"
 msgstr "Postnummerdata"
 
-#: templates/dashboard/service_area.html:36
+#: templates/dashboard/service_area.html:44
 msgid ""
 "to load the offline GeoNames table (download from "
 "download.geonames.org/export/zip/SE.zip)."
@@ -1840,63 +1841,51 @@ msgstr ""
 "för att läsa in GeoNames-tabellen offline (ladda ner från "
 "download.geonames.org/export/zip/SE.zip)."
 
-#: templates/dashboard/service_area.html:42
+#: templates/dashboard/service_area.html:50
 msgid "Test a postcode"
 msgstr "Testa ett postnummer"
 
-#: templates/dashboard/service_area.html:45
+#: templates/dashboard/service_area.html:53
 msgid "Postcode"
 msgstr "Postnummer"
 
-#: templates/dashboard/service_area.html:49
+#: templates/dashboard/service_area.html:57
 msgid "Check"
 msgstr "Kontrollera"
 
-#: templates/dashboard/service_area.html:55
-msgid "Preview (read-only)"
-msgstr "Förhandsvisning (skrivskyddad)"
-
-#: templates/dashboard/service_area.html:56
-msgid ""
-"Equirectangular projection — for a shape sanity-check only, not to scale for"
-" navigation."
-msgstr ""
-"Ekvirektangulär projektion — endast för att kontrollera formen, inte "
-"skalenlig för navigering."
-
-#: templates/dashboard/service_area.html:61
+#: templates/dashboard/service_area.html:97
 msgid "Service areas"
 msgstr "Arbetsområden"
 
-#: templates/dashboard/service_area.html:69
+#: templates/dashboard/service_area.html:105
 msgid "Name (e.g. Main corridor)"
 msgstr "Namn (t.ex. Huvudstråket)"
 
-#: templates/dashboard/service_area.html:72
+#: templates/dashboard/service_area.html:108
 msgid "Inside"
 msgstr "Inom"
 
-#: templates/dashboard/service_area.html:73
+#: templates/dashboard/service_area.html:109
 msgid "Extension"
 msgstr "Utökat område"
 
-#: templates/dashboard/service_area.html:75
+#: templates/dashboard/service_area.html:111
 msgid "Border km"
 msgstr "Gräns km"
 
-#: templates/dashboard/service_area.html:84
+#: templates/dashboard/service_area.html:120
 msgid "No categories selected = applies to all."
 msgstr "Inga kategorier valda = gäller alla."
 
-#: templates/dashboard/service_area.html:87
+#: templates/dashboard/service_area.html:127
 msgid "GeoJSON Polygon/MultiPolygon/Feature — [lng, lat] order."
 msgstr "GeoJSON Polygon/MultiPolygon/Feature — ordning [lng, lat]."
 
-#: templates/dashboard/service_area.html:88
+#: templates/dashboard/service_area.html:130
 msgid "Add service area"
 msgstr "Lägg till arbetsområde"
 
-#: templates/dashboard/service_area.html:34
+#: templates/dashboard/service_area.html:42
 msgid "{{ count }} postcode loaded{% plural %}{{ count }} postcodes loaded"
 msgstr ""
 "{{ count }} postnummer inläst{% plural %}{{ count }} postnummer inlästa"
@@ -2073,6 +2062,100 @@ msgstr "Logg för verktygsanrop"
 #: templates/dashboard/voice_phone.html:86
 msgid "Tool"
 msgstr "Verktyg"
+
+#: templates/dashboard/_faq_pending.html:20
+#: templates/dashboard/_faq_pending.html:50
+msgid "No answer text — edit before approving."
+msgstr "Inget svar — redigera innan du godkänner."
+
+#: templates/dashboard/analytics.html:113
+msgid "Point at the chart to read an exact day."
+msgstr "Peka på diagrammet för att läsa av en exakt dag."
+
+#: templates/dashboard/analytics.html:127
+msgid ""
+"Daily activity chart. Use the left and right arrow keys to read each day."
+msgstr ""
+"Diagram över daglig aktivitet. Använd vänster- och högerpiltangenterna för "
+"att läsa av varje dag."
+
+#: templates/dashboard/analytics.html:147
+msgid "Download CSV"
+msgstr "Ladda ner CSV"
+
+#: templates/dashboard/analytics.html:148
+msgid "One row per day, for reporting outside the dashboard."
+msgstr "En rad per dag, för rapportering utanför panelen."
+
+#: templates/dashboard/service_area.html:63
+msgid "Draw a coverage area"
+msgstr "Rita ett täckningsområde"
+
+#: templates/dashboard/service_area.html:65
+msgid ""
+"Draw a shape and it tells you which of Sweden's 18,870 postcodes fall inside"
+" it — answered from the postcode table on this server, so nothing is sent to"
+" a mapping service."
+msgstr ""
+"Rita en yta så visas vilka av Sveriges 18 870 postnummer som hamnar innanför"
+" — svaret kommer från postnummertabellen på den här servern, så inget "
+"skickas till en karttjänst."
+
+#: templates/dashboard/service_area.html:69
+msgid "Find a town, municipality or county"
+msgstr "Sök ort, kommun eller län"
+
+#: templates/dashboard/service_area.html:70
+msgid "Sundsvall"
+msgstr "Sundsvall"
+
+#: templates/dashboard/service_area.html:86
+msgid "Draw a shape to see which postcodes it covers."
+msgstr "Rita en yta för att se vilka postnummer den täcker."
+
+#: templates/dashboard/service_area.html:91
+msgid ""
+"The map needs JavaScript. You can still paste GeoJSON into the form below."
+msgstr ""
+"Kartan kräver JavaScript. Du kan fortfarande klistra in GeoJSON i formuläret"
+" nedan."
+
+#: templates/dashboard/service_area.html:122
+msgid "Shape (filled in by the map — open to paste GeoJSON instead)"
+msgstr "Yta (fylls i av kartan — öppna för att klistra in GeoJSON i stället)"
+
+#: templates/dashboard/service_area.html:131
+msgid "Clear shape"
+msgstr "Rensa ytan"
+
+#: templates/dashboard/flow.html:39
+msgid "agent(s) are not on the canvas:"
+msgstr "agent(er) saknas på arbetsytan:"
+
+#: templates/dashboard/flow.html:45
+msgid "Step(s) point at an agent that no longer exists:"
+msgstr "Steg pekar på en agent som inte finns längre:"
+
+#: templates/dashboard/flow.html:51
+msgid "Switched off, so the bot skips them:"
+msgstr "Avstängda, så boten hoppar över dem:"
+
+#: templates/dashboard/flow.html:57
+msgid "Add the missing steps"
+msgstr "Lägg till stegen som saknas"
+
+#~ msgid "Sessions per day (sessions line) with a thinner resolved line."
+#~ msgstr "Sessioner per dag (sessionslinjen) med en tunnare linje för lösta."
+
+#~ msgid "Preview (read-only)"
+#~ msgstr "Förhandsvisning (skrivskyddad)"
+
+#~ msgid ""
+#~ "Equirectangular projection — for a shape sanity-check only, not to scale for"
+#~ " navigation."
+#~ msgstr ""
+#~ "Ekvirektangulär projektion — endast för att kontrollera formen, inte "
+#~ "skalenlig för navigering."
 
 #~ msgid "Admin"
 #~ msgstr "Admin"

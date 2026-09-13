@@ -222,3 +222,28 @@ def test_the_onset_ask_actually_reaches_a_rendered_specialist_prompt(seeded):
         flat = " ".join(out.split())
         assert "ask ONE short question" in flat, role
         assert "suddenly after working normally" in flat, role
+
+
+def test_the_summarizer_is_told_which_language_to_write_in(seeded):
+    """The recap is internal, and the shared language directive explicitly says to reason
+    internally in English and localise only customer-facing text — so the summarizer was
+    free to write the recap either way, and did. Three of ~20 real cases came back in
+    English on a Swedish dashboard for Swedish technicians."""
+    from chat.prompts import render
+
+    rendered = render("summarizer", locale="sv")
+    assert "SVENSKA" in rendered, "the summarizer is never told to write Swedish"
+
+    # And it must not be handed to roles that genuinely do talk to the customer.
+    for role in ("specialist", "intake"):
+        assert "Skriv sammanfattningen" not in render(role, locale="sv"), (
+            f"the summariser-only language rule leaked into {role}")
+
+
+def test_the_language_rule_defers_to_a_body_that_already_says_it(seeded):
+    """seed_kb is no-clobber, so the addendum exists for prompts seeded before the rule —
+    an owner whose dashboard edit already covers it must not get it twice."""
+    from chat.prompts import contract_addendum
+
+    already = "... Skriv sammanfattningen på svenska, tack ..."
+    assert "SVENSKA" not in contract_addendum("summarizer", already)

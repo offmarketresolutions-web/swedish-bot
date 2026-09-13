@@ -106,48 +106,177 @@
 
 {# ── Trend chart ────────────────────────────────────────────────────── #}
 <section class="nl-card p-5 mb-8" aria-labelledby="trend-h">
-  <div class="flex items-baseline justify-between gap-3 mb-3">
+  <div class="flex items-baseline justify-between gap-3 mb-1">
     <h2 id="trend-h" class="font-semibold">{% trans "Daily activity" %}</h2>
     <span class="text-xs text-nl-base/60">{% blocktrans count n=trend_days %}last {{ n }} day{% plural %}last {{ n }} days{% endblocktrans %}</span>
   </div>
-  <div class="flex items-center gap-4 mb-2 text-xs text-nl-base/60">
-    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-0.5 w-4 bg-nl-primary"></span>{% trans "Sessions" %}</span>
-    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-0.5 w-4 bg-green-600"></span>{% trans "Resolved" %}</span>
+  <p class="text-xs text-nl-base/50 mb-3">{% trans "Point at the chart to read an exact day." %}</p>
+
+  <div class="flex flex-wrap items-center gap-4 mb-2 text-xs text-nl-base/70">
+    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-0.5 w-4 bg-nl-primary"></span>{% trans "Sessions" %} <b data-total="sessions">–</b></span>
+    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-0.5 w-4 bg-green-600"></span>{% trans "Resolved" %} <b data-total="resolved">–</b></span>
+    <span class="inline-flex items-center gap-1.5"><span class="inline-block h-0.5 w-4 bg-amber-500"></span>{% trans "Leads" %} <b data-total="leads">–</b></span>
   </div>
-  <svg id="trend-spark" viewBox="0 0 600 120" preserveAspectRatio="none" class="w-full h-28" role="img"
-       aria-label="{% trans 'Sessions per day (sessions line) with a thinner resolved line.' %}">
-    <line x1="0" y1="119" x2="600" y2="119" stroke="#d6d9db" stroke-width="1"/>
-    <polyline id="spark-sessions" fill="none" stroke="#1a74bf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points=""/>
-    <polyline id="spark-resolved" fill="none" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" points=""/>
-  </svg>
+
+  {% comment %}The tooltip, crosshair and value dots are HTML positioned in per-cent rather
+  than SVG shapes, because this chart stretches (preserveAspectRatio="none") — an SVG circle
+  inside it renders as a squashed ellipse and would not sit on its own line. Per-cent
+  positions map linearly through the same stretch, so they stay exact.{% endcomment %}
+  <div id="trend-wrap" class="relative w-full select-none" tabindex="0" role="application"
+       aria-describedby="trend-readout"
+       aria-label="{% trans 'Daily activity chart. Use the left and right arrow keys to read each day.' %}">
+    <div class="absolute left-0 top-0 text-[10px] text-nl-base/40" id="trend-ymax"></div>
+    <svg id="trend-spark" viewBox="0 0 600 120" preserveAspectRatio="none" class="w-full h-28" aria-hidden="true">
+      <line x1="0" y1="119" x2="600" y2="119" stroke="#d6d9db" stroke-width="1"/>
+      <polyline id="spark-sessions" fill="none" stroke="#1a74bf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points=""/>
+      <polyline id="spark-resolved" fill="none" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" points=""/>
+      <polyline id="spark-leads" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2" stroke-linejoin="round" stroke-linecap="round" points=""/>
+    </svg>
+    <div id="trend-cross" class="hidden absolute top-0 bottom-0 w-px bg-nl-base/25 pointer-events-none"></div>
+    <div id="trend-dots" class="hidden absolute inset-0 pointer-events-none"></div>
+    <div id="trend-tip" class="hidden absolute z-20 pointer-events-none rounded-md bg-nl-base text-white shadow-lg px-2.5 py-1.5 text-xs whitespace-nowrap"></div>
+  </div>
+
+  <div class="flex justify-between mt-1 text-[10px] text-nl-base/45" id="trend-axis"></div>
+  {% comment %}Screen readers get the same numbers the tooltip shows, announced on change.{% endcomment %}
+  <p id="trend-readout" class="sr-only" aria-live="polite"></p>
   <p id="trend-empty" class="hidden text-center text-sm text-nl-base/60 py-6">{% trans "No activity in this window yet." %}</p>
+
+  <div class="mt-4 pt-3 border-t border-nl-base/10 flex flex-wrap items-center gap-3">
+    <a class="btn btn-secondary text-xs px-2.5 py-1" data-testid="analytics-export"
+       href="{% url 'dash-analytics-export' %}?days={{ trend_days }}">{% trans "Download CSV" %}</a>
+    <span class="text-xs text-nl-base/50">{% trans "One row per day, for reporting outside the dashboard." %}</span>
+  </div>
 </section>
 {{ trend|json_script:"trend-data" }}
 <script>
 (function () {
   var data = JSON.parse(document.getElementById("trend-data").textContent || "[]");
   var W = 600, H = 120, pad = 4;
-  function line(key, max) {
-    if (!data.length) return "";
-    var n = data.length;
-    var step = n > 1 ? (W - pad * 2) / (n - 1) : 0;
-    return data.map(function (d, i) {
-      var x = pad + step * i;
-      var y = max > 0 ? (H - pad) - (d[key] / max) * (H - pad * 2) : H - pad;
-      return x.toFixed(1) + "," + y.toFixed(1);
-    }).join(" ");
-  }
+  var SERIES = [
+    {key: "sessions", label: "{% trans 'Sessions' %}", colour: "#1a74bf"},
+    {key: "resolved", label: "{% trans 'Resolved' %}", colour: "#16a34a"},
+    {key: "leads",    label: "{% trans 'Leads' %}",    colour: "#f59e0b"}
+  ];
+
+  // One scale for all three series so the lines stay comparable by eye.
   var max = 0;
-  data.forEach(function (d) { if (d.sessions > max) max = d.sessions; });
+  data.forEach(function (d) {
+    SERIES.forEach(function (s) { if (d[s.key] > max) max = d[s.key]; });
+  });
+
+  var wrap = document.getElementById("trend-wrap");
   if (!data.length || max === 0) {
-    var svg = document.getElementById("trend-spark");
-    if (svg) svg.classList.add("hidden");
-    var e = document.getElementById("trend-empty");
-    if (e) e.classList.remove("hidden");
+    ["trend-spark", "trend-wrap", "trend-axis"].forEach(function (id) {
+      var el = document.getElementById(id); if (el) el.classList.add("hidden");
+    });
+    var e = document.getElementById("trend-empty"); if (e) e.classList.remove("hidden");
     return;
   }
-  document.getElementById("spark-sessions").setAttribute("points", line("sessions", max));
-  document.getElementById("spark-resolved").setAttribute("points", line("resolved", max));
+
+  var n = data.length, step = n > 1 ? (W - pad * 2) / (n - 1) : 0;
+  function xPct(i) { return n > 1 ? ((pad + step * i) / W) * 100 : 50; }
+  function yPct(v) { return (((H - pad) - (v / max) * (H - pad * 2)) / H) * 100; }
+
+  SERIES.forEach(function (s) {
+    document.getElementById("spark-" + s.key).setAttribute("points", data.map(function (d, i) {
+      return (pad + step * i).toFixed(1) + "," + ((H - pad) - (d[s.key] / max) * (H - pad * 2)).toFixed(1);
+    }).join(" "));
+  });
+
+  SERIES.forEach(function (s) {
+    var sum = data.reduce(function (a, d) { return a + (d[s.key] || 0); }, 0);
+    var el = document.querySelector('[data-total="' + s.key + '"]');
+    if (el) el.textContent = sum;
+  });
+  document.getElementById("trend-ymax").textContent = max;
+
+  function humanDate(iso) {
+    var d = new Date(iso + "T00:00:00");
+    return isNaN(d) ? iso : d.toLocaleDateString(undefined, {weekday: "short", month: "short", day: "numeric"});
+  }
+  var axis = document.getElementById("trend-axis");
+  [0, Math.floor((n - 1) / 2), n - 1].forEach(function (i, k) {
+    var sp = document.createElement("span");
+    sp.textContent = humanDate(data[i].date);
+    if (k === 1 && n < 5) sp.className = "invisible";   // too tight to read on a short window
+    axis.appendChild(sp);
+  });
+
+  var tip = document.getElementById("trend-tip"),
+      cross = document.getElementById("trend-cross"),
+      dots = document.getElementById("trend-dots"),
+      readout = document.getElementById("trend-readout");
+  var active = -1;
+
+  function show(i) {
+    if (i < 0 || i >= n) return;
+    active = i;
+    var d = data[i], x = xPct(i);
+
+    dots.innerHTML = "";
+    SERIES.forEach(function (s) {
+      var dot = document.createElement("span");
+      dot.className = "absolute block rounded-full ring-2 ring-white";
+      dot.style.cssText = "width:7px;height:7px;background:" + s.colour + ";left:" + x
+        + "%;top:" + yPct(d[s.key]) + "%;transform:translate(-50%,-50%)";
+      dots.appendChild(dot);
+    });
+
+    var rows = "";
+    SERIES.forEach(function (s) {
+      rows += '<div class="flex items-center gap-1.5"><span style="background:' + s.colour
+        + '" class="inline-block h-1.5 w-1.5 rounded-full"></span>' + s.label
+        + ': <b class="ml-auto pl-2">' + d[s.key] + "</b></div>";
+    });
+    tip.innerHTML = '<div class="font-semibold mb-0.5">' + humanDate(d.date) + "</div>" + rows;
+
+    cross.style.left = x + "%";
+    // Keep the tooltip inside the card at both ends instead of letting it clip.
+    tip.style.left = x + "%";
+    tip.style.transform = x < 15 ? "translateX(0)" : x > 85 ? "translateX(-100%)" : "translateX(-50%)";
+    tip.style.top = "0px";
+    tip.classList.remove("hidden");
+    cross.classList.remove("hidden");
+    dots.classList.remove("hidden");
+
+    var parts = [];
+    SERIES.forEach(function (s) { parts.push(s.label + " " + d[s.key]); });
+    readout.textContent = humanDate(d.date) + " — " + parts.join(", ");
+  }
+
+  function hide() {
+    active = -1;
+    tip.classList.add("hidden");
+    cross.classList.add("hidden");
+    dots.classList.add("hidden");
+  }
+
+  function indexAt(clientX) {
+    var r = wrap.getBoundingClientRect();
+    if (!r.width) return 0;
+    var vx = ((clientX - r.left) / r.width) * W;   // linear through the stretch
+    return Math.max(0, Math.min(n - 1, Math.round((vx - pad) / (step || 1))));
+  }
+
+  wrap.addEventListener("mousemove", function (ev) { show(indexAt(ev.clientX)); });
+  wrap.addEventListener("mouseleave", hide);
+  wrap.addEventListener("touchstart", function (ev) {
+    if (ev.touches.length) show(indexAt(ev.touches[0].clientX));
+  }, {passive: true});
+  wrap.addEventListener("touchmove", function (ev) {
+    if (ev.touches.length) show(indexAt(ev.touches[0].clientX));
+  }, {passive: true});
+  wrap.addEventListener("focus", function () { show(active < 0 ? n - 1 : active); });
+  wrap.addEventListener("blur", hide);
+  wrap.addEventListener("keydown", function (ev) {
+    var cur = active < 0 ? n - 1 : active;
+    if (ev.key === "ArrowLeft") { show(Math.max(0, cur - 1)); ev.preventDefault(); }
+    else if (ev.key === "ArrowRight") { show(Math.min(n - 1, cur + 1)); ev.preventDefault(); }
+    else if (ev.key === "Home") { show(0); ev.preventDefault(); }
+    else if (ev.key === "End") { show(n - 1); ev.preventDefault(); }
+    else if (ev.key === "Escape") { hide(); }
+  });
 })();
 </script>
 

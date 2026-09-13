@@ -120,3 +120,55 @@ def test_dashboard_pages_require_staff(client):
         if resp.status_code == 200:
             leaked.append(name)
     assert not leaked, f"reachable without login: {leaked}"
+
+
+def test_pending_faq_entries_show_their_answer_and_link_to_an_editor(staff_client, seeded_objects):
+    """102 entries were queued for approval showing only the QUESTION — the answer, which
+    is what a customer actually hears, was never displayed and there was no way to open
+    one. Approving on that basis is approving sight-unseen."""
+    from kb.models import Category, FAQEntry, FAQEntryText, SiteFAQ
+
+    entry = FAQEntry.objects.create(category=Category.objects.first(), key="pend-1",
+                                    is_approved=False, source_id="T-1")
+    FAQEntryText.objects.create(faq=entry, lang="sv", question="Varför låter pumpen?",
+                                answer="Luft i systemet. Lufta radiatorn.")
+    site = SiteFAQ.objects.create(slug="pend-site-1", question="Vad kostar ett besök?",
+                                  answer="Vi lämnar alltid pris innan vi börjar.",
+                                  is_approved=False)
+
+    html = staff_client.get(reverse("dash-faq")).content.decode()
+    assert "Luft i systemet" in html, "the entry's answer must be visible before approving"
+    assert "Vi lämnar alltid pris" in html, "the site FAQ's answer must be visible too"
+    assert reverse("dash-knowledge-entry-edit", args=[entry.pk]) in html, "no edit link"
+    assert reverse("dash-knowledge-site-edit", args=[site.pk]) in html, "no edit link"
+
+
+def test_saving_an_edit_returns_to_where_it_started(staff_client, seeded_objects):
+    """?next= comes from the approval queue; Save must go back there rather than dumping
+    the reviewer in the knowledge list halfway through a queue of 102."""
+    from kb.models import SiteFAQ
+
+    site = SiteFAQ.objects.create(slug="pend-site-2", question="Q?", answer="A.",
+                                  is_approved=False)
+    faq_url = reverse("dash-faq")
+    resp = staff_client.post(
+        reverse("dash-knowledge-site-edit", args=[site.pk]) + f"?next={faq_url}",
+        {"question": "Q?", "answer": "Enklare svar.", "topic": "", "lang": "sv",
+         "source_url": "", "is_active": "on", "next": faq_url})
+    assert resp.status_code == 302 and resp.url == faq_url, (resp.status_code, getattr(resp, "url", None))
+    site.refresh_from_db()
+    assert site.answer == "Enklare svar."
+    assert site.is_approved is False, "editing must never silently approve"
+
+
+def test_save_ignores_an_offsite_next_url(staff_client, seeded_objects):
+    """?next= is attacker-controllable via a crafted link — an absolute URL would turn
+    Save into an open redirect."""
+    from kb.models import SiteFAQ
+
+    site = SiteFAQ.objects.create(slug="pend-site-3", question="Q?", answer="A.", is_approved=False)
+    resp = staff_client.post(
+        reverse("dash-knowledge-site-edit", args=[site.pk]) + "?next=https://evil.example/x",
+        {"question": "Q?", "answer": "A.", "topic": "", "lang": "sv", "source_url": "",
+         "is_active": "on", "next": "https://evil.example/x"})
+    assert "evil.example" not in (getattr(resp, "url", "") or "")

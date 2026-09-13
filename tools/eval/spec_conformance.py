@@ -202,13 +202,18 @@ def _sudden(rec):
 
 
 @rule("S2-NO-CONTACT-IN-INTAKE", "§2.9",
-      "Do not ask for name/phone/email/address during technical intake — only after "
-      "service is offered")
+      "Do not ask for name/phone/email/address during technical intake — only after the "
+      "answer has been given or service offered")
 def _contact_timing(rec):
     seq = turns(rec)
-    # The handoff line that opens contact collection; everything before it is intake.
+    # Two legitimate openings for contact collection, and intake is everything before the
+    # first of them: the technician handoff, and — after a self-solved case — the offer to
+    # pass the details to a specialist. §2.9 forbids asking DURING technical intake; it
+    # does not forbid asking once the customer already has their answer.
     offer = re.compile(r"tekniker fr[åa]n Nordland|Nordland VVS technician|"
-                       r"skickar detta vidare|pass this to a Nordland", re.I)
+                       r"skickar detta vidare|pass this to a Nordland|"
+                       r"specialists? review|specialister? g[åa]r igenom|"
+                       r"phone number and email|telefonnummer och din e-post", re.I)
     offered_at = next((i for i, (role, c) in enumerate(seq) if role == "assistant" and offer.search(c)), None)
     out = []
     for i, (role, c) in enumerate(seq):
