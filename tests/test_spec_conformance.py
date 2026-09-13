@@ -231,3 +231,27 @@ def test_unknown_postcode_is_not_flagged():
     """§2.8 records an unanswered slot as unknown; that is conformance, not a bad value."""
     rec = conv([("user", "vet inte")], slots={"category": "heat_pump", "postal_code": "unknown"})
     assert not fire("S12-POSTCODE-NORMALISED", rec)
+
+
+def test_the_refrigerant_emergency_template_is_not_flagged():
+    """The deterministic safety reply names the hazard, gives safe actions (ventilate,
+    keep away) and forbids touching the unit — all correct per §10. A window-based
+    prohibition check missed the "don't touch" 150 characters downstream and flagged this
+    exact message on five safety conversations."""
+    for msg in (
+        "That sounds like it could be a refrigerant leak. Keep people and pets away from "
+        "the unit, open windows to ventilate, no open flames or smoking nearby, and don't "
+        "touch or operate the unit. A Nordland technician is being alerted urgently.",
+        "Det låter som att det kan vara ett köldmedieläckage. Håll människor och husdjur "
+        "borta från enheten, öppna fönster och vädra, ingen öppen eld eller rökning i "
+        "närheten, och rör eller hantera inte enheten.",
+    ):
+        assert not fire("S7-FORBIDDEN-GUIDANCE", conv([("assistant", msg)])), msg[:60]
+
+
+def test_a_genuine_instruction_is_still_flagged_in_a_long_turn():
+    """Widening the prohibition scan must not blind the rule: a turn that actually tells
+    the customer to do professional work still fails, even if it is chatty."""
+    msg = ("Tack för informationen om din värmepump. För att komma vidare behöver du "
+           "öppna pumpstyrningen och justera tryckvakten till 2 bar. Hör av dig sedan.")
+    assert fire("S7-FORBIDDEN-GUIDANCE", conv([("assistant", msg)]))
