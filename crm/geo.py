@@ -283,44 +283,6 @@ _PREVIEW_CITIES = [
     ("Sollefteå", 63.17, 17.27), ("Ånge", 62.53, 15.66),
 ]
 
-_PREVIEW_BBOX = {"lat_min": 59.3, "lat_max": 63.8, "lng_min": 14.5, "lng_max": 21.0}
-
-
-def render_preview_svg(width: int = 480, height: int = 640) -> str:
-    """Static SVG rendering of every ServiceArea polygon (outline, colored by kind)
-    plus the reference city dots — a read-only equirectangular-projection preview
-    so the owner can eyeball the shapes without a map JS library."""
-    from crm.models import ServiceArea
-
-    b = _PREVIEW_BBOX
-    lat_span = b["lat_max"] - b["lat_min"]
-    lng_span = b["lng_max"] - b["lng_min"]
-
-    def project(lng, lat):
-        x = (lng - b["lng_min"]) / lng_span * width
-        y = height - (lat - b["lat_min"]) / lat_span * height
-        return x, y
-
-    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
-             f'width="100%" style="max-width:{width}px;background:#eef4fb;border:1px solid #d0d8e2">']
-
-    colors = {"inside": ("#2f6feb", "rgba(47,111,235,0.15)"), "extension": ("#d97706", "rgba(217,119,6,0.15)")}
-    for area in ServiceArea.objects.all():
-        stroke, fill = colors.get(area.kind, ("#666", "rgba(0,0,0,0.1)"))
-        for poly in _polygons(area.polygon):
-            for ring in poly:
-                pts = " ".join(f"{x:.1f},{y:.1f}" for x, y in (project(lng, lat) for lng, lat in ring))
-                parts.append(f'<polygon points="{pts}" fill="{fill}" stroke="{stroke}" stroke-width="1.5" />')
-
-    for name, lat, lng in _PREVIEW_CITIES:
-        x, y = project(lng, lat)
-        parts.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3" fill="#111" />')
-        parts.append(f'<text x="{x + 5:.1f}" y="{y + 4:.1f}" font-size="10" fill="#111">{name}</text>')
-
-    parts.append("</svg>")
-    return "".join(parts)
-
-
 def check_with_override(result: dict, installer_text: str) -> dict:
     """Upgrade an outside_area/border_review result to inside when the customer
     names a previous installer from GeoSettings.previous_installer_names

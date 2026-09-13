@@ -377,10 +377,15 @@ def service_area_settings(request):
         resp = redirect("dash-service-area")
         resp["HX-Trigger"] = _toast("success", "Service area settings saved.")
         return resp
-    from crm import geo
     ctx = _service_area_ctx()
     ctx["installer_names_csv"] = ", ".join(ctx["cfg"].previous_installer_names or [])
-    ctx["preview_svg"] = geo.render_preview_svg()
+    # Saved areas drawn underneath the editor, so a new shape is placed in context of the
+    # coverage that already exists. Replaces the static equirectangular SVG preview, which
+    # showed the same shapes without a basemap, a scale or anything to click.
+    ctx["existing_areas_json"] = json.dumps([
+        {"name": a.name, "kind": a.kind, "polygon": a.polygon}
+        for a in ctx["areas"] if a.polygon
+    ])
     return render(request, "dashboard/service_area.html", ctx)
 
 
@@ -391,7 +396,6 @@ def service_area_add(request):
     crm.geo.clean_polygon — bad input never reaches the DB, and a lat/lng-swap-looking
     polygon (outside the rough Sweden bbox) is flagged but not rejected."""
     from crm import geo
-    from kb.models import Category
     from crm.models import ServiceArea
 
     name = (request.POST.get("name") or "").strip()[:120]
@@ -457,6 +461,7 @@ def service_area_toggle(request, pk: int):
 def service_area_export(request, pk: int):
     """Download the stored polygon as a standalone GeoJSON Feature."""
     from django.http import JsonResponse
+
     from crm.models import ServiceArea
     area = get_object_or_404(ServiceArea, pk=pk)
     feature = {"type": "Feature",
@@ -465,6 +470,80 @@ def service_area_export(request, pk: int):
     resp = JsonResponse(feature, content_type="application/geo+json")
     resp["Content-Disposition"] = f'attachment; filename="{area.name or "area"}.geojson"'
     return resp
+
+
+@staff_member_required
+def service_area_coverage(request):
+    """Which postcodes does this shape actually cover? (POST GeoJSON geometry.)
+
+    Answered from crm.PostcodeArea — 18,870 Swedish postcodes with coordinates, already
+    on disk — not from a geocoding service. That makes the answer instant, free of rate
+    limits, and it never sends a service area or a customer address to a third party. A
+    drawn shape is only as useful as the coverage it implies, so the map shows this the
+    moment you finish drawing, before you commit the area.
+    """
+    from django.http import JsonResponse
+
+    from crm.geo import clean_polygon, point_in_polygon
+    from crm.models import PostcodeArea
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except ValueError:
+        return JsonResponse({"error": "invalid JSON"}, status=400)
+
+    geometry, _clipped, err = clean_polygon(payload.get("polygon"))
+    if err or not geometry:
+        return JsonResponse({"error": err or "invalid polygon"}, status=400)
+
+    # (lng, lat) — GeoJSON order, matching crm.geo.point_in_ring and the real
+    # check_service_area caller. Passing (lat, lng) here silently returned zero coverage
+    # for every shape, which reads as "you cover nothing" rather than as an error.
+    inside = [p for p in PostcodeArea.objects.all().only("code", "city", "municipality", "lat", "lng")
+              if point_in_polygon((p.lng, p.lat), geometry)]
+    cities = sorted({p.city for p in inside if p.city})
+    municipalities = sorted({p.municipality for p in inside if p.municipality})
+    return JsonResponse({
+        "postcodes": len(inside),
+        "cities": cities[:60],
+        "city_count": len(cities),
+        "municipalities": municipalities[:30],
+        "sample": [{"code": p.code, "city": p.city} for p in inside[:12]],
+    })
+
+
+@staff_member_required
+def service_area_places(request):
+    """Find a town, municipality or county by name and return where it is on the map.
+
+    The operator thinks in place names ("Sundsvall", "Timrå"), not coordinates. This
+    resolves a typed name to the bounding box of its postcodes so the map can jump there
+    — again from the local table, so it works offline and costs nothing.
+    """
+    from django.db.models import Count, Max, Min
+    from django.http import JsonResponse
+
+    from crm.models import PostcodeArea
+
+    q = (request.GET.get("q") or "").strip()
+    if len(q) < 2:
+        return JsonResponse({"matches": []})
+
+    out = []
+    for field in ("city", "municipality", "county"):
+        rows = (PostcodeArea.objects.filter(**{f"{field}__istartswith": q})
+                .values(field)
+                .annotate(n=Count("id"), min_lat=Min("lat"), max_lat=Max("lat"),
+                          min_lng=Min("lng"), max_lng=Max("lng"))
+                .order_by("-n")[:6])
+        for r in rows:
+            name = r[field]
+            if not name or any(o["name"].lower() == name.lower() for o in out):
+                continue
+            out.append({"name": name, "kind": field, "postcodes": r["n"],
+                        "bbox": [r["min_lat"], r["min_lng"], r["max_lat"], r["max_lng"]]})
+    out.sort(key=lambda o: -o["postcodes"])
+    return JsonResponse({"matches": out[:10]})
 
 
 @staff_member_required
@@ -499,9 +578,8 @@ def _agent_card_ctx(prompt, *, saved=False, error=""):
 
 @staff_member_required
 def agent_config(request):
-    from kb.models import AgentPrompt
-
     from core.agent_registry import layers_ctx
+    from kb.models import AgentPrompt
     return render(request, "dashboard/agent_config.html",
                   {"prompts": AgentPrompt.objects.order_by("role"), "tabs": layers_ctx()})
 
@@ -644,9 +722,8 @@ def guardrail_toggle(request, pk: int):
 def agent_detail(request, role: str):
     """Per-agent detail/config page (reached from the flow tabs). Edits save inline via
     HTMX (agent_save) and are live in production immediately."""
-    from kb.models import AgentPrompt, Tool
-
     from core.agent_registry import ROLE_INFO, layer_for_role, layers_ctx
+    from kb.models import AgentPrompt, Tool
     p = get_object_or_404(AgentPrompt, role=role)
     info = ROLE_INFO.get(role)
     ctx = _agent_card_ctx(p)
@@ -883,6 +960,7 @@ def _coord(v):
 @require_POST
 def flow_save(request):
     from django.http import JsonResponse
+
     from kb.models import FlowConfig
     try:
         data = json.loads(request.body or b"{}")
@@ -1245,6 +1323,7 @@ def faq_list(request):
 @require_POST
 def faq_approve(request, kind: str, pk: int):
     from django.http import Http404
+
     from kb.models import FAQEntry, SiteFAQ
     model = {"entry": FAQEntry, "site": SiteFAQ}.get(kind)
     if model is None:
@@ -1261,6 +1340,7 @@ def faq_approve(request, kind: str, pk: int):
 @require_POST
 def faq_reject(request, kind: str, pk: int):
     from django.http import Http404
+
     from kb.models import FAQEntry, SiteFAQ
     model = {"entry": FAQEntry, "site": SiteFAQ}.get(kind)
     if model is None:

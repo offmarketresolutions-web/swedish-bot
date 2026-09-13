@@ -38,6 +38,8 @@ urlpatterns = [
     path("settings/service-area/<int:pk>/toggle", views.service_area_toggle, name="dash-service-area-toggle"),
     path("settings/service-area/<int:pk>/export", views.service_area_export, name="dash-service-area-export"),
     path("settings/service-area/test", views.service_area_test, name="dash-service-area-test"),
+    path("settings/service-area/coverage", views.service_area_coverage, name="dash-service-area-coverage"),
+    path("settings/service-area/places", views.service_area_places, name="dash-service-area-places"),
     # Agent Config (HTMX inline save)
     path("agents/", views.agent_config, name="dash-agents"),
     path("guardrails/", views.guardrails_page, name="dash-guardrails"),

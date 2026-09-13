@@ -1,4 +1,12 @@
-{% extends "dashboard/base.html" %}{% load i18n %}
+{% extends "dashboard/base.html" %}{% load i18n static %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="{% static 'vendor/leaflet.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/leaflet.draw.css' %}">
+  <script defer src="{% static 'vendor/leaflet.js' %}"></script>
+  <script defer src="{% static 'vendor/leaflet.draw.js' %}"></script>
+  <script defer src="{% static 'dashboard/js/service-area-map.js' %}"></script>
+{% endblock %}
 
 {% block breadcrumb %}<span class="text-nl-base/80">{% trans "Service area" %}</span>{% endblock %}
 
@@ -51,10 +59,38 @@
   {% include 'dashboard/_service_area_test.html' with postcode='' result=None %}
 </section>
 
-<section class="nl-card p-4 mb-6" data-testid="service-area-preview">
-  <h2 class="font-semibold mb-1">{% trans "Preview (read-only)" %}</h2>
-  <p class="text-xs text-nl-base/50 mb-3">{% trans "Equirectangular projection — for a shape sanity-check only, not to scale for navigation." %}</p>
-  {{ preview_svg|safe }}
+<section class="nl-card p-4 mb-6" data-testid="service-area-map-card">
+  <h2 class="font-semibold mb-1">{% trans "Draw a coverage area" %}</h2>
+  <p class="text-sm text-nl-base/60 mb-3">
+    {% trans "Draw a shape and it tells you which of Sweden's 18,870 postcodes fall inside it — answered from the postcode table on this server, so nothing is sent to a mapping service." %}
+  </p>
+
+  <div class="relative mb-3 max-w-md">
+    <label class="block text-sm">{% trans "Find a town, municipality or county" %}
+      <input type="search" id="sa-place-search" autocomplete="off" placeholder="{% trans 'Sundsvall' %}"
+             data-testid="sa-place-search"
+             class="mt-1 w-full rounded-md border border-nl-border px-2 py-1.5">
+    </label>
+    <ul id="sa-place-results" hidden data-testid="sa-place-results"
+        class="absolute z-[1000] left-0 right-0 mt-1 bg-nl-card border border-nl-border rounded-md shadow-lg text-sm max-h-56 overflow-y-auto"></ul>
+  </div>
+
+  <div id="sa-map" data-testid="sa-map"
+       class="h-[420px] w-full rounded-md border border-nl-border z-0"
+       data-coverage-url="{% url 'dash-service-area-coverage' %}"
+       data-places-url="{% url 'dash-service-area-places' %}"
+       data-csrf="{{ csrf_token }}"
+       data-existing="{{ existing_areas_json }}"></div>
+
+  <div id="sa-coverage" data-testid="sa-coverage" class="text-sm mt-3 rounded-md px-3 py-2 text-nl-base/60">
+    {% trans "Draw a shape to see which postcodes it covers." %}
+  </div>
+
+  <noscript>
+    <p class="text-sm text-nl-base/70 mt-2">
+      {% trans "The map needs JavaScript. You can still paste GeoJSON into the form below." %}
+    </p>
+  </noscript>
 </section>
 
 <section class="nl-card p-4" data-testid="service-areas">
@@ -82,10 +118,18 @@
       {% for c in all_categories %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}
     </select>
     <span class="text-xs text-nl-base/50">{% trans "No categories selected = applies to all." %}</span>
-    <textarea name="polygon" rows="5" required placeholder='{"type":"Polygon","coordinates":[[[17.3,62.4],...]]}'
-              class="w-full rounded-md border border-nl-border px-2 py-1.5 font-mono text-xs"></textarea>
-    <span class="text-xs text-nl-base/50">{% trans "GeoJSON Polygon/MultiPolygon/Feature — [lng, lat] order." %}</span>
-    <button class="btn btn-primary">{% trans "Add service area" %}</button>
+    <details class="rounded-md border border-nl-border px-2 py-1.5">
+      <summary class="text-xs text-nl-base/60 cursor-pointer">{% trans "Shape (filled in by the map — open to paste GeoJSON instead)" %}</summary>
+      <textarea name="polygon" id="sa-polygon-field" rows="5" required
+                placeholder='{"type":"Polygon","coordinates":[[[17.3,62.4],...]]}'
+                data-testid="sa-polygon-field"
+                class="mt-2 w-full rounded-md border border-nl-border px-2 py-1.5 font-mono text-xs"></textarea>
+      <span class="text-xs text-nl-base/50">{% trans "GeoJSON Polygon/MultiPolygon/Feature — [lng, lat] order." %}</span>
+    </details>
+    <div class="flex items-center gap-2">
+      <button class="btn btn-primary">{% trans "Add service area" %}</button>
+      <button type="button" id="sa-clear" data-testid="sa-clear" class="btn btn-secondary">{% trans "Clear shape" %}</button>
+    </div>
   </form>
 </section>
 {% endblock %}
