@@ -326,3 +326,25 @@ def test_pre_escalate_diag_does_not_re_ask_for_an_error_code_already_known():
     # An alarm TEXT counts as already-known too.
     assert "fault code" not in _pre_escalate_prompt(
         {"slots": {"error_code": None, "alarm_text": "För stor skillnad framledning"}}, "en")
+
+
+@pytest.mark.parametrize("reply", [
+    "jag vet inte", "Jag vet inte modellen", "vet inte", "ingen aning",
+    "kommer inte ihåg", "I don't know", "no idea", "not sure",
+])
+def test_dont_know_in_model_search_gives_up_instead_of_searching(reply):
+    """Spec §2.8: "After two failed attempts, record the value as unknown and continue."
+
+    In model-search mode any free text was treated as a model NAME, so a customer who
+    said "jag vet inte modellen" had it cleaned into the model slot and searched — run100
+    R048 answered that with "Menar du Debe DPM?" and the customer replied "Nej, jag sa ju
+    att jag inte vet modellen." The English fast path existed; Swedish had none."""
+    from chat.orchestrator import _consume_model_search
+
+    cs = {"slots": {"brand": "Debe", "model": None}, "model_search_mode": True}
+    out = _consume_model_search(cs, reply, "sv")
+    assert out is None, f"{reply!r} should end the search, not ask again: {out}"
+    assert cs["model_gave_up"] is True, reply
+    assert cs["model_search_mode"] is False, reply
+    assert cs["slots"]["model"] in (None, "", "unknown"), \
+        f"{reply!r} must not be stored as a model name: {cs['slots']['model']!r}"

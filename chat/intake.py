@@ -4,6 +4,7 @@ LLM (exact value match); only free text hits the extractor."""
 from __future__ import annotations
 
 import json
+import re
 
 from chat import prompts
 from chat.i18n import t
@@ -36,6 +37,23 @@ def _family_ids(slug):
     if not cat:
         return None
     return [cat.id] + list(cat.children.values_list("id", flat=True))
+
+
+# "I don't know", in both languages. Spec §2.8 treats this as a final answer — record the
+# value as unknown and continue — not as something to re-ask or, worse, to search on. It
+# lived as an English-only exact-match list, so a Swedish "jag vet inte modellen" was taken
+# for a model NAME and searched (run100 R048 answered it with "Menar du Debe DPM?").
+_DONT_KNOW_RE = re.compile(
+    r"^(?:jag\s+)?(?:vet\s+inte|ingen\s+aning|kommer\s+inte\s+ih[åa]g|minns\s+inte|"
+    r"har\s+ingen\s+aning|osäker|os[äa]ker)"
+    r"|^(?:i\s+)?(?:do\s?n[o']?t\s+know|dunno|idk|no\s+idea|not\s+sure|unsure|can'?t\s+remember)",
+    re.I)
+
+
+def is_dont_know(text: str) -> bool:
+    """True when the reply is a genuine "I don't know" in Swedish or English."""
+    t = (text or "").strip().strip(".!?,").lower()
+    return bool(t) and bool(_DONT_KNOW_RE.search(t))
 
 
 def chips_for(slot: str, cs: dict, locale: str = "en") -> list[dict]:
@@ -246,7 +264,7 @@ def extract_answer(slot: str, user_text: str, cs: dict, locale: str = "en") -> t
     for v in allowed:
         if low == v.lower():
             return True, v
-    if low in ("i don't know", "idk", "dont know", "don't know", "not sure", "no"):
+    if low == "no" or is_dont_know(text):
         return True, "unknown"
     # A2: the problem is free text — ANY substantive reply (a description OR a question)
     # is a valid problem; don't bounce it through the strict on-target check.

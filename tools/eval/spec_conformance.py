@@ -83,10 +83,10 @@ def _instructed(patterns: list[str], text: str, *, needs_verb: bool = False) -> 
 # it is" is a safe observation (§10). Only WORK on the component is forbidden. Without this
 # gate every such correct turn is flagged; it was 6/6 of the second run's remaining hits.
 _ACTION_VERB = re.compile(
-    r"(fyll|fylla|p[åa]fyllning|justera|st[äa]ll|[äa]ndra|[öo]ppna|byt|byta|demontera|"
+    r"\b(fyll|fylla|p[åa]fyllning|justera|st[äa]ll|[äa]ndra|[öo]ppna|byt|byta|demontera|"
     r"t[öo]m|t[öa]mma|koppla (?:ur|bort|f[öo]rbi)|skruva|lossa|montera|reparera|"
     r"fill|top up|adjust|set|change|replace|open|remove|drain|disconnect|unscrew|"
-    r"dismantle|repair|service)", re.I)
+    r"dismantle|repair|service)\b", re.I)
 
 
 def _action_on(term_match, text: str) -> bool:

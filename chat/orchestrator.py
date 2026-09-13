@@ -695,11 +695,14 @@ def _consume_model_search(cs, user_text, locale) -> dict | None:
     """In model_search_mode, a free-text model reply yields suggest_models chips (+ Ingen
     av dessa). An exact catalog hit binds immediately; otherwise we present suggestions and
     bind ONLY on an explicit tap (via await_model_confirm)."""
+    from chat.intake import is_dont_know
     from kb.identification import _norm, exact_machine, suggest_models
 
     raw = (user_text or "").strip()
     low = raw.lower()
-    if not raw or low == "none_of_these" or _norm(raw) == _norm(t(locale, "chip_none_of_these")):
+    # A genuine "I don't know" ends the search (§2.8) — it is not a model to look up.
+    if (not raw or low == "none_of_these" or is_dont_know(raw)
+            or _norm(raw) == _norm(t(locale, "chip_none_of_these"))):
         cs["model_search_mode"] = False
         cs["model_gave_up"] = True
         return None
