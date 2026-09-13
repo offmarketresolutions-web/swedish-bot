@@ -337,6 +337,17 @@ def _onset(rec):
             "(always/gradual vs sudden)"]
 
 
+@rule("S12-POSTCODE-NORMALISED", "§2/§12",
+      "A captured postcode must be normalised to five digits — PostcodeArea is keyed on "
+      "them, so an unnormalised value silently misses the service-area check")
+def _postcode_normalised(rec):
+    pc = (rec.get("slots") or {}).get("postal_code")
+    if not pc or str(pc).lower() == "unknown":
+        return []
+    return ([] if re.fullmatch(r"\d{5}", str(pc))
+            else [f"postcode {pc!r} was never normalised to five digits"])
+
+
 @rule("S3-MODEL-IS-NOT-AN-ALARM", "§1/§3",
       "An alarm code is a fault reading, never the machine's model")
 def _alarm_as_model(rec):

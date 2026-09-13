@@ -385,3 +385,27 @@ def test_real_models_that_look_like_codes_are_still_accepted(model):
     would silently drop a whole manufacturer's catalogue."""
     from chat.sanitize import clean_model
     assert clean_model(model) == model, model
+
+
+@pytest.mark.parametrize("raw,expected", [
+    ("111 52 ", "11152"),
+    ("16150 ", "16150"),
+    (" 121 34", "12134"),
+    ("111 52 Stockholm", "11152"),
+])
+def test_a_postcode_from_the_bulk_extractor_is_normalised(raw, expected):
+    """Spec §2/§12: the postcode must be "normalized to five digits and validated before
+    service-area checking". The pure-postcode fast path normalises, but a message like
+    "111 52 Stockholm" does not match that shape and falls through to the bulk extractor,
+    whose value was stored raw — 10 of 57 postcodes in the live run were kept as
+    '111 52 ' or '16150 '. PostcodeArea is keyed on five digits, so an unnormalised value
+    silently fails the service-area lookup."""
+    from chat.orchestrator import _normalise_slot_value
+
+    assert _normalise_slot_value("postal_code", raw) == expected
+
+
+def test_normalising_leaves_other_slots_untouched():
+    from chat.orchestrator import _normalise_slot_value
+    assert _normalise_slot_value("brand", "  IVT ") == "  IVT "
+    assert _normalise_slot_value("postal_code", "not a postcode") == "not a postcode"

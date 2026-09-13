@@ -214,3 +214,20 @@ def test_lead_summary_that_declares_the_gap_is_not_flagged():
                artifacts={"service_requests": [{"payload_json": {
                    "summary": "Customer reports noise. Missing: equipment model, error code."}}]})
     assert not fire("S11-SUMMARY-STATES-GAPS", rec)
+
+
+def test_unnormalised_postcode_is_flagged():
+    for raw in ("111 52 ", "16150 ", "111 52 Stockholm"):
+        rec = conv([("user", raw)], slots={"category": "heat_pump", "postal_code": raw})
+        assert fire("S12-POSTCODE-NORMALISED", rec), raw
+
+
+def test_five_digit_postcode_is_not_flagged():
+    rec = conv([("user", "11152")], slots={"category": "heat_pump", "postal_code": "11152"})
+    assert not fire("S12-POSTCODE-NORMALISED", rec)
+
+
+def test_unknown_postcode_is_not_flagged():
+    """§2.8 records an unanswered slot as unknown; that is conformance, not a bad value."""
+    rec = conv([("user", "vet inte")], slots={"category": "heat_pump", "postal_code": "unknown"})
+    assert not fire("S12-POSTCODE-NORMALISED", rec)

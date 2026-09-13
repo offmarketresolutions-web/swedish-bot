@@ -392,6 +392,21 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
     return {"message": _handoff_line(locale), "chips": _escalation_chips(locale)}
 
 
+def _normalise_slot_value(slot: str, value):
+    """Canonicalise a slot the bulk extractor produced.
+
+    Spec §2/§12: a postcode must be "normalized to five digits and validated before
+    service-area checking". The pure-postcode fast path below does that, but a message
+    like "111 52 Stockholm" does not match that shape and falls through to the bulk
+    extractor, whose raw value was stored as-is — 10 of 57 postcodes in the live run were
+    kept as '111 52 ' or '16150 '. PostcodeArea is keyed on five digits, so an
+    unnormalised value silently misses the service-area lookup.
+    """
+    if slot == "postal_code" and isinstance(value, str):
+        return sanitize.normalize_postcode(value) or value
+    return value
+
+
 def _intake_step(cs, user_text, locale) -> dict | None:
     current = cs.get("current_slot")
     if current and user_text:
@@ -417,7 +432,7 @@ def _intake_step(cs, user_text, locale) -> dict | None:
             off_domain_now = bool(extracted.pop("off_domain", False))
             for k, v in extracted.items():
                 if v and not cs["slots"].get(k):
-                    cs["slots"][k] = v
+                    cs["slots"][k] = _normalise_slot_value(k, v)
             just_bulked = bool(extracted)  # did THIS bulk call actually pull any fact?
         # Feature 1 -- off-domain graceful close: count CONSECUTIVE off-domain turns (any
         # on-target/on-topic rich reply resets the streak). A vague/garbled reply never sets
