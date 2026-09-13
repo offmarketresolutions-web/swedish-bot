@@ -346,6 +346,28 @@ def _alarm_as_model(rec):
     return []
 
 
+_SUMMARY_DISCLOSES = re.compile(
+    r"\bmissing\b|\bsaknas\b|\bej\s+f[åa]ngat"
+    r"|not (?:captured|provided|given|specified|mentioned|confirmed)"
+    r"|were (?:not )?captured|no (?:specific )?(?:equipment|model|error code|felkod)"
+    r"|ok[äa]nd|inte (?:angiv|f[åa]ngat|k[äa]nt)", re.I)
+
+
+@rule("S11-SUMMARY-STATES-GAPS", "§11",
+      "A lead summary must say when an important detail is missing (exact model, error "
+      "code, contact, consent, booking) rather than reading as if the case were complete")
+def _summary_gaps(rec):
+    model = ((rec.get("slots") or {}).get("model") or "").strip().lower()
+    if model and model != "unknown":
+        return []
+    out = []
+    for sr in ((rec.get("artifacts") or {}).get("service_requests") or []):
+        summary = (sr.get("payload_json") or {}).get("summary") or ""
+        if summary and not _SUMMARY_DISCLOSES.search(summary):
+            out.append("lead created with no exact model, and the summary never says so")
+    return out
+
+
 # ── runner ───────────────────────────────────────────────────────────────────
 
 def run(rows: list[dict], only: str | None = None) -> dict:

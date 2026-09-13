@@ -200,3 +200,17 @@ def test_a_real_model_that_looks_like_a_code_is_not_flagged():
         rec = conv([("user", f"Jag har en {model}.")],
                    slots={"category": "heat_pump", "model": model})
         assert not fire("S3-MODEL-IS-NOT-AN-ALARM", rec), model
+
+
+def test_lead_summary_hiding_a_missing_model_is_flagged():
+    rec = conv([("user", "Det låter konstigt.")], slots={"category": "heat_pump", "model": "unknown"},
+               artifacts={"service_requests": [{"payload_json": {
+                   "summary": "Customer reports noise. Technician dispatched."}}]})
+    assert fire("S11-SUMMARY-STATES-GAPS", rec)
+
+
+def test_lead_summary_that_declares_the_gap_is_not_flagged():
+    rec = conv([("user", "Det låter konstigt.")], slots={"category": "heat_pump", "model": "unknown"},
+               artifacts={"service_requests": [{"payload_json": {
+                   "summary": "Customer reports noise. Missing: equipment model, error code."}}]})
+    assert not fire("S11-SUMMARY-STATES-GAPS", rec)
