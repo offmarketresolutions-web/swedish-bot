@@ -409,3 +409,52 @@ def test_normalising_leaves_other_slots_untouched():
     from chat.orchestrator import _normalise_slot_value
     assert _normalise_slot_value("brand", "  IVT ") == "  IVT "
     assert _normalise_slot_value("postal_code", "not a postcode") == "not a postcode"
+
+
+def test_an_llm_failure_is_not_blamed_on_the_customer(monkeypatch):
+    """A Vertex 429 (or any call failure) on an enum slot returned (False, "") — exactly
+    what an irrelevant answer returns. The customer was then told "Förlåt, jag uppfattade
+    inte riktigt" for a backend outage, and after two such failures the category was
+    recorded as unknown and the case carried on degraded.
+
+    Observed live on production: the eval harness and production share one Vertex project,
+    so a burst of eval traffic made a customer typing "Värmepump" — the exact word on the
+    chip — get bounced three times. §2.6-2.8's re-ask machinery is for off-target answers,
+    not infrastructure."""
+    from chat import intake
+
+    def boom(*a, **k):
+        raise RuntimeError("429 RESOURCE_EXHAUSTED")
+
+    monkeypatch.setattr(intake.gemini, "generate", boom)
+    on_target, value = intake.extract_answer("category", "Värmepump", {"slots": {}}, "sv")
+    assert on_target is None, "a call failure must be distinguishable from an off-target answer"
+    assert value == ""
+
+
+def test_a_genuinely_off_target_answer_still_reports_false(mock_gemini):
+    """The failure signal must not swallow the real one: an answer the model judges
+    off-target still returns False so the 2-strike machinery works."""
+    from chat import intake
+
+    mock_gemini.responses["extractor"] = {"on_target": False, "value": ""}
+    on_target, _ = intake.extract_answer("category", "bb", {"slots": {}}, "sv")
+    assert on_target is False
+
+
+def test_a_failed_extractor_call_does_not_charge_a_strike(monkeypatch):
+    """End-to-end: a call failure re-renders the question, keeps the re-ask counter at
+    zero and never records the slot as unknown, so a transient outage cannot quietly
+    degrade the case."""
+    from chat import intake
+    from chat.orchestrator import _intake_step
+
+    monkeypatch.setattr(intake, "looks_rich", lambda *_a, **_k: False)
+    monkeypatch.setattr("chat.orchestrator.extract_answer", lambda *a, **k: (None, ""))
+
+    cs = {"slots": {}, "current_slot": "category", "reask": 0, "contact": {}, "report": {}}
+    out = _intake_step(cs, "Värmepump", "sv")
+    assert cs["reask"] == 0, "an infrastructure failure must not count as a customer strike"
+    assert cs["slots"].get("category") in (None, ""), "the slot must not be degraded"
+    assert "uppfattade inte" not in (out or {}).get("message", ""), \
+        "the customer must not be told they were unclear"

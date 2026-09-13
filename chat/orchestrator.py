@@ -461,6 +461,14 @@ def _intake_step(cs, user_text, locale) -> dict | None:
             cs["reask"] = 0
         else:
             on_target, value = extract_answer(current, user_text, cs, locale)
+            if on_target is None:
+                # The extractor CALL failed (Vertex 429 / timeout) — the customer answered
+                # fine, we just could not read it. Re-render the question without the
+                # "didn't quite catch that" apology and without charging a strike, so a
+                # transient outage never blames the customer or degrades the slot to
+                # unknown. Their next attempt gets a clean read.
+                return {"message": t(locale, "q_" + current),
+                        "chips": intake.chips_for(current, cs, locale)}
             # Postcode is normalized to 5 digits on capture; an undecodable answer rides
             # the same 2-reask→unknown machinery as any off-target reply (plan S2 §4).
             if current == "postal_code" and on_target and value and value != "unknown":

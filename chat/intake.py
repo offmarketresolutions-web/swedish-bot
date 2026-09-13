@@ -310,4 +310,11 @@ Output ONLY this JSON object, nothing else: {{"on_target": true/false, "value": 
         # Fail open for free-text fields (accept the raw text); strict for enums.
         if slot in ("problem", "model", "error_code"):
             return True, text
-        return False, ""
+        # None, not False: the CALL failed, the customer did not answer badly. Returning
+        # False here is indistinguishable from an off-target reply, so a Vertex 429 told
+        # the customer "Förlåt, jag uppfattade inte riktigt" and, after two of them,
+        # recorded the slot as unknown and carried on with a degraded case. Seen live on
+        # production — the eval harness shares a Vertex project with it, and a burst of
+        # eval traffic bounced a customer typing the exact word printed on the chip.
+        # §2.6-2.8's re-ask machinery is for off-target answers, not infrastructure.
+        return None, ""
