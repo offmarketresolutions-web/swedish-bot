@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% load i18n static %}
-{# Extends admin/base.html (NOT admin/base_site.html) — a same-named override that
-   extends itself infinite-recurses at render. This replaces Django's base_site. #}
+{% comment %}Extends admin/base.html (NOT admin/base_site.html) — a same-named override that
+   extends itself infinite-recurses at render. This replaces Django's base_site.{% endcomment %}
 
 {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Nordland VVS — Administration') }}{% endblock %}
 

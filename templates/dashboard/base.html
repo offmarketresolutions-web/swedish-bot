@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Nordland VVS{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'dashboard/css/app.css' %}">
+  {# Page-specific assets, so Leaflet's 235 KB is only paid for on the map page. #}
+  {% block head_extra %}{% endblock %}
   <script src="{% static 'vendor/htmx.min.js' %}"></script>
   <script defer src="{% static 'vendor/alpine.min.js' %}"></script>
-  {# No-JS fallback: without Alpine the mobile drawer can never be toggled open,
+  {% comment %}No-JS fallback: without Alpine the mobile drawer can never be toggled open,
      so on narrow screens render the sidebar in normal flow instead of off-canvas,
      and hide the (otherwise inert) hamburger button. Desktop is unaffected — it
-     shows the sidebar via plain CSS (lg:translate-x-0), no JS required there. #}
+     shows the sidebar via plain CSS (lg:translate-x-0), no JS required there.{% endcomment %}
   <noscript><style>
     #sidebar-toggle { display: none; }
     @media (max-width: 1023.98px) { .nl-sidebar { position: static; transform: none; width: 100%; } }
@@ -90,9 +92,9 @@
         </button>
         <div class="text-sm text-nl-base/60">{% block breadcrumb %}{% endblock %}</div>
         <div class="ml-auto flex items-center gap-3 text-sm text-nl-base/60">
-          {# Language switcher. A plain POST form, so it works with JS disabled; auto-submits
+          {% comment %}Language switcher. A plain POST form, so it works with JS disabled; auto-submits
              on change when JS is available. LocaleMiddleware persists the choice in the
-             session, so it follows the operator across every page. #}
+             session, so it follows the operator across every page.{% endcomment %}
           <form action="{% url 'set_language' %}" method="post" class="flex items-center gap-1">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}">

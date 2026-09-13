@@ -87,9 +87,9 @@
 
       <form id="serviceForm" data-testid="service-form"
             action="{% url 'demo-form' %}" method="post">
-        {# Required for the no-JS submit path: Django's CSRF middleware 403s a POST
+        {% comment %}Required for the no-JS submit path: Django's CSRF middleware 403s a POST
            without it, which would be worse for a no-JS visitor than the original
-           "can't reach the submit button at all". #}
+           "can't reach the submit button at all".{% endcomment %}
         {% csrf_token %}
         <!-- Step 1: basuppgifter -->
         <section class="step active" data-step="1">

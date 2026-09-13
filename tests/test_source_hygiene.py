@@ -48,3 +48,22 @@ def test_no_unicode_replacement_characters_in_python_sources():
         if "\ufffd" in p.read_text(encoding="utf-8", errors="replace")
     ]
     assert not offenders, "mojibake (U+FFFD) in source:\n" + "\n".join(offenders)
+
+
+def test_no_multiline_django_comments_in_templates():
+    """Django's {# #} is SINGLE-LINE only. A multi-line one is not a comment at all —
+    it renders to the page as literal text. Two of them sat in dashboard/base.html, so
+    every dashboard screen showed staff a paragraph of raw template source. Verified
+    against the real engine: Template("A{# a\n b #}B").render() returns the comment.
+    Use {% comment %}...{% endcomment %} for anything spanning lines."""
+    import re
+
+    offenders = []
+    for path in (REPO_ROOT / "templates").rglob("*.html"):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for m in re.finditer(r"\{#", text):
+            close = text.find("#}", m.start())
+            if close != -1 and "\n" in text[m.start():close]:
+                offenders.append(f"{path.relative_to(REPO_ROOT)}:{text[:m.start()].count(chr(10)) + 1}")
+    assert not offenders, (
+        "multi-line {# #} renders as visible text; use {% comment %}:\n" + "\n".join(offenders))
