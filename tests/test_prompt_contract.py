@@ -53,7 +53,10 @@ def test_manual_specialist_never_offered_consult_web(seeded):
 def test_addendum_not_duplicated_when_body_already_declares_keys(seeded):
     body = ('You are the heat pump specialist. Return JSON with "no_action_needed": '
             'true/false and "consult_web": {{"question": "<...>"}} or null. '
-            'If the onset is unknown, ask about it first.')
+            'If the onset is unknown, ask about it first. '
+            # Every addendum key must appear, or the one it is missing gets appended and
+            # the "no OUTPUT CONTRACT block" assertion below fails for the right reason.
+            'You book nothing, so never promise a visit, a time or a dispatched technician.')
     _set_body("heat_pump_specialist", body)
     out = prompts.render("heat_pump_specialist")
     assert "OUTPUT CONTRACT (required by the backend)" not in out
@@ -63,8 +66,10 @@ def test_addendum_not_duplicated_when_body_already_declares_keys(seeded):
 def test_freshly_seeded_prompts_need_no_addendum(seeded):
     """The repo defaults already carry both keys — the addendum is a safety net, not
     a second source of truth that could drift from seed_prompts.py."""
-    for role in ("specialist", "intelligent_specialist", "heat_pump_specialist",
-                 "water_pump_specialist", "water_filtration_specialist"):
+    # Every role the addendum targets, not just the specialists — INTELLIGENT_INTAKE does
+    # not use the shared gas block, so it silently missed the no-booking rule while the
+    # five specialists carried it and this test still passed.
+    for role in prompts._CUSTOMER_FACING_ROLES:
         agent = AgentPrompt.objects.filter(role=role).first()
         assert agent, role
         assert prompts.contract_addendum(role, agent.body) == "", role

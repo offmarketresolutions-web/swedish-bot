@@ -102,3 +102,39 @@ def test_e3_photo_of_error_code_display(seeded, mock_gemini):
                           "§E4 and §3.3 for the spec to implement once the channel lands.")
 def test_e4_whatsapp_photo_during_phone_call_confirmation_loop():
     pass
+
+
+def test_a_photo_of_the_display_keeps_the_alarm_code(seeded, mock_gemini):
+    """The bot asks for exactly this photo — "Ett foto av displayen är perfekt" — and then
+    used to throw the answer away: the whole OCR block was gated on a readable MODEL, which
+    a display does not carry. Vision read "E4" correctly and it never reached the slot."""
+    mock_gemini.responses["vision"] = {"manufacturer": "", "model": "", "serial": "",
+                                       "error_code": "E4"}
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")
+    orch.process_turn(conv, "no heat")
+    orch.process_turn(conv, "", image=_photo())
+    conv.refresh_from_db()
+
+    slots = conv.case_state["slots"]
+    assert slots["error_code"] == "E4", f"the code from the display photo was dropped: {slots}"
+    # A screen is not a rating plate: it identifies no unit.
+    assert not slots["nameplate_photo"], "a display photo must not count as nameplate ID"
+    assert not slots["model"], "no model is visible on a display photo"
+
+
+def test_a_photo_that_shows_only_a_brand_still_records_it(seeded, mock_gemini):
+    """Same gate, same loss: a plate photographed at an angle where only the maker's name
+    is legible is still worth more than nothing."""
+    mock_gemini.responses["vision"] = {"manufacturer": "IVT", "model": "", "serial": "",
+                                       "error_code": ""}
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")
+    orch.process_turn(conv, "no heat")
+    orch.process_turn(conv, "", image=_photo())
+    conv.refresh_from_db()
+
+    assert conv.case_state["slots"]["brand"] == "IVT"
+    assert not conv.case_state["slots"]["nameplate_photo"]

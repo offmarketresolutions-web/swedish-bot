@@ -82,6 +82,9 @@ def guardrails_block(role: str) -> str:
 # and test_prompt_contract.py both pin the derived tuples).
 _GENERAL_ROLES = tuple(r for r, info in ROLE_INFO.items() if info.layer == "general")
 _SPECIALIST_ROLES = ("specialist",) + _GENERAL_ROLES
+# Every role whose words reach a customer. The summarizer writes an internal recap and the
+# router/qa never speak, so a customer-facing rule would only be noise for them.
+_CUSTOMER_FACING_ROLES = _SPECIALIST_ROLES + ("intake", "intelligent_intake", "safety")
 
 # Code-owned OUTPUT CONTRACT keys, appended ONLY when the DB body doesn't already
 # declare them. seed_kb is deliberately no-clobber for AgentPrompt.body (an owner's
@@ -92,6 +95,21 @@ _SPECIALIST_ROLES = ("specialist",) + _GENERAL_ROLES
 # aligned no matter how the prompt was edited. Idempotent: a freshly seeded body
 # already contains the key, so nothing is appended and the text is never duplicated.
 _CONTRACT_ADDENDA: tuple[tuple[str, tuple[str, ...], str], ...] = (
+    # The bot books nothing. A lead exists only after the customer gives contact details
+    # AND agrees to send them; the office schedules. Driving the widget by hand caught
+    # "Jag kommer att boka in ett servicebesök för dig", and the seeded prompts were the
+    # source — the specialist tone rule literally modelled it ("I'll line up a Nordland
+    # tech") and the safety prompts ordered the model to "say a technician is being alerted
+    # now". Those bodies are fixed, but seed_kb is no-clobber, so every prompt row seeded
+    # or edited before today still carries the old wording. This reaches them.
+    # Keyed on "never promise" so a body that already says it is left alone.
+    ("never promise", _CUSTOMER_FACING_ROLES,
+     "You never book, schedule, dispatch or alert anyone — the Nordland VVS office does, "
+     "after it receives the case. So never promise that: no \"I'll book you a visit\", no "
+     "\"I'll line up a technician\", no \"a technician is being alerted/on the way\", and no "
+     "date or time. OFFER instead — \"can I send this to Nordland VVS?\" — and say what is "
+     "true: they will be in touch. A customer who is told help is already coming may stop "
+     "looking for it, and in an emergency that is the difference that matters."),
     ("no_action_needed", _SPECIALIST_ROLES,
      'Also include "no_action_needed": true/false in your JSON. Set it true when the '
      'correct answer is that the situation is normal and no action or visit is needed '

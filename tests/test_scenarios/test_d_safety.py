@@ -285,6 +285,12 @@ def test_d11_a_noisy_outdoor_unit_is_not_a_refrigerant_emergency(seeded, mock_ge
 # refrigerant leak gets, was answered with "what is your postcode?".
 
 REFRIGERANT_EMERGENCIES = [
+    # Swedish welds noun and verb into one token. "köldmedieläckage" is THE standard word
+    # for this — it is the word the bot's own reply uses — and a pattern that wants the noun
+    # and the leak verb as separate tokens can never see it.
+    "Vi har ett köldmedieläckage",
+    "köldmedieläcka i utedelen",
+    "Det är en kylmedelsläcka",
     "Det luktar kemiskt vid utedelen och det väser om den",
     "Kemisk lukt vid utomhusenheten",
     "Det luktar köldmedium",
@@ -319,6 +325,10 @@ def test_ordinary_messages_do_not_trigger_the_refrigerant_emergency(text):
 
 
 @pytest.mark.parametrize("text", [
+    # Same compounding problem on the gas side, with the verb leading.
+    "Det luktar vid gasledningen",
+    "Det luktar från gasolflaskan",
+    "Det pyser ur gasröret",
     "Det luktar gas vid pannan",
     "Det luktar gasol i källaren",
     "Jag tror det läcker gas",

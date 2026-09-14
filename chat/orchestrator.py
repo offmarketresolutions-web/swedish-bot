@@ -41,8 +41,11 @@ CONFIDENCE_GATE = 0.70  # solve a documented in-docs answer; hard safety is the 
 # is an emergency. The same line replaces any gas draft the SAFETY classifier vetoes, so the
 # customer is never left with the generic contact-collection template in a gas scenario.
 _GAS_EMERGENCY_RE = re.compile(
-    r"\b(gas|gasol|propan|bränsle|fuel)\w*\b.{0,40}\b(lukt|luktar|läck|leak|smell)"
-    r"|\b(lukt|luktar|läck|leak|smell)\w*.{0,40}\b(gas|gasol|propan|bränsle|fuel)\b"
+    # Note \w* on the gas nouns in BOTH directions. Swedish welds the noun to whatever
+    # follows it, so "det luktar vid gasledningen" / "gasolflaskan" / "gasröret" all put the
+    # gas word inside a compound that a bare \b could not reach.
+    r"\b(gas|gasol|propan|bränsle|fuel)\w*\b.{0,40}\b(lukt|luktar|läck|leak|smell|pys|väs)"
+    r"|\b(lukt|luktar|läck|leak|smell|pys|väs)\w*.{0,40}\b(gas|gasol|propan|bränsle|fuel)\w*"
     r"|gaslukt|gasläck",
     re.I | re.S,
 )
@@ -51,18 +54,23 @@ _GAS_EMERGENCY_RE = re.compile(
 # IVT/Bosch units run R32/R290 (A2L/A3, flammable), so the safe default is the gas shape:
 # ventilate, keep away, no flames, touch nothing, technician now. No switch instruction.
 _REFRIGERANT_EMERGENCY_RE = re.compile(
-    # Note the \w* after every smell/leak verb. These used to be followed by \b, which
-    # matches the bare noun "lukt" but NOT the inflected forms a Swede actually types:
-    # "det luktar köldmedium" and "det läcker köldmedie vid utedelen" — about as explicit
-    # as a refrigerant leak gets — both fell through to "what is your postcode?".
-    r"\b(k[oö]ldmedi\w*|kylmedi\w*|refrigerant|freon)\b.{0,60}\b(lukt|doft|läck|leak|smell|hiss|väs|pys)"
-    r"|\b(lukt|doft|läck|leak|smell|hiss|väs|pys)\w*.{0,60}\b(k[oö]ldmedi\w*|kylmedi\w*|refrigerant|freon)\b"
+    # The \w* after every smell/leak verb matters: these were followed by \b, which matches
+    # the bare noun "lukt" but not "luktar" or "läcker", so "det läcker köldmedie vid
+    # utedelen" fell through to "what is your postcode?".
+    r"\b(k[oö]ldmedi\w*|kylmedi\w*|kylmedel\w*|refrigerant|freon)\b.{0,60}\b(lukt|doft|läck|leak|smell|hiss|väs|pys)"
+    r"|\b(lukt|doft|läck|leak|smell|hiss|väs|pys)\w*.{0,60}\b(k[oö]ldmedi\w*|kylmedi\w*|kylmedel\w*|refrigerant|freon)\b"
+    # And the compound itself: "köldmedieläckage" is the STANDARD Swedish word for this —
+    # it is the word the bot's own reply uses — and it is one token, so a pattern that wants
+    # the noun and the verb separately can never see it.
+    r"|\b\w*(k[oö]ldmedi|kylmedi|kylmedel)\w*(läck|lukt|pys|väs)\w*\b"
+    r"|\b\w*(läck|lukt)\w*(k[oö]ldmedi|kylmedi|kylmedel)\w*\b"
     # "kemisk lukt" and "luktar kemiskt" are the same report; only the noun form matched.
     r"|\bkemisk\w*.{0,20}\b(lukt\w*|doft\w*)\b.{0,60}\b(utomhusenhet\w*|utedel\w*|värmepump\w*)"
     r"|\b(lukt\w*|doft\w*)\b.{0,20}\bkemisk\w*.{0,60}\b(utomhusenhet\w*|utedel\w*|värmepump\w*)"
     r"|\bchemical (smell|odou?r)\b.{0,60}\b(outdoor unit|heat ?pump)",
     re.I | re.S,
 )
+
 # (regex, i18n key, escalation reason) — first match wins; gas is the graver of the two.
 _EMERGENCY_TRIGGERS = (
     (_GAS_EMERGENCY_RE, "gas_emergency", "gas emergency"),
@@ -1434,12 +1442,38 @@ def _next_contact_slot(cs) -> str | None:
     return None
 
 
+# Every affirmative chip VALUE the widget can post back. A chip sends its value, not its
+# label, and "_" is a word character — so \byes\b never matches inside "yes_save" and the
+# word-based check below reads it as no answer at all. That is what happened: tapping "Ja"
+# on the post-fix details offer was processed as a refusal, and the whole capture flow
+# ("får jag ta ditt telefonnummer… en av våra specialister går igenom ärendet") silently
+# never ran unless the customer typed "ja" by hand instead of tapping the chip.
+# tests/test_chip_values.py asserts this set stays in step with the chips actually emitted.
+_AFFIRM_CHIP_VALUES = frozenset({"yes", "yes_send", "yes_save"})
+
+
+# A clause after "men"/"but" that WITHDRAWS the consent just given, as opposed to merely
+# correcting a fact. Judging only the first clause was right for "Yes, send to Nordland.
+# But it's an IVT, not Bosch." (run100 X002) — consent plus a correction — but it also read
+# "ja men skicka inte" and "ja, men inte än" as consent, dispatched the lead, and wrote
+# consent_to_contact=True for a customer who had just said no. Deliberately narrow: a bare
+# "inte" is a correction marker ("inte Bosch"), so only "inte" bound to waiting or to a
+# contact verb counts as a withdrawal.
+_WITHDRAW = re.compile(
+    r"\b(inte\s+(?:än|ännu|nu|riktigt)"
+    r"|(?:skicka|kontakta|ring|maila)\w*\s+inte"
+    r"|inte\s+(?:skicka|kontakta|ring|maila)\w*"
+    r"|vänta|avvakta|senare"
+    r"|not\s+yet|hold\s+off|don'?t\s+send|do\s+not\s+send|later)\b",
+    re.IGNORECASE)
+
+
 def _is_yes(text: str) -> bool:
-    """S2: affirmative consent that's safe AND usable. The chip value 'yes_send',
-    or an affirmative word with NO negation. 'yes please don't send' (negation) →
-    False; 'yes, send it please' → True; 'not yet' → False."""
+    """S2: affirmative consent that's safe AND usable. An affirmative chip value, or an
+    affirmative word with NO negation. 'yes please don't send' (negation) → False;
+    'yes, send it please' → True; 'not yet' → False."""
     txt = (text or "").strip().lower()
-    if txt == "yes_send":
+    if txt in _AFFIRM_CHIP_VALUES:
         return True
     # Judge the FIRST clause only. "Yes, send to Nordland. But it's an IVT, not Bosch."
     # (run100 X002) carries consent AND a correction; a negation in the correction must not
@@ -1448,7 +1482,11 @@ def _is_yes(text: str) -> bool:
     first = re.split(r"[.!?;]|\b(?:but|men|fast)\b", txt, maxsplit=1)[0]
     if _NEG.search(first):
         return False
-    return bool(_AFFIRM.search(first))
+    if not _AFFIRM.search(first):
+        return False
+    # ...but the tail is allowed to take it back. Consent has to be the customer's actual
+    # intent, not the first word they happened to type.
+    return not _WITHDRAW.search(txt[len(first):])
 
 
 # Whole-input decline for a contact slot — so "no" is a decline but "Antonio" is a name.
@@ -1743,14 +1781,27 @@ def _run_vision(conversation, cs, events, locale):
         data = _parse_json(resp.text)
     except Exception:  # noqa: BLE001
         data = {}
-    model = sanitize.clean_model(str(data.get("model") or ""))  # S3: whitelist OCR fields
+    # S3: whitelist OCR fields — each stored on its own merit. This whole block used to be
+    # gated on `if model:`, so a photo of the DISPLAY — which carries an alarm code and no
+    # model — had its code read correctly by vision and then thrown away. The bot asks for
+    # exactly that photo ("Ett foto av displayen är perfekt"), so the one picture it invites
+    # was the one it discarded.
+    model = sanitize.clean_model(str(data.get("model") or ""))
+    serial = sanitize.clean_model(str(data.get("serial") or ""))
+    code = sanitize.clean_error_code(str(data.get("error_code") or ""))
+    brand = sanitize.clean_lead_field(str(data.get("manufacturer") or ""), 40)
     if model:
+        # Only a readable MODEL means we identified the unit from its plate; an alarm code
+        # on a screen does not, and must not set this flag.
         cs["slots"]["nameplate_photo"] = True
         cs["slots"]["model"] = cs["slots"].get("model") or model
-        cs["slots"]["serial"] = cs["slots"].get("serial") or sanitize.clean_model(str(data.get("serial") or ""))
-        cs["slots"]["error_code"] = (cs["slots"].get("error_code")
-                                     or sanitize.clean_error_code(str(data.get("error_code") or "")))
-        cs["slots"]["brand"] = cs["slots"].get("brand") or sanitize.clean_lead_field(str(data.get("manufacturer") or ""), 40)
+    if serial:
+        cs["slots"]["serial"] = cs["slots"].get("serial") or serial
+    if code:
+        cs["slots"]["error_code"] = cs["slots"].get("error_code") or code
+    if brand:
+        cs["slots"]["brand"] = cs["slots"].get("brand") or brand
+    if model or serial or code or brand:
         cs["slots"]["ocr_text"] = sanitize.cap(" ".join(str(v) for v in data.values() if v), 120)
     Message.objects.create(conversation=conversation, role="tool", tool_name="vision_extract",
                            tool_result=data)

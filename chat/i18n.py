@@ -30,14 +30,21 @@ T = {
         "chip_other_model": "Another model",
         "chip_none_of_these": "None of these",
         "confirm_fix": "Did that fix it?",
+        # These used to end "A Nordland technician is being alerted." Nothing was alerted:
+        # a lead only exists after the customer gives contact details AND approves sending
+        # it. Someone standing outside a gas-leaking house, told to evacuate, very often
+        # never finishes that — and believed help was already on the way when it was not.
+        # Say what is true, and point at the help that actually comes fastest.
         "gas_emergency": "If you smell gas: leave the building now, do not touch any switch, "
                          "breaker or light — a spark can ignite it — and call the emergency "
-                         "number 112 from outside. "
-                         "A Nordland technician is being alerted.",
+                         "number 112 from outside. 112 is the fastest help there is. "
+                         "When you are safe, give me a phone number and I'll send this to "
+                         "Nordland VVS marked urgent.",
         "refrigerant_emergency": "That sounds like it could be a refrigerant leak. Keep people "
                                  "and pets away from the unit, open windows to ventilate, no "
                                  "open flames or smoking nearby, and don't touch or operate the "
-                                 "unit. A Nordland technician is being alerted urgently.",
+                                 "unit. Give me a phone number and I'll send this to Nordland "
+                                 "VVS marked urgent.",
         "confirm_resolved": "Great — glad that sorted it! If anything else comes up, just let "
                             "me know.",
         # Offered AFTER the fix has been given, never before it — the answer is not held
@@ -140,12 +147,14 @@ T = {
         "confirm_fix": "Löste det problemet?",
         "gas_emergency": "Om det luktar gas: lämna byggnaden nu, rör inga strömbrytare, säkringar "
                          "eller lampor — en gnista kan antända gasen — och ring nödnumret 112 "
-                         "utifrån. "
-                         "En tekniker från Nordland larmas nu.",
+                         "utifrån. 112 är den hjälp som kommer snabbast. "
+                         "När du är i säkerhet: ge mig ett telefonnummer, så skickar jag ärendet "
+                         "till Nordland VVS märkt brådskande.",
         "refrigerant_emergency": "Det låter som att det kan vara ett köldmedieläckage. Håll "
                                  "människor och husdjur borta från enheten, öppna fönster och "
                                  "vädra, ingen öppen eld eller rökning i närheten, och rör eller "
-                                 "hantera inte enheten. En tekniker från Nordland larmas nu.",
+                                 "hantera inte enheten. Ge mig ett telefonnummer, så skickar jag "
+                                 "ärendet till Nordland VVS märkt brådskande.",
         "confirm_resolved": "Vad bra — kul att det löste sig! Hör av dig om något mer dyker upp.",
         "save_details_offer": "Vad bra att det löste sig! Får jag ta ditt telefonnummer och din "
                               "e-post? En av våra specialister går igenom ärendet, och har vi ett "

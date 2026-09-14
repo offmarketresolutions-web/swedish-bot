@@ -141,9 +141,33 @@ def test_claiming_a_booking_without_a_service_request_is_flagged():
     assert fire("S13-FORM-NOT-A-BOOKING", rec)
 
 
-def test_confirming_a_booking_that_really_exists_is_not_flagged():
+def test_a_lead_is_not_a_booking_so_confirming_one_is_still_flagged():
+    """This assertion used to be the other way round — a ServiceRequest was treated as
+    licence to say "your booking is confirmed". Nothing in this system confirms a booking:
+    §13 says showing the form button "does not mean the form is submitted or that a booking
+    is confirmed", and §11 lists "booking not confirmed" as a status the summary must
+    REPORT. The office schedules, after it receives the lead."""
     rec = conv([("assistant", "Din bokning är bekräftad.")], artifacts={"service_request_count": 1})
-    assert not fire("S13-FORM-NOT-A-BOOKING", rec)
+    assert fire("S13-FORM-NOT-A-BOOKING", rec)
+
+
+def test_the_future_tense_promise_is_flagged_even_with_a_lead():
+    """The live failure: "Jag kommer att boka in ett servicebesök för dig", said mid-
+    conversation. The old rule only matched past-tense confirmations."""
+    for claim in ("Jag kommer att boka in ett servicebesök för dig.",
+                  "Jag bokar in en tekniker imorgon.",
+                  "En tekniker från Nordland larmas nu."):
+        rec = conv([("assistant", claim)], artifacts={"service_request_count": 1})
+        assert fire("S13-FORM-NOT-A-BOOKING", rec), claim
+
+
+def test_offering_to_send_the_case_is_not_flagged():
+    """The correct wording must survive — this is what the bot is supposed to say."""
+    for ok in ("Ska jag skicka dina uppgifter till Nordland VVS?",
+               "Jag skickar detta till Nordland VVS så hör de av sig.",
+               "Kan jag skicka detta till Nordland VVS så att en tekniker kan höra av sig?"):
+        rec = conv([("assistant", ok)], artifacts={"service_request_count": 1})
+        assert not fire("S13-FORM-NOT-A-BOOKING", rec), ok
 
 
 # ── §4 manufacturer preserved ────────────────────────────────────────────────

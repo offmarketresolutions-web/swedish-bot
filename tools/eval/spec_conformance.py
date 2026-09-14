@@ -285,14 +285,35 @@ def _model_guess(rec):
 
 
 @rule("S13-FORM-NOT-A-BOOKING", "§11/§13",
-      "Showing a form button must never be reported as a submitted request or confirmed booking")
+      "The bot never books, schedules, dispatches or alerts — it offers to pass the case on")
 def _form_claim(rec):
-    claims = [r"bokning(?:en)? (?:är )?bekräftad", r"booking (?:is )?confirmed",
-              r"din f[öo]rfr[åa]gan (?:är )?skickad.*formul[äa]r"]
-    if (rec.get("artifacts") or {}).get("service_request_count"):
-        return []
-    return [f"claimed a booking/submission with no service request: …{hit}…"
-            for text in bot_turns(rec) if (hit := _any(claims, text))]
+    """Two different wrongs, and the old rule could only see the rarer one.
+
+    It matched past-tense confirmations ("bokningen är bekräftad") AND returned early
+    whenever a ServiceRequest existed — so on 39 of 44 real conversations it checked
+    nothing at all. But a lead is not a booking: "jag bokar in ett servicebesök" is false
+    whether or not the case was sent, because the office schedules, not the bot. And the
+    emergency line used to end "en tekniker larmas nu" with nothing dispatched at all.
+    """
+    # Wrong no matter what happened afterwards: the bot claiming it did the office's job.
+    always = [
+        r"jag (?:kommer att |ska |får |kan )?bokar? in",
+        r"jag (?:har )?bokat",
+        r"jag (?:kommer att |ska )?(?:skicka|lägga) (?:in )?en tekniker",
+        r"i(?:'| a)?ll (?:book|schedule|line up|dispatch|send) (?:you )?a (?:tech|visit|service)",
+        r"tekniker(?:n)? (?:är |kommer )?(?:på väg|imorgon|idag)",
+        r"(?:en )?tekniker .{0,20}larmas",
+        r"technician .{0,20}(?:is being alerted|has been alerted|is on (?:the|their) way)",
+        r"bokning(?:en)? (?:är )?bekräftad",
+        r"booking (?:is )?confirmed",
+    ]
+    # Wrong only when nothing was actually sent.
+    only_without_lead = [r"din f[öo]rfr[åa]gan (?:är )?skickad.*formul[äa]r"]
+
+    has_lead = bool((rec.get("artifacts") or {}).get("service_request_count"))
+    patterns = always if has_lead else always + only_without_lead
+    return [f"the bot claimed it books/dispatches: …{hit}…"
+            for text in bot_turns(rec) if (hit := _any(patterns, text))]
 
 
 @rule("S2-NO-INTERNAL-TAGS", "§2/§11",
