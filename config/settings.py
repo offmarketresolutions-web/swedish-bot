@@ -88,6 +88,20 @@ TEMPLATES = [
 ]
 
 # ── Database ──────────────────────────────────────────────────────────
+# Django's default is LocMemCache: per-process, so with 3 gunicorn workers the rate
+# limiter in chat/views.py counted to RATE_LIMIT_SESSION three times over (an effective
+# 60/IP against a documented 20) and reset on every deploy, while kb/semantic.py made
+# each worker re-embed the same vectors — 3.1s of a cold specialist turn. Postgres is
+# already here and already the thing we cannot serve without, so it is the cache too:
+# shared across workers and durable across restarts, with no new moving part to run.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache",
+        "OPTIONS": {"MAX_ENTRIES": 10000, "CULL_FREQUENCY": 3},
+    }
+}
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

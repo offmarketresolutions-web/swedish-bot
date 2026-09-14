@@ -171,9 +171,14 @@ def mock_gemini(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def _clear_cache():
-    # LocMemCache persists across tests in one process; clear rate-limit counters
-    # so tests don't bleed into each other.
+def _clear_cache(settings):
+    # Production caches in Postgres so the three gunicorn workers share one rate-limit
+    # counter and one set of embedding vectors. Unit tests should not need a database to
+    # exercise code that merely touches the cache, so they get an in-process one — and
+    # tests/test_settings_cache.py asserts production is NOT left on that.
+    settings.CACHES = {
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+    }
     from django.core.cache import cache
     cache.clear()
     yield
