@@ -40,11 +40,20 @@ class Command(BaseCommand):
             if fresh and not opts["rescan"]:
                 skipped += 1
                 continue
-            try:
-                documents_codes, codes = scan_and_save(doc)
-            except Exception as exc:  # noqa: BLE001 — one bad manual must not end the run
+            # Vertex 429s in bursts when several manuals go up back to back — four were
+            # left unscanned on the first production run, and an unscanned manual is
+            # precisely the one the grounding gate cannot protect. Worth the wait.
+            for attempt in range(4):
+                try:
+                    documents_codes, codes = scan_and_save(doc)
+                    break
+                except Exception as exc:  # noqa: BLE001 — one bad manual must not end the run
+                    last = exc
+                    if attempt < 3:
+                        time.sleep(15 * (attempt + 1))
+            else:
                 failed += 1
-                self.stderr.write(f"  {doc.machine}: {type(exc).__name__}: {str(exc)[:120]}")
+                self.stderr.write(f"  {doc.machine}: {type(last).__name__}: {str(last)[:120]}")
                 continue
             done += 1
             shown = ", ".join(codes[:8]) + ("…" if len(codes) > 8 else "")
