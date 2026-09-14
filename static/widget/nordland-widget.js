@@ -469,7 +469,13 @@
   function syncSend() {
     sendBtn.disabled = busy || !(hasText() || pendingFile);
     sendBtn.setAttribute("aria-busy", busy ? "true" : "false");
+    var wasDisabled = input.disabled;
     input.disabled = busy;  // slow connection: no typing into a turn that's already in flight, no double-send
+    // Re-enabling a focused element drops the caret, so a customer who was mid-thought had
+    // to click back into the box after every reply. Give it straight back.
+    if (wasDisabled && !busy && panel.classList.contains("nl-show")) {
+      input.focus();
+    }
   }
   function clearPending() {
     pendingFile = null; fileInput.value = "";
@@ -546,7 +552,8 @@
       if (!sessionId) openSession();
     }
     scrollDown();
-    setTimeout(function () { input.focus(); }, reduceMotion ? 0 : 60);
+    // Caret straight into the composer so the customer can just start typing.
+    setTimeout(function () { if (!input.disabled) input.focus(); }, reduceMotion ? 0 : 60);
     save();
   }
   function closePanel(restoreFocus) {

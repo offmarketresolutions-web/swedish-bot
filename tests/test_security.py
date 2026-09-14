@@ -178,3 +178,31 @@ def test_clean_email_accepts_swedish_letters_in_the_local_part():
     assert sanitize.clean_email("not an email") == ""
     assert sanitize.clean_email("a@b") == ""                    # no TLD
     assert sanitize.clean_email("a@b.com\nBcc: c@d.com") == ""  # header injection still dead
+
+
+# ── a phone number the office can actually call ──────────────────────────────
+
+@pytest.mark.parametrize("junk", [
+    "+3100000000",       # seen in a real conversation: accepted, dispatched, uncallable
+    "0000000000",
+    "1111111111",
+    "+46000000000",
+    "+46 70 111 1111",
+])
+def test_an_implausible_number_is_not_a_contact(junk):
+    """clean_phone checked the E.164 SHAPE and nothing else, so a customer who wanted the
+    question to go away could type zeros and the office got a lead it could never call."""
+    assert sanitize.clean_phone(junk) == "", f"{junk!r} was accepted as a reachable number"
+
+
+@pytest.mark.parametrize("real,expected", [
+    ("+46701234567", "+46701234567"),
+    ("070-123 45 67", "+46701234567"),
+    ("0046701234567", "+46701234567"),
+    ("+44 20 7946 0958", "+442079460958"),
+    ("+1 415 555 2671", "+14155552671"),
+    ("+46 8 5555 1234", "+46855551234"),   # repeated digits, but only four in a row
+])
+def test_real_numbers_still_pass(real, expected):
+    """The guard must not cost a genuine lead — including numbers with short repeat runs."""
+    assert sanitize.clean_phone(real) == expected

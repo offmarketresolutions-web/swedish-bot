@@ -5,11 +5,18 @@ edits take effect immediately (resolves crit 0.4)."""
 from __future__ import annotations
 
 import hashlib
+import logging
 
 from django.core.cache import cache as django_cache
 
 from core.constants import CACHE_MIN_TOKENS, MODELS
 from core.services import gemini
+
+logger = logging.getLogger(__name__)
+
+# Stored in place of a cache name when the provider refused this docset, so the next turn
+# inlines immediately instead of paying the same doomed upload again.
+_CACHE_REFUSED = "__refused__"
 
 _CACHE_TTL = 3600
 
@@ -156,16 +163,33 @@ def machine_pdf_context(machine, locale: str = "en"):
     if total_tokens < CACHE_MIN_TOKENS:
         return None, parts  # inline small docs (plan §8 cache-floor fallback)
 
+    # Vertex counts an INLINE binary part as 1 token, so a docset of manuals is "1 token"
+    # to the cache endpoint and lands under its 1024 floor. Measured: the upload takes 15.2s
+    # and then 400s, every time — 40% of a specialist turn spent on work that is thrown
+    # away. Explicit caching only pays off for content the endpoint can actually count, so
+    # inline PDFs go straight to the prompt. (If Vertex ever tokenises inline parts, or the
+    # manuals move to GCS URIs, drop this guard and the path below works as written.)
+    if parts and all(getattr(part, "inline_data", None) is not None for part in parts):
+        return None, parts
+
     key = f"machinecache:{machine.pk}:{_docset_hash(docs)}:{locale}"
     cached = django_cache.get(key)
     if cached:
-        return cached, []
+        return (None, parts) if cached == _CACHE_REFUSED else (cached, [])
     try:
         name = gemini.create_cache(
             model=MODELS["flash"], contents=parts, ttl_seconds=_CACHE_TTL,
             display_name=f"machine-{machine.pk}",
         )
-    except Exception:  # noqa: BLE001 — caching unavailable / docset under provider floor
+    except Exception as exc:  # noqa: BLE001 — caching unavailable / docset under provider floor
+        # Remember the refusal. Vertex counts an INLINE pdf part as 1 token, so a docset of
+        # manuals is "1 token" to the cache endpoint and lands under its 1024 floor — it
+        # fails every time, deterministically. Uploading the PDF to be told that took 15.2s
+        # of every specialist turn (~40% of the whole turn, measured), and the failure was
+        # swallowed, so it looked like the model being slow rather than work we throw away.
+        logger.warning("context cache refused for machine %s (%s) — inlining instead for "
+                       "the next %ss", machine.pk, str(exc)[:120], _CACHE_TTL)
+        django_cache.set(key, _CACHE_REFUSED, _CACHE_TTL)
         return None, parts  # fall back to inline; never block an answer on caching
     django_cache.set(key, name, _CACHE_TTL - 60)
     return name, []

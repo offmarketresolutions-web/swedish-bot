@@ -28,6 +28,7 @@ from core.services import gemini
 
 logger = logging.getLogger(__name__)
 
+_QUERY_VEC_TTL = 900   # a query vector is deterministic; this only bounds memory
 _CACHE_TTL = 3600
 SEM_IDENTIFY_THRESHOLD = 0.78  # min cosine to claim a machine via embeddings
 # A semantic identification is the trigram-MISSED (less certain) path, so it is
@@ -52,6 +53,25 @@ def _cos(a, b) -> float:
 
 def _hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _query_vector(text: str):
+    """Embed a search query, once.
+
+    Both rankers (guides and general knowledge) run on the same turn against the same
+    problem text, and each embedded it separately — two identical round trips, ~1.2s each,
+    measured. Embeddings are deterministic, so the second one can only ever return what the
+    first did. Keyed on the embedding space so a model or dimensionality change cannot
+    serve a vector from the wrong one.
+    """
+    key = (f"qvec:{gemini.active_embedding_model()}:{constants.EMBED_DIM}:"
+           f"{_hash(text)[:24]}")
+    cached = django_cache.get(key)
+    if cached is not None:
+        return cached
+    vec = gemini.embed(text, task_type="RETRIEVAL_QUERY")
+    django_cache.set(key, vec, _QUERY_VEC_TTL)
+    return vec
 
 
 def _corpus_vectors(prefix: str, items: list[tuple]):
@@ -88,7 +108,7 @@ def semantic_identify(query: str, *, vendor=None):
     if not rows:
         return None, 0.0
     try:
-        qv = gemini.embed(query, task_type="RETRIEVAL_QUERY")
+        qv = _query_vector(query)
         vecs = _corpus_vectors(f"sem:machines:{getattr(vendor, 'pk', 'all')}", rows)
     except Exception:  # noqa: BLE001 — never break identification on an embedding error
         logger.warning("semantic_identify failed; trigram-only", exc_info=True)
@@ -178,7 +198,7 @@ def rank_general_knowledge(query: str, *, category_ids=None, subtype=None, onset
         return _keyword_fallback()
 
     try:
-        qv = gemini.embed(q, task_type="RETRIEVAL_QUERY")
+        qv = _query_vector(q)
     except Exception:  # noqa: BLE001
         logger.warning("rank_general_knowledge embed failed; keyword fallback", exc_info=True)
         return _keyword_fallback()
@@ -239,7 +259,7 @@ def rank_guides(query: str, *, locale: str = "en", top_k: int = 3):
     if not rows:
         return []
     try:
-        qv = gemini.embed(query, task_type="RETRIEVAL_QUERY")
+        qv = _query_vector(query)
         vecs = _corpus_vectors("sem:guides", rows)
     except Exception:  # noqa: BLE001
         logger.warning("rank_guides failed", exc_info=True)

@@ -117,12 +117,16 @@ def scenarios():
         dict(name="bad water", turns=["Vattenfilter", "85230",
                                       "Vattnet luktar illa och smakar järn", "vet inte",
                                       "vet inte", "nej"] + CONTACT,
-             expect=says("tekniker|Nordland|service|filter"), lead=True),
+             expect=says("tekniker|Nordland|service|filtr"), lead=True),
         # ── RESOLVE / advisory ───────────────────────────────────────────────
         dict(name="dirty filter", turns=["Värmepump", "85230",
                                          "Luften känns svagare, filtret ser dammigt ut",
                                          "IVT", "AirX 500", "Det har blivit sämre gradvis"],
-             expect=says("filter")),
+             # "filtr|filter", not "filter": Swedish's definite form is "filtret", where the
+             # e and r swap — so "filter" is not a substring of it and this check failed on
+             # a reply that said "Eftersom filtret ser dammigt ut". Fourth time this exact
+             # inflection trap has bitten today; the first three were in product code.
+             expect=says("filtr|filter")),
         dict(name="quote request", turns=["Jag vill ha offert på en ny värmepump", "85230"],
              expect=never_says("Det här verkar inte handla om")),
         # ── the promise the bot must never make ──────────────────────────────

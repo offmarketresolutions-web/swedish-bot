@@ -339,3 +339,93 @@ def test_a_gas_leak_in_plain_swedish_triggers_the_emergency(text):
     from chat.orchestrator import _GAS_EMERGENCY_RE
 
     assert _GAS_EMERGENCY_RE.search(text), f"a gas leak was not recognised: {text!r}"
+
+
+# ── fire, and emergencies after the case is closed ───────────────────────────
+# From a real transcript: after the hand-off, a customer typed "its on fire" and got
+# "You're all set — Nordland VVS will follow up. Anything else?". Two causes — there was no
+# fire trigger at all (only gas and refrigerant), and the emergency scan ran only in the
+# pre-escalation states, so a closed case stopped listening.
+
+FIRE_EMERGENCIES = [
+    "its on fire", "it's on fire", "the heat pump caught fire", "det brinner",
+    "Det brinner i värmepumpen", "det ryker ur utedelen", "det luktar bränt",
+    "burning smell from the unit", "smoke is coming out", "pumpen står i brand",
+    "brandlukt i pannrummet",
+]
+
+NOT_FIRE = [
+    "brandsläckaren är tom",        # the extinguisher is empty
+    "brandvarnaren piper",          # the smoke alarm is chirping
+    "ingen öppen eld eller rökning",  # our own refrigerant advice, quoted back
+    "jag slutade röka",             # I quit smoking
+    "värmepumpen låter konstigt",
+]
+
+
+@pytest.mark.parametrize("text", FIRE_EMERGENCIES)
+def test_a_fire_is_recognised(text):
+    from chat.orchestrator import _FIRE_EMERGENCY_RE
+
+    assert _FIRE_EMERGENCY_RE.search(text), f"a customer reporting fire was not heard: {text!r}"
+
+
+@pytest.mark.parametrize("text", NOT_FIRE)
+def test_ordinary_messages_do_not_trigger_a_fire_emergency(text):
+    from chat.orchestrator import _FIRE_EMERGENCY_RE
+
+    assert not _FIRE_EMERGENCY_RE.search(text), f"false fire alarm on {text!r}"
+
+
+@pytest.mark.parametrize("state", ["INTAKE", "ROUTING", "SPECIALIST", "ESCALATE", "RESOLVED"])
+def test_an_emergency_is_heard_in_every_state(seeded, mock_gemini, state):
+    """Especially RESOLVED and ESCALATE. The scan used to skip both, so the moment a case
+    was handed off or closed the bot answered a fire with its close-out template."""
+    from chat.casestate import new_case_state
+    from chat.models import Conversation
+
+    conv = Conversation.objects.create(language="en", case_state=new_case_state())
+    cs = conv.case_state
+    cs["state"] = state
+    cs["slots"]["category"] = "heat_pump"
+    conv.case_state = cs
+    conv.save()
+
+    res = orch.process_turn(conv, "its on fire")
+    assert "112" in res["message"], f"[{state}] no emergency line: {res['message'][:120]!r}"
+    conv.refresh_from_db()
+    assert conv.case_state["severity"] == "urgent", state
+    assert conv.case_state["escalation_reason"] == "fire emergency", state
+
+
+def test_a_closed_conversation_answers_a_real_follow_up(seeded, mock_gemini):
+    """"okay yea what do i do" got the same close-out line as everything else — the bot had
+    just asked "Anything else?" and then ignored the answer."""
+    from chat.casestate import new_case_state
+    from chat.models import Conversation
+
+    conv = Conversation.objects.create(language="en", case_state=new_case_state())
+    cs = conv.case_state
+    cs["state"] = "RESOLVED"
+    conv.case_state = cs
+    conv.save()
+
+    res = orch.process_turn(conv, "okay yea what do i do")
+    assert "all set" not in res["message"].lower(), res["message"]
+    conv.refresh_from_db()
+    assert conv.case_state["state"] == "INTAKE", "a real follow-up should reopen the case"
+
+
+@pytest.mark.parametrize("bye", ["no thanks", "tack", "nej", "bye", "ok"])
+def test_a_goodbye_still_closes(seeded, mock_gemini, bye):
+    from chat.casestate import new_case_state
+    from chat.models import Conversation
+
+    conv = Conversation.objects.create(language="en", case_state=new_case_state())
+    cs = conv.case_state
+    cs["state"] = "RESOLVED"
+    conv.case_state = cs
+    conv.save()
+
+    res = orch.process_turn(conv, bye)
+    assert "all set" in res["message"].lower(), f"{bye!r} reopened the case: {res['message']!r}"

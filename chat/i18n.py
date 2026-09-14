@@ -35,6 +35,12 @@ T = {
         # it. Someone standing outside a gas-leaking house, told to evacuate, very often
         # never finishes that — and believed help was already on the way when it was not.
         # Say what is true, and point at the help that actually comes fastest.
+        # Fire had no line at all: "its on fire" fell through to the close-out template.
+        "fire_emergency": "If something is burning or smoking: get everyone out of the "
+                          "building now and call 112 from outside. Do not try to put it out "
+                          "yourself and do not go back in for anything. When you are safe, "
+                          "give me a phone number and I'll send this to Nordland VVS marked "
+                          "urgent.",
         "gas_emergency": "If you smell gas: leave the building now, do not touch any switch, "
                          "breaker or light — a spark can ignite it — and call the emergency "
                          "number 112 from outside. 112 is the fastest help there is. "
@@ -96,6 +102,10 @@ T = {
         "handoff": "Based on what you've described, this is best handled by a Nordland VVS "
                    "technician so we get it exactly right. Shall I send your details to them?",
         "terminal": "You're all set — Nordland VVS will follow up. Anything else?",
+        # The conversation is closed but the customer is still typing. Every message used to
+        # get the line above, forever — "okay yea what do i do" and "yes" included, which
+        # reads as a wall rather than an answer.
+        "reopen": "Of course — tell me what's going on and I'll help.",
         "chip_yes_send": "Yes, send to Nordland",
         "chip_not_yet": "Not yet",
         "chip_notsure": "Not sure",
@@ -145,6 +155,10 @@ T = {
         "chip_other_model": "Annan modell",
         "chip_none_of_these": "Ingen av dessa",
         "confirm_fix": "Löste det problemet?",
+        "fire_emergency": "Om något brinner eller ryker: få ut alla ur byggnaden nu och ring "
+                          "112 utifrån. Försök inte släcka själv, och gå inte in igen för att "
+                          "hämta något. När du är i säkerhet: ge mig ett telefonnummer, så "
+                          "skickar jag ärendet till Nordland VVS märkt brådskande.",
         "gas_emergency": "Om det luktar gas: lämna byggnaden nu, rör inga strömbrytare, säkringar "
                          "eller lampor — en gnista kan antända gasen — och ring nödnumret 112 "
                          "utifrån. 112 är den hjälp som kommer snabbast. "
@@ -197,6 +211,7 @@ T = {
         "handoff": "Utifrån det du beskrivit är detta något en tekniker från Nordland VVS bör "
                    "hantera. Ska jag skicka dina uppgifter till dem?",
         "terminal": "Då är allt klart — Nordland VVS hör av sig. Något mer?",
+        "reopen": "Självklart — berätta vad det gäller så hjälper jag dig.",
         "chip_yes_send": "Ja, skicka till Nordland",
         "chip_not_yet": "Inte än",
         "chip_notsure": "Vet inte",

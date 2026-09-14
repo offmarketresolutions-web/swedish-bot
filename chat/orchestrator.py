@@ -71,8 +71,27 @@ _REFRIGERANT_EMERGENCY_RE = re.compile(
     re.I | re.S,
 )
 
+# Fire / smoke / burning. There was NO trigger for this at all — only gas and refrigerant —
+# so a customer typing "its on fire" got the canned close-out line. Kept deliberately
+# literal: an actual fire word, or something actively smoking/burning. "brandsläckare"
+# (extinguisher), "brandvarnare" (smoke alarm) and "rökning" (smoking, as in the
+# refrigerant advice) must NOT fire, or the emergency line becomes noise.
+_FIRE_EMERGENCY_RE = re.compile(
+    r"\b(det\s+)?brinner\b"
+    r"|\beldsvåda\b|\bbrandrök\w*|\bbrandlukt\w*"
+    r"|\beld\s+(i|ur|på)\b"
+    r"|\b(är|står)\s+i\s+brand\b"
+    r"|\b(lukt\w*|luktar|luktade)\s+bränt\b|\bbränd\s+lukt\b"
+    r"|\bdet\s+ryker\b|\bryker\s+(ur|från|om)\b|\brök\s+(ur|från|kommer)\b"
+    r"|\b(on|catch\w*|caught)\s+fire\b|\bit'?s\s+(on\s+)?fire\b"
+    r"|\bburning\s+smell\b|\bsmell\w*\s+(of\s+)?burning\b|\bsmells?\s+burnt\b"
+    r"|\bsmoke\s+(is\s+)?(coming|pouring)\b|\bit'?s\s+smoking\b",
+    re.I | re.S,
+)
+
 # (regex, i18n key, escalation reason) — first match wins; gas is the graver of the two.
 _EMERGENCY_TRIGGERS = (
+    (_FIRE_EMERGENCY_RE, "fire_emergency", "fire emergency"),
     (_GAS_EMERGENCY_RE, "gas_emergency", "gas emergency"),
     (_REFRIGERANT_EMERGENCY_RE, "refrigerant_emergency", "refrigerant emergency"),
 )
@@ -385,10 +404,12 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
         out = _save_details_step(conversation, cs, user_text, locale)
         if out is not None:
             return out
-    # Gas/fuel smell or leak in the customer's words → deterministic emergency, before any
-    # model call, in every pre-escalation state.
-    if (user_text and not cs.get("gas_emergency")
-            and cs["state"] in (STATE_INTAKE, STATE_ROUTING, STATE_SPECIALIST)):
+    # Fire, gas or refrigerant in the customer's own words → deterministic emergency, before
+    # any model call, in EVERY state. This used to be limited to the pre-escalation states,
+    # so once a case was handed off or closed the bot stopped listening: a customer who
+    # typed "its on fire" after the hand-off got "You're all set — Nordland VVS will follow
+    # up. Anything else?". An emergency outranks whatever state the conversation is in.
+    if user_text and not cs.get("gas_emergency"):
         for rx, key, reason in _EMERGENCY_TRIGGERS:
             if rx.search(user_text):
                 return _deterministic_emergency(cs, events, locale, key, reason)
@@ -414,7 +435,7 @@ def _advance(conversation, cs, user_text, events, locale) -> dict:
         elif st == STATE_ESCALATE:
             return _escalate_step(conversation, cs, user_text, locale)
         else:  # RESOLVED
-            return _terminal_step(cs, locale)
+            return _terminal_step(cs, user_text, locale)
     return {"message": _handoff_line(locale), "chips": _escalation_chips(locale)}
 
 
@@ -1772,8 +1793,35 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
     return {"message": msg, "chips": _escalation_chips(locale), "decision": "escalate"}
 
 
-def _terminal_step(cs, locale) -> dict:
-    return {"message": t(locale, "terminal"), "chips": []}
+# A goodbye, not a new problem: these end the conversation rather than reopening it.
+_CLOSING = re.compile(
+    r"^(no|nope|nej|inget|ingenting|nej tack|no thanks|thanks?|tack|tack så mycket|"
+    r"ok|okej|okay|bra|perfekt|great|bye|hej då|adjö|ha det bra|cheers)[.!]*$",
+    re.IGNORECASE)
+
+
+def _terminal_step(cs, user_text, locale) -> dict:
+    """The case is closed, but the customer is still typing.
+
+    This used to answer every message with the same line forever. In one real transcript
+    "okay yea what do i do", "its on fire" and "yes" each got "You're all set — Nordland VVS
+    will follow up. Anything else?". An emergency is now caught before this point; anything
+    else that is not a goodbye reopens intake instead of being met with a form letter —
+    the bot asked "Anything else?", so "yes" has to mean something.
+    """
+    txt = (user_text or "").strip()
+    if not txt or _CLOSING.match(txt):
+        return {"message": t(locale, "terminal"), "chips": []}
+
+    # Same customer, same equipment, new problem: keep what identifies them and the machine,
+    # clear what described the old fault so the new one is captured on its own terms.
+    for slot in ("problem", "error_code", "alarm_text", "onset", "operating_context"):
+        cs["slots"][slot] = None
+    cs["state"] = STATE_INTAKE
+    cs["current_slot"] = "problem"
+    cs["reask"] = 0
+    cs["decision"] = ""
+    return {"message": t(locale, "reopen"), "chips": []}
 
 
 def _run_vision(conversation, cs, events, locale):

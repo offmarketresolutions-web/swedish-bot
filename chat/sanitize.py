@@ -96,6 +96,11 @@ def clean_name(s: str) -> str:
     return cleaned
 
 
+# Six or more of the same digit in a row: 0000000, 1111111. Real numbers do not look like
+# this, and it is the shape people type when they want the question to go away.
+_REPEATED_RUN = re.compile(r"(\d)\1{5,}")
+
+
 def clean_phone(s: str) -> str:
     """Normalize to E.164 ('+CCdigits'); '' if it isn't a plausible phone. A national
     number (leading 0) assumes Sweden (+46); '00' / '+' prefixes are kept as the country
@@ -112,7 +117,14 @@ def clean_phone(s: str) -> str:
     else:
         num = ""  # bare digits with no country code → ambiguous, reject
     digits = num[1:]
-    return num if num.startswith("+") and digits.isdigit() and 8 <= len(digits) <= 15 else ""
+    if not (num.startswith("+") and digits.isdigit() and 8 <= len(digits) <= 15):
+        return ""
+    # Shape alone let "+3100000000" and "0000000000" through, and the office got a lead it
+    # could never call. No country code starts with 0, and no real subscriber number has a
+    # run of six identical digits — a customer typing that is declining without saying so.
+    if digits.startswith("0") or _REPEATED_RUN.search(digits):
+        return ""
+    return num
 
 
 def clean_email(s: str) -> str:
