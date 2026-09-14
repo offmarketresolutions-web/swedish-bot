@@ -155,3 +155,99 @@ def test_h8_garbled_answers_never_trigger_off_domain_close(seeded, mock_gemini):
     assert res2["state"] == "INTAKE"
     conv.refresh_from_db()
     assert conv.case_state.get("off_domain_streak", 0) == 0
+
+
+# H6b -- the lawnmower shape: an off-domain OPENER (so no category is ever established)
+# followed by a vague follow-up that names no equipment. The follow-up is about the
+# lawnmower too; treating it as neutral reset the streak, and the conversation walked on
+# into postcode collection with category="heat_pump" invented from "it won't start".
+def test_a_vague_follow_up_to_an_off_domain_opener_still_closes(seeded, mock_gemini):
+    off = {"category": None, "subtype": None, "brand": None, "model": None,
+           "error_code": None, "alarm_text": None, "onset": None, "postal_code": None,
+           "installer": None, "operating_context": None, "readings": [], "problem": None,
+           "off_domain": True}
+    mock_gemini.responses["bulk"] = off
+
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "Kan ni fixa min gräsklippare?")
+
+    # The follow-up names no equipment at all, so the extractor does NOT flag it off-domain
+    # — this is the turn that used to rescue the conversation.
+    mock_gemini.responses["bulk"] = {**off, "off_domain": False, "problem": "startar inte"}
+    final = orch.process_turn(conv, "Den startar inte alls")
+
+    assert final.get("decision") == "off_domain_close", (
+        "the lawnmower conversation carried on instead of declining; it replied "
+        f"{(final.get('message') or '')[:90]!r}")
+    assert conv.case_state["slots"]["category"] is None, (
+        "no equipment family was ever named — inventing one puts a lawnmower in the CRM as "
+        f"a heat pump: {conv.case_state['slots']['category']!r}")
+    assert ServiceRequest.objects.count() == 0
+
+
+def test_a_vague_follow_up_does_not_close_once_the_category_is_known(seeded, mock_gemini):
+    """The other side of it: a real heat-pump customer whose opener was misread as
+    off-domain must not be closed on by a short reply. A known category means we are on
+    topic, whatever one classifier said."""
+    off = {"category": None, "subtype": None, "brand": None, "model": None,
+           "error_code": None, "alarm_text": None, "onset": None, "postal_code": None,
+           "installer": None, "operating_context": None, "readings": [], "problem": None,
+           "off_domain": True}
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")          # category established up front
+    orch.process_turn(conv, "no")
+    mock_gemini.responses["bulk"] = off
+    orch.process_turn(conv, "write me a Python script")
+    mock_gemini.responses["bulk"] = {**off, "off_domain": False, "problem": "startar inte"}
+    res = orch.process_turn(conv, "Den startar inte alls")
+
+    assert res.get("decision") != "off_domain_close", "an on-topic case was closed on a short reply"
+
+
+# H9 -- a sustained upstream outage must not look like the bot ignoring the customer.
+def test_repeated_extractor_failures_stop_re_asking_the_same_question(seeded, mock_gemini,
+                                                                     monkeypatch):
+    """Seen for real when a burst exhausted the Vertex quota: every extractor call 429'd,
+    and because a failed call re-renders the question without charging a strike, the bot
+    asked "vilken typ av utrustning gäller det?" five times at a customer who had answered
+    it correctly every time. From the outside that is indistinguishable from being ignored.
+    """
+    from chat import intake
+
+    # orchestrator does `from chat.intake import extract_answer`, so the name it calls is
+    # bound on the orchestrator module — patching chat.intake leaves the real one running.
+    monkeypatch.setattr(orch, "extract_answer", lambda *a, **k: (None, ""))
+    monkeypatch.setattr(intake, "looks_rich", lambda *a, **k: False)
+
+    conv, _ = orch.open_conversation("sv")
+    first = orch.process_turn(conv, "Värmepump")
+    second = orch.process_turn(conv, "Värmepump")
+
+    # One blip re-renders the question silently — that part is deliberate.
+    assert "utrustning" in first["message"].lower(), first["message"]
+    # The second says whose fault it is instead of asking the same thing a third time.
+    assert second["message"] != first["message"], (
+        f"the bot asked the same question again during an outage: {second['message']!r}")
+    assert "inte du" in second["message"], second["message"]
+
+
+def test_one_failure_then_success_does_not_leave_the_conversation_soured(seeded, mock_gemini,
+                                                                        monkeypatch):
+    """The streak must reset, or a single blip early on would poison a long conversation."""
+    from chat import intake
+
+    calls = {"n": 0}
+    real = orch.extract_answer
+
+    def flaky(slot, text, cs, locale="en"):
+        calls["n"] += 1
+        return (None, "") if calls["n"] == 1 else real(slot, text, cs, locale)
+
+    monkeypatch.setattr(orch, "extract_answer", flaky)
+    monkeypatch.setattr(intake, "looks_rich", lambda *a, **k: False)
+
+    conv, _ = orch.open_conversation("sv")
+    orch.process_turn(conv, "Värmepump")          # fails
+    orch.process_turn(conv, "Värmepump")          # succeeds -> streak resets
+    conv.refresh_from_db()
+    assert conv.case_state.get("extract_fail_streak") == 0

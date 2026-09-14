@@ -153,8 +153,20 @@ def post(base, path, *, payload=None, message=None, photo=None, timeout=240):
     else:
         req = urllib.request.Request(url, method="POST", data=json.dumps(payload).encode(),
                                      headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode("utf-8", "replace")
+    # Production rate-limits sessions per IP per window (RATE_LIMIT_SESSION / _WINDOW), and
+    # a 20-conversation campaign sits right on that line. An unhandled 429 used to kill the
+    # run and throw away 17 completed results, which made a working bot look broken.
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as exc:
+            if exc.code != 429 or attempt == 3:
+                raise
+            wait = 30 * (attempt + 1)
+            print(f"      rate-limited, waiting {wait}s ({attempt + 1}/3)", flush=True)
+            time.sleep(wait)
+    raise RuntimeError("unreachable")
 
 
 def bot_text(raw):
@@ -171,15 +183,21 @@ def bot_text(raw):
 
 
 def run_one(base, sc):
-    sid = json.loads(post(base, "/api/chat/session", payload={"language": "sv"}))["public_id"]
-    turns, t0 = [], time.monotonic()
+    t0 = time.monotonic()
+    try:
+        sid = json.loads(post(base, "/api/chat/session", payload={"language": "sv"}))["public_id"]
+    except Exception as exc:  # noqa: BLE001 — one unreachable scenario must not end the run
+        return dict(name=sc["name"], ok=False, why=f"could not start: {exc}",
+                    secs=time.monotonic() - t0, sid=None, turns=[])
+    turns = []
     for step in sc["turns"]:
         text, photo = step if isinstance(step, tuple) else (step, None)
         try:
             raw = post(base, f"/api/chat/{sid}/message", payload={"message": text},
                        message=text, photo=photo)
-        except (urllib.error.URLError, TimeoutError) as exc:
-            return dict(name=sc["name"], ok=False, why=f"transport: {exc}", secs=0, sid=sid, turns=turns)
+        except Exception as exc:  # noqa: BLE001 — report it and move to the next customer
+            return dict(name=sc["name"], ok=False, why=f"transport: {exc}",
+                        secs=time.monotonic() - t0, sid=sid, turns=turns)
         turns += bot_text(raw)
     ok, why = sc["expect"](turns)
     return dict(name=sc["name"], ok=ok, why=why, secs=time.monotonic() - t0, sid=sid,
@@ -190,6 +208,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default="http://127.0.0.1:8090")
     ap.add_argument("--only", default="", help="substring filter on scenario name")
+    ap.add_argument("--pace", type=float, default=8.0,
+                    help="seconds to pause between conversations. A 20-conversation burst "
+                         "exhausts the Vertex quota, and every extractor call then 429s — "
+                         "which reads as the bot ignoring the customer, not as a quota "
+                         "problem. Pace it, or the run measures the quota rather than the bot.")
     args = ap.parse_args()
 
     missing = [p.name for p in
@@ -203,6 +226,8 @@ def main():
     print(f"{len(todo)} conversations against {args.base}\n")
     results = []
     for i, sc in enumerate(todo, 1):
+        if i > 1 and args.pace:
+            time.sleep(args.pace)
         r = run_one(args.base, sc)
         results.append(r)
         mark = "PASS" if r["ok"] else "FAIL"

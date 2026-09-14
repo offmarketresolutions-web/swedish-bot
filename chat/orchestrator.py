@@ -492,6 +492,14 @@ def _intake_step(cs, user_text, locale) -> dict | None:
         # safety/abuse rule this turn always wins over an off-domain close.
         if off_domain_now and not cs.get("escalation_reason"):
             cs["off_domain_streak"] = cs.get("off_domain_streak", 0) + 1
+        elif cs.get("off_domain_streak") and not cs["slots"].get("category"):
+            # A follow-up that names no in-scope equipment does not rescue an off-domain
+            # subject — it confirms it. "Kan ni fixa min gräsklippare?" then "Den startar
+            # inte alls": the second message is about the lawnmower, and resetting the
+            # streak on it carried that conversation into postcode collection with
+            # category="heat_pump" invented along the way. The customer was asked which
+            # equipment it is and did not name one of ours; that is the answer.
+            cs["off_domain_streak"] += 1
         else:
             cs["off_domain_streak"] = 0
         if cs["off_domain_streak"] >= 2:
@@ -513,8 +521,18 @@ def _intake_step(cs, user_text, locale) -> dict | None:
                 # "didn't quite catch that" apology and without charging a strike, so a
                 # transient outage never blames the customer or degrades the slot to
                 # unknown. Their next attempt gets a clean read.
+                cs["extract_fail_streak"] = cs.get("extract_fail_streak", 0) + 1
+                if cs["extract_fail_streak"] >= 2:
+                    # Not a blip any more. Seen for real during a burst that exhausted the
+                    # Vertex quota: every call 429'd and the bot asked "vilken typ av
+                    # utrustning gäller det?" five times in a row at a customer who had
+                    # answered it correctly every time. Say it is our problem instead of
+                    # silently looping — they cannot tell the difference from being ignored.
+                    return {"message": t(locale, "turn_failed"),
+                            "chips": intake.chips_for(current, cs, locale)}
                 return {"message": t(locale, "q_" + current),
                         "chips": intake.chips_for(current, cs, locale)}
+            cs["extract_fail_streak"] = 0
             # Postcode is normalized to 5 digits on capture; an undecodable answer rides
             # the same 2-reask→unknown machinery as any off-target reply (plan S2 §4).
             if current == "postal_code" and on_target and value and value != "unknown":

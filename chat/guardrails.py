@@ -88,13 +88,19 @@ _FORBIDDEN_INSTRUCTION = re.compile(
 # longer suppressed into a zero-content escalation (gap #4). Instruction phrasings above
 # still veto unconditionally.
 _FORBIDDEN_NOUN = re.compile(
+    # Every Swedish noun here carries \w* so the DEFINITE form matches. Seven of them did
+    # not, and the definite is how Swedes actually write: "öppna tryckvakten", not "öppna
+    # tryckvakt". The veto saw the first and missed the second — the same word-boundary
+    # assumption that let "köldmedieläckage" walk past the refrigerant emergency trigger.
     r"\b(refrigerant|pre-?charge|expansion vessel|relief valve|safety valve|pressure switch|"
     # S4 water-domain regulated nouns — mention-safe, veto only with a manipulation cue nearby.
-    r"pressostat|tryckvakt|förtryck|hydrofor|tryckkärl|filtermassa|filter media|doseringspump|"
-    r"brunnspump\w*|torrkörningsskydd|dry-?run protection|"
+    r"pressostat\w*|tryckvakt\w*|förtryck\w*|hydrofor\w*|tryckkärl\w*|filtermassa\w*|"
+    r"filter media|doseringspump\w*|"
+    r"brunnspump\w*|torrkörningsskydd\w*|dry-?run protection|"
     r"köldmedi\w*|kylkrets\w*|expansionskärl\w*|säkerhetsventil\w*)\b",
     re.IGNORECASE,
 )
+
 # Manipulation cues — verbs that turn a noun-mention into an instruction to DO the work.
 # Look-only words (check, look, read, note, observe, confirm, switch off at the main) are
 # deliberately absent: observing is always safe.

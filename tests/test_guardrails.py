@@ -227,3 +227,29 @@ def test_guardrail_add_and_delete_endpoints(staff, client):
 
 def test_guardrails_page_is_staff_only(client):
     assert client.get("/dashboard/guardrails/").status_code in (302, 403)
+
+
+# ── Swedish definite forms are how people actually write ─────────────────────
+
+@pytest.mark.parametrize("noun", [
+    "tryckvakten", "förtrycket", "hydroforen", "tryckkärlet", "filtermassan",
+    "doseringspumpen", "pressostaten", "brunnspumpen", "säkerhetsventilen",
+    "köldmediekretsen",
+])
+def test_the_definite_form_of_a_regulated_noun_is_still_regulated(noun):
+    """Seven of these matched only in the indefinite form. Nobody writes "öppna tryckvakt";
+    they write "öppna tryckvakten" — and the veto saw the first and missed the second. Same
+    word-boundary assumption that let "köldmedieläckage" past the refrigerant trigger."""
+    from chat.guardrails import _FORBIDDEN_NOUN
+
+    assert _FORBIDDEN_NOUN.search(noun), (
+        f"{noun!r} is the everyday Swedish spelling of a technician-only part and must be "
+        "recognised as one")
+
+
+@pytest.mark.parametrize("noun", ["värmepumpen", "filtret", "termostaten", "displayen", "fläkten"])
+def test_ordinary_customer_parts_are_not_regulated(noun):
+    """The widening must not sweep in the things a customer may legitimately touch."""
+    from chat.guardrails import _FORBIDDEN_NOUN
+
+    assert not _FORBIDDEN_NOUN.search(noun), f"{noun!r} is a customer-serviceable part"
