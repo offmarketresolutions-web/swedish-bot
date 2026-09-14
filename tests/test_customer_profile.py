@@ -224,3 +224,44 @@ def test_a_shared_number_does_not_fork_the_other_persons_profile(seeded):
         f"her visits are split across rows ({anna.sessions.count()} session(s) on her profile)")
     assert anna.email == "anna@example.se", "her details were overwritten by the other caller"
     assert Customer.objects.get(pk=bengt_id).email == "bengt@example.se"
+
+
+def test_a_name_with_no_way_to_reach_them_writes_no_profile(seeded):
+    """Production accumulated four Customer rows named "what", "no" and "Kan du svara på fel
+    som inte står i manualen" — fragments of customer messages captured as names, with no
+    phone, email or address on any of them. Those are not leads; they are rows a human has
+    to clean up. The Session still carries the whole case, so nothing is lost.
+
+    Driven through _sync_customer directly: the declined-contact conversation closes
+    gracefully before the sync is ever reached, so it cannot exercise this guard.
+    """
+    from chat.models import Conversation
+    from chat.orchestrator import _sync_customer
+    from crm.models import Customer, Session
+
+    before = Customer.objects.count()
+    session = Session.objects.create(conversation=Conversation.objects.create(language="sv"))
+    _sync_customer(session, {"contact": {"name": "Kan du svara på fel som inte står i manualen",
+                                         "phone": None, "email": None, "address": None,
+                                         "postal_code": None, "consent": None}})
+
+    session.refresh_from_db()
+    assert Customer.objects.count() == before, (
+        "a name with no phone, email or address was written as a profile: "
+        f"{[(c.pk, c.name) for c in Customer.objects.order_by('-id')[:2]]}")
+    assert session.customer_id is None, "the session was linked to an unreachable profile"
+
+
+def test_one_contactable_field_is_enough_to_write_a_profile(seeded):
+    """The other side of the guard: an email alone still makes a reachable lead."""
+    from chat.models import Conversation
+    from chat.orchestrator import _sync_customer
+    from crm.models import Customer, Session
+
+    session = Session.objects.create(conversation=Conversation.objects.create(language="sv"))
+    _sync_customer(session, {"contact": {"name": "Eva Sund", "phone": None,
+                                         "email": "eva@example.se", "address": None,
+                                         "postal_code": None, "consent": True}})
+    session.refresh_from_db()
+    assert session.customer_id, "an email-only lead should still be recorded"
+    assert Customer.objects.get(pk=session.customer_id).email == "eva@example.se"

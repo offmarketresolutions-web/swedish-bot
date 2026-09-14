@@ -51,9 +51,15 @@ _GAS_EMERGENCY_RE = re.compile(
 # IVT/Bosch units run R32/R290 (A2L/A3, flammable), so the safe default is the gas shape:
 # ventilate, keep away, no flames, touch nothing, technician now. No switch instruction.
 _REFRIGERANT_EMERGENCY_RE = re.compile(
-    r"\b(köldmedi\w*|kylmedi\w*|refrigerant|freon)\b.{0,60}\b(lukt|doft|läck|leak|smell|hiss|väs|pys)"
-    r"|\b(lukt|doft|läck|leak|smell|hiss\w*|väs\w*|pys\w*)\b.{0,60}\b(köldmedi\w*|kylmedi\w*|refrigerant|freon)\b"
-    r"|\bkemisk (lukt|doft)\b.{0,60}\b(utomhusenhet\w*|utedel\w*|värmepump\w*)"
+    # Note the \w* after every smell/leak verb. These used to be followed by \b, which
+    # matches the bare noun "lukt" but NOT the inflected forms a Swede actually types:
+    # "det luktar köldmedium" and "det läcker köldmedie vid utedelen" — about as explicit
+    # as a refrigerant leak gets — both fell through to "what is your postcode?".
+    r"\b(k[oö]ldmedi\w*|kylmedi\w*|refrigerant|freon)\b.{0,60}\b(lukt|doft|läck|leak|smell|hiss|väs|pys)"
+    r"|\b(lukt|doft|läck|leak|smell|hiss|väs|pys)\w*.{0,60}\b(k[oö]ldmedi\w*|kylmedi\w*|refrigerant|freon)\b"
+    # "kemisk lukt" and "luktar kemiskt" are the same report; only the noun form matched.
+    r"|\bkemisk\w*.{0,20}\b(lukt\w*|doft\w*)\b.{0,60}\b(utomhusenhet\w*|utedel\w*|värmepump\w*)"
+    r"|\b(lukt\w*|doft\w*)\b.{0,20}\bkemisk\w*.{0,60}\b(utomhusenhet\w*|utedel\w*|värmepump\w*)"
     r"|\bchemical (smell|odou?r)\b.{0,60}\b(outdoor unit|heat ?pump)",
     re.I | re.S,
 )

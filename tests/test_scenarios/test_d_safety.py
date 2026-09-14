@@ -276,3 +276,56 @@ def test_d11_a_noisy_outdoor_unit_is_not_a_refrigerant_emergency(seeded, mock_ge
     msg = orch.process_turn(conv, "The outdoor unit is louder than usual since last week")["message"]
     assert not any(line in msg for line in _REFRIG)
     assert not any(line in msg for line in _EMERGENCY)
+
+
+# ── the emergency triggers must survive Swedish inflection ───────────────────
+# Found by driving the widget with a customer's own words. The smell/leak verbs in the
+# refrigerant pattern were followed by \b, which matches the bare noun "lukt" but not
+# "luktar" or "läcker" — so "det läcker köldmedie vid utedelen", about as explicit as a
+# refrigerant leak gets, was answered with "what is your postcode?".
+
+REFRIGERANT_EMERGENCIES = [
+    "Det luktar kemiskt vid utedelen och det väser om den",
+    "Kemisk lukt vid utomhusenheten",
+    "Det luktar köldmedium",
+    "Jag tror det läcker köldmedie vid utedelen",
+    "Det luktar konstigt kemiskt runt värmepumpen",
+    "Det pyser köldmedium ur röret",
+    "chemical smell at the outdoor unit",
+]
+
+NOT_EMERGENCIES = [
+    "Det luktar bränt i köket",              # a different problem, not this trigger's job
+    "Värmepumpen låter konstigt",
+    "Jag vill boka service på värmepumpen",
+    "Vad kostar en påfyllning av köldmedium?",   # names refrigerant, but it is a price question
+]
+
+
+@pytest.mark.parametrize("text", REFRIGERANT_EMERGENCIES)
+def test_a_refrigerant_leak_in_plain_swedish_triggers_the_emergency(text):
+    from chat.orchestrator import _REFRIGERANT_EMERGENCY_RE
+
+    assert _REFRIGERANT_EMERGENCY_RE.search(text), (
+        f"a customer reporting a refrigerant leak was not recognised: {text!r}")
+
+
+@pytest.mark.parametrize("text", NOT_EMERGENCIES)
+def test_ordinary_messages_do_not_trigger_the_refrigerant_emergency(text):
+    from chat.orchestrator import _REFRIGERANT_EMERGENCY_RE
+
+    assert not _REFRIGERANT_EMERGENCY_RE.search(text), (
+        f"an ordinary message was treated as a refrigerant leak: {text!r}")
+
+
+@pytest.mark.parametrize("text", [
+    "Det luktar gas vid pannan",
+    "Det luktar gasol i källaren",
+    "Jag tror det läcker gas",
+    "gaslukt i huset",
+    "I can smell gas near the boiler",
+])
+def test_a_gas_leak_in_plain_swedish_triggers_the_emergency(text):
+    from chat.orchestrator import _GAS_EMERGENCY_RE
+
+    assert _GAS_EMERGENCY_RE.search(text), f"a gas leak was not recognised: {text!r}"
