@@ -344,3 +344,37 @@ def test_the_owner_can_read_back_the_whole_transcript(page: Page, orm):
     assert len(transcript) > 400, f"the transcript looks truncated ({len(transcript)} chars)"
 
     shot(page, "owner_transcript_replica.png")
+
+
+def test_a_second_person_on_the_line_does_not_fork_the_first(page: Page, orm):
+    """The fork, proved through the widget rather than the ORM.
+
+    ORDER MATTERS: the old lookup took the first row on the phone hash, so the bug only
+    bites when the OTHER person holds the lower id. Bengt calls first; Anna's two visits
+    must then still land on one profile.
+    """
+    from chat import sanitize
+
+    shared = f"070-556 {UNIQUE[:2]} {UNIQUE[2:4]}"
+    stored = sanitize.clean_phone(shared)
+    bengt = {"name": "Bengt Karlsson", "phone": shared, "email": f"bengt.line.{UNIQUE}@example.se"}
+    anna = {"name": "Anna Lindqvist", "phone": shared, "email": f"anna.line.{UNIQUE}@example.se"}
+
+    run_journey(page, bengt, "Ingen varmvatten alls")
+    run_journey(page, anna, "Värmepumpen larmar och ger ingen värme")
+    run_journey(page, anna, "Den låter konstigt när den startar")
+
+    with orm.unblock():
+        from crm.models import Customer
+
+        on_line = Customer.objects.filter(phone=stored)
+        assert on_line.count() == 2, (
+            "two people share this line, so there must be exactly two profiles — got "
+            f"{[(c.pk, c.name) for c in on_line]}")
+
+        annas = on_line.filter(name="Anna Lindqvist")
+        assert annas.count() == 1, f"Anna was forked into {annas.count()} rows"
+        assert annas.first().sessions.count() >= 2, (
+            "her second visit did not join her history")
+        assert on_line.get(name="Bengt Karlsson").email == bengt["email"], (
+            "Bengt's details were overwritten by the other caller")

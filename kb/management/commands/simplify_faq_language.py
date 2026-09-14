@@ -10,13 +10,26 @@ parse that.
     python manage.py simplify_faq_language                    # all pending
 
 SAFETY. These answers tell people what they may and may not touch, so a rewrite that
-loses a qualifier is worse than a hard sentence. Every rewrite must survive three checks
-before it is stored, and the original is kept whenever one fails:
+changes what they SAY is worse than a hard sentence. check_rewrite() is the gate; the
+original is kept whenever any of these fails:
 
-  1. the deterministic forbidden-term scan (chat.guardrails) must still pass;
-  2. every negation/condition in the original ("endast", "inte", "aldrig", "om") must
-     still be present — that is where "only if the manual describes it" lives;
-  3. it must actually be simpler, and not have grown into a different answer.
+  * the opening verdict. A production run turned "Ja. Kontrollera att den inte står i
+    AUTO…" into "Nej. Kontrollera…" — every other check passed, because the restriction
+    count was identical. For a yes/no answer that first word IS the answer.
+  * the restrictions. At least as many prohibitions as the original ("endast", "inte",
+    "låt en tekniker") — that is where "only if the manual describes it" lives.
+  * the numbers. Every temperature, pressure, wait time and code in the original must
+    still be there, and none invented.
+  * the length, both ways. Much longer means invented steps; much shorter means dropped
+    ones (the prompt forbids both, and nothing used to verify the second).
+  * professional-only work. The rewrite may repeat what the original said about a safety
+    valve or a service menu; it may never introduce one.
+  * the deterministic forbidden-term scan (chat.guardrails).
+
+None of this makes an LLM rewrite safe to ship unread — it makes the failures that have
+actually happened impossible to store silently. Answers that are already plain are skipped,
+so re-running is idempotent: without that the command had no memory of its own work and a
+second pass rewrote 78 answers it had already simplified, each a rewrite of a rewrite.
 
 Nothing is ever approved by this command. Rewritten rows stay pending for review, which
 is the whole point: the owner reads plain Swedish instead of officialese.
@@ -74,19 +87,77 @@ def qualifiers(text: str) -> int:
     return len(_QUALIFIERS.findall(text or ""))
 
 
-def long_words(text: str) -> int:
-    return sum(1 for w in (text or "").split() if len(w.strip(".,;:()")) > 13)
+# An answer that opens with a verdict is answering a yes/no question, and that first word
+# IS the answer. A live run on production turned "Ja. Kontrollera att den inte står i AUTO…"
+# into "Nej. Kontrollera att den inte står i…" — the restriction count was identical, every
+# other check passed, and the answer now said the opposite thing.
+_VERDICT = re.compile(r"^\W*(ja|nej|yes|no)\b", re.I)
+
+
+def verdict(text: str) -> str | None:
+    m = _VERDICT.match(text or "")
+    return m.group(1).lower() if m else None
+
+
+_SENTENCE_END = re.compile(r"[.!?\n]")
+
+
+def max_sentence_words(text: str) -> int:
+    return max((len(s.split()) for s in _SENTENCE_END.split(text or "") if s.strip()),
+               default=0)
+
+
+def needs_simplifying(text: str) -> bool:
+    """Is this still officialese? A 14+ character compound, or a sentence over 18 words.
+
+    Without this the command has no memory of its own work: every run re-simplified text it
+    had already simplified, so a second pass rewrote 78 answers that were already plain —
+    each one a rewrite of a rewrite rather than of the original.
+    """
+    # A higher bar than the >13 used for before/after reporting. Swedish is built on
+    # compounds — "fjärrkontrollen" is 15 characters of everyday vocabulary, and flagging
+    # that would send almost every already-plain answer back through the model.
+    # "reklamationsbedömning" (21) is the kind of word this is actually looking for.
+    return bool(long_words(text, over=16)) or max_sentence_words(text) > 18
+
+
+def long_words(text: str, over: int = 13) -> int:
+    return sum(1 for w in (text or "").split() if len(w.strip(".,;:()")) > over)
+
+
+# Every number the original states is load-bearing: a temperature, a pressure, a wait time,
+# an error code. "sänk till 21 grader" must not come back as "sänk till 12 grader", and a
+# number that was never in the original must not appear. Presence, not count, so a rewrite
+# is free to repeat one.
+_NUMBER = re.compile(r"\d+")
+
+
+def numbers(text: str) -> set[str]:
+    return set(_NUMBER.findall(text or ""))
 
 
 def check_rewrite(original: str, rewritten: str) -> str | None:
     """Return a reason to REJECT the rewrite, or None when it is safe to store."""
     if not rewritten or len(rewritten) < 20:
         return "empty or truncated"
+    before_v, after_v = verdict(original), verdict(rewritten)
+    if before_v != after_v:
+        return f"the answer's verdict changed: {before_v or 'none'} -> {after_v or 'none'}"
     before, after = qualifiers(original), qualifiers(rewritten)
     if after < before:
         return f"weaker than the original — {before} restriction(s) became {after}"
     if len(rewritten.split()) > len(original.split()) * 1.6 + 10:
         return "much longer than the original — likely added content"
+    # The prompt says "never remove a step", but nothing verified it: the length check only
+    # ever looked at growth, so a rewrite that quietly dropped half the instructions passed.
+    if len(rewritten.split()) < len(original.split()) * 0.5:
+        return "much shorter than the original — likely dropped a step"
+    dropped = numbers(original) - numbers(rewritten)
+    if dropped:
+        return f"dropped number(s) the original stated: {', '.join(sorted(dropped))}"
+    invented = numbers(rewritten) - numbers(original)
+    if invented:
+        return f"invented number(s) not in the original: {', '.join(sorted(invented))}"
     added = {m.group(0).lower() for m in _PRO_WORK.finditer(rewritten)} - \
             {m.group(0).lower() for m in _PRO_WORK.finditer(original)}
     if added:
@@ -127,12 +198,15 @@ class Command(BaseCommand):
             sites = sites.filter(is_approved=False)
         targets += [("site", s, s.answer) for s in sites if (s.answer or "").strip()]
 
+        already_simple = [t for t in targets if not needs_simplifying(t[2])]
+        targets = [t for t in targets if needs_simplifying(t[2])]
         if opts["limit"]:
             targets = targets[:opts["limit"]]
         self.stdout.write(f"Rewriting {len(targets)} answer(s)"
                           + (" — DRY RUN, nothing is written" if opts["dry_run"] else ""))
 
-        rewritten = refused = unchanged = 0
+        rewritten = refused = 0
+        unchanged = len(already_simple)
         quota_failed: list[str] = []
         for kind, obj, original in targets:
             new, err = self._rewrite(gemini, original, opts["retries"], opts["sleep"])
@@ -149,6 +223,11 @@ class Command(BaseCommand):
             if reason:
                 refused += 1
                 self.stderr.write(self.style.WARNING(f"  [{kind} {obj.pk}] kept original — {reason}"))
+                if opts["dry_run"]:
+                    # Show the rejected text too: "kept original" alone gives no way to tell
+                    # a gate that is protecting a customer from one that is too strict.
+                    self.stdout.write(f"    REJECTED ({len(original.split())} -> "
+                                      f"{len(new.split())} words): {new[:400]}")
                 continue
             if new.strip() == original.strip():
                 unchanged += 1
