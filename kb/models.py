@@ -107,6 +107,13 @@ class MachineDocument(models.Model):
     parsed_text = models.TextField(blank=True)
     token_estimate = models.IntegerField(default=0)
     sha256 = models.CharField(max_length=64, blank=True)
+    # Whether this manual documents what alarm/error codes MEAN, established by one
+    # vision pass at ingest (kb.alarms) because the codes live in display photos the
+    # text layer misses. alarm_scan_sha records which bytes were scanned, so replacing
+    # the PDF invalidates the answer instead of silently keeping the old one.
+    documents_alarm_codes = models.BooleanField(default=False)
+    alarm_codes = models.JSONField(default=list, blank=True)
+    alarm_scan_sha = models.CharField(max_length=64, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

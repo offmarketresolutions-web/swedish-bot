@@ -56,6 +56,13 @@ def ingest_pdf_bytes(machine, data: bytes, filename: str, *, lang: str = "sv",
     doc.parsed_text = text
     doc.token_estimate = max(len(text) // 4, 0)  # ~4 chars/token heuristic
     doc.sha256 = hashlib.sha256(data).hexdigest()
+    # A replaced manual is a different book: drop the alarm-code scan rather than let a
+    # verdict about the OLD bytes govern what we tell customers about the new ones. Cleared
+    # (not re-run) here so an upload never blocks on a model call — kb.alarms treats an
+    # unscanned document as "unknown", i.e. today's behaviour, until scan_alarm_codes runs.
+    doc.documents_alarm_codes = False
+    doc.alarm_codes = []
+    doc.alarm_scan_sha = ""
     old_name = replace.pdf.name if (replace and replace.pdf) else None
     doc.pdf.save(filename, ContentFile(data), save=True)
     # Replace-in-place: remove the superseded physical file (FileField.save doesn't).

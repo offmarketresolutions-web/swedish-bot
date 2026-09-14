@@ -106,6 +106,12 @@ T = {
         # get the line above, forever — "okay yea what do i do" and "yes" included, which
         # reads as a wall rather than an answer.
         "reopen": "Of course — tell me what's going on and I'll help.",
+        # Said INSTEAD of the specialist's own words when the loaded manual documents no
+        # alarm codes at all. It used to answer anyway, inventing a different meaning for
+        # the same code on different runs. Not knowing is the truthful answer here.
+        "code_not_documented": "The manual we have for your {model} doesn't list alarm codes, "
+                               "so I can't tell you what {code} means — and I'd rather say that "
+                               "than guess at it.",
         "chip_yes_send": "Yes, send to Nordland",
         "chip_not_yet": "Not yet",
         "chip_notsure": "Not sure",
@@ -212,6 +218,9 @@ T = {
                    "hantera. Ska jag skicka dina uppgifter till dem?",
         "terminal": "Då är allt klart — Nordland VVS hör av sig. Något mer?",
         "reopen": "Självklart — berätta vad det gäller så hjälper jag dig.",
+        "code_not_documented": "Manualen vi har för din {model} listar inga larmkoder, så jag "
+                               "kan inte säga vad {code} betyder — och det vill jag hellre säga "
+                               "rakt ut än gissa.",
         "chip_yes_send": "Ja, skicka till Nordland",
         "chip_not_yet": "Inte än",
         "chip_notsure": "Vet inte",

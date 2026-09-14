@@ -5,6 +5,7 @@ flushes structured facts to crm.Session. The LLM never controls the flow.
 from __future__ import annotations
 
 import json
+import logging
 import re
 import unicodedata
 
@@ -31,6 +32,8 @@ from core.enums import (
 )
 from core.services import gemini
 from kb import tooling
+
+logger = logging.getLogger(__name__)
 
 CONFIDENCE_GATE = 0.70  # solve a documented in-docs answer; hard safety is the keyword/LLM veto + in_docs cap
 
@@ -1120,6 +1123,30 @@ def _maybe_consult(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale)
     return _parse_json(resp.text)
 
 
+def _code_ungrounded(machine, cs) -> bool:
+    """The customer gave an alarm code and the loaded manual documents none at all.
+
+    Not a judgement call by the model reading the manual — that is the judgement it gets
+    wrong. It is read from kb.alarms, which scanned the manual once, out of band, with
+    vision (the codes live in display photos the text layer misses). Measured live: the
+    IVT AirX 500 manuals define no codes, and the specialist answered "E4 indikerar ett
+    fel med flodesgivaren" on one run and "E4 betyder fel pa extern varmekalla" on
+    another. Two fabrications, one code, told to a homeowner as fact.
+
+    False whenever we are not certain (unscanned manual, no manual, no code), so this can
+    only ever withhold an answer we know to be invented.
+    """
+    if not cs["slots"].get("error_code"):
+        return False
+    from kb import alarms
+    try:
+        return alarms.machine_documents_codes(machine) is False
+    except Exception:  # noqa: BLE001 — a KB hiccup must not change what the customer is told
+        logger.warning("alarm-code lookup failed for machine %s", getattr(machine, "pk", None),
+                       exc_info=True)
+        return False
+
+
 def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=False) -> dict | None:
     from kb.models import Machine
 
@@ -1208,6 +1235,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     common_issues = (prompts.get_agent(role).common_issues or "") if prompts.get_agent(role) else ""
     if general:
         cached, inline = None, []
+        code_ungrounded = False  # no model-specific manual in play to contradict
         render_kwargs = dict(
             locale=locale, brand=cs["slots"].get("brand") or "",
             model=cs["slots"].get("model") or "", category=cs["slots"].get("category") or "",
@@ -1221,6 +1249,7 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
     else:
         brand_notes, faq = context.collect_knowledge(machine, locale, query=cs["slots"].get("problem", ""))
         cached, inline = context.machine_pdf_context(machine, locale)
+        code_ungrounded = _code_ungrounded(machine, cs)
         system = prompts.render(
             "specialist", locale=locale, brand=machine.vendor.name, model=machine.model_name,
             category=machine.category.slug, brand_notes=brand_notes, faq=faq,
@@ -1232,6 +1261,12 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         )
     turn = ("Customer problem: " + sanitize.wrap_untrusted(cs["slots"].get("problem", ""), "problem")
             + f"\nError code: {sanitize.clean_error_code(cs['slots'].get('error_code') or '') or 'none'}.")
+    if code_ungrounded:
+        # Established out of band (kb.alarms), not inferred by this model from the manual it
+        # is holding — which is exactly the judgement it gets wrong.
+        turn += ("\nFACT (verified against the loaded manual, overrides your own reading of it): "
+                 "this manual documents NO alarm/error codes at all. You do not know what this "
+                 "code means. Set in_docs=false and do not state a meaning for it.")
     hist, imgs = _history_parts(conversation)  # carry prior messages + photos to the specialist
     cfg = prompts.config_for(role)
     # Thinking-on-complex (P-C): low identification confidence / error code / urgent.
@@ -1253,6 +1288,8 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         data = _maybe_consult(cs, role, data, render_kwargs, turn, hist, imgs, gen, locale)
 
     answer = _strip_kb_tags(data.get("answer_to_customer"))
+    if code_ungrounded:
+        data["in_docs"] = False  # not the specialist's call to make; the manual has no codes
     # S9: validate model output schema; anything off -> fail-closed to escalate.
     _c = data.get("confidence")
     conf = _c if isinstance(_c, (int, float)) and 0.0 <= _c <= 1.0 else 0.0
@@ -1303,6 +1340,14 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         # Explicit "book service / quote" ask → offer the form chip even mid-escalation (plan S6).
         cs["_emit_form"] = _wants_form(user_text)
         prefix = (answer + "\n\n") if (answer and not unsafe) else ""
+        if code_ungrounded:
+            # Flipping the decision alone would not have helped: the draft answer is
+            # printed ABOVE the handoff, so the invented meaning stayed the first thing
+            # the customer read. Replace it — we know it is ungrounded.
+            prefix = t(locale, "code_not_documented").format(
+                model=machine.model_name if machine else "",
+                code=sanitize.clean_error_code(cs["slots"].get("error_code") or "") or "?"
+            ) + "\n\n"
         if unsafe and (cs.get("gas_emergency") or _GAS_EMERGENCY_RE.search(reason or "")):
             # The classifier vetoed a gas draft: the customer gets the deterministic
             # emergency line, never the bare contact-collection template.
