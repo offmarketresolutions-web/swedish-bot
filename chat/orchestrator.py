@@ -326,11 +326,19 @@ def open_conversation(language: str = "en") -> tuple[Conversation, dict]:
     }
 
 
+def _terminal_key(cs: dict) -> str:
+    """GAP #9 (audit): 'terminal' claims Nordland VVS will follow up — true only once a lead
+    was actually created and dispatched (cs["lead_dispatched"], set at the single call site
+    of leads.create_and_dispatch). Every other close-out — self-fix, declined consent,
+    abandoned contact collection, off-domain, out-of-area — uses the no-claim variant."""
+    return "terminal" if cs.get("lead_dispatched") else "terminal_no_lead"
+
+
 def process_turn(conversation: Conversation, user_text: str = "", image=None) -> dict:
     locale = conversation.language
     cs = conversation.case_state or new_case_state()
     if cs.get("turns", 0) >= getattr(settings, "MAX_TOTAL_TURNS", 25):  # S7 hard ceiling
-        return {"message": t(locale, "terminal"), "chips": [],
+        return {"message": t(locale, _terminal_key(cs)), "chips": [],
                 "state": cs.get("state", STATE_RESOLVED), "events": []}
     Message.objects.create(conversation=conversation, role="user", content=user_text or "", image=image)
 
@@ -893,6 +901,7 @@ def _route(conversation, cs, user_text, events, locale):
         cs["escalation_reason"] = "routing_rule"
         cs["report"]["service_recommended"] = True
         cs["state"] = STATE_ESCALATE
+        cs["_emit_form"] = True  # GAP #5 (audit): mirrors the specialist-escalate site
         events.append({"type": "routing_rule", "action": action})
         flush_to_session(conversation, cs, machine=machine, problem_category=pc)
         return None
@@ -1337,8 +1346,10 @@ def _specialist_step(conversation, cs, user_text, events, locale, *, clarify=Fal
         cs["escalation_reason"] = (reason if unsafe else "") or (
             "low_confidence" if conf < CONFIDENCE_GATE else ("budget" if forced else "decision"))
         events.append({"type": "escalate", "reason": cs["escalation_reason"]})
-        # Explicit "book service / quote" ask → offer the form chip even mid-escalation (plan S6).
-        cs["_emit_form"] = _wants_form(user_text)
+        # GAP #5 (audit): decision="escalate" is one of §13's own trigger conditions — always
+        # true in this branch — so the form chip is no longer gated behind an explicit ask.
+        # form_button_for() still enforces the out-of-area suppression at emission time.
+        cs["_emit_form"] = True
         prefix = (answer + "\n\n") if (answer and not unsafe) else ""
         if code_ungrounded:
             # Flipping the decision alone would not have helped: the draft answer is
@@ -1388,6 +1399,7 @@ def _unsupported_step(conversation, cs, events, locale) -> dict:
     cs["severity"] = data.get("severity") or cs.get("severity") or "normal"
     cs["report"]["service_recommended"] = True
     cs["escalation_reason"] = "unsupported"
+    cs["_emit_form"] = True  # GAP #5 (audit): mirrors the specialist-escalate site — decision="escalate"
     answer = _strip_kb_tags(data.get("answer_to_customer"))
     # GUARD (audit 2026-08-11, run100 A019): unlike _specialist_step, this path never ran
     # its draft through guardrails.is_unsafe() — a prompt-injection persona framed as
@@ -1739,6 +1751,7 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             session.status = "escalated"
             session.save(update_fields=["booking_requested", "status"])
             leads.create_and_dispatch(session, cs.get("escalation_reason", ""))
+            cs["lead_dispatched"] = True  # GAP #9: the only true "Nordland WILL be in touch" signal
             cs["state"] = STATE_RESOLVED
             cs["_emit_form"] = True  # post-lead thanks → offer the website booking form (plan S6)
             name = cs["contact"].get("name") or ""
@@ -1749,6 +1762,12 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             return {"message": prefix + t(locale, "thanks", name_sfx=name_sfx, phone_sfx=phone_sfx),
                     "chips": [], "decision": "escalate"}
         cs["state"] = STATE_RESOLVED
+        # GAP #5 (audit): declining consent still leaves decision="escalate" /
+        # report.service_recommended=True standing from whichever path got us here — §13
+        # says the form button belongs on screen precisely so this customer, who just said
+        # not now, still has a way to reach the booking form later. form_button_for() keeps
+        # enforcing the out-of-area gate regardless of this flag.
+        cs["_emit_form"] = True
         return {"message": t(locale, "not_yet"), "chips": []}
 
     cur = cs.get("contact_slot")
@@ -1824,6 +1843,10 @@ def _escalate_step(conversation, cs, user_text, locale) -> dict:
             cs["contact"]["phone"] = None  # reopen the slot so a given number is captured
             return {"message": t(locale, "need_contact"), "chips": [], "decision": "escalate"}
         cs["state"] = STATE_RESOLVED
+        # GAP #5 (audit): abandoning contact collection here still leaves this an escalated,
+        # service-recommended case per §13 — give them the form as a way to reach Nordland VVS
+        # themselves since we couldn't collect a callback number/email.
+        cs["_emit_form"] = True
         return {"message": t(locale, "no_contact_close"), "chips": []}
 
     cs["contact_slot"] = None
@@ -1856,7 +1879,7 @@ def _terminal_step(cs, user_text, locale) -> dict:
     """
     txt = (user_text or "").strip()
     if not txt or _CLOSING.match(txt):
-        return {"message": t(locale, "terminal"), "chips": []}
+        return {"message": t(locale, _terminal_key(cs)), "chips": []}
 
     # Same customer, same equipment, new problem: keep what identifies them and the machine,
     # clear what described the old fault so the new one is captured on its own terms.

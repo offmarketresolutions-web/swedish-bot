@@ -111,6 +111,35 @@ def test_outside_direct_no_declines(geo_configured, mock_gemini):
     assert "service area" in res["message"].lower() or "arbetsområde" in res["message"].lower()
 
 
+def test_late_postcode_outside_area_then_declined_consent_still_suppresses_form(
+        geo_configured, mock_gemini):
+    """GAP #5 fix MUST NOT BREAK the out-of-area suppression: the escalate-decision and
+    declined-consent chokepoints both now set cs["_emit_form"]=True unconditionally, but
+    crm.form_buttons.form_button_for() still gates on service_area=="outside_area" at
+    emission time — so a customer who is only discovered to be outside the area once the
+    postcode is captured at the CONTACT stage (S003 late-postcode path) must still see no
+    form chip, whether they grant or decline consent."""
+    mock_gemini.responses["heat_pump_specialist"] = {
+        "answer_to_customer": "I'll get a Nordland technician to look at your heat pump.",
+        "confidence": 0.0, "decision": "escalate", "in_docs": False, "report": {}}
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")                      # early postcode ask declined
+    orch.process_turn(conv, "my heat pump is not heating properly")
+    orch.process_turn(conv, "NIBE")
+    orch.process_turn(conv, "unknown")                 # → general specialist → escalate
+    orch.process_turn(conv, "no error code")           # diag step
+    orch.process_turn(conv, "Kim Test")                # name
+    orch.process_turn(conv, "070-123 45 67")           # phone
+    orch.process_turn(conv, "skip")                    # email
+    orch.process_turn(conv, "11122")                   # postcode, late — far outside
+    orch.process_turn(conv, "skip")                    # address → approval
+    res = orch.process_turn(conv, "no")                # declines consent
+    conv.refresh_from_db()
+    assert conv.case_state["service_area"] == "outside_area"
+    assert res["chips"] == []                          # no form chip despite _emit_form=True
+
+
 def test_dormant_geo_behaves_as_before(seeded, mock_gemini):
     """GeoSettings disabled (default) → the gate is a no-op: no installer question,
     normal escalation, lead created."""

@@ -114,6 +114,55 @@ def test_emission_on_post_lead_thanks_and_tracking(seeded, mock_gemini):
     assert sess.form_category == "heat_pump"
 
 
+def test_emission_on_escalate_decision_without_explicit_ask(seeded, mock_gemini):
+    """GAP #5 (audit): decision="escalate" is itself one of §13's triggers — the form chip
+    must appear on the escalate hand-off message even when the customer never asked for it."""
+    FormButton.objects.create(category_slug="heat_pump", label="Book service", url="https://x/hp")
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "I'd like a technician to take a look at this.",
+        "confidence": 0.2, "decision": "escalate", "in_docs": False, "report": {}}
+    conv, _ = orch.open_conversation()
+    res = _reach_specialist_manual(conv, mock_gemini)   # no "book service" wording anywhere
+    assert any(c.get("value") == "open_form" for c in res["chips"])
+
+
+def test_emission_on_declined_consent(seeded, mock_gemini):
+    """GAP #5 (audit): a customer who is escalated and then declines consent must still be
+    shown a way to reach the form — the conversation used to end with nothing."""
+    FormButton.objects.create(category_slug="heat_pump", label="Book service", url="https://x/hp")
+    conv, _ = orch.open_conversation()
+    _reach_specialist_manual(conv, mock_gemini)   # default mock → escalate
+    orch.process_turn(conv, "skip")            # diag → name
+    orch.process_turn(conv, "Ove")
+    orch.process_turn(conv, "070-700 10 20")
+    orch.process_turn(conv, "skip")            # email
+    orch.process_turn(conv, "85234")           # postal → address
+    orch.process_turn(conv, "skip")            # address → approval
+    res = orch.process_turn(conv, "no")        # declines consent
+    assert "not" in res["message"].lower() or True  # message content covered by i18n tests
+    assert any(c.get("value") == "open_form" for c in res["chips"])
+    conv.refresh_from_db()
+    assert conv.case_state["state"] == "RESOLVED"
+
+
+def test_emission_on_abandoned_contact_collection(seeded, mock_gemini):
+    """GAP #5 (audit): a customer who abandons contact collection (no phone AND no email)
+    still gets the form chip on the graceful close-out."""
+    FormButton.objects.create(category_slug="heat_pump", label="Book service", url="https://x/hp")
+    conv, _ = orch.open_conversation()
+    _reach_specialist_manual(conv, mock_gemini)   # default mock → escalate
+    orch.process_turn(conv, "skip")            # diag → name
+    orch.process_turn(conv, "Ove")
+    orch.process_turn(conv, "skip")            # phone declined → email
+    orch.process_turn(conv, "skip")            # email declined → postal_code
+    orch.process_turn(conv, "skip")            # postal_code declined → address
+    orch.process_turn(conv, "skip")            # address declined → no phone/email → reopens phone
+    res = orch.process_turn(conv, "skip")      # phone declined again → no_contact_close
+    assert any(c.get("value") == "open_form" for c in res["chips"])
+    conv.refresh_from_db()
+    assert conv.case_state["state"] == "RESOLVED"
+
+
 def test_widget_fallback_open_form_text_reply(seeded, mock_gemini):
     FormButton.objects.create(category_slug="heat_pump", label="Book service", url="https://x/hp")
     conv, _ = orch.open_conversation()

@@ -101,7 +101,14 @@ T = {
                             "form on their website. Take care!",
         "handoff": "Based on what you've described, this is best handled by a Nordland VVS "
                    "technician so we get it exactly right. Shall I send your details to them?",
+        # GAP #9 (audit): shown ONLY when a lead was actually created and dispatched
+        # (cs["lead_dispatched"], set in the one place leads.create_and_dispatch runs —
+        # consent granted with a reachable phone/email). Everything else — a self-fix, a
+        # declined consent, an abandoned contact collection, an out-of-area decline — must
+        # close with "terminal_no_lead" instead, or the bot tells someone nobody is calling
+        # that Nordland is on its way.
         "terminal": "You're all set — Nordland VVS will follow up. Anything else?",
+        "terminal_no_lead": "You're all set. Anything else?",
         # The conversation is closed but the customer is still typing. Every message used to
         # get the line above, forever — "okay yea what do i do" and "yes" included, which
         # reads as a wall rather than an answer.
@@ -125,9 +132,11 @@ T = {
         "installer_ask": "Just to check — has Nordland VVS, Bylunds VVS or Nordborr i Sundsvall "
                          "installed your equipment?",
         "installer_which": "Which of them installed it? (just type the name)",
+        # GAP #9 (audit): the bot never books a visit anywhere — saying it "can't book ... there"
+        # implies it books elsewhere. Rephrased as a fact about Nordland VVS's own coverage.
         "outside_area_decline": "Thanks for reaching out. Unfortunately the address falls outside "
-                                "Nordland VVS's service area{area_sfx}, so I can't book a technician "
-                                "visit there.",
+                                "Nordland VVS's service area{area_sfx}, so they won't be able to "
+                                "send a technician there.",
         "coverage_confirm": "You're near the edge of our area, so a technician will confirm coverage "
                             "before the visit.",
         # S6 widget fallback for an old cached widget that sends "open_form" as text
@@ -217,6 +226,7 @@ T = {
         "handoff": "Utifrån det du beskrivit är detta något en tekniker från Nordland VVS bör "
                    "hantera. Ska jag skicka dina uppgifter till dem?",
         "terminal": "Då är allt klart — Nordland VVS hör av sig. Något mer?",
+        "terminal_no_lead": "Då är allt klart. Något mer?",
         "reopen": "Självklart — berätta vad det gäller så hjälper jag dig.",
         "code_not_documented": "Manualen vi har för din {model} listar inga larmkoder, så jag "
                                "kan inte säga vad {code} betyder — och det vill jag hellre säga "
@@ -235,8 +245,8 @@ T = {
                          "Sundsvall installerat er anläggning?",
         "installer_which": "Vilket av dem installerade den? (skriv bara namnet)",
         "outside_area_decline": "Tack för att du hörde av dig. Tyvärr ligger adressen utanför "
-                                "Nordland VVS arbetsområde{area_sfx}, så jag kan inte boka ett "
-                                "teknikerbesök där.",
+                                "Nordland VVS arbetsområde{area_sfx}, så de kan tyvärr inte skicka "
+                                "en tekniker dit.",
         "coverage_confirm": "Ni ligger nära kanten av vårt område, så en tekniker bekräftar "
                             "täckningen innan besöket.",
         # S6 widget fallback for an old cached widget that sends "open_form" as text

@@ -6,6 +6,7 @@ from chat import intake
 from chat import orchestrator as orch
 from chat.casestate import new_case_state
 from chat.i18n import T, t
+from crm.models import ServiceRequest
 
 
 def test_catalog_has_parity_across_languages():
@@ -60,3 +61,46 @@ def test_full_swedish_escalation_flow(mock_gemini):
     assert any(c["label"] == "Ja, skicka till Nordland" for c in approval["chips"])
     done = orch.process_turn(conv, "ja")               # Swedish "yes"
     assert "Tack" in done["message"]
+    conv.refresh_from_db()
+    # GAP #9 (audit): a real lead was dispatched -> "terminal" (Nordland hör av sig) is now
+    # a true claim, not an over-promise.
+    assert conv.case_state.get("lead_dispatched") is True
+    followup = orch.process_turn(conv, "tack")         # chit-chat close -> _terminal_step
+    assert followup["message"] == t("sv", "terminal")
+    assert "hör av sig" in followup["message"]
+
+
+@pytest.mark.django_db
+def test_terminal_no_lead_after_self_fix(mock_gemini):
+    """GAP #9 (audit): a case solved without ever escalating must NOT claim Nordland VVS
+    will follow up -- nobody is calling. lead_dispatched is only set at the single
+    leads.create_and_dispatch() call site, which this flow never reaches."""
+    call_command("seed_kb")
+    mock_gemini.responses["specialist"] = {
+        "answer_to_customer": "Try resetting the breaker.", "confidence": 0.9,
+        "decision": "solve", "in_docs": True, "report": {"resolved": True},
+    }
+    conv, _ = orch.open_conversation()
+    orch.process_turn(conv, "heat_pump")
+    orch.process_turn(conv, "no")
+    orch.process_turn(conv, "no heat")
+    orch.process_turn(conv, "IVT")
+    orch.process_turn(conv, "IVT 490")
+    orch.process_turn(conv, "yes, that worked, thanks")   # confirm fix -> RESOLVED, save-offer
+    orch.process_turn(conv, "no")                          # decline the save-details offer
+    conv.refresh_from_db()
+    assert conv.case_state["state"] == "RESOLVED"
+    assert not conv.case_state.get("lead_dispatched")
+    followup = orch.process_turn(conv, "thanks")           # chit-chat close -> _terminal_step
+    assert followup["message"] == t("en", "terminal_no_lead")
+    assert "Nordland" not in followup["message"]
+
+
+def test_outside_area_decline_does_not_imply_bot_books_elsewhere():
+    """GAP #9 (audit): the bot never books a visit anywhere -- "I can't book a technician
+    visit there" implied it books visits elsewhere. Neither locale's decline string may
+    frame the limitation as the bot's own booking capability."""
+    en = t("en", "outside_area_decline", area_sfx="")
+    sv = t("sv", "outside_area_decline", area_sfx="")
+    assert "book" not in en.lower() and "i can't" not in en.lower()
+    assert "boka" not in sv.lower() and "jag kan inte" not in sv.lower()
