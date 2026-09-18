@@ -68,6 +68,47 @@ def test_prefill_endpoint_returns_technical_fields():
     assert "contact" not in body  # no customer linked
 
 
+def test_prefill_endpoint_subtype_is_equipment_subtype_not_fault_class():
+    """Regression (audit COVERAGE.md Tier B #13): "subtype" must carry the equipment
+    sub-type (e.g. liquid_to_water), never problem_category.label (the fault class,
+    e.g. "No heat") — those are two distinct spec §1/§4 fields. A prior version of
+    this test only checked the key existed, so this asserts the VALUE."""
+    from kb.models import Category, ProblemCategory
+
+    cat = Category.objects.create(name="Heat pump", slug="heat_pump")
+    fault = ProblemCategory.objects.create(category=cat, slug="no_heat", label="No heat")
+    conv = Conversation.objects.create(language="sv", case_state={"slots": {"subtype": "liquid_to_water"}})
+    session = Session.objects.create(conversation=conv, category=cat, problem_category=fault)
+    token = make_prefill_token(session)
+    resp = _client_get(f"/api/prefill/{token}")
+    body = resp.json()
+    assert body["technical"]["subtype"] == "liquid_to_water"
+    assert body["technical"]["subtype"] != fault.label
+
+
+def test_prefill_endpoint_carries_ocr_text_and_completed_checks():
+    """Spec §13: OCR results and checks already completed must transfer so the office
+    doesn't re-ask the customer for work already done (audit COVERAGE.md Tier B #14)."""
+    conv = Conversation.objects.create(
+        language="sv", case_state={"slots": {"ocr_text": "Mod: IVT 490 SN: 12345"}})
+    session = Session.objects.create(
+        conversation=conv, troubleshooting_performed=["reset breaker → didn't help"])
+    token = make_prefill_token(session)
+    resp = _client_get(f"/api/prefill/{token}")
+    body = resp.json()
+    assert body["technical"]["ocr_text"] == "Mod: IVT 490 SN: 12345"
+    assert body["technical"]["checks_completed"] == ["reset breaker → didn't help"]
+
+
+def test_prefill_endpoint_omits_ocr_and_checks_when_absent():
+    session = _make_session()
+    token = make_prefill_token(session)
+    resp = _client_get(f"/api/prefill/{token}")
+    body = resp.json()
+    assert body["technical"]["ocr_text"] is None
+    assert body["technical"]["checks_completed"] is None
+
+
 def test_prefill_endpoint_omits_contact_without_consent():
     customer = Customer.objects.create(name="Anna", phone="0701234567", consent_to_contact=False)
     session = _make_session(customer=customer)

@@ -15,7 +15,14 @@ OPTIONAL_SLOTS = ["error_code", "serial"]
 # Multi-fact slots mined per-turn (bulk_extract + specialist extracted_facts). Kept
 # JSON-only unless a Session column exists (plan D1). slots.model stays RAW customer
 # text — never overwritten by a catalog machine name (enforced in every merge site).
-EXTRA_SLOTS = ["subtype", "alarm_text", "onset", "operating_context", "installer", "warranty"]
+# NOTE: "warranty" (plan §1) was dropped from this list (audit COVERAGE.md Tier B
+# #12) — it was declared here but nothing ever wrote it (not chat.intake.bulk_extract,
+# not orchestrator._apply_extracted_facts), so the dashboard/office believed the field
+# was captured when it never was. Wiring real extraction touches bulk_extract's field
+# list and _apply_extracted_facts, both in chat/intake.py + chat/orchestrator.py,
+# neither owned by this fix — deleting the dead declaration is the honest option
+# available here. Re-add it alongside the extractor wiring, not before.
+EXTRA_SLOTS = ["subtype", "alarm_text", "onset", "operating_context", "installer"]
 # address (the installation street address) is asked LAST, right before the send-approval
 # step, and is skippable exactly like email (decline → blank, never blocks the lead).
 CONTACT_SLOTS = ["name", "phone", "email", "postal_code", "address"]

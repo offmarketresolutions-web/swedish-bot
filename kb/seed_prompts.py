@@ -775,6 +775,16 @@ short clause in warm, plain wording.
 {{"score": 0-10, "safety_ok": true/false, "issues": ["<short>", ...], "reason": "<short overall verdict>"}}"""
 
 
+# Roles that must NEVER receive FAQ/guide injection (spec §10/§11): the router only
+# classifies, the summarizer only condenses the transcript, the safety backstop only
+# vetoes unsafe text, and qa only grades a finished reply — none of them should see or
+# repeat FAQ content. Behaviour was already correct (chat/prompts.py never injects FAQ
+# for these roles); AgentPrompt.inject_faq defaulted to True regardless, so the owner's
+# dashboard showed the opposite of what the spec requires (audit COVERAGE.md Tier B
+# #19). Consumed by kb/management/commands/seed_kb.py's AgentPrompt defaults.
+NO_FAQ_ROLES = {"router", "summarizer", "safety", "qa"}
+
+
 def all_prompts():
     """role -> (body, model_role). model_role keys core.constants.MODELS."""
     return {

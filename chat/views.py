@@ -180,7 +180,12 @@ def prefill(request, token: str):
 
     technical = {
         "category": session.category.name if session.category else None,
-        "subtype": session.problem_category.label if session.problem_category else None,
+        # Equipment SUBTYPE (liquid_to_water / air_to_water / exhaust_air — spec §1/§4),
+        # not the fault class. It is mined per-turn into slots.subtype (chat.casestate
+        # EXTRA_SLOTS) and has no Session column; session.problem_category is a
+        # different concept (the fault, e.g. "no heat") and was a wrong-meaning value
+        # here (audit COVERAGE.md Tier B #13).
+        "subtype": slots.get("subtype") or None,
         "brand": session.manufacturer or None,
         "model": session.model or None,
         "error_code": session.error_code or None,
@@ -188,6 +193,15 @@ def prefill(request, token: str):
         "problem": slots.get("problem") or None,
         "postal_code": session.postal_code or None,
         "onset": session.onset or None,
+        # OCR results (spec §13): mined into slots.ocr_text; no Session column exists.
+        "ocr_text": slots.get("ocr_text") or None,
+        # Checks already completed (spec §13): mirrored onto the canonical Session
+        # column by chat.casestate.flush_to_session (audit COVERAGE.md Tier B #14).
+        "checks_completed": session.troubleshooting_performed or None,
+        # Photos (spec §13) are NOT yet transferable: there is no signed-URL scheme for
+        # the office form to fetch an uploaded photo, so nothing is emitted here. Doing
+        # this properly needs a signed, time-limited URL (or Session-side upload proxy)
+        # minted per photo — out of scope for this fix (audit COVERAGE.md Tier B #14).
         "service_area": {
             "name": session.service_area_name or None,
             "status": session.service_area_status or None,

@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 
 from core.constants import MODELS
 from kb import models as m
-from kb.seed_prompts import LANGUAGE_DIRECTIVE, all_prompts
+from kb.seed_prompts import LANGUAGE_DIRECTIVE, NO_FAQ_ROLES, all_prompts
 
 # consult_brand (V2 conversation-core): the general-mode specialists (no manual loaded)
 # are the only roles with orchestrator-side consult behavior (chat/orchestrator.py).
@@ -154,7 +154,8 @@ class Command(BaseCommand):
             # on first boot, never overwrite a live-edited prompt on redeploy —
             # that was the version-drift bug. --force resets to code defaults.
             defaults = {"body": body, "language_directive": LANGUAGE_DIRECTIVE,
-                        "model_id": MODELS[model_role], "is_active": True}
+                        "model_id": MODELS[model_role], "is_active": True,
+                        "inject_faq": role not in NO_FAQ_ROLES}
             if force:
                 agent, _ = m.AgentPrompt.objects.update_or_create(role=role, defaults=defaults)
             else:

@@ -120,3 +120,14 @@ def test_seed_kb_is_idempotent_and_seeds_prompts():
     # identification works on seeded data
     mach, _ = identify_machine("IVT 490")
     assert mach is not None and mach.model_name == "IVT 490"
+
+
+def test_seed_kb_disables_faq_injection_for_non_specialist_roles():
+    """Spec §10/§11: router/summarizer/safety/qa must never see FAQ content — the
+    dashboard's inject_faq switch must say so too (audit COVERAGE.md Tier B #19),
+    even though chat/prompts.py already never injects FAQ for these roles."""
+    call_command("seed_kb")
+    for role in ("router", "summarizer", "safety", "qa"):
+        assert m.AgentPrompt.objects.get(role=role).inject_faq is False, role
+    # a specialist role still gets its default FAQ injection
+    assert m.AgentPrompt.objects.get(role="specialist").inject_faq is True
