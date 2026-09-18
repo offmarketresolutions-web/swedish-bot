@@ -253,3 +253,87 @@ def test_ordinary_customer_parts_are_not_regulated(noun):
     from chat.guardrails import _FORBIDDEN_NOUN
 
     assert not _FORBIDDEN_NOUN.search(noun), f"{noun!r} is a customer-serviceable part"
+
+
+# ── COVERAGE.md Tier A gaps #1-#4 — the keyword veto is the only hard stop, so the
+# LLM classifier failing open must not leave these four instruction classes unvetoed.
+
+def test_swedish_legionella_compounds_are_vetoed_as_instructions():
+    # Swedish welds "legionella cycle/protection/program" into one token; a bare
+    # explanation of what the function IS must still survive to the LLM layer.
+    bad = [
+        "Stäng av legionellafunktionen så sparar du lite el.",
+        "Koppla bort legionellaskyddet permanent.",
+        "Hoppa över legionellaprogrammet den här veckan.",
+    ]
+    for t in bad:
+        unsafe, hit = guardrails.keyword_unsafe(t)
+        assert unsafe, f"should be unsafe: {t!r}"
+        assert hit
+    ok = (
+        "Legionellafunktionen är en inbyggd säkerhetsfunktion som periodiskt höjer "
+        "vattentemperaturen för att döda bakterier — du behöver inte göra något."
+    )
+    unsafe, hit = guardrails.keyword_unsafe(ok)
+    assert not unsafe, f"safe explanation wrongly vetoed ({hit!r}): {ok!r}"
+
+
+def test_control_valve_work_is_vetoed():
+    # §8/§10: opening or stripping the control valve on a pressurised filtration
+    # vessel is exactly what this backstop exists for. No pattern covered it at all.
+    bad = [
+        "Öppna styrventilen och rengör den försiktigt.",
+        "Skruva loss ventilhuvudet och ta ut filtret.",
+        "You can dismantle the control valve yourself to inspect it.",
+    ]
+    for t in bad:
+        unsafe, hit = guardrails.keyword_unsafe(t)
+        assert unsafe, f"should be unsafe: {t!r}"
+        assert hit
+    ok = "Styrventilen sitter inne i filtret — det är en teknikeruppgift, så jag bokar en tekniker."
+    unsafe, hit = guardrails.keyword_unsafe(ok)
+    assert not unsafe, f"safe mention wrongly vetoed ({hit!r}): {ok!r}"
+
+
+def test_pump_start_stop_pressure_is_vetoed():
+    # §8: "alter pump start or stop pressure" — definite form ("stopptrycket") had
+    # no pattern at all, so a draft like this reached the customer today.
+    bad = [
+        "Sänk stopptrycket till 4 bar.",
+        "Justera starttrycket på pumpen uppåt.",
+        "You can adjust the pump's stop pressure yourself.",
+    ]
+    for t in bad:
+        unsafe, hit = guardrails.keyword_unsafe(t)
+        assert unsafe, f"should be unsafe: {t!r}"
+        assert hit
+    ok = "Stopptrycket är fabriksinställt av en tekniker och ska inte ändras av dig."
+    unsafe, hit = guardrails.keyword_unsafe(ok)
+    assert not unsafe, f"safe mention wrongly vetoed ({hit!r}): {ok!r}"
+
+
+def test_six_forbidden_menus_are_vetoed():
+    # §7 lists six professional-only menus/settings; none had a veto pattern.
+    bad = [
+        "Ändra fabriksinställningarna för att fixa felet.",
+        "Justera pumphastigheten till max.",
+        "Öka kompressorbegränsningen så den kan gå snabbare.",
+        "Öka begränsningen för elpatronen så det blir varmare.",  # tillskottsvärme/elpatron
+        "Kalibrera givarna själv med en skruvmejsel.",
+        "Ändra frysskyddsinställningen till -5 grader.",
+    ]
+    for t in bad:
+        unsafe, hit = guardrails.keyword_unsafe(t)
+        assert unsafe, f"should be unsafe: {t!r}"
+        assert hit
+    ok = [
+        "Fabriksinställningarna sätts av tekniker vid service, du behöver inte göra något.",
+        "Pumphastigheten justeras automatiskt av styrenheten.",
+        "Kompressorbegränsningen sätts av tekniker vid installation.",
+        "Elpatronens begränsning ställs in av tekniker vid driftsättning.",
+        "Givarkalibrering görs vid årlig service av tekniker.",
+        "Frysskyddet är aktiverat och skyddar rören mot att frysa sönder.",
+    ]
+    for t in ok:
+        unsafe, hit = guardrails.keyword_unsafe(t)
+        assert not unsafe, f"safe mention wrongly vetoed ({hit!r}): {t!r}"

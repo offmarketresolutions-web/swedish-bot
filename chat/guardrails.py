@@ -37,6 +37,11 @@ _FORBIDDEN_INSTRUCTION = re.compile(
     r"recharge|top ?up (the )?(gas|refrigerant)|braze|re-?pressuriz\w*|"
     r"adjust the pressure switch|drain (the |down )?(heating )?system|"
     r"bypass (the )?(interlock|safety)|disable (the )?safety|legionella (cycle|treatment|flush)|"
+    # Swedish welds legionella compounds into one token (legionellafunktionen,
+    # legionellaskyddet, legionellaprogrammet, legionellacykeln, ...) — gated on an
+    # instruction verb so a plain explanation of what the function IS still survives.
+    r"(st[äa]ng\w* av|koppla (?:bort|ur|f[öo]rbi)|inaktiver\w*|avaktiver\w*|hoppa\w* [öo]ver|"
+    r"skippa\w*) (den |det |p[åa] )?legionella\w*|"
     # Pure electrical / combustion / gas danger — regulated even to name to a customer, so
     # these stay ALWAYS-veto (unlike the refrigerant/pressure NOUNS below, which are exempt
     # on bare mention). Restores the pre-split baseline for this life-safety subset.
@@ -77,7 +82,31 @@ _FORBIDDEN_INSTRUCTION = re.compile(
     # Entering an installer / service menu.
     r"(enter\w*|go into|access\w*|unlock\w*) (the )?(installer|service|engineer) (menu|mode)|"
     r"(g[åa]\w* in i|öppna\w*|l[åa]s\w* upp|aktivera\w*) (installat[öo]rsmeny\w*|serviceläge\w*|servicemeny\w*)|"
-    r"installat[öo]rsmeny\w*|serviceläge\b)\b",
+    r"installat[öo]rsmeny\w*|serviceläge|"
+    # ── Gap-audit Tier A #2: internal control-valve work (§7/§8/§10) — opening or
+    # stripping the control valve on a pressurised filtration vessel is exactly what
+    # this backstop exists for.
+    r"(open\w*|dismantl\w*|disassembl\w*|take apart) (the |a |an |your |this |that )?control valve|"
+    r"(öppna\w*|demonter\w*|ta isär|skruva (?:loss|av)\w*) (den |ett |en |din |er )?"
+    r"(styrventil\w*|ventilhuvud\w*)|"
+    # ── Gap-audit Tier A #3: pump start/stop pressure (§8) ──
+    r"(adjust\w*|chang\w*|set|alter\w*|lower\w*|rais\w*) (the )?(pump'?s? )?(start|stop) pressure|"
+    r"(justera\w*|[äa]ndra\w*|st[äa]ll\w* (?:in|om)|s[äa]nk\w*|h[öo]j\w*) "
+    r"(den |det |p[åa] |pumpens )?(start|stopp)tryck\w*|"
+    # ── Gap-audit Tier A #4: six §7 forbidden menus/settings, verb-gated so a bare
+    # explanation ("kompressorbegränsningen sätts av tekniker") still survives.
+    r"(adjust\w*|chang\w*|set|alter\w*|increas\w*|reduc\w*) (the )?(factory setting\w*|pump speed|"
+    r"compressor limit\w*|sensor calibration|frost protection setting\w*)|"
+    r"(justera\w*|[äa]ndra\w*|st[äa]ll\w* (?:in|om)|[öo]ka\w*|minska\w*) "
+    r"(den |det |p[åa] )?(fabriksinst[äa]llning\w*|pumphastighet\w*|varvtal\w*|"
+    r"kompressorbegr[äa]nsning\w*|frysskydds?inst[äa]llning\w*|givarkalibrering\w*)|"
+    r"kalibrera\w* givar\w*|"
+    # Electric backup / immersion heater limit — no detector existed anywhere for this.
+    r"(increas\w*|reduc\w*|rais\w*|lower\w*|adjust\w*|chang\w*|set) (the )?"
+    r"(electric backup|backup heater|immersion heater) limit\w*|"
+    r"(justera\w*|[äa]ndra\w*|[öo]ka\w*|minska\w*|h[öo]j\w*|s[äa]nk\w*|st[äa]ll\w* (?:in|om)) "
+    r"(den |det |p[åa] )?(begr[äa]nsning\w* (?:f[öo]r |p[åa] )?(?:tillskottsv[äa]rme\w*|elpatron\w*)|"
+    r"(?:tillskottsv[äa]rme\w*|elpatron\w*)s?begr[äa]nsning\w*))\b",
     re.IGNORECASE,
 )
 
