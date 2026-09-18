@@ -152,6 +152,46 @@ change safety-critical behaviour and should be chosen deliberately.
    widget, and the erasure one carries a legal duty. Worth deciding whether these get a
    contact hand-off or stay declined.
 
+## The UI run: 36 of 36
+
+Real Chromium against a real server, desktop and mobile.
+
+First attempt was 28/36, and **six of the eight failures said "För många förfrågningar"**
+— the application's own 429. The e2e harness boots its own server on :8077, which did
+not inherit the raised limits, and the ~80 campaign sessions had already drained the
+per-IP bucket (the rate-limit counter lives in the shared cache — that is what commit
+`b2fa41d` was about). Same lesson as the live run: *check the throttle before reading
+the failure.*
+
+The two real ones:
+
+**Escape did not close the chat on a phone.** The handler was bound to the panel, so it
+only fired when focus was already inside it. On a mobile viewport the opening `focus()`
+is refused — mobile browsers gate focus on a real user gesture — so focus stayed on
+`<body>` and Escape did nothing. The panel is `role="dialog" aria-modal="true"`, and the
+ARIA dialog pattern says Escape dismisses it, not "dismisses it when focus landed
+correctly". On mobile the panel is full-screen and covers the launcher, so this was the
+keyboard's only way out. Fixed in `d411ba7`.
+
+**The model-disambiguation test was stale, and the bot was right.** The transcript:
+
+    USER      Min värmepump krånglar
+    ASSISTANT Vilket postnummer finns anläggningen på?     ← §2.10, postcode early
+    USER      IVT
+    ASSISTANT Vilket postnummer finns anläggningen på?
+
+The category is known from the opener, so the postcode is asked immediately. The test
+predated that change, answered the postcode question with "IVT" and then "Geo", and
+asserted about a model step the conversation had never reached. Corrected to answer the
+question actually on screen.
+
+**That transcript also exposed a real §1 gap, recorded not fixed:** the customer typed
+"IVT" and the case state still holds only `problem` and `category`. §1 requires every
+message mined for all useful facts, not just the active question's answer. A bare token
+fails the `looks_rich` gate, goes to the single-field postcode extractor, and is thrown
+away — so the brand is asked for again later. It belongs in the extraction path and
+deserves its own change rather than a patch here.
+
 ## Verification index
 
 Everything above that is stated as fact was checked, not assumed:
