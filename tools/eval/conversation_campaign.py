@@ -323,7 +323,7 @@ def _human_variety():
         dict(name="elderly terse",
              turns=["kallt", "85230", "vet ej", "vet ej", "vet ej", "vet ej"] + CONTACT,
              expect=says("tekniker|Nordland|service"), lead=True),
-        dict(name="writes in english",
+        dict(name="writes in english", lang="en",
              turns=["Hi, my heat pump is making a loud noise and there is no heat", "85230",
                     "IVT", "AirX 500", "Since yesterday"] + CONTACT,
              expect=says("technician|Nordland|service|tekniker"), lead=True),
@@ -429,7 +429,12 @@ def bot_text(raw):
 def run_one(base, sc):
     t0 = time.monotonic()
     try:
-        sid = json.loads(post(base, "/api/chat/session", payload={"language": "sv"}))["public_id"]
+        # The widget sets the BOT's language explicitly, so a scenario that types English
+        # has to open an English session — opening in Swedish and then writing English is
+        # not a customer any widget produces, and the Swedish reply that came back was the
+        # harness's own doing, not a bug.
+        lang = sc.get("lang", "sv")
+        sid = json.loads(post(base, "/api/chat/session", payload={"language": lang}))["public_id"]
     except Exception as exc:  # noqa: BLE001 — one unreachable scenario must not end the run
         return dict(name=sc["name"], ok=False, why=f"could not start: {exc}",
                     secs=time.monotonic() - t0, sid=None, turns=[])
@@ -466,7 +471,13 @@ def main():
         print(f"missing photo fixtures {missing} — run: uv run python tools/make_test_photos.py")
         return 1
 
-    todo = [s for s in scenarios() if args.only.lower() in s["name"].lower()]
+    # Comma-separated so a failure set can be re-run as one batch. Re-running exactly the
+    # conversations that failed is how you tell a real defect from a starved one: Vertex
+    # quota exhaustion surfaces as the generic "something went wrong" line, which looks
+    # identical to the bot losing the thread.
+    wanted = [p.strip().lower() for p in args.only.split(",") if p.strip()]
+    todo = [s for s in scenarios()
+            if not wanted or any(p in s["name"].lower() for p in wanted)]
     print(f"{len(todo)} conversations against {args.base}\n")
     results = []
     for i, sc in enumerate(todo, 1):
