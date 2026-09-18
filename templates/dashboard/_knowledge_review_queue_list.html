@@ -1,0 +1,61 @@
+{% load i18n %}
+<div id="review-queue" data-testid="review-queue">
+  <p class="text-sm text-nl-base/70 mb-4" data-testid="review-progress">
+    {% blocktrans %}{{ reviewed_count }} of {{ total_count }} reviewed{% endblocktrans %}
+  </p>
+  {% if pending_count %}
+  <form hx-post="{% url 'dash-knowledge-review-bulk-approve' %}" hx-target="#review-queue" hx-swap="outerHTML">
+    {% csrf_token %}
+    <div class="flex items-center justify-between mb-3">
+      <label class="flex items-center gap-2 text-xs text-nl-base/60">
+        <input type="checkbox" data-testid="review-select-all"
+               onclick="this.closest('form').querySelectorAll('[data-testid=review-checkbox]').forEach(function(cb){cb.checked=this.checked}, this)">
+        {% trans "Select all" %}
+      </label>
+      <button type="submit" class="btn btn-primary" data-testid="review-approve-selected">{% trans "Approve selected" %}</button>
+    </div>
+    <div class="space-y-3" data-testid="review-queue-list">
+      {% for e in pending_entries %}
+        <div class="nl-card px-4 py-3 flex items-start gap-3" data-testid="review-queue-row" data-key="entry:{{ e.pk }}">
+          <input type="checkbox" name="selected" value="entry:{{ e.pk }}" data-testid="review-checkbox" class="mt-1.5">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5 mb-1">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-nl-primaryl text-nl-primaryd">{{ e.category.name }}</span>
+              {% for st in e.applicable_subtypes %}<span class="text-xs px-2 py-0.5 rounded-full bg-nl-bg text-nl-base/70">{{ st }}</span>{% endfor %}
+            </div>
+            <p class="text-sm font-medium">{{ e.preview_text.question|default:"—" }}</p>
+            {% if e.preview_text.answer %}
+              <p class="text-sm text-nl-base/80 mt-1 whitespace-pre-line">{{ e.preview_text.answer }}</p>
+            {% else %}
+              <p class="text-sm text-nl-base/50 mt-1 italic">{% trans "No answer text — edit before approving." %}</p>
+            {% endif %}
+          </div>
+          <a class="btn btn-secondary px-2 py-0.5 text-xs shrink-0" data-testid="review-queue-edit"
+             href="{% url 'dash-knowledge-entry-edit' e.pk %}?next={{ request.path|urlencode }}">{% trans "Edit" %}</a>
+        </div>
+      {% endfor %}
+      {% for s in pending_site_faqs %}
+        <div class="nl-card px-4 py-3 flex items-start gap-3" data-testid="review-queue-row" data-key="site:{{ s.pk }}">
+          <input type="checkbox" name="selected" value="site:{{ s.pk }}" data-testid="review-checkbox" class="mt-1.5">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5 mb-1">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-nl-primaryl text-nl-primaryd">{% trans "Site FAQ" %}</span>
+              {% if s.topic %}<span class="text-xs px-2 py-0.5 rounded-full bg-nl-bg text-nl-base/70">{{ s.topic }}</span>{% endif %}
+            </div>
+            <p class="text-sm font-medium">{{ s.question }}</p>
+            {% if s.answer %}
+              <p class="text-sm text-nl-base/80 mt-1 whitespace-pre-line">{{ s.answer }}</p>
+            {% else %}
+              <p class="text-sm text-nl-base/50 mt-1 italic">{% trans "No answer text — edit before approving." %}</p>
+            {% endif %}
+          </div>
+          <a class="btn btn-secondary px-2 py-0.5 text-xs shrink-0" data-testid="review-queue-edit"
+             href="{% url 'dash-knowledge-site-edit' s.pk %}?next={{ request.path|urlencode }}">{% trans "Edit" %}</a>
+        </div>
+      {% endfor %}
+    </div>
+  </form>
+  {% else %}
+    {% include "dashboard/_empty_state.html" with icon='book' heading=_('All caught up') guidance=_('Nothing pending across any family.') %}
+  {% endif %}
+</div>

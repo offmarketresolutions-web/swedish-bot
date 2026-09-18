@@ -1,0 +1,13 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{% trans "Review queue" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}{% trans "Knowledge" %} / {% trans "Review queue" %}{% endblock %}
+{% block content %}
+{% include "dashboard/_page_header.html" with title=_('Review queue') subtitle=_('Every pending entry, any family, in one place.') %}
+
+<div class="flex flex-wrap items-center gap-3 mb-5">
+  <a href="{% url 'dash-knowledge-review-next' %}" class="btn btn-primary" data-testid="review-start">{% trans "Review next" %} →</a>
+  <a href="{% url 'dash-knowledge-index' %}" class="btn btn-secondary" data-testid="review-back-to-knowledge">{% trans "Kunskapsbank" %} →</a>
+</div>
+
+{% include "dashboard/_knowledge_review_queue_list.html" %}
+{% endblock %}

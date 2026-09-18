@@ -1409,6 +1409,14 @@ def faq_approve(request, kind: str, pk: int):
     obj = get_object_or_404(model, pk=pk)
     obj.is_approved = True
     obj.save(update_fields=["is_approved"])
+    # The review-next flow (dashboard/knowledge.py) posts here with a same-site
+    # ?next= so approving advances the owner to the next pending item instead
+    # of dumping them on the flat FAQ page. The FAQ page's own HTMX buttons
+    # never send `next`, so that path is unchanged.
+    from dashboard.knowledge import _next_url
+    nxt = _next_url(request)
+    if nxt:
+        return redirect(nxt)
     resp = render(request, "dashboard/_faq_pending.html", _faq_pending_ctx())
     resp["HX-Trigger"] = _toast("success", "Approved — live in retrieval now ✓")
     return resp
@@ -1425,6 +1433,10 @@ def faq_reject(request, kind: str, pk: int):
         raise Http404
     obj = get_object_or_404(model, pk=pk)
     obj.delete()
+    from dashboard.knowledge import _next_url
+    nxt = _next_url(request)
+    if nxt:
+        return redirect(nxt)
     resp = render(request, "dashboard/_faq_pending.html", _faq_pending_ctx())
     resp["HX-Trigger"] = _toast("info", "Rejected — removed.")
     return resp

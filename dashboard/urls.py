@@ -9,6 +9,10 @@ urlpatterns = [
     path("knowledge/site/<int:pk>/edit/", knowledge.knowledge_site_edit, name="dash-knowledge-site-edit"),
     path("knowledge/<str:kind>/<int:pk>/toggle", knowledge.knowledge_toggle, name="dash-knowledge-toggle"),
     path("knowledge/<str:kind>/<int:pk>/delete", knowledge.knowledge_delete, name="dash-knowledge-delete"),
+    # Cross-family review queue (spec §5 backlog: 102 pending entries, one page)
+    path("knowledge/review/", knowledge.review_queue, name="dash-knowledge-review-queue"),
+    path("knowledge/review/next/", knowledge.review_next, name="dash-knowledge-review-next"),
+    path("knowledge/review/bulk-approve/", knowledge.review_bulk_approve, name="dash-knowledge-review-bulk-approve"),
     path("knowledge/<slug:family>/new/", knowledge.knowledge_entry_new, name="dash-knowledge-new"),
     path("knowledge/<slug:family>/", knowledge.knowledge_page, name="dash-knowledge"),
     # Voice / phone control plane

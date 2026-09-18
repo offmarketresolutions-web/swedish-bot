@@ -6,6 +6,8 @@ FAQEntry.category is NOT nullable in the schema, so the Site page lists SiteFAQ
 rows only (there is no such thing as a category-less FAQEntry)."""
 from __future__ import annotations
 
+from urllib.parse import urlencode
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Q, TextField
 from django.db.models.functions import Cast
@@ -15,7 +17,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from dashboard.forms import KnowledgeEntryForm, SiteFAQForm
-from dashboard.views import _toast
+from dashboard.views import _faq_pending_ctx, _toast
 from kb.models import Category, FAQEntry, SiteFAQ
 
 # family slug (URL) -> root Category slug + staff-facing label. Order = tab order.
@@ -241,3 +243,107 @@ def knowledge_toggle(request, kind: str, pk: int):
 def knowledge_delete(request, kind: str, pk: int):
     get_object_or_404(_kind_model(kind), pk=pk).delete()
     return _list_response(request, "info", "Entry deleted.")
+
+
+# ── Cross-family review queue (spec §5: 102 pending entries is a slog to clear
+# family-by-family) ─────────────────────────────────────────────────────────
+
+def _pending_queue() -> list[tuple[str, int]]:
+    """Every pending FAQEntry + SiteFAQ across all families, as (kind, pk) in a
+    single deterministic order — the same order _faq_pending_ctx already lists
+    them in (category FAQ first by category/order/id, then Site FAQ by
+    topic/question). Single source of truth for both the queue page and the
+    review-next flow, so they never disagree on what "next" means."""
+    ctx = _faq_pending_ctx()
+    queue = [("entry", e.pk) for e in ctx["pending_entries"]]
+    queue += [("site", s.pk) for s in ctx["pending_site_faqs"]]
+    return queue
+
+
+def _review_progress() -> dict:
+    """Corpus-wide 'reviewed of total' — reviewed is always (total - pending),
+    so it only moves forward when something is approved, and stays correct
+    even if a reject deletes a row (total and pending both drop by one)."""
+    total = FAQEntry.objects.count() + SiteFAQ.objects.count()
+    pending = FAQEntry.objects.filter(is_approved=False).count() \
+        + SiteFAQ.objects.filter(is_approved=False).count()
+    return {"reviewed_count": total - pending, "total_count": total}
+
+
+@staff_member_required
+def review_queue(request):
+    """One page listing every pending entry, any family, with checkboxes for
+    bulk-approve. Approve/Edit/Reject per row reuse the existing FAQ pending
+    endpoints — nothing here re-implements approval."""
+    ctx = _faq_pending_ctx()
+    ctx.update(_review_progress())
+    return render(request, "dashboard/knowledge_review_queue.html", ctx)
+
+
+@staff_member_required
+@require_POST
+def review_bulk_approve(request):
+    """Approve only the explicitly checked rows. No 'approve all' — the owner
+    vouches for what they picked, not the whole backlog."""
+    entry_pks, site_pks = [], []
+    for token in request.POST.getlist("selected"):
+        kind, _, raw_pk = token.partition(":")
+        # Match the kind explicitly. Treating "anything that isn't 'entry'" as a SiteFAQ
+        # meant a malformed token ("xyz:5") silently approved SiteFAQ 5 — the wrong row,
+        # approved on the owner's behalf, which is the one thing this queue must not do.
+        if not raw_pk.isdigit() or kind not in ("entry", "site"):
+            continue
+        (entry_pks if kind == "entry" else site_pks).append(int(raw_pk))
+    if entry_pks:
+        FAQEntry.objects.filter(pk__in=entry_pks).update(is_approved=True)
+    if site_pks:
+        SiteFAQ.objects.filter(pk__in=site_pks).update(is_approved=True)
+    n = len(entry_pks) + len(site_pks)
+    ctx = _faq_pending_ctx()
+    ctx.update(_review_progress())
+    resp = render(request, "dashboard/_knowledge_review_queue_list.html", ctx)
+    resp["HX-Trigger"] = _toast("success", f"Approved {n} selected entries.") if n \
+        else _toast("info", "Nothing selected.")
+    return resp
+
+
+@staff_member_required
+def review_next(request):
+    """One pending entry at a time. ?skip=entry:12,site:5 accumulates items the
+    owner has passed over this pass (without approving/rejecting them) so the
+    same order doesn't just hand back the one they skipped; approving or
+    rejecting removes an item from the pending set entirely, so it never needs
+    to be added to the skip list to move on."""
+    skip = {tok for tok in request.GET.get("skip", "").split(",") if tok}
+    queue = _pending_queue()
+    remaining = [(kind, pk) for kind, pk in queue if f"{kind}:{pk}" not in skip]
+
+    ctx = _review_progress()
+    ctx["skip_param"] = ",".join(sorted(skip))
+    ctx["remaining_count"] = len(remaining)
+    ctx["item"] = None
+    if not remaining:
+        return render(request, "dashboard/knowledge_review_next.html", ctx)
+
+    kind, pk = remaining[0]
+    model = _kind_model(kind)
+    obj = get_object_or_404(model, pk=pk)
+    if kind == "entry":
+        obj.preview_text = obj.text("sv") or obj.text("en")
+        edit_url = reverse("dash-knowledge-entry-edit", args=[pk])
+    else:
+        edit_url = reverse("dash-knowledge-site-edit", args=[pk])
+
+    next_url = reverse("dash-knowledge-review-next")
+    this_url = f"{next_url}?{urlencode({'skip': ctx['skip_param']})}" if ctx["skip_param"] else next_url
+    skip_after = ",".join(sorted(skip | {f"{kind}:{pk}"}))
+
+    ctx.update({
+        "item": obj, "kind": kind, "pk": pk,
+        "edit_url": f"{edit_url}?{urlencode({'next': this_url})}",
+        "approve_url": reverse("dash-faq-approve", args=[kind, pk]),
+        "reject_url": reverse("dash-faq-reject", args=[kind, pk]),
+        "this_url": this_url,
+        "skip_url": f"{next_url}?{urlencode({'skip': skip_after})}",
+    })
+    return render(request, "dashboard/knowledge_review_next.html", ctx)

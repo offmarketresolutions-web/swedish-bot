@@ -1,0 +1,55 @@
+{% extends "dashboard/base.html" %}{% load i18n %}
+{% block title %}{% trans "Review next" %} — Nordland VVS{% endblock %}
+{% block breadcrumb %}{% trans "Knowledge" %} / {% trans "Review next" %}{% endblock %}
+{% block content %}
+{% include "dashboard/_page_header.html" with title=_('Review next') subtitle=_('One at a time — approve, edit, reject, or skip.') %}
+
+<p class="text-sm text-nl-base/70 mb-5" data-testid="review-progress">
+  {% blocktrans %}{{ reviewed_count }} of {{ total_count }} reviewed{% endblocktrans %}
+  {% if item %}· {% blocktrans %}{{ remaining_count }} left{% endblocktrans %}{% endif %}
+</p>
+
+{% if item %}
+<div class="nl-card px-5 py-4 max-w-2xl" data-testid="review-next-item" data-key="{{ kind }}:{{ pk }}">
+  <div class="flex flex-wrap items-center gap-1.5 mb-2">
+    {% if kind == 'entry' %}
+      <span class="text-xs px-2 py-0.5 rounded-full bg-nl-primaryl text-nl-primaryd">{{ item.category.name }}</span>
+      {% for st in item.applicable_subtypes %}<span class="text-xs px-2 py-0.5 rounded-full bg-nl-bg text-nl-base/70">{{ st }}</span>{% endfor %}
+    {% else %}
+      <span class="text-xs px-2 py-0.5 rounded-full bg-nl-primaryl text-nl-primaryd">{% trans "Site FAQ" %}</span>
+      {% if item.topic %}<span class="text-xs px-2 py-0.5 rounded-full bg-nl-bg text-nl-base/70">{{ item.topic }}</span>{% endif %}
+    {% endif %}
+  </div>
+  <p class="text-base font-medium mb-2" data-testid="review-next-question">
+    {% if kind == 'entry' %}{{ item.preview_text.question|default:"—" }}{% else %}{{ item.question }}{% endif %}
+  </p>
+  {% if kind == 'entry' %}
+    <p class="text-sm text-nl-base/80 whitespace-pre-line" data-testid="review-next-answer">{{ item.preview_text.answer|default:"" }}</p>
+  {% else %}
+    <p class="text-sm text-nl-base/80 whitespace-pre-line" data-testid="review-next-answer">{{ item.answer }}</p>
+  {% endif %}
+
+  <div class="flex flex-wrap items-center gap-2 mt-4">
+    <form method="post" action="{{ approve_url }}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ this_url }}">
+      <button type="submit" class="btn btn-primary" data-testid="review-approve">{% trans "Approve" %}</button>
+    </form>
+    <a href="{{ edit_url }}" class="btn btn-secondary" data-testid="review-edit">{% trans "Edit" %}</a>
+    <form method="post" action="{{ reject_url }}"
+          onsubmit="return confirm('{% trans "Delete this pending entry?" %}')">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ this_url }}">
+      <button type="submit" class="btn btn-danger" data-testid="review-reject">{% trans "Reject" %}</button>
+    </form>
+    <a href="{{ skip_url }}" class="btn btn-secondary" data-testid="review-skip">{% trans "Skip" %}</a>
+  </div>
+</div>
+{% else %}
+  {% include "dashboard/_empty_state.html" with icon='book' heading=_('All caught up') guidance=_('No pending entries left to review.') %}
+{% endif %}
+
+<div class="mt-6">
+  <a href="{% url 'dash-knowledge-review-queue' %}" class="text-sm text-nl-primary hover:underline" data-testid="review-back-to-queue">← {% trans "Back to review queue" %}</a>
+</div>
+{% endblock %}

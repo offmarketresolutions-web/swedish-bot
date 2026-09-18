@@ -16,6 +16,7 @@
   <span class="nl-card px-3 py-1.5">{% trans "Total" %}: <b>{{ total }}</b></span>
   <span class="nl-card px-3 py-1.5 text-nl-primaryd">{% trans "Approved" %}: <b>{{ approved_count }}</b></span>
   <span class="nl-card px-3 py-1.5 text-nl-base/70">{% trans "Pending" %}: <b>{{ pending_count }}</b></span>
+  <a href="{% url 'dash-knowledge-review-queue' %}" class="btn btn-secondary" data-testid="knowledge-review-queue">{% trans "Review queue" %} →</a>
   <span class="flex-1"></span>
   {% if is_site %}
     <a href="{% url 'dash-site-faq-new' %}" class="btn btn-primary" data-testid="knowledge-new">+ {% trans "Ny post" %}</a>
