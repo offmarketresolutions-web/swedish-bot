@@ -633,11 +633,4 @@ Please review the full workflow and implement the most appropriate technical sol
 * form buttons,
 * and data prefill.
 
-Please also adjust prompts, output schemas, or workflow components wherever the application architecture requires it. Let me know when a schema or contract needs to change so the agent outputs and backend remain aligned. /ponytail /ponytail-review /ponytail-audit /karpathy-guidelines /anthropic-skills:swarm-orchestrator use sonnet and opus for coding and fable as the orcheestrator /gsd-plan-phase /web-atelier:execute-phase /web-atelier:ui-review /grill /grill-me /grill-with-docs
-
-```
-
-/
-
-
-```
+Please also adjust prompts, output schemas, or workflow components wherever the application architecture requires it. Let me know when a schema or contract needs to change so the agent outputs and backend remain aligned.
