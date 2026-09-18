@@ -580,6 +580,16 @@
     save();
   }
   langSel.onchange = function () { switchLang(langSel.value); };
+  // Escape closes the dialog wherever focus happens to be. The handler below only fires
+  // for keystrokes inside the panel, and focus is not guaranteed to be there: on a mobile
+  // viewport the opening focus() call can be refused (mobile browsers gate focus on a real
+  // user gesture), which left focus on <body> and Escape doing nothing at all. The panel is
+  // role="dialog" aria-modal="true", and the ARIA dialog pattern says Escape dismisses it —
+  // not "Escape dismisses it if focus landed correctly". On mobile the panel is full-screen
+  // and covers the launcher, so this was the keyboard's only way out.
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && isOpen()) closePanel();
+  });
   panel.addEventListener("keydown", function (e) {
     if (e.key === "Escape") { e.stopPropagation(); closePanel(); return; }
     if (e.key !== "Tab") return;

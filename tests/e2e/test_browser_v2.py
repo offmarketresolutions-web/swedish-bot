@@ -111,7 +111,13 @@ def test_v2_b_model_disambiguation(page: Page):
     open_widget(page)
 
     send_text(page, "Min värmepump krånglar")
-    # Brand first (chip if offered, else free text).
+    # The postcode comes FIRST now (spec §2.10 — asked as soon as the main category is
+    # known), and this test predated that. It used to answer the postcode question with
+    # "IVT", get re-asked, answer "Geo", get re-asked again, and then assert about a model
+    # step the conversation had never reached. Answer the question actually on screen.
+    send_text(page, "85230")
+
+    # Brand next (chip if offered, else free text).
     ivt_chip = page.locator('[data-testid="chip"][data-value="IVT"]')
     if ivt_chip.count():
         click_chip(page, value="IVT")
